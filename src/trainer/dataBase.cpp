@@ -24,7 +24,7 @@ TrainSample DataBase::read_line(const string &line) {
 	TrainSample new_sample({best_next_move, 1.f}, samples->sInputSize);
 
 	for (int i = 0; (i < samples->sInputSize && token != NULL); i++) {
-		token = strtok(NULL, ":");
+		token = strtok(NULL, " ");
 		new_sample.input[i] = stoi(token);
 	}
 
