@@ -16,7 +16,6 @@ class visualizerController {
 	VisualizerRenderer *renderer;
 	state *Vstate;
 	void stop();
-	void start(const neural_network &network);
 	thread display_thread;
 	void start_visuals(const neural_network &network);
 	void wait_until_updated();
@@ -24,10 +23,11 @@ class visualizerController {
 	void autoPause();
 
   public:
-	visualizerController(const neural_network &network);
+	visualizerController();
 	~visualizerController();
 	void updateDots(const int layer, vector<double> out, vector<double> net);
 	void update(const int layer, const LayerParameters &gradient);
+	void start(const neural_network &network);
 };
 } // namespace Visualizer
 

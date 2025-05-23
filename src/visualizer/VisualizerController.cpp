@@ -4,9 +4,8 @@
 #include <thread>
 
 namespace Visualizer {
-visualizerController::visualizerController(const neural_network &network) {
+visualizerController::visualizerController() {
 	printf("start Visualizer\n");
-	start(network);
 }
 
 visualizerController::~visualizerController() {
@@ -19,6 +18,7 @@ void visualizerController::stop() {
 		if (renderer) {
 			renderer->close();
 		}
+
 		display_thread.join();
 	}
 }

@@ -4,7 +4,10 @@
 #include <iostream>
 #include <vector>
 
-model::model(const int input_size, const int output_size, const int hidden_layers_size, const int hidden_layers_count) : network(input_size, output_size, hidden_layers_size, hidden_layers_count), visual(network) {
+model::model(const int input_size, const int output_size, const int hidden_layers_size, const int hidden_layers_count, const bool use_visual) : network(input_size, output_size, hidden_layers_size, hidden_layers_count), useVisual(use_visual) {
+	if (use_visual)
+		visual.start(network);
+
 	for (int i = 0; i < getLayerCount(); i++) {
 		visual.update(i + 1, network.layers[i]->getParms());
 	}

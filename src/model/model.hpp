@@ -16,7 +16,7 @@ class model {
 	friend class BackPropagation;
 
   public:
-	model(const int input_size, const int output_size, const int hidden_layers_size, const int hidden_layers_count);
+	model(const int input_size, const int output_size, const int hidden_layers_size, const int hidden_layers_count, const bool use_visual);
 	~model() = default;
 	void run_model(const vector<double> &input);
 	const vector<double> &getOutput() const;
@@ -28,6 +28,7 @@ class model {
 	int getHiddenLayerSize() const { return network.hidden_layers_size; }
 	int getHiddenLayerCount() const { return network.hidden_layers_count; }
 	int getLayerCount() const { return network.hidden_layers_count + 1; }
+    const bool useVisual;
 };
 
 #endif // MODEL_HPP

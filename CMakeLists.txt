@@ -5,8 +5,11 @@ project(NeuralNetwork LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(NN_RESOURCE_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts")
+
+find_package(SFML 2.5 COMPONENTS system window graphics REQUIRED)
 
 add_library(NeuralNetwork STATIC
     src/model/AiModel.cpp
@@ -38,6 +41,7 @@ target_include_directories(NeuralNetwork
         $<INSTALL_INTERFACE:include>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${SFML_INCLUDE_DIR}
 )
 
 target_compile_definitions(NeuralNetwork
@@ -46,7 +50,7 @@ target_compile_definitions(NeuralNetwork
 
 if(MSVC)
     target_compile_options(NeuralNetwork PRIVATE /W4)
-else() # GCC/Clang
+else()
     target_compile_options(NeuralNetwork PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
@@ -64,8 +68,21 @@ if(BUILD_TESTING)
         message(WARNING "No test sources found in tests/ directory.")
     else()
         add_executable(run_tests ${TEST_SOURCES})
-        target_link_libraries(run_tests PRIVATE NeuralNetwork)
-        target_include_directories(run_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+        # Link your NeuralNetwork library AND the SFML libraries to run_tests
+        target_link_libraries(run_tests PRIVATE
+            NeuralNetwork
+            SFML::system
+            SFML::window
+            SFML::graphics
+            # Add SFML::network and SFML::audio if your tests or visualizer use them
+        )
+
+        # Ensure tests can find your library's public headers and SFML headers
+        target_include_directories(run_tests PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+            ${SFML_INCLUDE_DIR} # Good practice if tests directly use SFML
+        )
         add_test(NAME all_tests COMMAND run_tests)
     endif()
 endif()

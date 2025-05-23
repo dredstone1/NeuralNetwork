@@ -17,7 +17,7 @@ class AiModel {
 	friend class BackPropagation;
 
   public:
-	AiModel();
+	AiModel(const bool use_visual);
 	AiModel(string file_name);
 
 	int load(const string file_name);

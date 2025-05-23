@@ -1,5 +1,6 @@
 #include "../include/AiModel.hpp"
 #include "Layers/layer.hpp"
+#include "model/model.hpp"
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -8,8 +9,8 @@
 #include <string>
 #include <vector>
 
-AiModel::AiModel() {
-	_model = new model(9, 9, 5, 2);
+AiModel::AiModel(const bool use_visual) {
+	_model = new model(9, 9, 5, 2, use_visual);
 }
 
 AiModel::AiModel(string _file_name) { load(_file_name); }
@@ -33,8 +34,9 @@ int AiModel::load(const string file_name) {
 	int hidden_layers_size = atoi(strtok(NULL, " "));
 	int hidden_layers_count = atoi(strtok(NULL, " "));
 
+	bool useVisual = _model->useVisual;
 	delete _model;
-	_model = new model(input_size, output_size, hidden_layers_size, hidden_layers_count);
+	_model = new model(input_size, output_size, hidden_layers_size, hidden_layers_count, useVisual);
 
 	for (int i = 0; i < _model->getLayerCount(); i++) {
 		Layer &layer = _model->getLayer(i);
