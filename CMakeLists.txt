@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(NeuralNetwork LANGUAGES CXX)
 
-# --- Settings ---
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -9,7 +8,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(NN_RESOURCE_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts")
 
-find_package(SFML 2.5 COMPONENTS system window graphics REQUIRED)
+find_package(SFML 2.6 COMPONENTS system window graphics REQUIRED)
 
 add_library(NeuralNetwork STATIC
     src/model/AiModel.cpp
@@ -68,20 +67,15 @@ if(BUILD_TESTING)
         message(WARNING "No test sources found in tests/ directory.")
     else()
         add_executable(run_tests ${TEST_SOURCES})
-
-        # Link your NeuralNetwork library AND the SFML libraries to run_tests
         target_link_libraries(run_tests PRIVATE
             NeuralNetwork
-            SFML::system
-            SFML::window
-            SFML::graphics
-            # Add SFML::network and SFML::audio if your tests or visualizer use them
+            sfml-graphics
+            sfml-window
+            sfml-system
         )
-
-        # Ensure tests can find your library's public headers and SFML headers
         target_include_directories(run_tests PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/include
-            ${SFML_INCLUDE_DIR} # Good practice if tests directly use SFML
+            ${SFML_INCLUDE_DIR}
         )
         add_test(NAME all_tests COMMAND run_tests)
     endif()

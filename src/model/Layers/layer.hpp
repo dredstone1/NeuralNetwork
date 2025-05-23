@@ -19,7 +19,7 @@ class Layer {
 	LayerParameters *Parameters;
 
   public:
-	Layer(Layer const &other) : destroyParams(1), dots(other.dots.size()),  Parameters(other.Parameters) {}
+	Layer(Layer const &other) : destroyParams(1), dots(other.dots.size()), Parameters(other.Parameters) {}
 	Layer(int _size, int _prev_size, int random = false);
 	virtual LayerType getType() const { return NONE; }
 	virtual void forward(const vector<double> &metrix);

@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 			arg++;
 		}
 
-		AiModel model(mods &visual);
+		AiModel model(mods & visual);
 
 		if (mods & load) {
 			model.load("model1");

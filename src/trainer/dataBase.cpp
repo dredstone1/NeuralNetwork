@@ -56,7 +56,7 @@ int DataBase::load() {
 	}
 
 	samples->samples.shrink_to_fit();
-	cout << "Loaded " << DataBaseLength() << " boards." << endl;
+	cout << "Loaded " << DataBaseLength() << " samples" << endl;
 	file.close();
 
 	return 0;
