@@ -73,11 +73,6 @@ void visualizerController::autoPause() {
 	pause();
 }
 
-void visualizerController::update(const neural_network &network) {
-	if (renderer) {
-	}
-}
-
 void visualizerController::updateDots(const int layer, vector<double> out, vector<double> net) {
 	if (renderer) {
 		renderer->updateDots(layer, out, net);

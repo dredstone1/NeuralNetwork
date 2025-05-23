@@ -44,7 +44,7 @@ const vector<double> &model::getOutput() const {
 }
 
 void model::updateWeights(const gradient &gradients) {
-	for (int i = getLayerCount() - 1; i >=0 ; i--) {
+	for (int i = getLayerCount() - 1; i >= 0; i--) {
 		getLayer(i).add(gradients.gradients[i]);
 		visual.update(i + 1, getLayer(i).getParms());
 	}

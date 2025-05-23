@@ -13,9 +13,9 @@ using namespace std;
 namespace Visualizer {
 class visualNN {
   private:
-	vector<visualL *> layers;
-	const int NnLength;
 	gradient LocalGradient;
+	const int NnLength;
+	vector<visualL *> layers;
 	sf::RenderTexture NNRender;
 	void createNnVisual();
 	void clear();

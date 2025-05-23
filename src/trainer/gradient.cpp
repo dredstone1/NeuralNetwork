@@ -4,7 +4,7 @@ using namespace std;
 
 void gradient::add(const gradient &new_gradient) {
 	for (size_t i = 0; i < gradients.size(); i++) {
-		gradients[i].add(new_gradient.gradients[i]);
+		gradients.at(i).add(new_gradient.gradients.at(i));
 	}
 }
 
@@ -35,7 +35,5 @@ void gradient::multiply(const double value) {
 }
 
 gradient::gradient(const gradient &other) : gradient(other.gradients[0].getPrevSize(), other.gradients[other.gradients.size() - 1].getSize(), other.gradients[0].getSize(), other.gradients.size() - 1) {
-	for (size_t i = 0; i < gradients.size(); i++) {
-		gradients[i] = other.gradients[i];
-	}
+	gradients = other.gradients;
 }

@@ -12,18 +12,18 @@
 
 namespace Visualizer {
 visualL::visualL(Layer const &other, const int size_a) : Layer(other.getSize(), other.getPrevSize(), false), is_params(other.getPrevSize() != 0), WIDTH(calculateWIDTH(size_a, is_params)) {
-	createLayerVisual(size_a);
+	createLayerVisual();
 }
 
 visualL::visualL(int _size, int _prev_size, const int size_a) : Layer(_size, _prev_size), is_params(_prev_size != 0), WIDTH(calculateWIDTH(size_a, is_params)) {
-	createLayerVisual(size_a);
+	createLayerVisual();
 }
 
-const float visualL::calculateWIDTH(const int size_a, const bool is_params) {
+float visualL::calculateWIDTH(const int size_a, const bool is_params) {
 	return ((is_params) ? (NN_WIDTH - NEURON_RADIUS * 2) / (size_a - 1.f) : 2 * NEURON_RADIUS);
 }
 
-void visualL::createLayerVisual(const int size_a) {
+void visualL::createLayerVisual() {
 	layerRender.create(WIDTH, NN_HEIGHT);
 }
 

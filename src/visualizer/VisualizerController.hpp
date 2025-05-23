@@ -27,7 +27,6 @@ class visualizerController {
 	visualizerController(const neural_network &network);
 	~visualizerController();
 	void updateDots(const int layer, vector<double> out, vector<double> net);
-	void update(const neural_network &network);
 	void update(const int layer, const LayerParameters &gradient);
 };
 } // namespace Visualizer

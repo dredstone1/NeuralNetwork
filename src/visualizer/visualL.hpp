@@ -14,7 +14,7 @@ namespace Visualizer {
 class visualL : public Layer {
   private:
 	sf::RenderTexture layerRender;
-	void createLayerVisual(const int size_a);
+	void createLayerVisual();
 	void clear();
 	void display();
 	void drawNeuron(const double input, const double output, sf::Vector2f pos);
@@ -23,7 +23,7 @@ class visualL : public Layer {
 	static float calculateGap(const float size);
 	static float calculateDistance(sf::Vector2f pos1, sf::Vector2f pos2);
 	static float calculateAngle(sf::Vector2f pos1, sf::Vector2f pos2);
-	static const float calculateWIDTH(const int size_a, const bool is_params);
+	static float calculateWIDTH(const int size_a, const bool is_params);
 
   public:
 	visualL(int _size, int _prev_size, const int size_a);

@@ -15,12 +15,12 @@ class VisualizerRenderer {
   private:
 	sf::RenderWindow window;
 	visualNN visualNetwork;
+	state *Vstate;
 	vInteface interface;
 	atomic<int> needUpdate{true};
 	long updatedLayersDot = LONG_MAX;
 	long updatedLayersWeight = LONG_MAX;
 	atomic<bool> running{false};
-	state *Vstate;
 	void update();
 	void renderLoop();
 	void processEvents();

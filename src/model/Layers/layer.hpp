@@ -19,10 +19,10 @@ class Layer {
 	LayerParameters *Parameters;
 
   public:
-	Layer(Layer const &other) : dots(other.dots.size()), destroyParams(1) { Parameters = other.Parameters; }
+	Layer(Layer const &other) : destroyParams(1), dots(other.dots.size()),  Parameters(other.Parameters) {}
 	Layer(int _size, int _prev_size, int random = false);
 	virtual LayerType getType() const { return NONE; }
-	virtual void forward(vector<double> const &metrix) {}
+	virtual void forward(const vector<double> &metrix);
 	const neurons &getDots() const { return dots; }
 	double getWeight(int i, int j) const { return Parameters->weights[i][j]; }
 	void setWeight(int i, int j, double weight) { Parameters->weights[i][j] = weight; }
@@ -34,7 +34,7 @@ class Layer {
 	int getSize() const { return Parameters->getSize(); }
 	int getPrevSize() const { return Parameters->getPrevSize(); }
 	void reset();
-    const LayerParameters getParms();
+	const LayerParameters getParms();
 	~Layer();
 };
 
