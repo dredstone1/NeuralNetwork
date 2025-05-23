@@ -13,9 +13,9 @@ AiModel::AiModel(const bool use_visual) {
 	_model = new model(9, 9, 5, 2, use_visual);
 }
 
-AiModel::AiModel(string _file_name) { load(_file_name); }
+AiModel::AiModel(string _file_name, const bool use_visual) { load(_file_name, use_visual); }
 
-int AiModel::load(const string file_name) {
+int AiModel::load(const string file_name, bool use_visual) {
 	ifstream file(file_name + ".model");
 
 	if (!file.is_open()) {
@@ -34,9 +34,8 @@ int AiModel::load(const string file_name) {
 	int hidden_layers_size = atoi(strtok(NULL, " "));
 	int hidden_layers_count = atoi(strtok(NULL, " "));
 
-	bool useVisual = _model->useVisual;
 	delete _model;
-	_model = new model(input_size, output_size, hidden_layers_size, hidden_layers_count, useVisual);
+	_model = new model(input_size, output_size, hidden_layers_size, hidden_layers_count, use_visual);
 
 	for (int i = 0; i < _model->getLayerCount(); i++) {
 		Layer &layer = _model->getLayer(i);

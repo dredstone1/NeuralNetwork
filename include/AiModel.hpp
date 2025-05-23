@@ -7,8 +7,8 @@
 #define MODEL_FILE_EXTENSION ".model"
 
 typedef struct prediction {
-    const int index;
-    const double value;
+	const int index;
+	const double value;
 } prediction;
 
 class AiModel {
@@ -18,9 +18,9 @@ class AiModel {
 
   public:
 	AiModel(const bool use_visual);
-	AiModel(string file_name);
+	AiModel(string file_name, const bool use_visual);
 
-	int load(const string file_name);
+	int load(const string file_name, const bool use_visual);
 	void save(const string file_name);
 	void run_model(const vector<double> &input);
 	prediction getPrediction();
