@@ -4,7 +4,7 @@
 #include "AiModel.hpp"
 #include "dataBase.hpp"
 #include "gradient.hpp"
-#include "trainer/dataBase.hpp"
+#include "dataBase.hpp"
 
 #define CLIP_GRADIENTS 0.001
 
