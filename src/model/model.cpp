@@ -9,9 +9,7 @@ model::model(Config &_config, const bool use_visual) : network(_config.network_c
 		visual.start(network);
 
 	for (int i = 0; i < getLayerCount(); i++) {
-		printf("test: %d\n", i);
 		visual.update(i + 1, network.layers[i]->getParms());
-		printf("test: %d\n", i);
 	}
 }
 

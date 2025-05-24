@@ -41,9 +41,9 @@ int main(int argc, char *argv[]) {
 		// }
 
 		if (mods & train) {
-			int batch_size = 64, batch_count = 10000;
+			int batch_size = 2, batch_count = 100;
 
-			double learning_rate = 0.000001;
+			double learning_rate = 0.001;
 
 			Trainer trainer(
 			    "database",
@@ -58,6 +58,20 @@ int main(int argc, char *argv[]) {
 		// if (mods & save) {
 		// 	model.save("model1");
 		// }
+
+		int num = 0;
+		string str_num;
+		while (num != 5) {
+			cout << "Enter an integer: ";
+			getline(cin, str_num);
+			num = stoi(str_num);
+			if (num == 5)
+				break;
+			vector<double> input(2, 0);
+			input[num] = 1;
+			model.run_model(input);
+            printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
+		}
 
 		return 0;
 	}

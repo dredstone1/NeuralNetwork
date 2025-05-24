@@ -1,4 +1,5 @@
 #include "backPropagation.hpp"
+#include "AiModel.hpp"
 #include "gradient.hpp"
 #include "model/Layers/Hidden_Layer.hpp"
 #include "model/model.hpp"
@@ -15,7 +16,7 @@ double BackPropagation::get_cross_entropy_loss(const vector<double> &prediction,
 }
 
 double BackPropagation::get_total_error(const neural_network &temp_network, const int target) {
-	return get_cross_entropy_loss(temp_network.layers[temp_network.getLayerCount()]->getOut(), target);
+	return get_cross_entropy_loss(temp_network.layers[temp_network.config.hidden_layer_count()]->getOut(), target);
 }
 
 void BackPropagation::calculate_gradient(const Layer &layer, const vector<double> &deltas, const vector<double> &prevLayer, LayerParameters &gradient_) {

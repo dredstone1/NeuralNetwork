@@ -10,7 +10,6 @@ visualNN::visualNN(const neural_network &network) : config(network.config) {
 
 	layers.push_back(new visualL(config.input_size, 0, network.getLayerCount() + 1));
 	for (int layer = 0; layer < network.getLayerCount(); layer++) {
-		printf("rrr: %d \n", network.layers[layer]->getPrevSize());
 		layers.push_back(new visualL(*network.layers[layer], network.getLayerCount() + 1));
 	}
 

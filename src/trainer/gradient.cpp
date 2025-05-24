@@ -16,16 +16,15 @@ void gradient::reset() {
 
 gradient::gradient(NetworkConfig &_config) : config(_config) {
 	gradients.reserve(config.hidden_layer_count() + 1);
+	int i = 1;
 
-	for (int i = 0; i < config.hidden_layer_count(); i++) {
-		if (i == 0) {
-			gradients.emplace_back(LayerParameters(config.layers_config[i].size, config.input_size));
-		} else {
-			gradients.emplace_back(LayerParameters(config.layers_config[i].size, config.layers_config[i - 1].size));
-		}
+	gradients.emplace_back(LayerParameters(config.layers_config[0].size, config.input_size));
+
+	for (; i < config.hidden_layer_count(); i++) {
+		gradients.emplace_back(LayerParameters(config.layers_config[i].size, config.layers_config[i - 1].size));
 	}
 
-	gradients.emplace_back(LayerParameters(config.output_size, config.layers_config[config.hidden_layer_count()].size));
+	gradients.emplace_back(LayerParameters(config.output_size, config.layers_config[i - 1].size));
 }
 
 void gradient::multiply(const double value) {
