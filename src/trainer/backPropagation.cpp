@@ -86,7 +86,6 @@ double BackPropagation::run_back_propagation(const Batch &batch, const double le
 	double error = 0.0;
 
 	gradient batch_gradient(model.config->network_config);
-
 	for (int i = 0; i < batch_size; i++) {
 		error += run_back_propagation(*batch.samples.at(i), batch_gradient);
 	}

@@ -18,13 +18,14 @@ gradient::gradient(NetworkConfig &_config) : config(_config) {
 	gradients.reserve(config.hidden_layer_count() + 1);
 	int i = 1;
 
-	gradients.emplace_back(LayerParameters(config.layers_config[0].size, config.input_size));
+	if (config.hidden_layer_count() > 0)
+		gradients.emplace_back(LayerParameters(config.layers_config[0].size, config.input_size));
 
 	for (; i < config.hidden_layer_count(); i++) {
 		gradients.emplace_back(LayerParameters(config.layers_config[i].size, config.layers_config[i - 1].size));
 	}
 
-	gradients.emplace_back(LayerParameters(config.output_size, config.layers_config[i - 1].size));
+	gradients.emplace_back(LayerParameters(config.output_size, (config.hidden_layer_count() > 0) ? config.layers_config[i - 1].size : config.input_size));
 }
 
 void gradient::multiply(const double value) {
