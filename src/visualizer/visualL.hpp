@@ -30,6 +30,7 @@ class visualL : public Layer {
 	visualL(int _size, int _prev_size, const int size_a);
 	visualL(Layer const &other, const int size_a);
 	LayerType getType() const override { return LayerType::NONE; }
+	void forward(const vector<double> &metrix) override;
 	sf::Sprite getSprite();
 	void renderLayer();
 	void setDots(vector<double> out, vector<double> net);

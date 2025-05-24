@@ -2,6 +2,9 @@
 #include "../activations.hpp"
 
 void Output_Layer::forward(const vector<double> &metrix) {
+	if (!Parameters)
+		return;
+
 	for (int i = 0; i < dots.size(); i++) {
 		// dots.net[i] = Parameters->bias[i];
 

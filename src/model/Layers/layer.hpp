@@ -35,7 +35,7 @@ class Layer {
 	int getPrevSize() const { return Parameters->getPrevSize(); }
 	void reset();
 	const LayerParameters getParms();
-	~Layer();
+	virtual ~Layer();
 };
 
 #endif // LAYER_HPP
