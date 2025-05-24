@@ -16,16 +16,14 @@ visualL::visualL(Layer const &other, const int size_a) : Layer(other.getSize(), 
 	createLayerVisual();
 }
 
-void visualL::forward(const vector<double> &metrix) {
-	if (metrix[0] == 0) {
-	}
-}
-
 visualL::visualL(int _size, int _prev_size, const int size_a) : Layer(_size, _prev_size), is_params(_prev_size != 0), WIDTH(calculateWIDTH(size_a, is_params)) {
 	createLayerVisual();
 }
 
 float visualL::calculateWIDTH(const int size_a, const bool is_params) {
+	if (is_params && size_a <= 1) {
+		return 2 * NEURON_RADIUS * 5;
+	}
 	return ((is_params) ? (NN_WIDTH - NEURON_RADIUS * 2) / (size_a - 1.f) : 2 * NEURON_RADIUS);
 }
 
@@ -38,7 +36,7 @@ void visualL::display() {
 }
 
 void visualL::clear() {
-	layerRender.clear(sf::Color::Transparent);
+	layerRender.clear(sf::Color::Green);
 }
 
 void visualL::renderLayer() {
@@ -52,6 +50,9 @@ sf::Sprite visualL::getSprite() {
 }
 
 float visualL::calculateGap(const float size) {
+	if (size <= 0)
+		return 0;
+
 	return (NN_HEIGHT - (size * NEURON_RADIUS * 2)) / (size + 1);
 }
 
@@ -62,35 +63,72 @@ float visualL::calculateDistance(sf::Vector2f pos1, sf::Vector2f pos2) {
 float visualL::calculateAngle(sf::Vector2f pos1, sf::Vector2f pos2) {
 	double angleRadians = atan2(pos2.y - pos1.y, pos2.x - pos1.x);
 	double angleDegrees = angleRadians * 180.0 / M_PI;
-	return angleDegrees;
+	return static_cast<float>(angleDegrees);
 }
 
 void visualL::drawWeights(int neuron_i, sf::Vector2f pos, float prevGap) {
+	const float FRACTION_ALONG_LINE = 0.8f;
+	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f;
+
 	for (int neuronP = 0; neuronP < getPrevSize(); neuronP++) {
-		if (Parameters->weights[neuron_i][neuronP] < 0) {
-			continue;
-		}
+		float weightValue = static_cast<float>(Parameters->weights[neuron_i][neuronP]);
 
 		float xP = 0.f;
 		float yP = prevGap + neuronP * (prevGap + NEURON_RADIUS * 2);
 
-		float width = calculateDistance(pos, {xP, yP});
-		float angle = calculateAngle({xP, yP}, pos);
+		sf::Vector2f prevNeuronTopLeft(xP, yP);
 
-		sf::RectangleShape line({width, 1});
+		float lineLength = calculateDistance(prevNeuronTopLeft, pos);
+		float angleDeg = calculateAngle(prevNeuronTopLeft, pos);
+		float angleRad = angleDeg * static_cast<float>(M_PI) / 180.0f;
+
+		float line_thickness_arg = max(min(weightValue, 4.f), 0.1f);
+
+		sf::RectangleShape line;
+		line.setSize({lineLength, line_thickness_arg});
 		line.setFillColor(sf::Color::Black);
-		line.setPosition(xP, yP + NEURON_RADIUS);
-		line.setRotation(angle);
 
-		float Size = (float)Parameters->weights[neuron_i][neuronP];
-		line.setSize({line.getSize().x, Size});
+		sf::Vector2f lineGraphicalOrigin(xP, yP + NEURON_RADIUS);
+		line.setPosition(lineGraphicalOrigin);
+		line.setRotation(angleDeg);
+
 		layerRender.draw(line);
+
+		ostringstream ss;
+		ss << fixed << setprecision(4) << weightValue;
+
+		sf::Text text;
+		text.setFont(Fonts::getFont());
+		text.setCharacterSize(10);
+		text.setString(ss.str());
+		text.setFillColor(sf::Color::Red);
+
+		sf::FloatRect textBounds = text.getLocalBounds();
+		text.setOrigin(textBounds.left + textBounds.width / 2.0f,
+		               textBounds.top + textBounds.height / 2.0f);
+
+		float text_anchor_local_x = FRACTION_ALONG_LINE * lineLength;
+		float text_anchor_local_y = line_thickness_arg / 2.0f;
+
+		float cosA = cosf(angleRad);
+		float sinA = sinf(angleRad);
+
+		float text_pos_x_transformed = lineGraphicalOrigin.x + text_anchor_local_x * cosA - text_anchor_local_y * sinA;
+		float text_pos_y_transformed = lineGraphicalOrigin.y + text_anchor_local_x * sinA + text_anchor_local_y * cosA;
+
+		float final_text_pos_x = text_pos_x_transformed - (neuronP * HORIZONTAL_SHIFT_PER_WEIGHT_TEXT);
+		float final_text_pos_y = text_pos_y_transformed;
+
+		text.setPosition(final_text_pos_x, final_text_pos_y);
+		text.setRotation(angleDeg);
+
+		layerRender.draw(text);
 	}
 }
 
 void visualL::drawNeurons() {
-	float gap = calculateGap(getSize());
-	float prevGap = calculateGap(getPrevSize());
+	float gap = calculateGap(static_cast<float>(getSize()));
+	float prevGap = calculateGap(static_cast<float>(getPrevSize()));
 
 	for (int neuron = 0; neuron < getSize(); neuron++) {
 		float x = WIDTH - NEURON_RADIUS * 2;

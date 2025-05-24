@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 		// }
 
 		if (mods & train) {
-			int batch_size = 2, batch_count = 100;
+			int batch_size = 2, batch_count = 10;
 
 			double learning_rate = 0.001;
 

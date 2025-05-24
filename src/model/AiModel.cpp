@@ -10,13 +10,6 @@ AiModel::AiModel(string config_file, const bool use_visual) {
 	_model = new model(*config, use_visual);
 }
 
-int AiModel::load(const string file_name, bool use_visual) {
-	return 0;
-}
-
-void AiModel::save(const string file_name) {
-}
-
 void AiModel::run_model(const vector<double> &input) {
 	_model->run_model(input);
 }

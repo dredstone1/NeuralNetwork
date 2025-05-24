@@ -49,7 +49,7 @@ void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const v
 vector<double> BackPropagation::calculate_delta_for_output(const vector<double> &out, const int target) {
 	vector<double> deltas(out);
 
-	deltas[target] -= 1.0;
+	deltas[target] += 1.0;
 
 	return deltas;
 }
