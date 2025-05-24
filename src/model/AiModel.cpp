@@ -1,78 +1,20 @@
 #include "../include/AiModel.hpp"
-#include "Layers/layer.hpp"
+#include "model/config.hpp"
 #include "model/model.hpp"
 #include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string.h>
 #include <string>
 #include <vector>
 
-AiModel::AiModel(const bool use_visual) {
-	_model = new model(9, 9, 5, 2, use_visual);
+AiModel::AiModel(string config_file, const bool use_visual) {
+	config = new Config(config_file);
+	_model = new model(*config, use_visual);
 }
 
-AiModel::AiModel(string _file_name, const bool use_visual) { load(_file_name, use_visual); }
-
 int AiModel::load(const string file_name, bool use_visual) {
-	ifstream file(file_name + ".model");
-
-	if (!file.is_open()) {
-		cout << "File not found" << endl;
-		return 1;
-	}
-
-	string line;
-	getline(file, line);
-	file.close();
-	char *line_ = &line[0];
-
-	// TODO: add error handling.
-	int input_size = atoi(strtok(line_, " "));
-	int output_size = atoi(strtok(NULL, " "));
-	int hidden_layers_size = atoi(strtok(NULL, " "));
-	int hidden_layers_count = atoi(strtok(NULL, " "));
-
-	delete _model;
-	_model = new model(input_size, output_size, hidden_layers_size, hidden_layers_count, use_visual);
-
-	for (int i = 0; i < _model->getLayerCount(); i++) {
-		Layer &layer = _model->getLayer(i);
-		for (int j = 0; j < layer.getSize(); j++) {
-			layer.setBias(j, atof(strtok(NULL, " ")));
-
-			for (int k = 0; k < layer.getPrevSize(); k++) {
-				layer.setWeight(j, k, atof(strtok(NULL, " ")));
-			}
-		}
-	}
-
 	return 0;
 }
 
 void AiModel::save(const string file_name) {
-	ostringstream oss;
-	oss << fixed << setprecision(10)
-	    << _model->getInputSize() << " "
-	    << _model->getOutputSize() << " "
-	    << _model->getHiddenLayerSize() << " "
-	    << _model->getHiddenLayerCount() << " ";
-
-	for (int i = 0; i < _model->getLayerCount(); i++) {
-		Layer &layer = _model->getLayer(i);
-		for (int j = 0; j < layer.getSize(); j++) {
-			oss << layer.getBias(j) << " ";
-
-			for (int k = 0; k < layer.getPrevSize(); k++) {
-				oss << layer.getWeight(j, k) << " ";
-			}
-		}
-	}
-
-	ofstream file(file_name + ".model");
-	file << oss.str();
-	file.close();
 }
 
 void AiModel::run_model(const vector<double> &input) {
@@ -92,4 +34,5 @@ prediction AiModel::getPrediction() {
 
 AiModel::~AiModel() {
 	delete _model;
+	delete config;
 }

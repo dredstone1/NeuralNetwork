@@ -14,18 +14,18 @@ void gradient::reset() {
 	}
 }
 
-gradient::gradient(const int input_size, const int output_size, const int hidden_layers_size, const int hidden_layers_count) {
-	gradients.reserve(hidden_layers_count + 1);
+gradient::gradient(NetworkConfig &_config) : config(_config) {
+	gradients.reserve(config.hidden_layer_count() + 1);
 
-	for (int i = 0; i < hidden_layers_count; i++) {
+	for (int i = 0; i < config.hidden_layer_count(); i++) {
 		if (i == 0) {
-			gradients.emplace_back(LayerParameters(hidden_layers_size, input_size));
+			gradients.emplace_back(LayerParameters(config.layers_config[i].size, config.input_size));
 		} else {
-			gradients.emplace_back(LayerParameters(hidden_layers_size, hidden_layers_size));
+			gradients.emplace_back(LayerParameters(config.layers_config[i].size, config.layers_config[i - 1].size));
 		}
 	}
 
-	gradients.emplace_back(LayerParameters(output_size, hidden_layers_size));
+	gradients.emplace_back(LayerParameters(config.output_size, config.layers_config[config.hidden_layer_count()].size));
 }
 
 void gradient::multiply(const double value) {
@@ -34,6 +34,6 @@ void gradient::multiply(const double value) {
 	}
 }
 
-gradient::gradient(const gradient &other) : gradient(other.gradients[0].getPrevSize(), other.gradients[other.gradients.size() - 1].getSize(), other.gradients[0].getSize(), other.gradients.size() - 1) {
+gradient::gradient(const gradient &other) : config(other.config) {
 	gradients = other.gradients;
 }

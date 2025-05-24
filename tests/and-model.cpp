@@ -2,8 +2,6 @@
 #include <iostream>
 #include <trainer.hpp>
 
-#define IS_BIT_ON(x, n) ((x) & (1 << (n)))
-
 using namespace std;
 
 enum mode {
@@ -36,27 +34,27 @@ int main(int argc, char *argv[]) {
 			arg++;
 		}
 
-		AiModel model(mods & visual);
-		//
+		AiModel model("config.json", mods & visual);
+
 		// if (mods & load) {
-		// 	model.load("model1");
+		// 	model.load("model1", mods & visual);
 		// }
-		//
-		// if (mods & train) {
-		// 	int batch_size = 64, batch_count = 10000;
-		//
-		// 	double learning_rate = 0.000001;
-		//
-		// 	Trainer trainer(
-		// 	    "database",
-		// 	    &model,
-		// 	    batch_size,
-		// 	    batch_count,
-		// 	    learning_rate);
-		//
-		// 	trainer.train();
-		// }
-		//
+
+		if (mods & train) {
+			int batch_size = 64, batch_count = 10000;
+
+			double learning_rate = 0.000001;
+
+			Trainer trainer(
+			    "database",
+			    &model,
+			    batch_size,
+			    batch_count,
+			    learning_rate);
+
+			trainer.train();
+		}
+
 		// if (mods & save) {
 		// 	model.save("model1");
 		// }

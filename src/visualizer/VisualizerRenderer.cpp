@@ -30,7 +30,7 @@ void VisualizerRenderer::processEvents() {
 }
 
 void VisualizerRenderer::renderObjects() {
-	visualNetwork.render(updatedLayersDot, updatedLayersWeight);
+	visualNetwork.render();
 
 	sf::Sprite visualNetworkSprite = visualNetwork.getSprite();
 	visualNetworkSprite.setPosition(50, 50);
@@ -59,8 +59,6 @@ void VisualizerRenderer::renderLoop() {
 			update();
 
 			needUpdate = false;
-			updatedLayersWeight = 0;
-			updatedLayersDot = 0;
 		}
 	}
 
@@ -76,18 +74,9 @@ void VisualizerRenderer::start() {
 	renderLoop();
 }
 
-void VisualizerRenderer::setUpdate(int Dot, int Weight) {
-	if (Weight != -1)
-		updatedLayersWeight |= (1 << Weight);
-
-	if (Dot != -1)
-		updatedLayersDot |= (1 << Dot);
-}
-
 void VisualizerRenderer::updateDots(const int layer, vector<double> out, vector<double> net) {
 	visualNetwork.updateDots(layer, out, net);
 	needUpdate = true;
-	setUpdate(layer, -1);
 }
 
 void VisualizerRenderer::update(const int layer, const LayerParameters &gradients) {

@@ -1,6 +1,7 @@
 #ifndef AIMODEL_HPP
 #define AIMODEL_HPP
 
+#include "../src/model/config.hpp"
 #include "../src/model/model.hpp"
 #include <string>
 
@@ -14,12 +15,11 @@ typedef struct prediction {
 class AiModel {
   private:
 	model *_model;
+	Config *config;
 	friend class BackPropagation;
 
   public:
-	AiModel(const bool use_visual);
-	AiModel(string file_name, const bool use_visual);
-
+	AiModel(string config_file, const bool use_visual);
 	int load(const string file_name, const bool use_visual);
 	void save(const string file_name);
 	void run_model(const vector<double> &input);

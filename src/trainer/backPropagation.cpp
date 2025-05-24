@@ -1,41 +1,28 @@
 #include "backPropagation.hpp"
-#include "../model/activations.hpp"
 #include "gradient.hpp"
+#include "model/Layers/Hidden_Layer.hpp"
+#include "model/model.hpp"
 #include "trainer/dataBase.hpp"
 #include <cmath>
 #include <vector>
 
 using namespace std;
 
-BackPropagation::BackPropagation(AiModel &_model) : model(_model), global_gradient(gradient(_model._model->network.input_size, _model._model->network.output_size, _model._model->network.hidden_layers_size, _model._model->network.hidden_layers_count)) {}
+BackPropagation::BackPropagation(AiModel &_model) : model(_model) {}
 
 double BackPropagation::get_cross_entropy_loss(const vector<double> &prediction, const int target) {
 	return -log(prediction[target]);
 }
 
 double BackPropagation::get_total_error(const neural_network &temp_network, const int target) {
-	return get_cross_entropy_loss(
-	    temp_network.layers[temp_network.hidden_layers_count]->getOut(),
-	    target);
-}
-
-double BackPropagation::clip_gradients(double value) {
-	if (value > CLIP_GRADIENTS) {
-		return CLIP_GRADIENTS;
-	}
-
-	if (value < -CLIP_GRADIENTS) {
-		return -CLIP_GRADIENTS;
-	}
-	return value;
+	return get_cross_entropy_loss(temp_network.layers[temp_network.getLayerCount()]->getOut(), target);
 }
 
 void BackPropagation::calculate_gradient(const Layer &layer, const vector<double> &deltas, const vector<double> &prevLayer, LayerParameters &gradient_) {
-	calculate_gradient_for_bias(layer, deltas, gradient_);
 	calculate_gradient_for_weights(layer, prevLayer, deltas, gradient_);
 }
 
-vector<double> BackPropagation::calculate_delta_for_hidden(const Layer &current_layer, const Layer &next_layer, const vector<double> &next_deltas) {
+vector<double> BackPropagation::calculate_delta_for_hidden(const Hidden_Layer &current_layer, const Layer &next_layer, const vector<double> &next_deltas) {
 	vector<double> deltas(current_layer.getSize(), 0.0);
 
 	for (int i = 0; i < current_layer.getSize(); i++) {
@@ -44,22 +31,16 @@ vector<double> BackPropagation::calculate_delta_for_hidden(const Layer &current_
 			deltas[i] += next_deltas[j] * next_layer.getWeight(j, i);
 		}
 
-		deltas[i] *= ActivationFunctions::DerivativeRelu(current_layer.getDots().net[i]);
+		deltas[i] *= current_layer.activate_(current_layer.getDots().net[i]);
 	}
 
 	return deltas;
 }
 
-void BackPropagation::calculate_gradient_for_bias(const Layer &layer, const vector<double> &deltas, LayerParameters &gradients) {
-	for (int i = 0; i < layer.getSize(); i++) {
-		gradients.bias[i] += clip_gradients(deltas[i]);
-	}
-}
-
 void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const vector<double> &prevLayer, const vector<double> &deltas, LayerParameters &gradients) {
 	for (int i = 0; i < layer.getSize(); i++) {
 		for (int j = 0; j < layer.getPrevSize(); j++) {
-			gradients.weights[i][j] += clip_gradients(deltas[i] * prevLayer[j]);
+			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
 	}
 }
@@ -81,7 +62,7 @@ void BackPropagation::calculate_pattern_gradients(const TrainSample &sample, gra
 		if (layer.getType() == OUTPUT) {
 			deltas = calculate_delta_for_output(layer.getOut(), sample._prediction.index);
 		} else {
-			deltas = calculate_delta_for_hidden(layer, *temp_network.layers[layer_index + 1], deltas);
+			deltas = calculate_delta_for_hidden((Hidden_Layer &)layer, *temp_network.layers[layer_index + 1], deltas);
 		}
 
 		if (layer_index == 0) {
@@ -103,13 +84,13 @@ double BackPropagation::run_back_propagation(const Batch &batch, const double le
 	const int batch_size = batch.size();
 	double error = 0.0;
 
-	global_gradient.reset();
+	gradient batch_gradient(model.config->network_config);
 
 	for (int i = 0; i < batch_size; i++) {
-		error += run_back_propagation(*batch.samples.at(i), global_gradient);
+		error += run_back_propagation(*batch.samples.at(i), batch_gradient);
 	}
 
-	update_weights(batch_size, global_gradient, learning_rate);
+	update_weights(batch_size, batch_gradient, learning_rate);
 	return error / batch_size;
 }
 

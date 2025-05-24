@@ -4,11 +4,9 @@
 #include <vector>
 
 using namespace std;
-#define BIAS_INIT 0.0
 
 struct LayerParameters {
 	vector<vector<double>> weights;
-	vector<double> bias;
 	LayerParameters(const int size, const int prev_size, const bool random = false);
 	LayerParameters(LayerParameters const &other);
 	~LayerParameters() = default;

@@ -18,8 +18,8 @@ typedef struct Samples {
 	const int sInputSize;
 	vector<TrainSample> samples;
 	int size() const { return samples.size(); }
-	void add(TrainSample sample);
-	Samples(const int sampleInputSize, const int _size) : sInputSize(sampleInputSize), samples(_size) {}
+	void add(TrainSample sample) { samples.push_back(sample); }
+	Samples(const int sampleInputSize, const int _size) : sInputSize(sampleInputSize) { samples.reserve(_size); }
 } Samples;
 
 typedef struct Batch {

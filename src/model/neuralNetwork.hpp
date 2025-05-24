@@ -2,15 +2,13 @@
 #define NEURAL_NETWORK
 
 #include "Layers/layer.hpp"
+#include "config.hpp"
 
 typedef struct neural_network {
 	vector<Layer *> layers;
-	int const input_size;
-	int const output_size;
-	int const hidden_layers_size;
-	int const hidden_layers_count;
-	int getLayerCount() const { return (this->hidden_layers_count + 1); }
-	neural_network(int _input_size, int _output_size, int _hidden_layers_size, int _hidden_layers_count);
+	NetworkConfig &config;
+	int getLayerCount() const { return (config.hidden_layer_count() + 1); }
+	neural_network(NetworkConfig &network_config);
 	neural_network(const neural_network &other);
 	void reset();
 	~neural_network() = default;

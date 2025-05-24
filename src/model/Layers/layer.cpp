@@ -16,7 +16,7 @@ Layer::~Layer() {
 	}
 }
 
-Layer::Layer(int _size, int _prev_size, int random) : destroyParams(1), dots(_size) {
+Layer::Layer(int _size, int _prev_size, bool random) : destroyParams(1), dots(_size) {
 	Parameters = new LayerParameters(_size, _prev_size, random);
 }
 
@@ -24,12 +24,12 @@ const LayerParameters Layer::getParms() {
 	return *Parameters;
 }
 
-void Layer::forward(const std::vector<double> &metrix) {
+void Layer::forward(const vector<double> &metrix) {
 	if (!Parameters)
 		return;
 
 	for (int i = 0; i < Parameters->getSize(); ++i) {
-		// dots.net[i] = Parameters->bias[i];
+		dots.net[i] = 0;
 
 		for (int j = 0; j < Parameters->getPrevSize(); ++j) {
 			if (j < static_cast<int>(metrix.size())) {

@@ -2,28 +2,30 @@
 #include "Layers/Hidden_Layer.hpp"
 #include "Layers/Output_Layer.hpp"
 #include "Layers/layer.hpp"
+#include "model/activations.hpp"
+#include "model/config.hpp"
 
-neural_network::neural_network(const int _input_size, const int _output_size, const int _hidden_layers_size, const int _hidden_layers_count) : input_size(_input_size), output_size(_output_size), hidden_layers_size(_hidden_layers_size), hidden_layers_count(_hidden_layers_count) {
-	layers.reserve(_hidden_layers_count + 1);
+neural_network::neural_network(NetworkConfig &network_config) : config(network_config){
+	layers.reserve(network_config.hidden_layer_count() + 1);
 
-	int prev_size = input_size;
-	for (int i = 0; i < hidden_layers_count; i++) {
-		Layer *temp = new Hidden_Layer(hidden_layers_size, prev_size);
+	int prev_size = network_config.input_size;
+	for (int i = 0; i < network_config.hidden_layer_count(); i++) {
+		Layer *temp = new Hidden_Layer(network_config.layers_config[i].size, prev_size, ActivationFunctions::leaky_relu_);
 		layers.push_back(temp);
-		prev_size = hidden_layers_size;
+		prev_size = network_config.layers_config[i].size;
 	}
 
-	layers.push_back(new Output_Layer(_output_size, prev_size));
+	layers.push_back(new Output_Layer(network_config.output_size, prev_size));
 }
 
-neural_network::neural_network(neural_network const &other) : input_size(other.input_size), output_size(other.output_size), hidden_layers_size(other.hidden_layers_size), hidden_layers_count(other.hidden_layers_count) {
-	layers.reserve(hidden_layers_count + 1);
+neural_network::neural_network(const neural_network &other) : config(other.config) {
+	layers.reserve(other.getLayerCount() + 1);
 
-	for (int i = 0; i < hidden_layers_count; i++) {
-		layers.push_back(new Hidden_Layer(*(other.layers[i])));
+	for (int i = 0; i < other.getLayerCount(); i++) {
+		layers.push_back(new Hidden_Layer((Hidden_Layer &)*(other.layers[i])));
 	}
 
-	layers.push_back(new Output_Layer(*(other.layers[hidden_layers_count])));
+	layers.push_back(new Output_Layer(*(other.layers[other.getLayerCount()])));
 }
 
 void neural_network::reset() {

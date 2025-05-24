@@ -1,5 +1,4 @@
 #include "../../include/trainer.hpp"
-#include "../utils.hpp"
 #include "dataBase.hpp"
 #include <chrono>
 #include <iostream>
@@ -33,7 +32,7 @@ void Trainer::print_progress_bar(int current, int total) {
 void Trainer::train() {
 	cout << "Training AI" << endl;
 
-	const double graph_resolution = MIN(GRAPH_RESOLUTION, batch_count);
+	const double graph_resolution = min(GRAPH_RESOLUTION, batch_count);
 	const int graph_draw_interval = batch_count / graph_resolution;
 	cout << "Graph resolution: " << graph_resolution << endl;
 	vector<double> errors(graph_resolution, 0.0);
@@ -62,11 +61,6 @@ void Trainer::train() {
 	     << "Training Done!" << endl
 	     << "Training time: " << minutes << " minutes " << seconds << " seconds" << " (" << time_taken_milliseconds << " ms)" << endl;
 
-	// title("cost function");
-	//
-	// plot(errors);
-	//
-	// show();
 	double min = *min_element(errors.begin(), errors.end());
 	printf("Minimum error: %f\n", min);
 }

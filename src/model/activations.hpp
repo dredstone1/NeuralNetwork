@@ -9,31 +9,21 @@ using namespace std;
 namespace ActivationFunctions {
 #define RELU_LEAKY_ALPHA 0.01
 
-// class Activations {
-//   public:
-//     virtual double activation(const double x) const = 0;
-//     virtual double derivative(const double x) const = 0;
-// };
-//
-// class Relu : public Activations {
-//   public:
-//     double activation(const double x) const override;
-//     double derivative(const double x) const override;
-// };
-//
-// class LeakyRelu : public Activations {
-//   public:
-//     double activation(const double x) const override;
-//     double derivative(const double x) const override;
-// };
-//
-// class Softmax {
-//   private:
-//     static double max_vector(const vector<double> &metrix);
-//
-//   public:
-//     static void softmax(neurons &metrix);
-// };
+enum activations {
+	relu_,
+	leaky_relu_,
+	sigmoid_,
+	tanh_,
+    none,
+};
+
+struct ActivationFunction {
+	const activations _activation;
+	ActivationFunction(const activations activation) : _activation(activation) {}
+	ActivationFunction(const ActivationFunction &other) : _activation(other._activation) {}
+	double activate(const double x) const;
+	double DerivativeActivate(const double x) const;
+};
 
 inline double Relu(const double x) {
 	return max(0.0, x);

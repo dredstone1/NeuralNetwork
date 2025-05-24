@@ -2,6 +2,7 @@
 #define GRADIENT_HPP
 
 #include "../model/LayerParameters.hpp"
+#include "../model/config.hpp"
 #include <vector>
 
 using namespace std;
@@ -12,7 +13,8 @@ typedef struct gradient {
 	void multiply(const double value);
 	void reset();
 	~gradient() = default;
-	gradient(const int input_size, const int output_size, const int hidden_layers_size, const int hidden_layers_count);
+    NetworkConfig &config;
+	gradient(NetworkConfig &config);
 	gradient(const gradient &other);
 } gradient;
 

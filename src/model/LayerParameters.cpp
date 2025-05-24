@@ -5,7 +5,6 @@
 
 LayerParameters::LayerParameters(const int size, const int prev_size, const bool random) {
 	weights.resize(size, vector<double>(prev_size, 0.5));
-	bias.resize(size, BIAS_INIT);
 
 	if (!random)
 		return;
@@ -27,8 +26,6 @@ LayerParameters::LayerParameters(const int size, const int prev_size, const bool
 
 void LayerParameters::reset() {
 	for (int i = 0; i < getSize(); i++) {
-		bias[i] = 0.0;
-
 		for (int j = 0; j < getPrevSize(); j++) {
 			weights[i][j] = 0.0;
 		}
@@ -37,8 +34,6 @@ void LayerParameters::reset() {
 
 void LayerParameters::add(const LayerParameters &new_gradient_layer) {
 	for (int i = 0; i < getSize(); i++) {
-		bias[i] += new_gradient_layer.bias[i];
-
 		for (int j = 0; j < getPrevSize(); j++) {
 			weights[i][j] += new_gradient_layer.weights[i][j];
 		}
@@ -47,12 +42,10 @@ void LayerParameters::add(const LayerParameters &new_gradient_layer) {
 
 void LayerParameters::multiply(const double value) {
 	for (int i = 0; i < getSize(); i++) {
-		bias[i] *= value;
-
 		for (int j = 0; j < getPrevSize(); j++) {
 			weights[i][j] *= value;
 		}
 	}
 }
 
-LayerParameters::LayerParameters(LayerParameters const &other) : weights(other.weights), bias(other.bias) {}
+LayerParameters::LayerParameters(LayerParameters const &other) : weights(other.weights) {}

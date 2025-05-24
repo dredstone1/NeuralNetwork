@@ -18,14 +18,11 @@ class VisualizerRenderer {
 	state *Vstate;
 	vInteface interface;
 	atomic<int> needUpdate{true};
-	long updatedLayersDot = LONG_MAX;
-	long updatedLayersWeight = LONG_MAX;
 	atomic<bool> running{false};
 	void update();
 	void renderLoop();
 	void processEvents();
 	void renderObjects();
-	void setUpdate(int Dot, int Weight);
 
   public:
 	VisualizerRenderer(const neural_network &network, state *vstate);

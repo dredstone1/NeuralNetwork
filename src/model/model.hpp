@@ -4,6 +4,7 @@
 #include "../trainer/gradient.hpp"
 #include "../visualizer/VisualizerController.hpp"
 #include "Layers/layer.hpp"
+#include "config.hpp"
 #include "neuralNetwork.hpp"
 
 using namespace Visualizer;
@@ -16,19 +17,18 @@ class model {
 	friend class BackPropagation;
 
   public:
-	model(const int input_size, const int output_size, const int hidden_layers_size, const int hidden_layers_count, const bool use_visual);
+	model(Config &_config, bool use_visual);
 	~model() = default;
 	void run_model(const vector<double> &input);
 	const vector<double> &getOutput() const;
 	void reset();
 	Layer &getLayer(const int i) { return *(network.layers[i]); }
 	void updateWeights(const gradient &gradients);
-	int getOutputSize() const { return network.output_size; }
-	int getInputSize() const { return network.input_size; }
-	int getHiddenLayerSize() const { return network.hidden_layers_size; }
-	int getHiddenLayerCount() const { return network.hidden_layers_count; }
-	int getLayerCount() const { return network.hidden_layers_count + 1; }
-    const bool useVisual;
+	int getOutputSize() const { return network.config.output_size; }
+	int getInputSize() const { return network.config.input_size; }
+	int getHiddenLayerCount() const { return network.config.hidden_layer_count(); }
+	int getLayerCount() const { return network.config.hidden_layer_count() + 1; }
+	const bool useVisual;
 };
 
 #endif // MODEL_HPP
