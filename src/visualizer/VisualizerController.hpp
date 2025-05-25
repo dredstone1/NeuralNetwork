@@ -14,6 +14,7 @@ class visualizerController {
 	mutex mtx;
 	atomic<bool> running{false};
 	VisualizerRenderer *renderer;
+	VisualizerConfig &config;
 	state *Vstate;
 	void stop();
 	thread display_thread;
@@ -21,9 +22,10 @@ class visualizerController {
 	void wait_until_updated();
 	void pause();
 	void autoPause();
+	void initState();
 
   public:
-	visualizerController();
+	visualizerController(VisualizerConfig &config);
 	~visualizerController();
 	void updateDots(const int layer, vector<double> out, vector<double> net);
 	void update(const int layer, const LayerParameters &gradient);

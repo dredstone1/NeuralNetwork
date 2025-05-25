@@ -3,6 +3,7 @@
 
 #include "../model/Layers/layer.hpp"
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <vector>
@@ -21,6 +22,8 @@ class visualL : public Layer {
 	void drawNeuron(const double input, const double output, sf::Vector2f pos);
 	void drawNeurons();
 	void drawWeights(int neuron_i, sf::Vector2f pos, float prevGap);
+	sf::Color getBGcolor();
+	bool need_update;
 	static float calculateGap(const float size);
 	static float calculateDistance(sf::Vector2f pos1, sf::Vector2f pos2);
 	static float calculateAngle(sf::Vector2f pos1, sf::Vector2f pos2);
@@ -35,6 +38,10 @@ class visualL : public Layer {
 	void setDots(vector<double> out, vector<double> net);
 	const bool is_params;
 	const float WIDTH;
+	double setWeight(int i, int j, double weight) {
+		need_update = true;
+		return setWeight(i, j, weight);
+	}
 };
 } // namespace Visualizer
 

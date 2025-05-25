@@ -1,5 +1,6 @@
 #include "state.hpp"
 #include <cstdio>
+#include <cstring>
 
 namespace Visualizer {
 void state::toggle(states state_) {
@@ -22,6 +23,16 @@ string state::getString(states state_) {
 	return statesName[state_];
 }
 
+states state::getStatefromString(string &state_) {
+	for (int i = 0; i < STATES_COUNT; i++) {
+		if (!statesName[i].compare(state_)) {
+			return (states)i;
+		}
+	}
+
+	return None;
+}
+
 bool state::getState(states state_) {
 	switch (state_) {
 	case Pause:
@@ -35,6 +46,22 @@ bool state::getState(states state_) {
 		break;
 	default:
 		return 0;
+		break;
+	}
+}
+
+void state::setState(states state_, bool stateM) {
+	switch (state_) {
+	case Pause:
+		pause.store(stateM);
+		break;
+	case PreciseMode:
+		preciseMode.store(stateM);
+		break;
+	case AutoPause:
+		autoPause.store(stateM);
+		break;
+	default:
 		break;
 	}
 }

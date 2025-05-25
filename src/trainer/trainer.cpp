@@ -1,5 +1,6 @@
 #include "../../include/trainer.hpp"
 #include "dataBase.hpp"
+#include "model/config.hpp"
 #include <chrono>
 #include <iostream>
 #include <sstream>
@@ -32,24 +33,24 @@ void Trainer::print_progress_bar(int current, int total) {
 void Trainer::train() {
 	cout << "Training AI" << endl;
 
-	const double graph_resolution = min(GRAPH_RESOLUTION, batch_count);
-	const int graph_draw_interval = batch_count / graph_resolution;
+	const double graph_resolution = min(GRAPH_RESOLUTION, config.batch_count);
+	const int graph_draw_interval = config.batch_count / graph_resolution;
 	cout << "Graph resolution: " << graph_resolution << endl;
 	vector<double> errors(graph_resolution, 0.0);
 	double error = 0.0;
 
 	const auto start = chrono::high_resolution_clock::now();
 
-	for (int loop_index = 0; loop_index < batch_count; loop_index++) {
-		Batch batch = dataBase.get_Batch(batch_size);
-		error += backPropagation.run_back_propagation(batch, learning_rate);
+	for (int loop_index = 0; loop_index < config.batch_count; loop_index++) {
+		Batch batch = dataBase.get_Batch(config.batch_size);
+		error += backPropagation.run_back_propagation(batch, config.learning_rate);
 
 		if ((loop_index + 1) % graph_draw_interval == 0) {
 			errors[loop_index / graph_draw_interval] = error / graph_draw_interval;
 			error = 0.0;
 		}
 
-		print_progress_bar(loop_index + 1, batch_count);
+		print_progress_bar(loop_index + 1, config.batch_count);
 	}
 
 	const auto end = chrono::high_resolution_clock::now();
@@ -65,12 +66,7 @@ void Trainer::train() {
 	printf("Minimum error: %f\n", min);
 }
 
-Trainer::Trainer(string _file_name, AiModel *_model, int _batch_size, int _batch_count, double _learning_rate)
-    : dataBase(_file_name), backPropagation(*_model) {
-	file_name = _file_name;
+Trainer::Trainer(AiModel *_model) : config(_model->getConfig().config_data.training_config), dataBase(config.db_filename), backPropagation(*_model) {
 	model = _model;
-	batch_size = _batch_size;
-	batch_count = _batch_count;
-	learning_rate = _learning_rate;
 	last_progress = -1;
 }

@@ -1,6 +1,7 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+#include "activations.hpp"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
@@ -9,8 +10,9 @@ using namespace std;
 
 struct LayerConfig {
 	int size;
+	ActivationFunctions::activations activation;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, activation);
 
 struct NetworkConfig {
 	int input_size;
@@ -20,10 +22,36 @@ struct NetworkConfig {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, layers_config);
 
+struct TrainingConfig {
+	double learning_rate;
+	int batch_size;
+	int batch_count;
+	string db_filename;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TrainingConfig, learning_rate, batch_size, batch_count, db_filename)
+
+struct VisualMode {
+	string state;
+	bool mode;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
+
+struct VisualizerConfig {
+	vector<VisualMode> modes;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualizerConfig, modes);
+
+struct ConfigData {
+	NetworkConfig network_config;
+	TrainingConfig training_config;
+	VisualizerConfig visualizer_config;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ConfigData, network_config, training_config, visualizer_config);
+
 class Config {
   public:
 	Config(const string &config_filepath);
-	NetworkConfig network_config;
+	ConfigData config_data;
 
   private:
 };

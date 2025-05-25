@@ -44,7 +44,7 @@ void vInteface::handleNoClick() {
 
 void vInteface::renderInterface() {
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
-        buttons[button_]->render();
+		buttons[button_]->render();
 		sf::Sprite buttonSprite = sf::Sprite(buttons[button_]->getSprite());
 		buttonSprite.setPosition(0, button_ * (BUTTON_HEIGHT + 10));
 		VRender.draw(buttonSprite);

@@ -36,12 +36,19 @@ void visualL::display() {
 }
 
 void visualL::clear() {
-	layerRender.clear(sf::Color::Green);
+	layerRender.clear(getBGcolor());
+}
+
+sf::Color visualL::getBGcolor() {
+	if (need_update)
+		return sf::Color::Yellow;
+	return sf::Color::Green;
 }
 
 void visualL::renderLayer() {
 	clear();
 	drawNeurons();
+    need_update = false;
 }
 
 sf::Sprite visualL::getSprite() {
@@ -169,5 +176,6 @@ void visualL::drawNeuron(const double input, const double output, sf::Vector2f p
 void visualL::setDots(vector<double> out, vector<double> net) {
 	dots.net = net;
 	dots.out = out;
+	need_update = true;
 }
 } // namespace Visualizer

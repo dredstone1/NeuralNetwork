@@ -45,12 +45,7 @@ int main(int argc, char *argv[]) {
 
 			double learning_rate = 0.001;
 
-			Trainer trainer(
-			    "database",
-			    &model,
-			    batch_size,
-			    batch_count,
-			    learning_rate);
+			Trainer trainer(&model);
 
 			trainer.train();
 		}
@@ -70,7 +65,7 @@ int main(int argc, char *argv[]) {
 			vector<double> input(2, 0);
 			input[num] = 1;
 			model.run_model(input);
-            printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
+			printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
 		}
 
 		return 0;

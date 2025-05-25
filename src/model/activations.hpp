@@ -10,11 +10,11 @@ namespace ActivationFunctions {
 #define RELU_LEAKY_ALPHA 0.01
 
 enum activations {
-	relu_,
-	leaky_relu_,
-	sigmoid_,
-	tanh_,
-    none,
+	relu_ = 0,
+	leaky_relu_ = 1,
+	sigmoid_ = 2,
+	tanh_ = 3,
+	none = 4,
 };
 
 struct ActivationFunction {

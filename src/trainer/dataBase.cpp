@@ -57,8 +57,6 @@ int DataBase::load() {
 
 	samples->samples.shrink_to_fit();
 	cout << "Loaded " << DataBaseLength() << " samples" << endl;
-    printf("sample1 : %d, %f, %f\n", samples->samples[0]._prediction.index, samples->samples[0].input[0], samples->samples[0].input[1]);
-    printf("sample2 : %d, %f, %f\n", samples->samples[1]._prediction.index, samples->samples[1].input[0], samples->samples[1].input[1]);
 	file.close();
 
 	return 0;

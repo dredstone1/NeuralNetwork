@@ -27,8 +27,12 @@ typedef struct state {
 	atomic<bool> preciseMode{true};
 	atomic<bool> autoPause{true};
 	void toggle(states state_);
+	void toggle(string state_) { toggle(getStatefromString(state_)); }
 	string getString(states state_);
-    bool getState(states state_);
+	states getStatefromString(string &_state);
+	bool getState(states state_);
+	void setState(states state_, bool stateM);
+	void setState(string &state_, bool stateM) { setState(getStatefromString(state_), stateM); }
 } state;
 } // namespace Visualizer
 

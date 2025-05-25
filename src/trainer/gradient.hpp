@@ -13,7 +13,7 @@ typedef struct gradient {
 	void multiply(const double value);
 	void reset();
 	~gradient() = default;
-    NetworkConfig &config;
+	NetworkConfig &config;
 	gradient(NetworkConfig &config);
 	gradient(const gradient &other);
 } gradient;

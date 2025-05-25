@@ -14,6 +14,7 @@ double ActivationFunction::activate(const double x) const {
 	case none:
 		return x;
 	}
+	return x;
 }
 
 double ActivationFunction::DerivativeActivate(const double x) const {
@@ -29,6 +30,7 @@ double ActivationFunction::DerivativeActivate(const double x) const {
 	case none:
 		return x;
 	}
+	return x;
 }
 
 static double max_vector(const vector<double> &metrix) {

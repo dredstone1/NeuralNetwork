@@ -14,14 +14,14 @@ button::button(state *_state, const string lable, const states Cstate) : State(_
 
 void button::renderButton() {
 	buttonRender.create(BUTTON_WIDTH, BUTTON_HEIGHT);
-    buttonRender.clear(getBgColor());
+	buttonRender.clear(getBgColor());
 	drawText();
 	visibleState = State->getState(CurrentState);
 }
 
 sf::Color button::getBgColor() {
 	if (State->getState(CurrentState))
-	    return sf::Color::Yellow;
+		return sf::Color::Yellow;
 	else
 		return sf::Color::White;
 }

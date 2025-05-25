@@ -11,18 +11,15 @@
 
 class Trainer {
   private:
-	string file_name;
+	TrainingConfig &config;
 	DataBase dataBase;
 	AiModel *model;
 	BackPropagation backPropagation;
-	int batch_size;
-	int batch_count;
 	void print_progress_bar(int current, int total);
 	int last_progress;
-	double learning_rate;
 
   public:
-	Trainer(string _file_name, AiModel *_model, int _batch_size, int _batch_count, double _learning_rate);
+	Trainer(AiModel *_model);
 	void train();
 	~Trainer() = default;
 };

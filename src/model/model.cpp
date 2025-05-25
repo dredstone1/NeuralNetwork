@@ -1,10 +1,11 @@
 #include "model.hpp"
 #include "neuralNetwork.hpp"
+#include "visualizer/VisualizerController.hpp"
 #include <cmath>
 #include <iostream>
 #include <vector>
 
-model::model(Config &_config, const bool use_visual) : network(_config.network_config), useVisual(use_visual) {
+model::model(Config &_config, const bool use_visual) : network(_config.config_data.network_config), visual(_config.config_data.visualizer_config), useVisual(use_visual) {
 	if (use_visual)
 		visual.start(network);
 

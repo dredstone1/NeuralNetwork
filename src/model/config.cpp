@@ -13,7 +13,7 @@ Config::Config(const string &config_filepath) {
 	nlohmann::json j;
 	try {
 		ifs >> j;
-		this->network_config = j.get<NetworkConfig>();
+		this->config_data = j.get<ConfigData>();
 
 	} catch (const nlohmann::json::parse_error &e) {
 		cerr << "JSON parse error in file '" << config_filepath << "':\n"

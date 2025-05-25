@@ -20,6 +20,7 @@ class AiModel {
 	AiModel(string config_file, const bool use_visual);
 	void run_model(const vector<double> &input);
 	prediction getPrediction();
+	Config &getConfig() { return *config; }
 	~AiModel();
 };
 

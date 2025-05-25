@@ -16,20 +16,20 @@ class button {
 	sf::RenderTexture buttonRender;
 	state *State;
 	const states CurrentState;
-    bool visibleState;
+	bool visibleState;
 	const string lable;
 	void sendCommand();
 	void renderButton();
 	void display();
 	void drawText();
-    sf::Color getBgColor();
+	sf::Color getBgColor();
 
   public:
 	button(state *_state, string lable, const states state_);
 	~button() = default;
 	sf::Sprite getSprite();
 	bool checkForClick(sf::Vector2f mousePos, sf::Vector2f boxPos);
-    void render();
+	void render();
 };
 } // namespace Visualizer
 

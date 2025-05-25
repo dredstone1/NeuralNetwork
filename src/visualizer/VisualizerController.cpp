@@ -1,11 +1,22 @@
 #include "VisualizerController.hpp"
 #include "VisualizerRenderer.hpp"
+#include "model/config.hpp"
+#include <cstddef>
 #include <cstdio>
 #include <thread>
 
 namespace Visualizer {
-visualizerController::visualizerController() : renderer(NULL) {
+visualizerController::visualizerController(VisualizerConfig &_config) : renderer(NULL), config(_config) {
 	printf("start Visualizer\n");
+}
+
+void visualizerController::initState() {
+	if (!Vstate)
+		return;
+
+	for (size_t i = 0; i < config.modes.size(); i++) {
+		Vstate->setState(config.modes[i].state, config.modes[i].mode);
+	}
 }
 
 visualizerController::~visualizerController() {
@@ -37,6 +48,9 @@ void visualizerController::start_visuals(const neural_network &network) {
 	Vstate = new state;
 	if (!Vstate)
 		return;
+
+	initState();
+
 	renderer = new VisualizerRenderer(network, Vstate);
 	if (!renderer)
 		return;
