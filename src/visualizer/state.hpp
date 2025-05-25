@@ -28,6 +28,7 @@ typedef struct state {
 	atomic<bool> autoPause{true};
 	void toggle(states state_);
 	string getString(states state_);
+    bool getState(states state_);
 } state;
 } // namespace Visualizer
 

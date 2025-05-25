@@ -9,13 +9,21 @@
 
 namespace Visualizer {
 button::button(state *_state, const string lable, const states Cstate) : State(_state), CurrentState(Cstate), lable(lable) {
-	createButton();
+	renderButton();
 }
 
-void button::createButton() {
+void button::renderButton() {
 	buttonRender.create(BUTTON_WIDTH, BUTTON_HEIGHT);
-	buttonRender.clear(sf::Color::Yellow);
+    buttonRender.clear(getBgColor());
 	drawText();
+	visibleState = State->getState(CurrentState);
+}
+
+sf::Color button::getBgColor() {
+	if (State->getState(CurrentState))
+	    return sf::Color::Yellow;
+	else
+		return sf::Color::White;
 }
 
 void button::drawText() {
@@ -51,6 +59,12 @@ bool button::checkForClick(sf::Vector2f mousePos, sf::Vector2f boxPos) {
 	}
 
 	return false;
+}
+
+void button::render() {
+	if (State->getState(CurrentState) != visibleState) {
+		renderButton();
+	}
 }
 
 } // namespace Visualizer
