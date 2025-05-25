@@ -4,7 +4,6 @@
 #include "../LayerParameters.hpp"
 #include "../neuron.hpp"
 
-
 enum LayerType {
 	HIDDEN,
 	OUTPUT,

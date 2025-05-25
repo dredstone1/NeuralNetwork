@@ -17,13 +17,12 @@ class visualL : public Layer {
   private:
 	sf::RenderTexture layerRender;
 	void createLayerVisual();
-	void clear();
+	void clear(const bool render);
 	void display();
 	void drawNeuron(const double input, const double output, sf::Vector2f pos);
 	void drawNeurons();
 	void drawWeights(int neuron_i, sf::Vector2f pos, float prevGap);
-	sf::Color getBGcolor();
-	bool need_update;
+	sf::Color getBGcolor(const bool render);
 	static float calculateGap(const float size);
 	static float calculateDistance(sf::Vector2f pos1, sf::Vector2f pos2);
 	static float calculateAngle(sf::Vector2f pos1, sf::Vector2f pos2);
@@ -34,14 +33,10 @@ class visualL : public Layer {
 	visualL(Layer const &other, const int size_a);
 	LayerType getType() const override { return LayerType::NONE; }
 	sf::Sprite getSprite();
-	void renderLayer();
+	void renderLayer(const bool render);
 	void setDots(vector<double> out, vector<double> net);
 	const bool is_params;
 	const float WIDTH;
-	double setWeight(int i, int j, double weight) {
-		need_update = true;
-		return setWeight(i, j, weight);
-	}
 };
 } // namespace Visualizer
 

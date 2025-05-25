@@ -5,7 +5,7 @@
 #include <cstdio>
 
 namespace Visualizer {
-visualNN::visualNN(const neural_network &network) : config(network.config) {
+visualNN::visualNN(const neural_network &network) : config(network.config), current_rendred_layer(0) {
 	layers.reserve(network.getLayerCount() + 1);
 
 	layers.push_back(new visualL(config.input_size, 0, network.getLayerCount() + 1));
@@ -42,7 +42,7 @@ void visualNN::render() {
 }
 
 void visualNN::renderLayer(const int layer, const float posx) {
-	layers[layer]->renderLayer();
+	layers[layer]->renderLayer(layer == current_rendred_layer);
 	sf::Sprite newSprite = layers[layer]->getSprite();
 	newSprite.setPosition(posx, 0);
 
@@ -55,10 +55,12 @@ sf::Sprite visualNN::getSprite() {
 }
 
 void visualNN::updateDots(const int layer, vector<double> out, vector<double> net) {
+    current_rendred_layer = layer;
 	layers[layer]->setDots(out, net);
 }
 
 void visualNN::update(const int layer, const LayerParameters &gradients) {
+    current_rendred_layer = layer;
 	layers[layer]->add(gradients);
 }
 } // namespace Visualizer

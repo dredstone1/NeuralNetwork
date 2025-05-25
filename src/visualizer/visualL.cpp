@@ -1,5 +1,6 @@
 #include "visualL.hpp"
 #include "fonts.hpp"
+#include "model/Layers/layer.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -35,20 +36,19 @@ void visualL::display() {
 	layerRender.display();
 }
 
-void visualL::clear() {
-	layerRender.clear(getBGcolor());
+void visualL::clear(const bool render) {
+	layerRender.clear(getBGcolor(render));
 }
 
-sf::Color visualL::getBGcolor() {
-	if (need_update)
+sf::Color visualL::getBGcolor(const bool render) {
+	if (render)
 		return sf::Color::Yellow;
 	return sf::Color::Green;
 }
 
-void visualL::renderLayer() {
-	clear();
+void visualL::renderLayer(const bool render) {
+	clear(render);
 	drawNeurons();
-    need_update = false;
 }
 
 sf::Sprite visualL::getSprite() {
@@ -176,6 +176,6 @@ void visualL::drawNeuron(const double input, const double output, sf::Vector2f p
 void visualL::setDots(vector<double> out, vector<double> net) {
 	dots.net = net;
 	dots.out = out;
-	need_update = true;
 }
+
 } // namespace Visualizer

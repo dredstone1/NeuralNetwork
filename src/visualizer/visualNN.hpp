@@ -15,6 +15,7 @@ class visualNN {
 	NetworkConfig &config;
 	vector<visualL *> layers;
 	sf::RenderTexture NNRender;
+    int current_rendred_layer;
 	void createNnVisual();
 	void clear();
 	void display();
