@@ -25,15 +25,18 @@ void vStatus::renderStatus() {
 	drawText();
 }
 
-void vStatus::drawText() {
+string vStatus::get_text() {
 	ostringstream ss;
-	ss << NNmodeName[(int)vstate->nnMode.load()] << endl;
+	ss << "current phase: " << NNmodeName[(int)vstate->nnMode.load()] << endl;
+	return ss.str();
+}
+
+void vStatus::drawText() {
 	sf::Text text;
 	text.setFont(Fonts::getFont());
 	text.setCharacterSize(30);
-	text.setString(ss.str());
+	text.setString(get_text());
 	text.setFillColor(sf::Color::Black);
-	text.setPosition(2, 2);
 	VRender.draw(text);
 }
 

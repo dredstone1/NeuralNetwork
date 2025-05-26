@@ -21,6 +21,7 @@ class vStatus {
 	void display();
 	void drawText();
 	void clear();
+	string get_text();
 
   public:
 	vStatus(state *vstate_);
