@@ -1,6 +1,7 @@
 #include "visualNN.hpp"
 #include "visualL.hpp"
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <bits/types/locale_t.h>
 #include <cstdio>
 

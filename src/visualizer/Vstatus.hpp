@@ -12,6 +12,8 @@ using namespace std;
 namespace Visualizer {
 #define VSTATUS_WIDTH 500
 #define VSTATUS_HEIGHT 585
+#define STATUS_TEXT_FONT 30
+#define CURRENT_PHASE_TEXT "current phase: "
 
 class vStatus {
   private:

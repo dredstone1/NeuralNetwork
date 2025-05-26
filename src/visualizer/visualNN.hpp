@@ -5,6 +5,7 @@
 #include "visualL.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <vector>
 
 using namespace std;
@@ -15,7 +16,7 @@ class visualNN {
 	NetworkConfig &config;
 	vector<visualL *> layers;
 	sf::RenderTexture NNRender;
-    int current_rendred_layer;
+	int current_rendred_layer;
 	void createNnVisual();
 	void clear();
 	void display();

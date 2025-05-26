@@ -27,14 +27,14 @@ void vStatus::renderStatus() {
 
 string vStatus::get_text() {
 	ostringstream ss;
-	ss << "current phase: " << NNmodeName[(int)vstate->nnMode.load()] << endl;
+	ss << CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << endl;
 	return ss.str();
 }
 
 void vStatus::drawText() {
 	sf::Text text;
 	text.setFont(Fonts::getFont());
-	text.setCharacterSize(30);
+	text.setCharacterSize(STATUS_TEXT_FONT);
 	text.setString(get_text());
 	text.setFillColor(sf::Color::Black);
 	VRender.draw(text);

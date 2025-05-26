@@ -2,9 +2,9 @@
 #define VISUALIZER
 
 #include "VInterface.hpp"
+#include "Vstatus.hpp"
 #include "state.hpp"
 #include "visualNN.hpp"
-#include "Vstatus.hpp"
 #include <SFML/Graphics.hpp>
 #include <atomic>
 #include <climits>
@@ -36,7 +36,7 @@ class VisualizerRenderer {
 	bool updateStatus() { return needUpdate; }
 	void start();
 	void update(const int layer, const LayerParameters &gradients);
-    void setNewPhaseMode(const NNmode nn_mode);
+	void setNewPhaseMode(const NNmode nn_mode);
 };
 } // namespace Visualizer
 #endif

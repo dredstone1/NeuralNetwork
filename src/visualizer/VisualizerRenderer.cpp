@@ -94,7 +94,7 @@ VisualizerRenderer::~VisualizerRenderer() {
 }
 
 void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
-    Vstate->nnMode.store(nn_mode);    
-    needUpdate = true;
+	Vstate->nnMode.store(nn_mode);
+	needUpdate = true;
 }
 } // namespace Visualizer

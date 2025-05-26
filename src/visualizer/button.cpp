@@ -30,7 +30,7 @@ void button::drawText() {
 	ostringstream ss;
 	sf::Text text;
 	text.setFont(Fonts::getFont());
-	text.setCharacterSize(30);
+	text.setCharacterSize(BUTTON_TEXT_FONT);
 	text.setString(lable);
 	text.setFillColor(sf::Color::Black);
 	text.setPosition(2, 2);

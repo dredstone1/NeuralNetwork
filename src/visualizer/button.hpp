@@ -10,6 +10,7 @@
 namespace Visualizer {
 #define BUTTON_HEIGHT 50
 #define BUTTON_WIDTH 200
+#define BUTTON_TEXT_FONT 30
 
 class button {
   private:
