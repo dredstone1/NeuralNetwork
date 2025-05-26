@@ -9,9 +9,9 @@
 #include <vector>
 
 namespace Visualizer {
-#define NN_HEIGHT 700
+#define NN_HEIGHT 770
 #define NEURON_RADIUS 20.f
-#define NN_WIDTH 1000
+#define NN_WIDTH 1055
 
 class visualL : public Layer {
   private:

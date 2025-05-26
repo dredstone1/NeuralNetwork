@@ -12,7 +12,8 @@ using namespace std;
 
 namespace Visualizer {
 #define VINTERFACE_WIDTH 500
-#define VINTERFACE_HEIGHT 700
+#define VINTERFACE_HEIGHT 170
+#define BUTTON_GAP 10
 
 class vInteface {
   private:

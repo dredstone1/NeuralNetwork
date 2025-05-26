@@ -18,7 +18,7 @@ void vInteface::createVInterface() {
 	buttons.reserve(STATES_COUNT);
 
 	for (int i = 0; i < STATES_COUNT; i++) {
-		buttons.push_back(new button(vstate, vstate->getString((states)i), (states)i));
+		buttons.push_back(new button(vstate, vstate->getStateString((states)i), (states)i));
 	}
 }
 
@@ -46,7 +46,7 @@ void vInteface::renderInterface() {
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
 		buttons[button_]->render();
 		sf::Sprite buttonSprite = sf::Sprite(buttons[button_]->getSprite());
-		buttonSprite.setPosition(0, button_ * (BUTTON_HEIGHT + 10));
+		buttonSprite.setPosition(0, button_ * (BUTTON_HEIGHT + BUTTON_GAP));
 		VRender.draw(buttonSprite);
 	}
 }

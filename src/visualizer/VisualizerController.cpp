@@ -1,6 +1,7 @@
 #include "VisualizerController.hpp"
 #include "VisualizerRenderer.hpp"
 #include "model/config.hpp"
+#include "visualizer/state.hpp"
 #include <cstddef>
 #include <cstdio>
 #include <thread>
@@ -119,6 +120,18 @@ void visualizerController::update(const int layer, const LayerParameters &gradie
 		}
 
 		renderer->update(layer, gradient_);
+		handleStates();
+	}
+}
+
+void visualizerController::setNewPhaseMode(const NNmode nn_mode) {
+	if (checkP()) {
+		if (!running) {
+			stop();
+			return;
+		}
+        
+		renderer->setNewPhaseMode(nn_mode);
 		handleStates();
 	}
 }

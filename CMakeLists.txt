@@ -34,6 +34,7 @@ add_library(NeuralNetwork STATIC
     src/visualizer/button.cpp
     src/visualizer/fonts.cpp
     src/model/config.cpp
+    src/visualizer/Vstatus.cpp
 )
 
 target_include_directories(NeuralNetwork

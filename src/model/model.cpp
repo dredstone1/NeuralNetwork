@@ -1,6 +1,7 @@
 #include "model.hpp"
 #include "neuralNetwork.hpp"
 #include "visualizer/VisualizerController.hpp"
+#include "visualizer/state.hpp"
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -28,6 +29,7 @@ void print_vector(const vector<double> &metrix) {
 }
 
 void model::run_model(const vector<double> &input, neural_network &temp_network) {
+	visual.setNewPhaseMode(NNmode::Forword);
 	visual.updateDots(0, input, input);
 	temp_network.layers[0]->forward(input);
 	visual.updateDots(1, temp_network.layers[0]->getOut(), temp_network.layers[0]->getNet());
@@ -49,6 +51,8 @@ const vector<double> &model::getOutput() const {
 }
 
 void model::updateWeights(const gradient &gradients) {
+	visual.setNewPhaseMode(NNmode::Backward);
+
 	for (int i = getLayerCount() - 1; i >= 0; i--) {
 		getLayer(i).add(gradients.gradients[i]);
 		visual.update(i + 1, getLayer(i).getParms());

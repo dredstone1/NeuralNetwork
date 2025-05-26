@@ -4,6 +4,7 @@
 #include "VInterface.hpp"
 #include "state.hpp"
 #include "visualNN.hpp"
+#include "Vstatus.hpp"
 #include <SFML/Graphics.hpp>
 #include <atomic>
 #include <climits>
@@ -11,12 +12,15 @@
 using namespace std;
 
 namespace Visualizer {
+#define UI_GAP 15
+
 class VisualizerRenderer {
   private:
 	sf::RenderWindow window;
 	visualNN visualNetwork;
 	state *Vstate;
 	vInteface interface;
+	vStatus statusV;
 	atomic<int> needUpdate{true};
 	atomic<bool> running{false};
 	void update();
@@ -32,6 +36,7 @@ class VisualizerRenderer {
 	bool updateStatus() { return needUpdate; }
 	void start();
 	void update(const int layer, const LayerParameters &gradients);
+    void setNewPhaseMode(const NNmode nn_mode);
 };
 } // namespace Visualizer
 #endif

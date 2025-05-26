@@ -9,7 +9,7 @@ using namespace std;
 namespace Visualizer {
 #define STATES_COUNT 3
 
-enum states {
+enum class states {
 	Pause,
 	PreciseMode,
 	AutoPause,
@@ -22,13 +22,25 @@ const string statesName[] = {
     "auto pause",
 };
 
+enum class NNmode {
+	Forword,
+	Backward,
+	None,
+};
+
+const string NNmodeName[] = {
+    "Forword",
+    "Backward",
+};
+
 typedef struct state {
 	atomic<bool> pause{false};
 	atomic<bool> preciseMode{true};
 	atomic<bool> autoPause{true};
+	atomic<NNmode> nnMode{NNmode::Forword};
 	void toggle(states state_);
 	void toggle(string state_) { toggle(getStatefromString(state_)); }
-	string getString(states state_);
+	string getStateString(states state_);
 	states getStatefromString(string &_state);
 	bool getState(states state_);
 	void setState(states state_, bool stateM);

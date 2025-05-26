@@ -8,7 +8,7 @@
 #include <SFML/System/Vector2.hpp>
 
 namespace Visualizer {
-#define BUTTON_HEIGHT 100
+#define BUTTON_HEIGHT 50
 #define BUTTON_WIDTH 200
 
 class button {
