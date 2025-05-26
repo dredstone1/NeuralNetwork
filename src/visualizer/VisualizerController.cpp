@@ -66,7 +66,7 @@ void visualizerController::wait_until_updated() {
 	if (!renderer || !Vstate->preciseMode)
 		return;
 
-	while (renderer->updateStatus()) {
+	while (renderer->updateStatus() && running) {
 		this_thread::sleep_for(1ms);
 	}
 }
@@ -75,7 +75,7 @@ void visualizerController::pause() {
 	if (!renderer || !Vstate)
 		return;
 
-	while (Vstate->pause) {
+	while (Vstate->pause && running) {
 		this_thread::sleep_for(10ms);
 	}
 }
@@ -86,21 +86,40 @@ void visualizerController::autoPause() {
 	pause();
 }
 
+void visualizerController::handleStates() {
+	if (!running)
+		return;
+
+	wait_until_updated();
+	pause();
+	autoPause();
+}
+
+bool visualizerController::checkP() {
+	return (renderer && Vstate);
+}
+
 void visualizerController::updateDots(const int layer, vector<double> out, vector<double> net) {
-	if (renderer) {
+	if (checkP()) {
+		if (!running) {
+			stop();
+			return;
+		}
+
 		renderer->updateDots(layer, out, net);
-		wait_until_updated();
-		pause();
-		autoPause();
+		handleStates();
 	}
 }
 
 void visualizerController::update(const int layer, const LayerParameters &gradient_) {
-	if (renderer) {
+	if (checkP()) {
+		if (!running) {
+			stop();
+			return;
+		}
+
 		renderer->update(layer, gradient_);
-		wait_until_updated();
-		pause();
-		autoPause();
+		handleStates();
 	}
 }
 } // namespace Visualizer

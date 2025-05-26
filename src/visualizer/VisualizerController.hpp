@@ -19,10 +19,12 @@ class visualizerController {
 	void stop();
 	thread display_thread;
 	void start_visuals(const neural_network &network);
+	bool checkP();
 	void wait_until_updated();
 	void pause();
 	void autoPause();
 	void initState();
+	void handleStates();
 
   public:
 	visualizerController(VisualizerConfig &config);
