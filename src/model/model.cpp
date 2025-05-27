@@ -9,10 +9,6 @@
 model::model(Config &_config, const bool use_visual) : network(_config.config_data.network_config), visual(_config.config_data.visualizer_config), useVisual(use_visual) {
 	if (use_visual)
 		visual.start(network);
-
-	for (int i = 0; i < getLayerCount(); i++) {
-		visual.update(i + 1, network.layers[i]->getParms());
-	}
 }
 
 void model::run_model(const vector<double> &input) {
@@ -30,6 +26,7 @@ void print_vector(const vector<double> &metrix) {
 
 void model::run_model(const vector<double> &input, neural_network &temp_network) {
 	visual.setNewPhaseMode(NNmode::Forword);
+
 	visual.updateDots(0, input, input);
 	temp_network.layers[0]->forward(input);
 	visual.updateDots(1, temp_network.layers[0]->getOut(), temp_network.layers[0]->getNet());

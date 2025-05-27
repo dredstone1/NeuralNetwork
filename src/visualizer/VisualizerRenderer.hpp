@@ -1,6 +1,7 @@
 #ifndef VISUALIZER
 #define VISUALIZER
 
+#include "../model/neuralNetwork.hpp"
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "state.hpp"

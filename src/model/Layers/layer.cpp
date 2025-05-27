@@ -16,7 +16,7 @@ Layer::~Layer() {
 	}
 }
 
-Layer::Layer(int _size, int _prev_size, bool random) : destroyParams(1), dots(_size) {
+Layer::Layer(int _size, int _prev_size, double random) : destroyParams(1), dots(_size) {
 	Parameters = new LayerParameters(_size, _prev_size, random);
 }
 

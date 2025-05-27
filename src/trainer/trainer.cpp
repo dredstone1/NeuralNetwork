@@ -2,6 +2,7 @@
 #include "dataBase.hpp"
 #include "model/config.hpp"
 #include <chrono>
+#include <cstdio>
 #include <iostream>
 #include <sstream>
 
@@ -42,7 +43,7 @@ void Trainer::train() {
 	const auto start = chrono::high_resolution_clock::now();
 
 	for (int loop_index = 0; loop_index < config.batch_count; loop_index++) {
-		Batch batch = dataBase.get_Batch(config.batch_size);
+		Batch &batch = dataBase.get_Batch();
 		error += backPropagation.run_back_propagation(batch, config.learning_rate);
 
 		if ((loop_index + 1) % graph_draw_interval == 0) {
@@ -66,7 +67,7 @@ void Trainer::train() {
 	printf("Minimum error: %f\n", min);
 }
 
-Trainer::Trainer(AiModel *_model) : config(_model->getConfig().config_data.training_config), dataBase(config.db_filename), backPropagation(*_model) {
+Trainer::Trainer(AiModel *_model) : config(_model->getConfig().config_data.training_config), dataBase(config), backPropagation(*_model) {
 	model = _model;
 	last_progress = -1;
 }

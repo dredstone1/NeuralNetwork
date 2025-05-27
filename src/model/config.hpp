@@ -10,17 +10,19 @@ using namespace std;
 
 struct LayerConfig {
 	int size;
+	double weights_init_value;
 	ActivationFunctions::activations activation;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, activation);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, activation, weights_init_value);
 
 struct NetworkConfig {
 	int input_size;
 	int output_size;
+	double output_init_value;
 	vector<LayerConfig> layers_config;
 	int hidden_layer_count() const { return layers_config.size(); }
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, layers_config);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, output_init_value, layers_config);
 
 struct TrainingConfig {
 	double learning_rate;

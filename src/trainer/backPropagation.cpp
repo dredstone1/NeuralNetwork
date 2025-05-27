@@ -82,12 +82,18 @@ double BackPropagation::run_back_propagation(const TrainSample &sample, gradient
 }
 
 double BackPropagation::run_back_propagation(const Batch &batch, const double learning_rate) {
-	const int batch_size = batch.size();
+	const size_t batch_size = batch.size();
 	double error = 0.0;
 
 	gradient batch_gradient(model.config->config_data.network_config);
-	for (int i = 0; i < batch_size; i++) {
-		error += run_back_propagation(*batch.samples.at(i), batch_gradient);
+
+	if (batch_size == 0) {
+		return 0.0;
+	}
+
+	for (size_t i = 0; i < batch_size; i++) {
+		TrainSample *current_sample_ptr = batch.samples_ptrs.at(i);
+		error += run_back_propagation(*current_sample_ptr, batch_gradient);
 	}
 
 	update_weights(batch_size, batch_gradient, learning_rate);

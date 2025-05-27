@@ -1,4 +1,5 @@
 #include "VisualizerRenderer.hpp"
+#include "model/neuralNetwork.hpp"
 #include "state.hpp"
 #include "visualL.hpp"
 #include "visualNN.hpp"

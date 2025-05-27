@@ -1,4 +1,5 @@
 #include <AiModel.hpp>
+#include <cstddef>
 #include <iostream>
 #include <trainer.hpp>
 
@@ -36,34 +37,27 @@ int main(int argc, char *argv[]) {
 
 		AiModel model("config.json", mods & visual);
 
-		// if (mods & load) {
-		// 	model.load("model1", mods & visual);
-		// }
-
 		if (mods & train) {
-			int batch_size = 2, batch_count = 10;
-
-			double learning_rate = 0.001;
-
 			Trainer trainer(&model);
 
 			trainer.train();
 		}
 
-		// if (mods & save) {
-		// 	model.save("model1");
-		// }
-
-		int num = 0;
+		int num1 = 0, num2 = 0;
 		string str_num;
-		while (num != 5) {
+		while (num1 != 5) {
 			cout << "Enter an integer: ";
 			getline(cin, str_num);
-			num = stoi(str_num);
-			if (num == 5)
+			num1 = stoi(str_num);
+
+			getline(cin, str_num);
+			num2 = stoi(str_num);
+			if (num1 == 5)
 				break;
+
 			vector<double> input(2, 0);
-			input[num] = 1;
+			input[0] = num1;
+			input[0] = num2;
 			model.run_model(input);
 			printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
 		}

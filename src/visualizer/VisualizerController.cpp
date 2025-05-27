@@ -1,7 +1,8 @@
 #include "VisualizerController.hpp"
 #include "VisualizerRenderer.hpp"
 #include "model/config.hpp"
-#include "visualizer/state.hpp"
+#include "model/neuralNetwork.hpp"
+#include "state.hpp"
 #include <cstddef>
 #include <cstdio>
 #include <thread>
@@ -130,9 +131,9 @@ void visualizerController::setNewPhaseMode(const NNmode nn_mode) {
 			stop();
 			return;
 		}
-        
+
 		renderer->setNewPhaseMode(nn_mode);
-		handleStates();
+		wait_until_updated();
 	}
 }
 } // namespace Visualizer

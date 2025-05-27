@@ -37,6 +37,7 @@ typedef struct state {
 	atomic<bool> pause{false};
 	atomic<bool> preciseMode{true};
 	atomic<bool> autoPause{true};
+	atomic<bool> update_mode{false};
 	atomic<NNmode> nnMode{NNmode::Forword};
 	void toggle(states state_);
 	void toggle(string state_) { toggle(getStatefromString(state_)); }

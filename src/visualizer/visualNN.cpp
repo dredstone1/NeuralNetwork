@@ -1,4 +1,5 @@
 #include "visualNN.hpp"
+#include "model/neuralNetwork.hpp"
 #include "visualL.hpp"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -56,12 +57,12 @@ sf::Sprite visualNN::getSprite() {
 }
 
 void visualNN::updateDots(const int layer, vector<double> out, vector<double> net) {
-    current_rendred_layer = layer;
+	current_rendred_layer = layer;
 	layers[layer]->setDots(out, net);
 }
 
 void visualNN::update(const int layer, const LayerParameters &gradients) {
-    current_rendred_layer = layer;
+	current_rendred_layer = layer;
 	layers[layer]->add(gradients);
 }
 } // namespace Visualizer

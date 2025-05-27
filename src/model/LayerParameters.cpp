@@ -3,10 +3,9 @@
 #include <random>
 #include <vector>
 
-LayerParameters::LayerParameters(const int size, const int prev_size, const bool random) {
-	weights.resize(size, vector<double>(prev_size, 0.5));
-
-	if (!random)
+LayerParameters::LayerParameters(const int size, const int prev_size, const double init_value) {
+	weights.resize(size, vector<double>(prev_size, init_value));
+	if (init_value >= 0.0)
 		return;
 
 	random_device rd;
@@ -19,7 +18,6 @@ LayerParameters::LayerParameters(const int size, const int prev_size, const bool
 			random_value = fmin(fmax(random_value, -1.0), 1.0);
 			random_value = round(random_value * 10000.0) / 10000.0;
 			weight = random_value;
-			// weight = 0.5;
 		}
 	}
 }

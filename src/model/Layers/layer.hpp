@@ -20,7 +20,7 @@ class Layer {
 
   public:
 	Layer(Layer const &other) : destroyParams(1), dots(other.dots.size()), Parameters(other.Parameters) {}
-	Layer(int _size, int _prev_size, bool random = false);
+	Layer(int _size, int _prev_size, double init_value);
 	virtual LayerType getType() const { return NONE; }
 	virtual void forward(const vector<double> &metrix);
 	const neurons &getDots() const { return dots; }

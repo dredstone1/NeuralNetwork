@@ -2,6 +2,7 @@
 #define DATABASE_HPP
 
 #include "AiModel.hpp"
+#include <random>
 #include <string>
 #include <vector>
 
@@ -17,32 +18,46 @@ typedef struct TrainSample {
 typedef struct Samples {
 	const int sInputSize;
 	vector<TrainSample> samples;
-	int size() const { return samples.size(); }
+	size_t size() const { return samples.size(); }
 	void add(TrainSample sample) { samples.push_back(sample); }
-	Samples(const int sampleInputSize, const int _size) : sInputSize(sampleInputSize) { samples.reserve(_size); }
+	Samples(const int sampleInputSize, const int _size) : sInputSize(sampleInputSize) {
+		if (_size > 0) {
+			samples.reserve(_size);
+		}
+	}
 } Samples;
 
 typedef struct Batch {
-	vector<TrainSample *> samples;
-	const int sampleSize;
-	int size() const { return samples.size(); }
-	Batch(const int length, const int _sampleSize) : sampleSize(_sampleSize) { samples.reserve(length); }
-	void add(TrainSample *sample) { samples.push_back(sample); }
+	vector<TrainSample *> samples_ptrs;
+	size_t size() const { return samples_ptrs.size(); }
+	Batch(const int length) {
+		if (length > 0) {
+			samples_ptrs.resize(length, nullptr);
+		}
+	}
+	Batch() = default;
 } Batch;
 
 class DataBase {
   private:
-	const string file_name;
 	void getDataBaseStatus(const string &line);
 	TrainSample read_line(const string &line);
 	Samples *samples;
 	int load();
+	vector<Batch> batches;
+	void generete_batches();
+
+	TrainingConfig &config;
+	size_t currentBatch;
+
+	vector<int> shuffled_indices;
+	mt19937 rng;
 
   public:
-	DataBase(const string &_file_name);
-	int DataBaseLength() const { return samples->size(); }
-	Batch get_Batch(const int batch_size);
-	~DataBase() = default;
+	DataBase(TrainingConfig &config_);
+	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
+	Batch &get_Batch();
+	~DataBase();
 };
 
-#endif // DATABASE_HPP
+#endif // DATABASE

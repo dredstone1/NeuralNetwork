@@ -7,7 +7,7 @@ using namespace std;
 
 struct LayerParameters {
 	vector<vector<double>> weights;
-	LayerParameters(const int size, const int prev_size, const bool random = false);
+	LayerParameters(const int size, const int prev_size, const double init_value);
 	LayerParameters(LayerParameters const &other);
 	~LayerParameters() = default;
 	int getSize() const { return weights.size(); }

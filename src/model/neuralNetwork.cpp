@@ -6,15 +6,14 @@
 
 neural_network::neural_network(NetworkConfig &network_config) : config(network_config) {
 	layers.reserve(network_config.hidden_layer_count() + 1);
-
 	int prev_size = network_config.input_size;
 	for (int i = 0; i < network_config.hidden_layer_count(); i++) {
-		Layer *temp = new Hidden_Layer(network_config.layers_config[i].size, prev_size, network_config.layers_config[i].activation);
+		Layer *temp = new Hidden_Layer(network_config.layers_config[i].size, prev_size, network_config.layers_config[i].activation, network_config.layers_config[i].weights_init_value);
 		layers.push_back(temp);
 		prev_size = network_config.layers_config[i].size;
 	}
 
-	layers.push_back(new Output_Layer(network_config.output_size, prev_size));
+	layers.push_back(new Output_Layer(network_config.output_size, prev_size, network_config.output_init_value));
 }
 
 neural_network::neural_network(const neural_network &other) : config(other.config) {

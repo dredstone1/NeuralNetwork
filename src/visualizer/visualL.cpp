@@ -13,11 +13,11 @@
 #include <vector>
 
 namespace Visualizer {
-visualL::visualL(Layer const &other, const int size_a) : Layer(other.getSize(), other.getPrevSize(), false), is_params(other.getPrevSize() != 0), WIDTH(calculateWIDTH(size_a, is_params)) {
+visualL::visualL(Layer const &other, const int size_a) : Layer(other), is_params(other.getPrevSize() != 0), WIDTH(calculateWIDTH(size_a, is_params)) {
 	createLayerVisual();
 }
 
-visualL::visualL(int _size, int _prev_size, const int size_a) : Layer(_size, _prev_size), is_params(_prev_size != 0), WIDTH(calculateWIDTH(size_a, is_params)) {
+visualL::visualL(int _size, int _prev_size, const int size_a) : Layer(_size, _prev_size, 0), is_params(_prev_size != 0), WIDTH(calculateWIDTH(size_a, is_params)) {
 	createLayerVisual();
 }
 

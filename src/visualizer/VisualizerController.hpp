@@ -1,6 +1,7 @@
 #ifndef VISUALIZERCONTROLLER
 #define VISUALIZERCONTROLLER
 
+#include "../model/neuralNetwork.hpp"
 #include "VisualizerRenderer.hpp"
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
@@ -31,7 +32,7 @@ class visualizerController {
 	~visualizerController();
 	void updateDots(const int layer, vector<double> out, vector<double> net);
 	void update(const int layer, const LayerParameters &gradient);
-    void setNewPhaseMode(const NNmode nn_mode);
+	void setNewPhaseMode(const NNmode nn_mode);
 	void start(const neural_network &network);
 };
 } // namespace Visualizer
