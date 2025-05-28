@@ -8,7 +8,7 @@
 #include <sstream>
 
 namespace Visualizer {
-button::button(state *_state, const string lable, const states Cstate) : State(_state), CurrentState(Cstate), lable(lable) {
+button::button(state *_state, const std::string lable, const states Cstate) : State(_state), CurrentState(Cstate), lable(lable) {
 	renderButton();
 }
 
@@ -21,13 +21,13 @@ void button::renderButton() {
 
 sf::Color button::getBgColor() {
 	if (State->getState(CurrentState))
-		return sf::Color::Yellow;
+		return sf::Color::Red;
 	else
-		return sf::Color::White;
+		return sf::Color::Yellow;
 }
 
 void button::drawText() {
-	ostringstream ss;
+    std::ostringstream ss;
 	sf::Text text;
 	text.setFont(Fonts::getFont());
 	text.setCharacterSize(BUTTON_TEXT_FONT);

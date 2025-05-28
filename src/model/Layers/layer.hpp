@@ -22,12 +22,12 @@ class Layer {
 	Layer(Layer const &other) : destroyParams(1), dots(other.dots.size()), Parameters(other.Parameters) {}
 	Layer(int _size, int _prev_size, double init_value);
 	virtual LayerType getType() const { return NONE; }
-	virtual void forward(const vector<double> &metrix);
+	virtual void forward(const std::vector<double> &metrix);
 	const neurons &getDots() const { return dots; }
 	double getWeight(int i, int j) const { return Parameters->weights[i][j]; }
 	void setWeight(int i, int j, double weight) { Parameters->weights[i][j] = weight; }
-	const vector<double> &getNet() const { return dots.net; }
-	const vector<double> &getOut() const { return dots.out; }
+	const std::vector<double> &getNet() const { return dots.net; }
+	const std::vector<double> &getOut() const { return dots.out; }
 	void add(LayerParameters const &gradients);
 	int getSize() const { return Parameters->getSize(); }
 	int getPrevSize() const { return Parameters->getPrevSize(); }

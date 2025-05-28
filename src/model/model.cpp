@@ -3,7 +3,6 @@
 #include "visualizer/VisualizerController.hpp"
 #include "visualizer/state.hpp"
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 model::model(Config &_config, const bool use_visual) : network(_config.config_data.network_config), visual(_config.config_data.visualizer_config), useVisual(use_visual) {
@@ -11,20 +10,11 @@ model::model(Config &_config, const bool use_visual) : network(_config.config_da
 		visual.start(network);
 }
 
-void model::run_model(const vector<double> &input) {
+void model::run_model(const std::vector<double> &input) {
 	run_model(input, network);
 }
 
-void print_vector(const vector<double> &metrix) {
-	for (auto &value : metrix) {
-		cout << value << " ";
-	}
-
-	cout << endl
-	     << endl;
-}
-
-void model::run_model(const vector<double> &input, neural_network &temp_network) {
+void model::run_model(const std::vector<double> &input, neural_network &temp_network) {
 	visual.setNewPhaseMode(NNmode::Forword);
 
 	visual.updateDots(0, input, input);
@@ -43,7 +33,7 @@ void model::reset() {
 	}
 }
 
-const vector<double> &model::getOutput() const {
+const std::vector<double> &model::getOutput() const {
 	return network.layers[getHiddenLayerCount()]->getOut();
 }
 

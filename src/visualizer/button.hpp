@@ -18,7 +18,7 @@ class button {
 	state *State;
 	const states CurrentState;
 	bool visibleState;
-	const string lable;
+	const std::string lable;
 	void sendCommand();
 	void renderButton();
 	void display();
@@ -26,7 +26,7 @@ class button {
 	sf::Color getBgColor();
 
   public:
-	button(state *_state, string lable, const states state_);
+	button(state *_state, std::string lable, const states state_);
 	~button() = default;
 	sf::Sprite getSprite();
 	bool checkForClick(sf::Vector2f mousePos, sf::Vector2f boxPos);

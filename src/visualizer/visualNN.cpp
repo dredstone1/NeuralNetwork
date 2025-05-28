@@ -56,7 +56,7 @@ sf::Sprite visualNN::getSprite() {
 	return sf::Sprite(NNRender.getTexture());
 }
 
-void visualNN::updateDots(const int layer, vector<double> out, vector<double> net) {
+void visualNN::updateDots(const int layer, std::vector<double> out, std::vector<double> net) {
 	current_rendred_layer = layer;
 	layers[layer]->setDots(out, net);
 }

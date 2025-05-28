@@ -33,7 +33,7 @@ double ActivationFunction::DerivativeActivate(const double x) const {
 	return x;
 }
 
-static double max_vector(const vector<double> &metrix) {
+static double max_vector(const std::vector<double> &metrix) {
 	double max = metrix[0];
 	for (auto &value : metrix) {
 		if (value > max) {

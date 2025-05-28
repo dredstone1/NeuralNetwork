@@ -24,7 +24,7 @@ const LayerParameters Layer::getParms() {
 	return *Parameters;
 }
 
-void Layer::forward(const vector<double> &metrix) {
+void Layer::forward(const std::vector<double> &metrix) {
 	if (!Parameters)
 		return;
 

@@ -10,8 +10,6 @@
 #include <atomic>
 #include <climits>
 
-using namespace std;
-
 namespace Visualizer {
 #define UI_GAP 15
 
@@ -22,8 +20,8 @@ class VisualizerRenderer {
 	state *Vstate;
 	vInteface interface;
 	vStatus statusV;
-	atomic<int> needUpdate{true};
-	atomic<bool> running{false};
+    std::atomic<int> needUpdate{true};
+    std::atomic<bool> running{false};
 	void update();
 	void renderLoop();
 	void processEvents();
@@ -33,7 +31,7 @@ class VisualizerRenderer {
 	VisualizerRenderer(const neural_network &network, state *vstate);
 	~VisualizerRenderer();
 	void close();
-	void updateDots(const int layer, vector<double> out, vector<double> net);
+	void updateDots(const int layer, std::vector<double> out, std::vector<double> net);
 	bool updateStatus() { return needUpdate; }
 	void start();
 	void update(const int layer, const LayerParameters &gradients);

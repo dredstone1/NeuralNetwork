@@ -7,8 +7,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <climits>
 
-using namespace std;
-
 namespace Visualizer {
 #define VSTATUS_WIDTH 500
 #define VSTATUS_HEIGHT 585
@@ -23,7 +21,7 @@ class vStatus {
 	void display();
 	void drawText();
 	void clear();
-	string get_text();
+    std::string get_text();
 
   public:
 	vStatus(state *vstate_);

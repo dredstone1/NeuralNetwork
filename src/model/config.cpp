@@ -3,11 +3,11 @@
 #include <iostream>
 #include <stdexcept>
 
-Config::Config(const string &config_filepath) {
-	ifstream ifs(config_filepath);
+Config::Config(const std::string &config_filepath) {
+    std::ifstream ifs(config_filepath);
 	if (!ifs.is_open()) {
-		cerr << "Error: Could not open config file: " << config_filepath << endl;
-		throw runtime_error("Failed to open config file: " + config_filepath);
+        std::cerr << "Error: Could not open config file: " << config_filepath << std::endl;
+		throw std::runtime_error("Failed to open config file: " + config_filepath);
 	}
 
 	nlohmann::json j;
@@ -16,13 +16,13 @@ Config::Config(const string &config_filepath) {
 		this->config_data = j.get<ConfigData>();
 
 	} catch (const nlohmann::json::parse_error &e) {
-		cerr << "JSON parse error in file '" << config_filepath << "':\n"
+        std::cerr << "JSON parse error in file '" << config_filepath << "':\n"
 		     << e.what() << "\n"
-		     << "at byte " << e.byte << endl;
+		     << "at byte " << e.byte << std::endl;
 		throw;
 	} catch (const nlohmann::json::exception &e) {
-		cerr << "JSON processing error in file '" << config_filepath << "':\n"
-		     << e.what() << endl;
+        std::cerr << "JSON processing error in file '" << config_filepath << "':\n"
+		     << e.what() << std::endl;
 		throw;
 	}
 }

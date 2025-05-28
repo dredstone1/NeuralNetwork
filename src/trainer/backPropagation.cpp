@@ -7,11 +7,9 @@
 #include <cmath>
 #include <vector>
 
-using namespace std;
-
 BackPropagation::BackPropagation(AiModel &_model) : model(_model) {}
 
-double BackPropagation::get_cross_entropy_loss(const vector<double> &prediction, const int target) {
+double BackPropagation::get_cross_entropy_loss(const std::vector<double> &prediction, const int target) {
 	return -log(prediction[target]);
 }
 
@@ -19,12 +17,12 @@ double BackPropagation::get_total_error(const neural_network &temp_network, cons
 	return get_cross_entropy_loss(temp_network.layers[temp_network.config.hidden_layer_count()]->getOut(), target);
 }
 
-void BackPropagation::calculate_gradient(const Layer &layer, const vector<double> &deltas, const vector<double> &prevLayer, LayerParameters &gradient_) {
+void BackPropagation::calculate_gradient(const Layer &layer, const std::vector<double> &deltas, const std::vector<double> &prevLayer, LayerParameters &gradient_) {
 	calculate_gradient_for_weights(layer, prevLayer, deltas, gradient_);
 }
 
-vector<double> BackPropagation::calculate_delta_for_hidden(const Hidden_Layer &current_layer, const Layer &next_layer, const vector<double> &next_deltas) {
-	vector<double> deltas(current_layer.getSize(), 0.0);
+std::vector<double> BackPropagation::calculate_delta_for_hidden(const Hidden_Layer &current_layer, const Layer &next_layer, const std::vector<double> &next_deltas) {
+    std::vector<double> deltas(current_layer.getSize(), 0.0);
 
 	for (int i = 0; i < current_layer.getSize(); i++) {
 		deltas[i] = 0.0;
@@ -38,7 +36,7 @@ vector<double> BackPropagation::calculate_delta_for_hidden(const Hidden_Layer &c
 	return deltas;
 }
 
-void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const vector<double> &prevLayer, const vector<double> &deltas, LayerParameters &gradients) {
+void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const std::vector<double> &prevLayer, const std::vector<double> &deltas, LayerParameters &gradients) {
 	for (int i = 0; i < layer.getSize(); i++) {
 		for (int j = 0; j < layer.getPrevSize(); j++) {
 			gradients.weights[i][j] += deltas[i] * prevLayer[j];
@@ -46,8 +44,8 @@ void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const v
 	}
 }
 
-vector<double> BackPropagation::calculate_delta_for_output(const vector<double> &out, const int target) {
-	vector<double> deltas(out);
+std::vector<double> BackPropagation::calculate_delta_for_output(const std::vector<double> &out, const int target) {
+    std::vector<double> deltas(out);
 
 	deltas[target] += 1.0;
 
@@ -55,7 +53,7 @@ vector<double> BackPropagation::calculate_delta_for_output(const vector<double> 
 }
 
 void BackPropagation::calculate_pattern_gradients(const TrainSample &sample, gradient &_gradients, const neural_network &temp_network) {
-	vector<double> deltas;
+    std::vector<double> deltas;
 
 	for (int layer_index = _gradients.gradients.size() - 1; layer_index >= 0; layer_index--) {
 		Layer &layer = *temp_network.layers[layer_index];

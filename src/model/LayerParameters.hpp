@@ -3,10 +3,8 @@
 
 #include <vector>
 
-using namespace std;
-
 struct LayerParameters {
-	vector<vector<double>> weights;
+    std::vector<std::vector<double>> weights;
 	LayerParameters(const int size, const int prev_size, const double init_value);
 	LayerParameters(LayerParameters const &other);
 	~LayerParameters() = default;

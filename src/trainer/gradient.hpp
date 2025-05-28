@@ -5,10 +5,8 @@
 #include "../model/config.hpp"
 #include <vector>
 
-using namespace std;
-
 typedef struct gradient {
-	vector<LayerParameters> gradients;
+    std::vector<LayerParameters> gradients;
 	void add(const gradient &new_gradient);
 	void multiply(const double value);
 	void reset();

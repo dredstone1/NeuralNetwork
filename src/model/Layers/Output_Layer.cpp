@@ -3,7 +3,7 @@
 
 using namespace ActivationFunctions;
 
-void Output_Layer::forward(const vector<double> &metrix) {
+void Output_Layer::forward(const std::vector<double> &metrix) {
 	if (!Parameters)
 		return;
 

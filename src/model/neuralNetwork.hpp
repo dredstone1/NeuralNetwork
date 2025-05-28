@@ -5,7 +5,7 @@
 #include "config.hpp"
 
 typedef struct neural_network {
-	vector<Layer *> layers;
+    std::vector<Layer *> layers;
 	NetworkConfig &config;
 	int getLayerCount() const { return (config.hidden_layer_count() + 1); }
 	neural_network(NetworkConfig &network_config);

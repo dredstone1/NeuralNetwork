@@ -4,8 +4,6 @@
 #include "neuron.hpp"
 #include <cmath>
 
-using namespace std;
-
 namespace ActivationFunctions {
 #define RELU_LEAKY_ALPHA 0.01
 
@@ -26,7 +24,7 @@ struct ActivationFunction {
 };
 
 inline double Relu(const double x) {
-	return max(0.0, x);
+	return std::max(0.0, x);
 }
 inline double DerivativeRelu(const double x) {
 	return (x > 0) ? 1.0 : 0.0;

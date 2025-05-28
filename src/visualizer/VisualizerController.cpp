@@ -3,6 +3,7 @@
 #include "model/config.hpp"
 #include "model/neuralNetwork.hpp"
 #include "state.hpp"
+#include <chrono>
 #include <cstddef>
 #include <cstdio>
 #include <thread>
@@ -40,10 +41,8 @@ void visualizerController::start(const neural_network &network) {
 	if (running)
 		return;
 
-	display_thread = thread(&visualizerController::start_visuals, this, cref(network));
-	while (!renderer) {
-		this_thread::sleep_for(1ms);
-	}
+	display_thread = std::thread(&visualizerController::start_visuals, this, std::cref(network));
+	wait_until_started();
 }
 
 void visualizerController::start_visuals(const neural_network &network) {
@@ -64,12 +63,18 @@ void visualizerController::start_visuals(const neural_network &network) {
 	running = false;
 }
 
+void visualizerController::wait_until_started() {
+	while (!renderer) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+}
+
 void visualizerController::wait_until_updated() {
 	if (!renderer || !Vstate->preciseMode)
 		return;
 
 	while (renderer->updateStatus() && running) {
-		this_thread::sleep_for(1ms);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
@@ -78,7 +83,7 @@ void visualizerController::pause() {
 		return;
 
 	while (Vstate->pause && running) {
-		this_thread::sleep_for(10ms);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
@@ -101,7 +106,7 @@ bool visualizerController::checkP() {
 	return (renderer && Vstate);
 }
 
-void visualizerController::updateDots(const int layer, vector<double> out, vector<double> net) {
+void visualizerController::updateDots(const int layer, std::vector<double> out, std::vector<double> net) {
 	if (checkP()) {
 		if (!running) {
 			stop();

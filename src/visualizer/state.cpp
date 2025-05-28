@@ -19,11 +19,11 @@ void state::toggle(states state_) {
 	}
 }
 
-string state::getStateString(states state_) {
+std::string state::getStateString(states state_) {
 	return statesName[(int)state_];
 }
 
-states state::getStatefromString(string &state_) {
+states state::getStatefromString(std::string &state_) {
 	for (int i = 0; i < STATES_COUNT; i++) {
 		if (!statesName[i].compare(state_)) {
 			return (states)i;

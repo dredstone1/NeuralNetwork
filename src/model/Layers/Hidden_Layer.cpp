@@ -1,6 +1,6 @@
 #include "Hidden_Layer.hpp"
 
-void Hidden_Layer::forward(const vector<double> &metrix) {
+void Hidden_Layer::forward(const std::vector<double> &metrix) {
 	if (!Parameters)
 		return;
 

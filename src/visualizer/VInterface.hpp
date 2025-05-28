@@ -8,8 +8,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <climits>
 
-using namespace std;
-
 namespace Visualizer {
 #define VINTERFACE_WIDTH 500
 #define VINTERFACE_HEIGHT 170
@@ -23,7 +21,7 @@ class vInteface {
 	void display();
 	void handleKeyPresed(sf::Vector2i mousePos_, sf::Vector2f boxPos);
 	bool needHandlePress{false};
-	vector<button *> buttons;
+    std::vector<button *> buttons;
 
   public:
 	vInteface(state *vstate);

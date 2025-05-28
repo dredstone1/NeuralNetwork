@@ -8,13 +8,11 @@
 #include <SFML/System/Vector2.hpp>
 #include <vector>
 
-using namespace std;
-
 namespace Visualizer {
 class visualNN {
   private:
 	NetworkConfig &config;
-	vector<visualL *> layers;
+    std::vector<visualL *> layers;
 	sf::RenderTexture NNRender;
 	int current_rendred_layer;
 	void createNnVisual();
@@ -29,7 +27,7 @@ class visualNN {
 	~visualNN() = default;
 	sf::Sprite getSprite();
 	void render();
-	void updateDots(const int layer, vector<double> out, vector<double> net);
+	void updateDots(const int layer, std::vector<double> out, std::vector<double> net);
 	void update(const int layer, const LayerParameters &gradients);
 };
 } // namespace Visualizer

@@ -34,7 +34,7 @@ class visualL : public Layer {
 	LayerType getType() const override { return LayerType::NONE; }
 	sf::Sprite getSprite();
 	void renderLayer(const bool render);
-	void setDots(vector<double> out, vector<double> net);
+	void setDots(std::vector<double> out, std::vector<double> net);
 	const bool is_params;
 	const float WIDTH;
 };

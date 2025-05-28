@@ -4,13 +4,13 @@
 #include <vector>
 
 LayerParameters::LayerParameters(const int size, const int prev_size, const double init_value) {
-	weights.resize(size, vector<double>(prev_size, init_value));
+	weights.resize(size, std::vector<double>(prev_size, init_value));
 	if (init_value >= 0.0)
 		return;
 
-	random_device rd;
-	mt19937 gen(rd());
-	normal_distribution<> dist(0.0, sqrt(2.0 / (prev_size)));
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<> dist(0.0, sqrt(2.0 / (prev_size)));
 
 	for (auto &dot : weights) {
 		for (auto &weight : dot) {

@@ -13,14 +13,14 @@ class model {
   private:
 	neural_network network;
 	visualizerController visual;
-	void run_model(const vector<double> &input, neural_network &temp_network);
+	void run_model(const std::vector<double> &input, neural_network &temp_network);
 	friend class BackPropagation;
 
   public:
 	model(Config &_config, bool use_visual);
 	~model() = default;
-	void run_model(const vector<double> &input);
-	const vector<double> &getOutput() const;
+	void run_model(const std::vector<double> &input);
+	const std::vector<double> &getOutput() const;
 	void reset();
 	Layer &getLayer(const int i) { return *(network.layers[i]); }
 	void updateWeights(const gradient &gradients);

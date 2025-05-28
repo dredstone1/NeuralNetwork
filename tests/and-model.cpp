@@ -1,9 +1,6 @@
 #include <AiModel.hpp>
-#include <cstddef>
 #include <iostream>
 #include <trainer.hpp>
-
-using namespace std;
 
 enum mode {
 	load = 0,   // 0001
@@ -44,18 +41,18 @@ int main(int argc, char *argv[]) {
 		}
 
 		int num1 = 0, num2 = 0;
-		string str_num;
+        std::string str_num;
 		while (num1 != 5) {
-			cout << "Enter an integer: ";
-			getline(cin, str_num);
+            std::cout << "Enter an integer: ";
+			getline(std::cin, str_num);
 			num1 = stoi(str_num);
 
-			getline(cin, str_num);
+			getline(std::cin, str_num);
 			num2 = stoi(str_num);
 			if (num1 == 5)
 				break;
 
-			vector<double> input(2, 0);
+            std::vector<double> input(2, 0);
 			input[0] = num1;
 			input[0] = num2;
 			model.run_model(input);
@@ -65,6 +62,6 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-	cout << "Need at least 1 input!" << endl;
+    std::cout << "Need at least 1 input!" << std::endl;
 	return 1;
 }

@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 struct LayerConfig {
 	int size;
 	double weights_init_value;
@@ -19,7 +17,7 @@ struct NetworkConfig {
 	int input_size;
 	int output_size;
 	double output_init_value;
-	vector<LayerConfig> layers_config;
+    std::vector<LayerConfig> layers_config;
 	int hidden_layer_count() const { return layers_config.size(); }
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, output_init_value, layers_config);
@@ -28,18 +26,18 @@ struct TrainingConfig {
 	double learning_rate;
 	int batch_size;
 	int batch_count;
-	string db_filename;
+    std::string db_filename;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TrainingConfig, learning_rate, batch_size, batch_count, db_filename)
 
 struct VisualMode {
-	string state;
+    std::string state;
 	bool mode;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
 
 struct VisualizerConfig {
-	vector<VisualMode> modes;
+    std::vector<VisualMode> modes;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualizerConfig, modes);
 
@@ -52,7 +50,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ConfigData, network_config, training_config, 
 
 class Config {
   public:
-	Config(const string &config_filepath);
+	Config(const std::string &config_filepath);
 	ConfigData config_data;
 
   private:

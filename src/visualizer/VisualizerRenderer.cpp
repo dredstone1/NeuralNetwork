@@ -80,7 +80,7 @@ void VisualizerRenderer::start() {
 	renderLoop();
 }
 
-void VisualizerRenderer::updateDots(const int layer, vector<double> out, vector<double> net) {
+void VisualizerRenderer::updateDots(const int layer, std::vector<double> out, std::vector<double> net) {
 	visualNetwork.updateDots(layer, out, net);
 	needUpdate = true;
 }

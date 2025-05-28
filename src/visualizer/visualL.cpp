@@ -89,7 +89,7 @@ void visualL::drawWeights(int neuron_i, sf::Vector2f pos, float prevGap) {
 		float angleDeg = calculateAngle(prevNeuronTopLeft, pos);
 		float angleRad = angleDeg * static_cast<float>(M_PI) / 180.0f;
 
-		float line_thickness_arg = max(min(weightValue, 4.f), 0.1f);
+		float line_thickness_arg = std::max(std::min(weightValue, 4.f), 0.1f);
 
 		sf::RectangleShape line;
 		line.setSize({lineLength, line_thickness_arg});
@@ -101,8 +101,8 @@ void visualL::drawWeights(int neuron_i, sf::Vector2f pos, float prevGap) {
 
 		layerRender.draw(line);
 
-		ostringstream ss;
-		ss << fixed << setprecision(4) << weightValue;
+        std::ostringstream ss;
+		ss << std::fixed << std::setprecision(4) << weightValue;
 
 		sf::Text text;
 		text.setFont(Fonts::getFont());
@@ -153,8 +153,8 @@ void visualL::drawNeuron(const double input, const double output, sf::Vector2f p
 	shape.setFillColor(sf::Color::Blue);
 	shape.setPosition(pos);
 
-	ostringstream ss;
-	ss << fixed << setprecision(4) << input << "\n"
+    std::ostringstream ss;
+	ss << std::fixed << std::setprecision(4) << input << "\n"
 	   << output;
 
 	sf::Text text;
@@ -173,7 +173,7 @@ void visualL::drawNeuron(const double input, const double output, sf::Vector2f p
 	layerRender.draw(text);
 }
 
-void visualL::setDots(vector<double> out, vector<double> net) {
+void visualL::setDots(std::vector<double> out, std::vector<double> net) {
 	dots.net = net;
 	dots.out = out;
 }
