@@ -8,7 +8,7 @@
 #include <cstdio>
 
 namespace Visualizer {
-VisualizerRenderer::VisualizerRenderer(const neural_network &network, state *vstate) : window(sf::VideoMode(1600, 800), "Visualizer", sf::Style::Titlebar | sf::Style::Titlebar), visualNetwork(network), Vstate(vstate), interface(vstate), statusV(vstate) {}
+VisualizerRenderer::VisualizerRenderer(const neural_network &network, state &vstate) : window(sf::VideoMode(1600, 800), "Visualizer", sf::Style::Titlebar | sf::Style::Titlebar), visualNetwork(network), Vstate(vstate), interface(vstate), statusV(vstate) {}
 
 void VisualizerRenderer::processEvents() {
 	sf::Event event;
@@ -80,7 +80,7 @@ void VisualizerRenderer::start() {
 	renderLoop();
 }
 
-void VisualizerRenderer::updateDots(const int layer, std::vector<double> out, std::vector<double> net) {
+void VisualizerRenderer::updateDots(const int layer, const std::vector<double> out, const std::vector<double> net) {
 	visualNetwork.updateDots(layer, out, net);
 	needUpdate = true;
 }
@@ -95,7 +95,7 @@ VisualizerRenderer::~VisualizerRenderer() {
 }
 
 void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
-	Vstate->nnMode.store(nn_mode);
+	Vstate.nnMode.store(nn_mode);
 	needUpdate = true;
 }
 } // namespace Visualizer

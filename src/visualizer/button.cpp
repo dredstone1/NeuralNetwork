@@ -8,7 +8,7 @@
 #include <sstream>
 
 namespace Visualizer {
-button::button(state *_state, const std::string lable, const states Cstate) : State(_state), CurrentState(Cstate), lable(lable) {
+button::button(state &_state, const std::string lable, const states Cstate) : State(_state), CurrentState(Cstate), lable(lable) {
 	renderButton();
 }
 
@@ -16,18 +16,18 @@ void button::renderButton() {
 	buttonRender.create(BUTTON_WIDTH, BUTTON_HEIGHT);
 	buttonRender.clear(getBgColor());
 	drawText();
-	visibleState = State->getState(CurrentState);
+	visibleState = State.getState(CurrentState);
 }
 
 sf::Color button::getBgColor() {
-	if (State->getState(CurrentState))
+	if (State.getState(CurrentState))
 		return sf::Color::Red;
 	else
 		return sf::Color::Yellow;
 }
 
 void button::drawText() {
-    std::ostringstream ss;
+	std::ostringstream ss;
 	sf::Text text;
 	text.setFont(Fonts::getFont());
 	text.setCharacterSize(BUTTON_TEXT_FONT);
@@ -42,7 +42,7 @@ void button::display() {
 }
 
 void button::sendCommand() {
-	State->toggle(CurrentState);
+	State.toggle(CurrentState);
 }
 
 sf::Sprite button::getSprite() {
@@ -62,9 +62,8 @@ bool button::checkForClick(sf::Vector2f mousePos, sf::Vector2f boxPos) {
 }
 
 void button::render() {
-	if (State->getState(CurrentState) != visibleState) {
+	if (State.getState(CurrentState) != visibleState) {
 		renderButton();
 	}
 }
-
 } // namespace Visualizer

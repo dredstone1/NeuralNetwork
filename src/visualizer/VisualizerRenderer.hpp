@@ -17,21 +17,21 @@ class VisualizerRenderer {
   private:
 	sf::RenderWindow window;
 	visualNN visualNetwork;
-	state *Vstate;
+	state &Vstate;
 	vInteface interface;
 	vStatus statusV;
-    std::atomic<int> needUpdate{true};
-    std::atomic<bool> running{false};
+	std::atomic<int> needUpdate{true};
+	std::atomic<bool> running{false};
 	void update();
 	void renderLoop();
 	void processEvents();
 	void renderObjects();
 
   public:
-	VisualizerRenderer(const neural_network &network, state *vstate);
+	VisualizerRenderer(const neural_network &network, state &vstate);
 	~VisualizerRenderer();
 	void close();
-	void updateDots(const int layer, std::vector<double> out, std::vector<double> net);
+	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);
 	bool updateStatus() { return needUpdate; }
 	void start();
 	void update(const int layer, const LayerParameters &gradients);

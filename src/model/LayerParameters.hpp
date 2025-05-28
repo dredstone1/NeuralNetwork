@@ -4,12 +4,19 @@
 #include <vector>
 
 struct LayerParameters {
-    std::vector<std::vector<double>> weights;
+	std::vector<std::vector<double>> weights;
 	LayerParameters(const int size, const int prev_size, const double init_value);
-	LayerParameters(LayerParameters const &other);
+	LayerParameters(const LayerParameters &other);
 	~LayerParameters() = default;
-	int getSize() const { return weights.size(); }
-	int getPrevSize() const { return weights[0].size(); }
+	int getSize() const {
+		return weights.size();
+	}
+	int getPrevSize() const {
+		if (!weights.empty() && !weights[0].empty()) {
+			return weights[0].size();
+		}
+		return 0;
+	}
 	void add(const LayerParameters &new_gradient);
 	void multiply(const double value);
 	void reset();

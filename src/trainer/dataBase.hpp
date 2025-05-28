@@ -8,14 +8,15 @@
 
 typedef struct TrainSample {
 	prediction _prediction;
-    std::vector<double> input;
+	std::vector<double> input;
 	TrainSample(prediction _pre, const int sampleInputSize) : _prediction(_pre), input(sampleInputSize, 0) {}
 	TrainSample() : _prediction({0, 0}), input(0) {}
+	~TrainSample() = default;
 } TrainSample;
 
 typedef struct Samples {
 	const int sInputSize;
-    std::vector<TrainSample> samples;
+	std::vector<TrainSample> samples;
 	size_t size() const { return samples.size(); }
 	void add(TrainSample sample) { samples.push_back(sample); }
 	Samples(const int sampleInputSize, const int _size) : sInputSize(sampleInputSize) {
@@ -23,17 +24,18 @@ typedef struct Samples {
 			samples.reserve(_size);
 		}
 	}
+	~Samples() = default;
 } Samples;
 
 typedef struct Batch {
-    std::vector<TrainSample *> samples_ptrs;
-	size_t size() const { return samples_ptrs.size(); }
+	std::vector<TrainSample *> samples;
+	size_t size() const { return samples.size(); }
 	Batch(const int length) {
 		if (length > 0) {
-			samples_ptrs.resize(length, nullptr);
+			samples.resize(length, nullptr);
 		}
 	}
-	Batch() = default;
+	~Batch() = default;
 } Batch;
 
 class DataBase {
@@ -42,14 +44,14 @@ class DataBase {
 	TrainSample read_line(const std::string &line);
 	Samples *samples;
 	int load();
-    std::vector<Batch> batches;
+	std::vector<Batch> batches;
 	void generete_batches();
 
 	TrainingConfig &config;
 	size_t currentBatch;
 
-    std::vector<int> shuffled_indices;
-    std::mt19937 rng;
+	std::vector<int> shuffled_indices;
+	std::mt19937 rng;
 
   public:
 	DataBase(TrainingConfig &config_);

@@ -22,7 +22,7 @@ class model {
 	void run_model(const std::vector<double> &input);
 	const std::vector<double> &getOutput() const;
 	void reset();
-	Layer &getLayer(const int i) { return *(network.layers[i]); }
+	Layer &getLayer(const int i) { return *network.layers.at(i); }
 	void updateWeights(const gradient &gradients);
 	int getOutputSize() const { return network.config.output_size; }
 	int getInputSize() const { return network.config.input_size; }

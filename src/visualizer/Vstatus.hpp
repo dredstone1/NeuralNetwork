@@ -16,15 +16,15 @@ namespace Visualizer {
 class vStatus {
   private:
 	sf::RenderTexture VRender;
-	state *vstate;
+	state &vstate;
 	void createVstatus();
 	void display();
 	void drawText();
 	void clear();
-    std::string get_text();
+	std::string get_text();
 
   public:
-	vStatus(state *vstate_);
+	vStatus(state &vstate_);
 	~vStatus() = default;
 	sf::Sprite getSprite();
 	void renderStatus();

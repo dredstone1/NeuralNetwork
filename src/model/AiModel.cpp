@@ -5,9 +5,8 @@
 #include <string>
 #include <vector>
 
-AiModel::AiModel(std::string config_file, const bool use_visual) {
-	config = new Config(config_file);
-	_model = new model(*config, use_visual);
+AiModel::AiModel(std::string config_file, const bool use_visual) : config(config_file){
+	_model = new model(config, use_visual);
 }
 
 void AiModel::run_model(const std::vector<double> &input) {
@@ -27,5 +26,4 @@ prediction AiModel::getPrediction() {
 
 AiModel::~AiModel() {
 	delete _model;
-	delete config;
 }

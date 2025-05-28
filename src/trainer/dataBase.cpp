@@ -9,8 +9,7 @@
 #include <numeric>
 #include <ostream>
 
-DataBase::DataBase(TrainingConfig &config_)
-    : samples(nullptr), config(config_), currentBatch(0) {
+DataBase::DataBase(TrainingConfig &config_) : samples(nullptr), config(config_), currentBatch(0) {
 	std::random_device rd;
 	rng = std::mt19937(rd());
 
@@ -83,7 +82,7 @@ int DataBase::load() {
 		samples->samples.shrink_to_fit();
 	}
 
-    std::cout << "Loaded " << (samples ? samples->size() : 0) << " samples." << std::endl;
+	std::cout << "Loaded " << (samples ? samples->size() : 0) << " samples." << std::endl;
 	file.close();
 
 	return 0;
@@ -107,7 +106,7 @@ void DataBase::generete_batches() {
 
 		for (size_t j = 0; j < current_batch_actual_size; ++j) {
 			int sample_original_index = shuffled_indices[i + j];
-			new_batch.samples_ptrs[j] = &samples->samples[sample_original_index];
+			new_batch.samples[j] = &samples->samples[sample_original_index];
 		}
 	}
 }

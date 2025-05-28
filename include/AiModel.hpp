@@ -13,15 +13,15 @@ typedef struct prediction {
 class AiModel {
   private:
 	model *_model;
-	Config *config;
+	Config config;
 	friend class BackPropagation;
 
   public:
 	AiModel(std::string config_file, const bool use_visual);
 	void run_model(const std::vector<double> &input);
 	prediction getPrediction();
-	Config &getConfig() { return *config; }
+	Config &getConfig() { return config; }
 	~AiModel();
 };
 
-#endif // AIMODEL_HPP
+#endif // AIMODEL

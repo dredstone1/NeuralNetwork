@@ -11,7 +11,7 @@
 namespace Visualizer {
 class visualNN {
   private:
-	NetworkConfig &config;
+	const NetworkConfig &config;
     std::vector<visualL *> layers;
 	sf::RenderTexture NNRender;
 	int current_rendred_layer;
@@ -24,10 +24,10 @@ class visualNN {
 
   public:
 	visualNN(const neural_network &network);
-	~visualNN() = default;
+	~visualNN();
 	sf::Sprite getSprite();
 	void render();
-	void updateDots(const int layer, std::vector<double> out, std::vector<double> net);
+	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);
 	void update(const int layer, const LayerParameters &gradients);
 };
 } // namespace Visualizer

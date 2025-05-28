@@ -8,6 +8,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(NN_RESOURCE_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts")
 
+set(SANITIZER_FLAGS "-fsanitize=address -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZER_FLAGS}")
+set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${SANITIZER_FLAGS}")
+
 find_package(SFML 2.6 COMPONENTS system window graphics REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 

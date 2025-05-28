@@ -7,7 +7,7 @@
 #include <cstddef>
 
 namespace Visualizer {
-vInteface::vInteface(state *vstate) : vstate(vstate) {
+vInteface::vInteface(state &vstate) : vstate(vstate) {
 	createVInterface();
 }
 
@@ -18,7 +18,7 @@ void vInteface::createVInterface() {
 	buttons.reserve(STATES_COUNT);
 
 	for (int i = 0; i < STATES_COUNT; i++) {
-		buttons.push_back(new button(vstate, vstate->getStateString((states)i), (states)i));
+		buttons.push_back(new button(vstate, vstate.getStateString((states)i), (states)i));
 	}
 }
 
@@ -31,7 +31,7 @@ sf::Sprite vInteface::getSprite() {
 	return sf::Sprite(VRender.getTexture());
 }
 
-void vInteface::handleClick(sf::Vector2i mousePos_, sf::Vector2f boxPos) {
+void vInteface::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
 	if (!needHandlePress) {
 		needHandlePress = true;
 		handleKeyPresed(mousePos_, boxPos);
@@ -51,11 +51,17 @@ void vInteface::renderInterface() {
 	}
 }
 
-void vInteface::handleKeyPresed(sf::Vector2i mousePos_, sf::Vector2f boxPos) {
+void vInteface::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
 	sf::Vector2f mousePos(static_cast<float>(mousePos_.x), static_cast<float>(mousePos_.y));
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
 		if (buttons[button_]->checkForClick(mousePos, {boxPos.x, boxPos.y + (BUTTON_HEIGHT + 10) * button_}))
 			return;
+	}
+}
+
+vInteface::~vInteface() {
+	for (size_t i = 0; i < buttons.size(); i++) {
+		delete buttons[i];
 	}
 }
 } // namespace Visualizer

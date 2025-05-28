@@ -10,7 +10,8 @@ class Fonts {
   public:
 	Fonts() = delete;
 	static sf::Font &getFont();
+	~Fonts() = default;
 };
 } // namespace Visualizer
 
-#endif //
+#endif //FONTS

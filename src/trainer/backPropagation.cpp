@@ -22,7 +22,7 @@ void BackPropagation::calculate_gradient(const Layer &layer, const std::vector<d
 }
 
 std::vector<double> BackPropagation::calculate_delta_for_hidden(const Hidden_Layer &current_layer, const Layer &next_layer, const std::vector<double> &next_deltas) {
-    std::vector<double> deltas(current_layer.getSize(), 0.0);
+	std::vector<double> deltas(current_layer.getSize(), 0.0);
 
 	for (int i = 0; i < current_layer.getSize(); i++) {
 		deltas[i] = 0.0;
@@ -45,7 +45,7 @@ void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const s
 }
 
 std::vector<double> BackPropagation::calculate_delta_for_output(const std::vector<double> &out, const int target) {
-    std::vector<double> deltas(out);
+	std::vector<double> deltas(out);
 
 	deltas[target] += 1.0;
 
@@ -53,10 +53,10 @@ std::vector<double> BackPropagation::calculate_delta_for_output(const std::vecto
 }
 
 void BackPropagation::calculate_pattern_gradients(const TrainSample &sample, gradient &_gradients, const neural_network &temp_network) {
-    std::vector<double> deltas;
+	std::vector<double> deltas;
 
 	for (int layer_index = _gradients.gradients.size() - 1; layer_index >= 0; layer_index--) {
-		Layer &layer = *temp_network.layers[layer_index];
+		const Layer &layer = *temp_network.layers.at(layer_index);
 
 		if (layer.getType() == OUTPUT) {
 			deltas = calculate_delta_for_output(layer.getOut(), sample._prediction.index);
@@ -83,14 +83,14 @@ double BackPropagation::run_back_propagation(const Batch &batch, const double le
 	const size_t batch_size = batch.size();
 	double error = 0.0;
 
-	gradient batch_gradient(model.config->config_data.network_config);
+	gradient batch_gradient(model.config.config_data.network_config);
 
 	if (batch_size == 0) {
 		return 0.0;
 	}
 
 	for (size_t i = 0; i < batch_size; i++) {
-		TrainSample *current_sample_ptr = batch.samples_ptrs.at(i);
+		TrainSample *current_sample_ptr = batch.samples.at(i);
 		error += run_back_propagation(*current_sample_ptr, batch_gradient);
 	}
 

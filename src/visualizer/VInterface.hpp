@@ -16,18 +16,18 @@ namespace Visualizer {
 class vInteface {
   private:
 	sf::RenderTexture VRender;
-	state *vstate;
+	state &vstate;
 	void createVInterface();
 	void display();
-	void handleKeyPresed(sf::Vector2i mousePos_, sf::Vector2f boxPos);
+	void handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos);
 	bool needHandlePress{false};
     std::vector<button *> buttons;
 
   public:
-	vInteface(state *vstate);
-	~vInteface() = default;
+	vInteface(state &vstate);
+	~vInteface();
 	sf::Sprite getSprite();
-	void handleClick(sf::Vector2i mousePos_, sf::Vector2f boxPos);
+	void handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos);
 	void renderInterface();
 	void handleNoClick();
 };

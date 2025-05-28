@@ -7,7 +7,7 @@
 #include <sstream>
 
 namespace Visualizer {
-vStatus::vStatus(state *vstate_) : vstate(vstate_) {
+vStatus::vStatus(state &vstate_) : vstate(vstate_) {
 	createVstatus();
 }
 
@@ -27,7 +27,7 @@ void vStatus::renderStatus() {
 
 std::string vStatus::get_text() {
     std::ostringstream ss;
-	ss << CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << std::endl;
+	ss << CURRENT_PHASE_TEXT << NNmodeName[(int)vstate.nnMode.load()] << std::endl;
 	return ss.str();
 }
 

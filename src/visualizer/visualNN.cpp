@@ -10,9 +10,9 @@ namespace Visualizer {
 visualNN::visualNN(const neural_network &network) : config(network.config), current_rendred_layer(0) {
 	layers.reserve(network.getLayerCount() + 1);
 
-	layers.push_back(new visualL(config.input_size, 0, network.getLayerCount() + 1));
+	layers.emplace_back(new visualL(config.input_size, 0, network.getLayerCount() + 1));
 	for (int layer = 0; layer < network.getLayerCount(); layer++) {
-		layers.push_back(new visualL(*network.layers[layer], network.getLayerCount() + 1));
+		layers.emplace_back(new visualL(*network.layers.at(layer), network.getLayerCount() + 1));
 	}
 
 	createNnVisual();
@@ -64,5 +64,11 @@ void visualNN::updateDots(const int layer, std::vector<double> out, std::vector<
 void visualNN::update(const int layer, const LayerParameters &gradients) {
 	current_rendred_layer = layer;
 	layers[layer]->add(gradients);
+}
+
+visualNN::~visualNN() {
+    for (size_t i = 0; i < layers.size(); i++) {
+        delete layers[i];
+    }
 }
 } // namespace Visualizer

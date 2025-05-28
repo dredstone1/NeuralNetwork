@@ -21,20 +21,20 @@ class visualL : public Layer {
 	void display();
 	void drawNeuron(const double input, const double output, sf::Vector2f pos);
 	void drawNeurons();
-	void drawWeights(int neuron_i, sf::Vector2f pos, float prevGap);
-	sf::Color getBGcolor(const bool render);
+	void drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap);
+	static sf::Color getBGcolor(const bool render);
 	static float calculateGap(const float size);
-	static float calculateDistance(sf::Vector2f pos1, sf::Vector2f pos2);
-	static float calculateAngle(sf::Vector2f pos1, sf::Vector2f pos2);
+	static float calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2);
+	static float calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2);
 	static float calculateWIDTH(const int size_a, const bool is_params);
 
   public:
-	visualL(int _size, int _prev_size, const int size_a);
-	visualL(Layer const &other, const int size_a);
+	visualL(const int _size, const int _prev_size, const int size_a);
+	visualL(const Layer &other, const int size_a);
 	LayerType getType() const override { return LayerType::NONE; }
 	sf::Sprite getSprite();
 	void renderLayer(const bool render);
-	void setDots(std::vector<double> out, std::vector<double> net);
+	void setDots(const std::vector<double> out, const std::vector<double> net);
 	const bool is_params;
 	const float WIDTH;
 };

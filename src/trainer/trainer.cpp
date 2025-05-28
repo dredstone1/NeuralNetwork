@@ -1,12 +1,13 @@
 #include "../../include/trainer.hpp"
 #include "dataBase.hpp"
 #include "model/config.hpp"
+#include "model/model.hpp"
 #include <chrono>
 #include <cstdio>
 #include <iostream>
 #include <sstream>
 
-void Trainer::print_progress_bar(int current, int total) {
+void Trainer::print_progress_bar(const int current, const int total) {
 	float progress = (float)current / total;
 	int progress_percentage = int(progress * 100.0);
 
@@ -14,7 +15,7 @@ void Trainer::print_progress_bar(int current, int total) {
 		int pos = BAR_WIDTH * progress;
 		last_progress = progress_percentage;
 
-        std::ostringstream oss;
+		std::ostringstream oss;
 		oss << "[";
 		for (int i = 0; i < BAR_WIDTH; ++i) {
 			if (i < pos)
@@ -26,18 +27,18 @@ void Trainer::print_progress_bar(int current, int total) {
 		}
 		oss << "] " << progress_percentage << " %\r";
 
-        std::cout << oss.str();
-        std::cout.flush();
+		std::cout << oss.str();
+		std::cout.flush();
 	}
 }
 
 void Trainer::train() {
-    std::cout << "Training AI" << std::endl;
+	std::cout << "Training AI" << std::endl;
 
 	const double graph_resolution = std::min(GRAPH_RESOLUTION, config.batch_count);
 	const int graph_draw_interval = config.batch_count / graph_resolution;
-    std::cout << "Graph resolution: " << graph_resolution << std::endl;
-    std::vector<double> errors(graph_resolution, 0.0);
+	std::cout << "Graph resolution: " << graph_resolution << std::endl;
+	std::vector<double> errors(graph_resolution, 0.0);
 	double error = 0.0;
 
 	const auto start = std::chrono::high_resolution_clock::now();
@@ -59,15 +60,11 @@ void Trainer::train() {
 	const int minutes = time_taken / SECONDS_IN_MINUTE;
 	const int seconds = time_taken % SECONDS_IN_MINUTE;
 	const int time_taken_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::cout << std::endl
-	     << "Training Done!" << std::endl
-	     << "Training time: " << minutes << " minutes " << seconds << " seconds" << " (" << time_taken_milliseconds << " ms)" << std::endl;
+	std::cout << std::endl
+	          << "Training Done!" << std::endl
+	          << "Training time: " << minutes << " minutes " << seconds << " seconds" << " (" << time_taken_milliseconds << " ms)" << std::endl;
 
 	double min = *min_element(errors.begin(), errors.end());
 	printf("Minimum error: %f\n", min);
 }
 
-Trainer::Trainer(AiModel *_model) : config(_model->getConfig().config_data.training_config), dataBase(config), backPropagation(*_model) {
-	model = _model;
-	last_progress = -1;
-}

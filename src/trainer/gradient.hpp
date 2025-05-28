@@ -6,13 +6,13 @@
 #include <vector>
 
 typedef struct gradient {
-    std::vector<LayerParameters> gradients;
+	std::vector<LayerParameters> gradients;
 	void add(const gradient &new_gradient);
 	void multiply(const double value);
 	void reset();
 	~gradient() = default;
-	NetworkConfig &config;
-	gradient(NetworkConfig &config);
+	const NetworkConfig &config;
+	gradient(const NetworkConfig &config);
 	gradient(const gradient &other);
 } gradient;
 

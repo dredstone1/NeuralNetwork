@@ -11,29 +11,26 @@ enum LayerType {
 };
 
 class Layer {
-  private:
-	const int destroyParams;
-
   protected:
 	neurons dots;
-	LayerParameters *Parameters;
+	LayerParameters Parameters;
 
   public:
-	Layer(Layer const &other) : destroyParams(1), dots(other.dots.size()), Parameters(other.Parameters) {}
-	Layer(int _size, int _prev_size, double init_value);
 	virtual LayerType getType() const { return NONE; }
 	virtual void forward(const std::vector<double> &metrix);
 	const neurons &getDots() const { return dots; }
-	double getWeight(int i, int j) const { return Parameters->weights[i][j]; }
-	void setWeight(int i, int j, double weight) { Parameters->weights[i][j] = weight; }
+	double getWeight(const int i, const int j) const { return Parameters.weights[i][j]; }
+	void setWeight(const int i, const int j, const double weight) { Parameters.weights[i][j] = weight; }
 	const std::vector<double> &getNet() const { return dots.net; }
 	const std::vector<double> &getOut() const { return dots.out; }
-	void add(LayerParameters const &gradients);
-	int getSize() const { return Parameters->getSize(); }
-	int getPrevSize() const { return Parameters->getPrevSize(); }
+	void add(const LayerParameters &gradients);
+	int getSize() const { return Parameters.getSize(); }
+	int getPrevSize() const { return Parameters.getPrevSize(); }
 	void reset();
 	const LayerParameters getParms();
-	virtual ~Layer();
+	virtual ~Layer() = default;
+	Layer(const Layer &other) : dots(other.dots.size()), Parameters(other.Parameters) {}
+	Layer(const int _size, const int _prev_size, const double init_value) : dots(_size), Parameters(_size, _prev_size, init_value) {}
 };
 
-#endif // LAYER_HPP
+#endif // LAYER

@@ -1,4 +1,5 @@
 #include <AiModel.hpp>
+#include <cstdlib>
 #include <iostream>
 #include <trainer.hpp>
 
@@ -35,26 +36,26 @@ int main(int argc, char *argv[]) {
 		AiModel model("config.json", mods & visual);
 
 		if (mods & train) {
-			Trainer trainer(&model);
+			Trainer trainer(model);
 
 			trainer.train();
 		}
 
 		int num1 = 0, num2 = 0;
-        std::string str_num;
-		while (num1 != 5) {
-            std::cout << "Enter an integer: ";
+		std::string str_num;
+		while (num2 != 5) {
+			std::cout << "Enter an integer: ";
 			getline(std::cin, str_num);
 			num1 = stoi(str_num);
-
-			getline(std::cin, str_num);
-			num2 = stoi(str_num);
 			if (num1 == 5)
 				break;
 
-            std::vector<double> input(2, 0);
+			getline(std::cin, str_num);
+			num2 = stoi(str_num);
+
+			std::vector<double> input(2, 0);
 			input[0] = num1;
-			input[0] = num2;
+			input[1] = num2;
 			model.run_model(input);
 			printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
 		}
@@ -62,6 +63,6 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-    std::cout << "Need at least 1 input!" << std::endl;
+	std::cout << "Need at least 1 input!" << std::endl;
 	return 1;
 }

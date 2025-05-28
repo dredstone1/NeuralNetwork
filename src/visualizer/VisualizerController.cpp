@@ -9,7 +9,7 @@
 #include <thread>
 
 namespace Visualizer {
-visualizerController::visualizerController(VisualizerConfig &_config) : renderer(NULL), config(_config) {
+visualizerController::visualizerController(const VisualizerConfig &_config) : renderer(NULL), config(_config) {
 	printf("start Visualizer\n");
 }
 
@@ -32,9 +32,12 @@ void visualizerController::stop() {
 		if (renderer) {
 			renderer->close();
 		}
-
+		wait_until_stop();
 		display_thread.join();
 	}
+
+	delete renderer;
+	delete Vstate;
 }
 
 void visualizerController::start(const neural_network &network) {
@@ -52,19 +55,31 @@ void visualizerController::start_visuals(const neural_network &network) {
 
 	initState();
 
-	renderer = new VisualizerRenderer(network, Vstate);
-	if (!renderer)
+	renderer = new VisualizerRenderer(network, *Vstate);
+	if (!renderer) {
+		delete Vstate;
 		return;
+	}
 
 	running = true;
 	renderer->start();
+
 	delete renderer;
+	renderer = NULL;
 	delete Vstate;
+	Vstate = NULL;
+
 	running = false;
 }
 
 void visualizerController::wait_until_started() {
-	while (!renderer) {
+	while (!renderer || !Vstate) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+}
+
+void visualizerController::wait_until_stop() {
+	while (renderer && Vstate) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }

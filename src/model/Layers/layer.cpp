@@ -1,7 +1,7 @@
 #include "layer.hpp"
 
 void Layer::add(const LayerParameters &gradients) {
-	Parameters->add(gradients);
+	Parameters.add(gradients);
 }
 
 void Layer::reset() {
@@ -10,30 +10,17 @@ void Layer::reset() {
 	}
 }
 
-Layer::~Layer() {
-	if (destroyParams) {
-		delete Parameters;
-	}
-}
-
-Layer::Layer(int _size, int _prev_size, double random) : destroyParams(1), dots(_size) {
-	Parameters = new LayerParameters(_size, _prev_size, random);
-}
-
 const LayerParameters Layer::getParms() {
-	return *Parameters;
+	return Parameters;
 }
 
 void Layer::forward(const std::vector<double> &metrix) {
-	if (!Parameters)
-		return;
-
-	for (int i = 0; i < Parameters->getSize(); ++i) {
+	for (int i = 0; i < Parameters.getSize(); ++i) {
 		dots.net[i] = 0;
 
-		for (int j = 0; j < Parameters->getPrevSize(); ++j) {
+		for (int j = 0; j < Parameters.getPrevSize(); ++j) {
 			if (j < static_cast<int>(metrix.size())) {
-				dots.net[i] += Parameters->weights[i][j] * metrix[j];
+				dots.net[i] += Parameters.weights[i][j] * metrix[j];
 			}
 		}
 		dots.out[i] = dots.net[i];

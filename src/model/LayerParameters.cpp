@@ -8,9 +8,9 @@ LayerParameters::LayerParameters(const int size, const int prev_size, const doub
 	if (init_value >= 0.0)
 		return;
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::normal_distribution<> dist(0.0, sqrt(2.0 / (prev_size)));
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::normal_distribution<> dist(0.0, sqrt(2.0 / (prev_size)));
 
 	for (auto &dot : weights) {
 		for (auto &weight : dot) {
@@ -46,4 +46,6 @@ void LayerParameters::multiply(const double value) {
 	}
 }
 
-LayerParameters::LayerParameters(LayerParameters const &other) : weights(other.weights) {}
+LayerParameters::LayerParameters(const LayerParameters &other) {
+    weights = other.weights;
+}
