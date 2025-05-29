@@ -2,11 +2,12 @@
 #include "model/config.hpp"
 #include "model/model.hpp"
 #include <cstring>
+#include <memory>
 #include <string>
 #include <vector>
 
-AiModel::AiModel(std::string config_file, const bool use_visual) : config(config_file){
-	_model = new model(config, use_visual);
+AiModel::AiModel(std::string config_file, const bool use_visual) : config(config_file) {
+	_model = std::make_unique<model>(config, use_visual);
 }
 
 void AiModel::run_model(const std::vector<double> &input) {
@@ -22,8 +23,4 @@ prediction AiModel::getPrediction() {
 	}
 
 	return {max, _model->getOutput()[max]};
-}
-
-AiModel::~AiModel() {
-	delete _model;
 }

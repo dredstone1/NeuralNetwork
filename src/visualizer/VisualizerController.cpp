@@ -6,10 +6,11 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdio>
+#include <memory>
 #include <thread>
 
 namespace Visualizer {
-visualizerController::visualizerController(const VisualizerConfig &_config) : renderer(NULL), config(_config) {
+visualizerController::visualizerController(const VisualizerConfig &_config) : config(_config) {
 	printf("start Visualizer\n");
 }
 
@@ -27,7 +28,7 @@ visualizerController::~visualizerController() {
 }
 
 void visualizerController::stop() {
-	running = false;
+	running.store(false);
 	if (display_thread.joinable()) {
 		if (renderer) {
 			renderer->close();
@@ -35,13 +36,10 @@ void visualizerController::stop() {
 		wait_until_stop();
 		display_thread.join();
 	}
-
-	delete renderer;
-	delete Vstate;
 }
 
 void visualizerController::start(const neural_network &network) {
-	if (running)
+	if (running.load())
 		return;
 
 	display_thread = std::thread(&visualizerController::start_visuals, this, std::cref(network));
@@ -49,31 +47,29 @@ void visualizerController::start(const neural_network &network) {
 }
 
 void visualizerController::start_visuals(const neural_network &network) {
-	Vstate = new state;
+	Vstate = std::make_unique<state>();
 	if (!Vstate)
 		return;
 
 	initState();
 
-	renderer = new VisualizerRenderer(network, *Vstate);
+	renderer = std::make_unique<VisualizerRenderer>(network, *Vstate);
 	if (!renderer) {
-		delete Vstate;
 		return;
 	}
 
-	running = true;
+	running.store(true);
 	renderer->start();
 
-	delete renderer;
-	renderer = NULL;
-	delete Vstate;
-	Vstate = NULL;
-
-	running = false;
+	running.store(false);
 }
 
 void visualizerController::wait_until_started() {
-	while (!renderer || !Vstate) {
+	while (true) {
+		{
+			if (renderer && Vstate)
+				break;
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
@@ -85,10 +81,10 @@ void visualizerController::wait_until_stop() {
 }
 
 void visualizerController::wait_until_updated() {
-	if (!renderer || !Vstate->preciseMode)
+	if (!renderer || !Vstate->preciseMode.load())
 		return;
 
-	while (renderer->updateStatus() && running) {
+	while (renderer->updateStatus() && running.load()) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
@@ -97,19 +93,20 @@ void visualizerController::pause() {
 	if (!renderer || !Vstate)
 		return;
 
-	while (Vstate->pause && running) {
+	while (Vstate->pause.load() && running.load()) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
 void visualizerController::autoPause() {
-	if (Vstate->autoPause)
-		Vstate->pause = true;
+	if (Vstate->autoPause.load())
+		Vstate->pause.store(true);
+
 	pause();
 }
 
 void visualizerController::handleStates() {
-	if (!running)
+	if (!running.load())
 		return;
 
 	wait_until_updated();
@@ -123,7 +120,7 @@ bool visualizerController::checkP() {
 
 void visualizerController::updateDots(const int layer, std::vector<double> out, std::vector<double> net) {
 	if (checkP()) {
-		if (!running) {
+		if (!running.load()) {
 			stop();
 			return;
 		}
@@ -135,7 +132,7 @@ void visualizerController::updateDots(const int layer, std::vector<double> out, 
 
 void visualizerController::update(const int layer, const LayerParameters &gradient_) {
 	if (checkP()) {
-		if (!running) {
+		if (!running.load()) {
 			stop();
 			return;
 		}
@@ -147,7 +144,7 @@ void visualizerController::update(const int layer, const LayerParameters &gradie
 
 void visualizerController::setNewPhaseMode(const NNmode nn_mode) {
 	if (checkP()) {
-		if (!running) {
+		if (!running.load()) {
 			stop();
 			return;
 		}

@@ -5,6 +5,7 @@
 #include "VisualizerRenderer.hpp"
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
+#include <memory>
 #include <mutex>
 #include <thread>
 
@@ -14,9 +15,9 @@ class visualizerController {
 	void update_display();
 	std::mutex mtx;
 	std::atomic<bool> running{false};
-	VisualizerRenderer *renderer;
+	std::unique_ptr<VisualizerRenderer> renderer;
 	const VisualizerConfig &config;
-	state *Vstate;
+	std::unique_ptr<state> Vstate;
 	void stop();
 	std::thread display_thread;
 	void start_visuals(const neural_network &network);

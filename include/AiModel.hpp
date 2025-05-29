@@ -12,7 +12,7 @@ typedef struct prediction {
 
 class AiModel {
   private:
-	model *_model;
+	std::unique_ptr<model> _model;
 	Config config;
 	friend class BackPropagation;
 
@@ -21,7 +21,7 @@ class AiModel {
 	void run_model(const std::vector<double> &input);
 	prediction getPrediction();
 	Config &getConfig() { return config; }
-	~AiModel();
+	~AiModel() = default;
 };
 
 #endif // AIMODEL

@@ -17,15 +17,15 @@ void VisualizerRenderer::processEvents() {
 			close();
 		}
 		if (event.type == sf::Event::Resized) {
-			needUpdate = true;
+			needUpdate.store(true);
 		}
 		if (event.type == sf::Event::MouseButtonPressed) {
 			sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 			interface.handleClick(mousePos, {NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
-			needUpdate = true;
+			needUpdate.store(true);
 		} else if (event.type == sf::Event::MouseButtonReleased) {
 			interface.handleNoClick();
-			needUpdate = true;
+			needUpdate.store(true);
 		}
 	}
 }
@@ -57,14 +57,14 @@ void VisualizerRenderer::update() {
 }
 
 void VisualizerRenderer::renderLoop() {
-	running = true;
+	running.store(true);
 	while (window.isOpen() && running) {
 		processEvents();
 
 		if (needUpdate) {
 			update();
 
-			needUpdate = false;
+			needUpdate.store(false);
 		}
 	}
 
@@ -72,22 +72,22 @@ void VisualizerRenderer::renderLoop() {
 }
 
 void VisualizerRenderer::close() {
-	running = false;
+	running.store(false);
 }
 
 void VisualizerRenderer::start() {
-	running = true;
+	running.store(true);
 	renderLoop();
 }
 
 void VisualizerRenderer::updateDots(const int layer, const std::vector<double> out, const std::vector<double> net) {
 	visualNetwork.updateDots(layer, out, net);
-	needUpdate = true;
+	needUpdate.store(true);
 }
 
 void VisualizerRenderer::update(const int layer, const LayerParameters &gradients) {
 	visualNetwork.update(layer, gradients);
-	needUpdate = true;
+	needUpdate.store(true);
 }
 
 VisualizerRenderer::~VisualizerRenderer() {
@@ -96,6 +96,6 @@ VisualizerRenderer::~VisualizerRenderer() {
 
 void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
 	Vstate.nnMode.store(nn_mode);
-	needUpdate = true;
+	needUpdate.store(true);
 }
 } // namespace Visualizer
