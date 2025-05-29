@@ -44,8 +44,8 @@ make
 NeuralNetwork/
 ├── 📂 src/         # Core library implementation
 ├── 📂 include/     # Public API headers
+├── 📂 resources/   # Static assets
 ├── 📂 tests/       # Unit tests and validation
-├── 📂 examples/    # Sample applications and tutorials
 ├── 📄 CMakeLists.txt
 └── 📖 README.md
 ```
