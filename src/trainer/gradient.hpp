@@ -5,7 +5,7 @@
 #include "../model/config.hpp"
 #include <vector>
 
-typedef struct gradient {
+struct gradient {
 	std::vector<LayerParameters> gradients;
 	void add(const gradient &new_gradient);
 	void multiply(const double value);
@@ -14,6 +14,6 @@ typedef struct gradient {
 	const NetworkConfig &config;
 	gradient(const NetworkConfig &config);
 	gradient(const gradient &other);
-} gradient;
+};
 
 #endif // GRADIENT

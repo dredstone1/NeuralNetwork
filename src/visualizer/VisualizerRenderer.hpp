@@ -1,5 +1,5 @@
-#ifndef VISUALIZER
-#define VISUALIZER
+#ifndef VISUALIZERRENDERER
+#define VISUALIZERRENDERER
 
 #include "../model/neuralNetwork.hpp"
 #include "VInterface.hpp"
@@ -39,4 +39,5 @@ class VisualizerRenderer {
 	void setNewPhaseMode(const NNmode nn_mode);
 };
 } // namespace Visualizer
-#endif
+
+#endif // VISUALIZERRENDERER

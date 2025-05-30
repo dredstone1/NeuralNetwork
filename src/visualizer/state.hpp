@@ -31,7 +31,7 @@ const std::string NNmodeName[] = {
     "Backward",
 };
 
-typedef struct state {
+struct state {
 	std::atomic<bool> pause{true};
 	std::atomic<bool> preciseMode{true};
 	std::atomic<bool> autoPause{true};
@@ -44,8 +44,8 @@ typedef struct state {
 	bool getState(const states state_);
 	void setState(const states state_, const bool stateM);
 	void setState(const std::string &state_, const bool stateM) { setState(getStatefromString(state_), stateM); }
-    ~state() = default;
-} state;
+	~state() = default;
+};
 } // namespace Visualizer
 
 #endif // STATE

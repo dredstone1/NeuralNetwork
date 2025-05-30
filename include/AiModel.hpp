@@ -17,7 +17,7 @@ class AiModel {
 	friend class BackPropagation;
 
   public:
-	AiModel(std::string &config_file, const bool use_visual);
+	AiModel(const std::string &config_file, const bool use_visual);
 	void run_model(const std::vector<double> &input);
 	prediction getPrediction();
 	Config &getConfig() { return config; }

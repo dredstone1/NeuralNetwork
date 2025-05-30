@@ -1,6 +1,8 @@
 #include <AiModel.hpp>
+#include <cctype>
 #include <cstdlib>
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <trainer.hpp>
 
@@ -10,6 +12,16 @@ enum mode {
 	train = 2,  // 0100
 	visual = 4, // 1000
 };
+
+bool isNumber(const std::string &s) {
+	if (s.empty())
+		return false;
+	for (char c : s) {
+		if (!std::isdigit(c))
+			return false;
+	}
+	return true;
+}
 
 int main(int argc, char *argv[]) {
 	if (argc > 1) {
@@ -33,7 +45,7 @@ int main(int argc, char *argv[]) {
 
 			arg++;
 		}
-        std::string config_FN = "config.json";
+		std::string config_FN = "config.json";
 
 		AiModel model(config_FN, mods & visual);
 
@@ -46,14 +58,24 @@ int main(int argc, char *argv[]) {
 		int num1 = 0, num2 = 0;
 		std::string str_num;
 		while (num2 != 5) {
-			std::cout << "Enter an integer: ";
-			getline(std::cin, str_num);
-			num1 = stoi(str_num);
+			std::cout << "Enter an integer 1: ";
+			std::getline(std::cin, str_num);
+			if (!isNumber(str_num)) {
+				std::cout << str_num << " is not a number, please enter a valid integer" << std::endl;
+				continue;
+			}
+			num1 = std::stoi(str_num);
+
 			if (num1 == 5)
 				break;
 
-			getline(std::cin, str_num);
-			num2 = stoi(str_num);
+			std::cout << "Enter an integer 2: ";
+			std::getline(std::cin, str_num);
+			if (!isNumber(str_num)) {
+				std::cout << str_num << " is not a number, please enter a valid integer" << std::endl;
+				continue;
+			}
+			num2 = std::stoi(str_num);
 
 			std::vector<double> input(2, 0);
 			input[0] = num1;

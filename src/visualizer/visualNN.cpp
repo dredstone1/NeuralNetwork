@@ -11,7 +11,10 @@
 #include <cstdio>
 
 namespace Visualizer {
-visualNN::visualNN(const neural_network &network, state &state_) : config(network.config), current_rendred_layer(0), vstate(state_) {
+visualNN::visualNN(const neural_network &network, state &state_)
+    : config(network.config),
+      current_rendred_layer(0),
+      vstate(state_) {
 	layers.reserve(network.getLayerCount() + 1);
 
 	layers.emplace_back(new VEmptyLayer(config.input_size, 0, network.getLayerCount() + 1));

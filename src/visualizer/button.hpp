@@ -34,4 +34,4 @@ class button {
 };
 } // namespace Visualizer
 
-#endif // VISUALIZERCONTROLLER
+#endif // BUTTON

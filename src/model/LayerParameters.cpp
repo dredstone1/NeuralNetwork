@@ -47,5 +47,5 @@ void LayerParameters::multiply(const double value) {
 }
 
 LayerParameters::LayerParameters(const LayerParameters &other) {
-    weights = other.weights;
+	weights = other.weights;
 }

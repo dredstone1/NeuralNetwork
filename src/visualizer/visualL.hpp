@@ -54,8 +54,10 @@ class VEmptyLayer : public visualL {
 	textT getTextT(const int, const int) override;
 
   public:
-	VEmptyLayer(const int _size, const int _prev_size, const int size_a) : visualL(_size, _prev_size, size_a) {}
-	VEmptyLayer(const Layer &other, const int size_a) : visualL(other, size_a) {}
+	VEmptyLayer(const int _size, const int _prev_size, const int size_a)
+	    : visualL(_size, _prev_size, size_a) {}
+	VEmptyLayer(const Layer &other, const int size_a)
+	    : visualL(other, size_a) {}
 	~VEmptyLayer() = default;
 };
 
@@ -65,8 +67,12 @@ class VParamLayer : public visualL {
 	textT getTextT(const int layer_i, const int layer_p) override;
 
   public:
-	VParamLayer(const int _size, const int _prev_size, const int size_a) : visualL(_size, _prev_size, size_a), grad(_size, _prev_size, 0.5) {}
-	VParamLayer(const Layer &other, const int size_a) : visualL(other, size_a), grad(other.getSize(), other.getPrevSize(), 0.5) {}
+	VParamLayer(const int _size, const int _prev_size, const int size_a)
+	    : visualL(_size, _prev_size, size_a),
+	      grad(_size, _prev_size, 0.5) {}
+	VParamLayer(const Layer &other, const int size_a)
+	    : visualL(other, size_a),
+	      grad(other.getSize(), other.getPrevSize(), 0.5) {}
 	void updateGrad(const LayerParameters &new_grad);
 	~VParamLayer() = default;
 };

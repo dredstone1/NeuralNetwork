@@ -32,6 +32,7 @@ void gradient::multiply(const double value) {
 	}
 }
 
-gradient::gradient(const gradient &other) : config(other.config) {
+gradient::gradient(const gradient &other)
+    : config(other.config) {
 	gradients = other.gradients;
 }

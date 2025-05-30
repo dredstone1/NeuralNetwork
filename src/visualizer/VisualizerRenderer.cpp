@@ -10,7 +10,12 @@
 #include <cstdio>
 
 namespace Visualizer {
-VisualizerRenderer::VisualizerRenderer(const neural_network &network, state &vstate) : window(sf::VideoMode(1600, 800), "Visualizer", sf::Style::Titlebar | sf::Style::Titlebar), visualNetwork(network, vstate), Vstate(vstate), interface(vstate), statusV(vstate) {}
+VisualizerRenderer::VisualizerRenderer(const neural_network &network, state &vstate)
+    : window(sf::VideoMode(1600, 800), "Visualizer", sf::Style::Titlebar | sf::Style::Titlebar),
+      visualNetwork(network, vstate),
+      Vstate(vstate),
+      interface(vstate),
+      statusV(vstate) {}
 
 void VisualizerRenderer::processEvents() {
 	sf::Event event;
@@ -38,8 +43,6 @@ void VisualizerRenderer::renderObjects() {
 	sf::Sprite visualNetworkSprite = visualNetwork.getSprite();
 	visualNetworkSprite.setPosition(UI_GAP, UI_GAP);
 	window.draw(visualNetworkSprite);
-
-    
 
 	interface.renderInterface();
 	sf::Sprite interfaceSprite = interface.getSprite();

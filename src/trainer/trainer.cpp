@@ -67,4 +67,3 @@ void Trainer::train() {
 	double min = *min_element(errors.begin(), errors.end());
 	printf("Minimum error: %f\n", min);
 }
-

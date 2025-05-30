@@ -11,7 +11,8 @@
 #include <thread>
 
 namespace Visualizer {
-visualizerController::visualizerController(const VisualizerConfig &_config) : config(_config) {
+visualizerController::visualizerController(const VisualizerConfig &_config)
+    : config(_config) {
 	printf("start Visualizer\n");
 }
 

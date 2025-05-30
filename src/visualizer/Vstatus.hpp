@@ -30,4 +30,5 @@ class vStatus {
 	void renderStatus();
 };
 } // namespace Visualizer
-#endif
+
+#endif //VSTATUS

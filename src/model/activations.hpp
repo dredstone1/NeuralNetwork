@@ -29,8 +29,10 @@ class activations {
 	static double max_vector(const std::vector<double> &metrix);
 
   public:
-	activations(const activation activation) : _activation(activation) {}
-	activations(const activations &other) : _activation(other._activation) {}
+	activations(const activation activation)
+	    : _activation(activation) {}
+	activations(const activations &other)
+	    : _activation(other._activation) {}
 	double activate(const double x) const;
 	double DerivativeActivate(const double x) const;
 	static void Softmax(neurons &metrix);

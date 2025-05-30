@@ -7,7 +7,8 @@
 #include <cstddef>
 
 namespace Visualizer {
-vInteface::vInteface(state &vstate) : vstate(vstate) {
+vInteface::vInteface(state &vstate)
+    : vstate(vstate) {
 	createVInterface();
 }
 

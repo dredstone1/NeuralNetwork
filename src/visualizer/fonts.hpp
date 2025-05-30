@@ -14,4 +14,4 @@ class Fonts {
 };
 } // namespace Visualizer
 
-#endif //FONTS
+#endif // FONTS

@@ -6,8 +6,11 @@
 #include <cmath>
 #include <vector>
 
-model::model(Config &_config, const bool use_visual) : network(_config.config_data.network_config), visual(_config.config_data.visualizer_config), useVisual(use_visual) {
-	if (use_visual)
+model::model(Config &_config, const bool useVisual)
+    : network(_config.config_data.network_config),
+      visual(_config.config_data.visualizer_config),
+      useVisual(useVisual) {
+	if (useVisual)
 		visual.start(network);
 }
 

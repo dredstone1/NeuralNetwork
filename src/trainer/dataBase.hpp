@@ -19,7 +19,8 @@ typedef struct Samples {
 	std::vector<TrainSample> samples;
 	size_t size() const { return samples.size(); }
 	void add(TrainSample sample) { samples.push_back(sample); }
-	Samples(const int sampleInputSize, const int _size) : sInputSize(sampleInputSize) {
+	Samples(const int sampleInputSize, const int _size)
+	    : sInputSize(sampleInputSize) {
 		if (_size > 0) {
 			samples.reserve(_size);
 		}

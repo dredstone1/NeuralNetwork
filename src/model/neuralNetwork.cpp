@@ -1,11 +1,12 @@
 #include "neuralNetwork.hpp"
-#include "Layers/layer.hpp"
-#include "config.hpp"
 #include "Layers/Hidden_Layer.hpp"
 #include "Layers/Output_Layer.hpp"
+#include "Layers/layer.hpp"
+#include "config.hpp"
 #include <cstddef>
 
-neural_network::neural_network(const NetworkConfig &network_config) : config(network_config) {
+neural_network::neural_network(const NetworkConfig &network_config)
+    : config(network_config) {
 	layers.reserve(network_config.hidden_layer_count() + 1);
 	int prev_size = network_config.input_size;
 	for (int i = 0; i < network_config.hidden_layer_count(); i++) {
@@ -16,7 +17,8 @@ neural_network::neural_network(const NetworkConfig &network_config) : config(net
 	layers.emplace_back(new Output_Layer(network_config.output_size, prev_size, network_config.output_init_value));
 }
 
-neural_network::neural_network(const neural_network &other) : config(other.config) {
+neural_network::neural_network(const neural_network &other)
+    : config(other.config) {
 	layers.reserve(other.getLayerCount() + 1);
 
 	for (int i = 0; i < other.getLayerCount(); i++) {
@@ -33,7 +35,7 @@ void neural_network::reset() {
 }
 
 neural_network::~neural_network() {
-    for (size_t i = 0; i < layers.size(); i++) {
-        delete layers[i];
-    }
+	for (size_t i = 0; i < layers.size(); i++) {
+		delete layers[i];
+	}
 }

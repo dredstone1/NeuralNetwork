@@ -16,6 +16,12 @@ class Layer {
 	LayerParameters Parameters;
 
   public:
+	Layer(const Layer &other)
+	    : dots(other.dots.size()),
+	      Parameters(other.Parameters) {}
+	Layer(const int _size, const int _prev_size, const double init_value)
+	    : dots(_size),
+	      Parameters(_size, _prev_size, init_value) {}
 	virtual LayerType getType() const { return NONE; }
 	virtual void forward(const std::vector<double> &metrix);
 	const neurons &getDots() const { return dots; }
@@ -29,8 +35,6 @@ class Layer {
 	void reset();
 	const LayerParameters getParms();
 	virtual ~Layer() = default;
-	Layer(const Layer &other) : dots(other.dots.size()), Parameters(other.Parameters) {}
-	Layer(const int _size, const int _prev_size, const double init_value) : dots(_size), Parameters(_size, _prev_size, init_value) {}
 };
 
 #endif // LAYER

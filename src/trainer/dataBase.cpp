@@ -9,7 +9,10 @@
 #include <numeric>
 #include <ostream>
 
-DataBase::DataBase(TrainingConfig &config_) : samples(nullptr), config(config_), currentBatch(0) {
+DataBase::DataBase(TrainingConfig &config_)
+    : samples(nullptr),
+      config(config_),
+      currentBatch(0) {
 	std::random_device rd;
 	rng = std::mt19937(rd());
 

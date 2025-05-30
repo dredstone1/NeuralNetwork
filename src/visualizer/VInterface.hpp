@@ -21,7 +21,7 @@ class vInteface {
 	void display();
 	void handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos);
 	bool needHandlePress{false};
-    std::vector<button *> buttons;
+	std::vector<button *> buttons;
 
   public:
 	vInteface(state &vstate);
@@ -32,4 +32,5 @@ class vInteface {
 	void handleNoClick();
 };
 } // namespace Visualizer
-#endif
+
+#endif // VINTERFACE

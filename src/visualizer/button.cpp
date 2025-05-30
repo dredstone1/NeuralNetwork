@@ -8,7 +8,10 @@
 #include <sstream>
 
 namespace Visualizer {
-button::button(state &_state, const std::string lable, const states Cstate) : State(_state), CurrentState(Cstate), lable(lable) {
+button::button(state &_state, const std::string lable, const states Cstate)
+    : State(_state),
+      CurrentState(Cstate),
+      lable(lable) {
 	renderButton();
 }
 

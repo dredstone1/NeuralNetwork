@@ -7,10 +7,11 @@
 #include <cmath>
 #include <vector>
 
-BackPropagation::BackPropagation(AiModel &_model) : model(_model) {}
+BackPropagation::BackPropagation(AiModel &_model)
+    : model(_model) {}
 
 double BackPropagation::get_cross_entropy_loss(const std::vector<double> &prediction, const int target) {
-	return -log(prediction[target]);
+	return -std::log(prediction[target]);
 }
 
 double BackPropagation::get_total_error(const neural_network &temp_network, const int target) {
