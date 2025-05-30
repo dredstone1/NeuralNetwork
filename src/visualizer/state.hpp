@@ -32,7 +32,7 @@ const std::string NNmodeName[] = {
 };
 
 typedef struct state {
-	std::atomic<bool> pause{false};
+	std::atomic<bool> pause{true};
 	std::atomic<bool> preciseMode{true};
 	std::atomic<bool> autoPause{true};
 	std::atomic<bool> update_mode{false};

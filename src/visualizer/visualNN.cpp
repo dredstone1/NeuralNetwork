@@ -7,15 +7,16 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <bits/types/locale_t.h>
+#include <cstddef>
 #include <cstdio>
 
 namespace Visualizer {
-visualNN::visualNN(const neural_network &network, state &state_) : config(network.config), current_rendred_layer(0), gradState(network.config), vstate(state_) {
+visualNN::visualNN(const neural_network &network, state &state_) : config(network.config), current_rendred_layer(0), vstate(state_) {
 	layers.reserve(network.getLayerCount() + 1);
 
-	layers.emplace_back(new visualL(config.input_size, 0, network.getLayerCount() + 1));
+	layers.emplace_back(new VEmptyLayer(config.input_size, 0, network.getLayerCount() + 1));
 	for (int layer = 0; layer < network.getLayerCount(); layer++) {
-		layers.emplace_back(new visualL(*network.layers.at(layer), network.getLayerCount() + 1));
+		layers.emplace_back(new VParamLayer(*network.layers.at(layer), network.getLayerCount() + 1));
 	}
 
 	createNnVisual();
@@ -47,10 +48,7 @@ void visualNN::render() {
 }
 
 void visualNN::renderLayer(const int layer, const float posx) {
-	if (layer == 0 || vstate.nnMode.load() == NNmode::Forword)
-		layers[layer]->renderLayer(layer == current_rendred_layer);
-	else
-		layers[layer]->renderLayer(layer == current_rendred_layer, gradState.gradients[layer - 1]);
+	layers[layer]->renderLayer(layer == current_rendred_layer);
 
 	sf::Sprite newSprite = layers[layer]->getSprite();
 	newSprite.setPosition(posx, 0);
@@ -72,9 +70,11 @@ void visualNN::update(const int layer, const LayerParameters &gradients) {
 	current_rendred_layer = layer;
 	layers[layer]->add(gradients);
 }
+
 void visualNN::update(const gradient new_grad) {
-	gradState.reset();
-	gradState.add(new_grad);
+	for (size_t i = 1; i < layers.size(); i++) {
+		((VParamLayer *)layers[i])->updateGrad(new_grad.gradients[i - 1]);
+	}
 }
 
 visualNN::~visualNN() {

@@ -24,7 +24,6 @@ class visualNN {
 	void renderLayers();
 	void renderLayer(const int layer, const float posx);
 	static bool getBit(const long num, const int index);
-	gradient gradState;
 	state &vstate;
 
   public:

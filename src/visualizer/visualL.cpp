@@ -48,11 +48,6 @@ sf::Color visualL::getBGcolor(const bool render) {
 	return sf::Color::Green;
 }
 
-void visualL::renderLayer(const bool render, const LayerParameters &new_grad) {
-	clear(render);
-	drawNeurons(new_grad);
-}
-
 void visualL::renderLayer(const bool render) {
 	clear(render);
 	drawNeurons();
@@ -78,65 +73,6 @@ float visualL::calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2) 
 	return atan2(pos2.y - pos1.y, pos2.x - pos1.x) * 180.0 / M_PI;
 }
 
-void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap, const std::vector<double> &new_grad) {
-	const float FRACTION_ALONG_LINE = 0.8f;
-	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f;
-
-	for (int neuronP = 0; neuronP < getPrevSize(); neuronP++) {
-		float weightValue = Parameters.weights[neuron_i][neuronP];
-
-		float xP = 0.f;
-		float yP = prevGap + neuronP * (prevGap + NEURON_RADIUS * 2);
-
-		sf::Vector2f prevNeuronTopLeft(xP, yP);
-
-		float lineLength = calculateDistance(prevNeuronTopLeft, pos);
-		float angleDeg = calculateAngle(prevNeuronTopLeft, pos);
-		float angleRad = angleDeg * M_PI / 180.0f;
-
-		float line_thickness_arg = std::max(std::min(weightValue, 4.f), 0.1f);
-
-		sf::RectangleShape line;
-		line.setSize({lineLength, line_thickness_arg});
-		line.setFillColor(sf::Color::Black);
-
-		sf::Vector2f lineGraphicalOrigin(xP, yP + NEURON_RADIUS);
-		line.setPosition(lineGraphicalOrigin);
-		line.setRotation(angleDeg);
-
-		layerRender.draw(line);
-
-		std::ostringstream ss;
-		ss << std::fixed << std::setprecision(4) << weightValue;
-
-		sf::Text text;
-		text.setFont(Fonts::getFont());
-		text.setCharacterSize(10);
-		text.setString(ss.str());
-		text.setFillColor(getColorFromTextT(getTextT(new_grad[neuronP])));
-
-		sf::FloatRect textBounds = text.getLocalBounds();
-		text.setOrigin(textBounds.left + textBounds.width / 2.0f,
-		               textBounds.top + textBounds.height / 2.0f);
-
-		float text_anchor_local_x = FRACTION_ALONG_LINE * lineLength;
-		float text_anchor_local_y = line_thickness_arg / 2.0f;
-
-		float cosA = cosf(angleRad);
-		float sinA = sinf(angleRad);
-
-		float text_pos_x_transformed = lineGraphicalOrigin.x + text_anchor_local_x * cosA - text_anchor_local_y * sinA;
-		float text_pos_y_transformed = lineGraphicalOrigin.y + text_anchor_local_x * sinA + text_anchor_local_y * cosA;
-
-		float final_text_pos_x = text_pos_x_transformed - (neuronP * HORIZONTAL_SHIFT_PER_WEIGHT_TEXT);
-		float final_text_pos_y = text_pos_y_transformed;
-
-		text.setPosition(final_text_pos_x, final_text_pos_y);
-		text.setRotation(angleDeg);
-
-		layerRender.draw(text);
-	}
-}
 void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap) {
 	const float FRACTION_ALONG_LINE = 0.8f;
 	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f;
@@ -172,7 +108,7 @@ void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const floa
 		text.setFont(Fonts::getFont());
 		text.setCharacterSize(10);
 		text.setString(ss.str());
-		text.setFillColor(getColorFromTextT(textT::NORMAL));
+		text.setFillColor(getColorFromTextT(getTextT(neuron_i, neuronP)));
 
 		sf::FloatRect textBounds = text.getLocalBounds();
 		text.setOrigin(textBounds.left + textBounds.width / 2.0f,
@@ -205,21 +141,6 @@ sf::Color visualL::getColorFromTextT(const textT text_type) {
 	return sf::Color(50, 50, 50);
 }
 
-void visualL::drawNeurons(const LayerParameters &new_grad) {
-	float gap = calculateGap(getSize());
-	float prevGap = calculateGap(getPrevSize());
-
-	for (int neuron = 0; neuron < getSize(); neuron++) {
-		float x = WIDTH - NEURON_RADIUS * 2;
-		float y = gap + neuron * (gap + NEURON_RADIUS * 2);
-
-		if (is_params)
-			drawWeights(neuron, {x, y}, prevGap, new_grad.weights[neuron]);
-
-		drawNeuron(dots.net[neuron], dots.out[neuron], {x, y});
-	}
-}
-
 void visualL::drawNeurons() {
 	float gap = calculateGap(getSize());
 	float prevGap = calculateGap(getPrevSize());
@@ -235,11 +156,19 @@ void visualL::drawNeurons() {
 	}
 }
 
-textT visualL::getTextT(const double change) {
-	if (change < 0)
+textT VParamLayer::getTextT(const int layer_i, const int layer_p) {
+	if (grad.weights[layer_i][layer_p] < 0)
 		return textT::DOWN;
-	if (change > 0)
+	if (grad.weights[layer_i][layer_p] > 0)
 		return textT::UP;
+	return textT::NORMAL;
+}
+
+textT VEmptyLayer::getTextT(const int, const int) {
+	return textT::NORMAL;
+}
+
+textT visualL::getTextT(const int, const int) {
 	return textT::NORMAL;
 }
 
@@ -273,4 +202,8 @@ void visualL::setDots(const std::vector<double> out, const std::vector<double> n
 	dots.out = out;
 }
 
+void VParamLayer::updateGrad(const LayerParameters &new_grad) {
+	grad.reset();
+	grad.add(new_grad);
+}
 } // namespace Visualizer
