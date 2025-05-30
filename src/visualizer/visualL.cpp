@@ -45,7 +45,7 @@ sf::Color visualL::getBGcolor(const bool render) {
 	if (render)
 		return sf::Color::Yellow;
 
-	return sf::Color::Green;
+	return sf::Color::Magenta;
 }
 
 void visualL::renderLayer(const bool render) {

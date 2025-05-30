@@ -39,6 +39,8 @@ void VisualizerRenderer::renderObjects() {
 	visualNetworkSprite.setPosition(UI_GAP, UI_GAP);
 	window.draw(visualNetworkSprite);
 
+    
+
 	interface.renderInterface();
 	sf::Sprite interfaceSprite = interface.getSprite();
 	interfaceSprite.setPosition(visualNetworkSprite.getGlobalBounds().getSize().x + visualNetworkSprite.getGlobalBounds().getPosition().x + UI_GAP, UI_GAP);
