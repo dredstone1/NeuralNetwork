@@ -12,6 +12,12 @@ namespace Visualizer {
 #define VSTATUS_HEIGHT 585
 #define STATUS_TEXT_FONT 30
 #define CURRENT_PHASE_TEXT "current phase: "
+#define RUNNING_MODE_TEXT "running mode: "
+
+const std::string NNRunningModeName[] = {
+    "Running",
+    "Pause",
+};
 
 class vStatus {
   private:
@@ -31,4 +37,4 @@ class vStatus {
 };
 } // namespace Visualizer
 
-#endif //VSTATUS
+#endif // VSTATUS
