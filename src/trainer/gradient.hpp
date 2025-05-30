@@ -1,5 +1,5 @@
-#ifndef GRADIENT_HPP
-#define GRADIENT_HPP
+#ifndef GRADIENT
+#define GRADIENT
 
 #include "../model/LayerParameters.hpp"
 #include "../model/config.hpp"
@@ -16,4 +16,4 @@ typedef struct gradient {
 	gradient(const gradient &other);
 } gradient;
 
-#endif // GRADIENT_HPP
+#endif // GRADIENT

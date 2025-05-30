@@ -3,6 +3,7 @@
 #include "model/config.hpp"
 #include "model/neuralNetwork.hpp"
 #include "state.hpp"
+#include "trainer/gradient.hpp"
 #include <chrono>
 #include <cstddef>
 #include <cstdio>
@@ -33,7 +34,6 @@ void visualizerController::stop() {
 		if (renderer) {
 			renderer->close();
 		}
-		wait_until_stop();
 		display_thread.join();
 	}
 }
@@ -70,12 +70,6 @@ void visualizerController::wait_until_started() {
 			if (renderer && Vstate)
 				break;
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-}
-
-void visualizerController::wait_until_stop() {
-	while (renderer && Vstate) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
@@ -151,6 +145,18 @@ void visualizerController::setNewPhaseMode(const NNmode nn_mode) {
 
 		renderer->setNewPhaseMode(nn_mode);
 		wait_until_updated();
+	}
+}
+
+void visualizerController::update(const gradient &new_grad) {
+	if (checkP()) {
+		if (!running.load()) {
+			stop();
+			return;
+		}
+
+		renderer->update(new_grad);
+		handleStates();
 	}
 }
 } // namespace Visualizer

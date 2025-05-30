@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-AiModel::AiModel(std::string config_file, const bool use_visual) : config(config_file) {
+AiModel::AiModel(std::string &config_file, const bool use_visual) : config(config_file) {
 	_model = std::make_unique<model>(config, use_visual);
 }
 

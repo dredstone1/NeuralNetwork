@@ -1,5 +1,5 @@
-#ifndef LAYER_HPP
-#define LAYER_HPP
+#ifndef LAYER
+#define LAYER
 
 #include "../LayerParameters.hpp"
 #include "../neuron.hpp"
@@ -24,7 +24,7 @@ class Layer {
 	const std::vector<double> &getNet() const { return dots.net; }
 	const std::vector<double> &getOut() const { return dots.out; }
 	void add(const LayerParameters &gradients);
-	int getSize() const { return Parameters.getSize(); }
+	int getSize() const { return dots.size(); }
 	int getPrevSize() const { return Parameters.getPrevSize(); }
 	void reset();
 	const LayerParameters getParms();

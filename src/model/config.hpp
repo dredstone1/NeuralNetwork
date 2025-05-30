@@ -1,5 +1,5 @@
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+#ifndef CONFIG
+#define CONFIG
 
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
@@ -9,9 +9,9 @@
 struct LayerConfig {
 	int size;
 	double weights_init_value;
-	ActivationFunctions::activations activation;
+	activation AT;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, activation, weights_init_value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, AT, weights_init_value);
 
 struct NetworkConfig {
 	int input_size;

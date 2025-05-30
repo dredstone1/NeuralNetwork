@@ -24,7 +24,6 @@ class visualizerController {
 	bool checkP();
 	void wait_until_updated();
 	void wait_until_started();
-	void wait_until_stop();
 	void pause();
 	void autoPause();
 	void initState();
@@ -37,6 +36,7 @@ class visualizerController {
 	void update(const int layer, const LayerParameters &gradient);
 	void setNewPhaseMode(const NNmode nn_mode);
 	void start(const neural_network &network);
+	void update(const gradient &new_grad);
 };
 } // namespace Visualizer
 

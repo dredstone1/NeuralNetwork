@@ -1,6 +1,7 @@
 #include <AiModel.hpp>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include <trainer.hpp>
 
 enum mode {
@@ -32,8 +33,9 @@ int main(int argc, char *argv[]) {
 
 			arg++;
 		}
+        std::string config_FN = "config.json";
 
-		AiModel model("config.json", mods & visual);
+		AiModel model(config_FN, mods & visual);
 
 		if (mods & train) {
 			Trainer trainer(model);

@@ -1,7 +1,6 @@
 #include "Output_Layer.hpp"
 #include "../activations.hpp"
 
-using namespace ActivationFunctions;
 
 void Output_Layer::forward(const std::vector<double> &metrix) {
 	for (int i = 0; i < dots.size(); i++) {
@@ -12,5 +11,5 @@ void Output_Layer::forward(const std::vector<double> &metrix) {
 		}
 	}
 
-	Softmax(dots);
+    activations::Softmax(dots);
 }

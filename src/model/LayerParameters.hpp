@@ -1,5 +1,5 @@
-#ifndef LAYER_PARAMETERS_HPP
-#define LAYER_PARAMETERS_HPP
+#ifndef LAYER_PARAMETERS
+#define LAYER_PARAMETERS
 
 #include <vector>
 
@@ -22,4 +22,4 @@ struct LayerParameters {
 	void reset();
 };
 
-#endif // LAYER_PARAMETERS_HPP
+#endif // LAYER_PARAMETERS

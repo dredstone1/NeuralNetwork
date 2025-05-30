@@ -1,5 +1,5 @@
-#ifndef TRAINER_HPP
-#define TRAINER_HPP
+#ifndef TRAINER
+#define TRAINER
 
 #include "../src/trainer/backPropagation.hpp"
 #include "../src/trainer/dataBase.hpp"

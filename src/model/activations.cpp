@@ -1,39 +1,38 @@
 #include "activations.hpp"
 
-namespace ActivationFunctions {
-double ActivationFunction::activate(const double x) const {
+double activations::activate(const double x) const {
 	switch (_activation) {
-	case relu_:
+	case activation::relu_:
 		return Relu(x);
-	case leaky_relu_:
+	case activation::leaky_relu_:
 		return LeakyRelu(x);
-	case sigmoid_:
+	case activation::sigmoid_:
 		return Sigmoid(x);
-	case tanh_:
+	case activation::tanh_:
 		return Tanh(x);
-	case none:
+	case activation::none:
 		return x;
 	}
 	return x;
 }
 
-double ActivationFunction::DerivativeActivate(const double x) const {
+double activations::DerivativeActivate(const double x) const {
 	switch (_activation) {
-	case relu_:
+	case activation::relu_:
 		return DerivativeRelu(x);
-	case leaky_relu_:
+	case activation::leaky_relu_:
 		return DerivativeLeakyRelu(x);
-	case sigmoid_:
+	case activation::sigmoid_:
 		return DerivativeSigmoid(x);
-	case tanh_:
+	case activation::tanh_:
 		return DerivativeTanh(x);
-	case none:
+	case activation::none:
 		return x;
 	}
 	return x;
 }
 
-static double max_vector(const std::vector<double> &metrix) {
+double activations::max_vector(const std::vector<double> &metrix) {
 	double max = metrix[0];
 	for (auto &value : metrix) {
 		if (value > max) {
@@ -43,7 +42,7 @@ static double max_vector(const std::vector<double> &metrix) {
 	return max;
 }
 
-void Softmax(neurons &metrix) {
+void activations::Softmax(neurons &metrix) {
 	double max = max_vector(metrix.net);
 	double sum = 0.0;
 	for (int i = 0; i < metrix.size(); ++i) {
@@ -54,4 +53,33 @@ void Softmax(neurons &metrix) {
 		metrix.out[i] /= sum;
 	}
 }
-} // namespace ActivationFunctions
+
+inline double activations::Relu(const double x) const {
+	return std::max(0.0, x);
+}
+inline double activations::DerivativeRelu(const double x) const {
+	return (x > 0) ? 1.0 : 0.0;
+}
+
+inline double activations::LeakyRelu(const double x) const {
+	return (x > 0) ? x : RELU_LEAKY_ALPHA * x;
+}
+inline double activations::DerivativeLeakyRelu(const double x) const {
+	return (x > 0) ? 1.0 : RELU_LEAKY_ALPHA;
+}
+
+inline double activations::Sigmoid(const double z) const {
+	return 1.0 / (1.0 + std::exp(-z));
+}
+inline double activations::DerivativeSigmoid(const double z) const {
+	double s = Sigmoid(z);
+	return s * (1.0 - s);
+}
+
+inline double activations::Tanh(const double z) const {
+	return std::tanh(z);
+}
+inline double activations::DerivativeTanh(const double z) const {
+	double t = std::tanh(z);
+	return 1.0 - t * t;
+}

@@ -1,5 +1,5 @@
-#ifndef DATABASE_HPP
-#define DATABASE_HPP
+#ifndef DATABASE
+#define DATABASE
 
 #include "AiModel.hpp"
 #include <random>

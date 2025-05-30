@@ -1,5 +1,6 @@
 #include "model.hpp"
 #include "neuralNetwork.hpp"
+#include "trainer/gradient.hpp"
 #include "visualizer/VisualizerController.hpp"
 #include "visualizer/state.hpp"
 #include <cmath>
@@ -39,6 +40,7 @@ const std::vector<double> &model::getOutput() const {
 
 void model::updateWeights(const gradient &gradients) {
 	visual.setNewPhaseMode(NNmode::Backward);
+    // visual.update(gradients);
 
 	for (int i = network.config.hidden_layer_count(); i >= 0; i--) {
 		getLayer(i).add(gradients.gradients[i]);

@@ -9,7 +9,7 @@ neural_network::neural_network(const NetworkConfig &network_config) : config(net
 	layers.reserve(network_config.hidden_layer_count() + 1);
 	int prev_size = network_config.input_size;
 	for (int i = 0; i < network_config.hidden_layer_count(); i++) {
-		layers.emplace_back(new Hidden_Layer(network_config.layers_config[i].size, prev_size, network_config.layers_config[i].activation, network_config.layers_config[i].weights_init_value));
+		layers.emplace_back(new Hidden_Layer(network_config.layers_config[i].size, prev_size, network_config.layers_config[i].AT, network_config.layers_config[i].weights_init_value));
 		prev_size = network_config.layers_config[i].size;
 	}
 

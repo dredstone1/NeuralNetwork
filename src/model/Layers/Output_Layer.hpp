@@ -1,5 +1,5 @@
-#ifndef OUTPUT_LAYER_HPP
-#define OUTPUT_LAYER_HPP
+#ifndef OUTPUT_LAYER
+#define OUTPUT_LAYER
 
 #include "layer.hpp"
 

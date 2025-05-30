@@ -1,5 +1,5 @@
-#ifndef AIMODEL_HPP
-#define AIMODEL_HPP
+#ifndef AIMODEL
+#define AIMODEL
 
 #include "../src/model/config.hpp"
 #include "../src/model/model.hpp"
@@ -17,7 +17,7 @@ class AiModel {
 	friend class BackPropagation;
 
   public:
-	AiModel(std::string config_file, const bool use_visual);
+	AiModel(std::string &config_file, const bool use_visual);
 	void run_model(const std::vector<double> &input);
 	prediction getPrediction();
 	Config &getConfig() { return config; }

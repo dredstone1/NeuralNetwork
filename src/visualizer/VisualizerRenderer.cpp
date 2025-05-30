@@ -1,14 +1,16 @@
 #include "VisualizerRenderer.hpp"
 #include "model/neuralNetwork.hpp"
 #include "state.hpp"
+#include "trainer/gradient.hpp"
 #include "visualL.hpp"
 #include "visualNN.hpp"
+#include "visualizer/Vstatus.hpp"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
 #include <cstdio>
 
 namespace Visualizer {
-VisualizerRenderer::VisualizerRenderer(const neural_network &network, state &vstate) : window(sf::VideoMode(1600, 800), "Visualizer", sf::Style::Titlebar | sf::Style::Titlebar), visualNetwork(network), Vstate(vstate), interface(vstate), statusV(vstate) {}
+VisualizerRenderer::VisualizerRenderer(const neural_network &network, state &vstate) : window(sf::VideoMode(1600, 800), "Visualizer", sf::Style::Titlebar | sf::Style::Titlebar), visualNetwork(network, vstate), Vstate(vstate), interface(vstate), statusV(vstate) {}
 
 void VisualizerRenderer::processEvents() {
 	sf::Event event;
@@ -87,6 +89,11 @@ void VisualizerRenderer::updateDots(const int layer, const std::vector<double> o
 
 void VisualizerRenderer::update(const int layer, const LayerParameters &gradients) {
 	visualNetwork.update(layer, gradients);
+	needUpdate.store(true);
+}
+
+void VisualizerRenderer::update(const gradient new_grad) {
+	visualNetwork.update(new_grad);
 	needUpdate.store(true);
 }
 

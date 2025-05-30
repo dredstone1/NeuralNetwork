@@ -1,5 +1,5 @@
-#ifndef MODEL_HPP
-#define MODEL_HPP
+#ifndef MODEL
+#define MODEL
 
 #include "../trainer/gradient.hpp"
 #include "../visualizer/VisualizerController.hpp"
@@ -31,4 +31,4 @@ class model {
 	const bool useVisual;
 };
 
-#endif // MODEL_HPP
+#endif // MODEL

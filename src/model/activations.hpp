@@ -1,13 +1,13 @@
-#ifndef ACTIVATIONS_HPP
-#define ACTIVATIONS_HPP
+#ifndef ACTIVATIONSP
+#define ACTIVATIONSP
 
 #include "neuron.hpp"
 #include <cmath>
+#include <vector>
 
-namespace ActivationFunctions {
 #define RELU_LEAKY_ALPHA 0.01
 
-enum activations {
+enum class activation {
 	relu_ = 0,
 	leaky_relu_ = 1,
 	sigmoid_ = 2,
@@ -15,43 +15,25 @@ enum activations {
 	none = 4,
 };
 
-struct ActivationFunction {
-	const activations _activation;
-	ActivationFunction(const activations activation) : _activation(activation) {}
-	ActivationFunction(const ActivationFunction &other) : _activation(other._activation) {}
+class activations {
+  private:
+	const activation _activation;
+	inline double Relu(const double x) const;
+	inline double DerivativeRelu(const double x) const;
+	inline double LeakyRelu(const double x) const;
+	inline double DerivativeLeakyRelu(const double x) const;
+	inline double Sigmoid(const double z) const;
+	inline double DerivativeSigmoid(const double z) const;
+	inline double Tanh(const double z) const;
+	inline double DerivativeTanh(const double z) const;
+	static double max_vector(const std::vector<double> &metrix);
+
+  public:
+	activations(const activation activation) : _activation(activation) {}
+	activations(const activations &other) : _activation(other._activation) {}
 	double activate(const double x) const;
 	double DerivativeActivate(const double x) const;
+	static void Softmax(neurons &metrix);
 };
 
-inline double Relu(const double x) {
-	return std::max(0.0, x);
-}
-inline double DerivativeRelu(const double x) {
-	return (x > 0) ? 1.0 : 0.0;
-}
-
-inline double LeakyRelu(const double x) {
-	return (x > 0) ? x : RELU_LEAKY_ALPHA * x;
-}
-inline double DerivativeLeakyRelu(const double x) {
-	return (x > 0) ? 1.0 : RELU_LEAKY_ALPHA;
-}
-
-inline double Sigmoid(const double x) {
-	return 1.0 / (1.0 + exp(-x));
-}
-inline double DerivativeSigmoid(const double x) {
-	return x * (1.0 - x);
-}
-
-inline double Tanh(const double x) {
-	return tanh(x);
-}
-inline double DerivativeTanh(const double x) {
-	return 1.0 - x * x;
-}
-
-void Softmax(neurons &metrix);
-} // namespace ActivationFunctions
-
-#endif // ACTIVATIONS_HPP
+#endif // ACTIVATIONS

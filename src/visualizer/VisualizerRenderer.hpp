@@ -33,6 +33,7 @@ class VisualizerRenderer {
 	void close();
 	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);
 	bool updateStatus() { return needUpdate; }
+	void update(const gradient new_grad);
 	void start();
 	void update(const int layer, const LayerParameters &gradients);
 	void setNewPhaseMode(const NNmode nn_mode);
