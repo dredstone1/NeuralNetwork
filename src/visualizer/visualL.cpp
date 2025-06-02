@@ -89,7 +89,7 @@ void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const floa
 		float angleDeg = calculateAngle(prevNeuronTopLeft, pos);
 		float angleRad = angleDeg * M_PI / 180.0f;
 
-		float line_thickness_arg = std::max(std::min(weightValue, 4.f), 0.1f);
+		float line_thickness_arg = std::max(std::min(weightValue, 4.f), 0.2f);
 
 		sf::RectangleShape line;
 		line.setSize({lineLength, line_thickness_arg});
@@ -99,7 +99,6 @@ void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const floa
 		line.setPosition(lineGraphicalOrigin);
 		line.setRotation(angleDeg);
 
-		layerRender.draw(line);
 
 		std::ostringstream ss;
 		ss << std::fixed << std::setprecision(4) << weightValue;
@@ -129,6 +128,7 @@ void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const floa
 		text.setPosition(final_text_pos_x, final_text_pos_y);
 		text.setRotation(angleDeg);
 
+		layerRender.draw(line);
 		layerRender.draw(text);
 	}
 }

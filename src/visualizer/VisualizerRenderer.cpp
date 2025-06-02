@@ -113,7 +113,7 @@ void VisualizerRenderer::start() {
 	renderLoop();
 }
 
-void VisualizerRenderer::updateDots(const int layer, const std::vector<double> out, const std::vector<double> net) {
+void VisualizerRenderer::updateDots(const int layer, const std::vector<double> &out, const std::vector<double> &net) {
 	visualNetwork.updateDots(layer, out, net);
 }
 
@@ -121,7 +121,7 @@ void VisualizerRenderer::update(const int layer, const LayerParameters &gradient
 	visualNetwork.update(layer, gradients);
 }
 
-void VisualizerRenderer::update(const gradient new_grad) {
+void VisualizerRenderer::update(const gradient &new_grad) {
 	visualNetwork.update(new_grad);
 }
 

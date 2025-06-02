@@ -56,7 +56,7 @@ sf::Sprite visualNN::getSprite() {
 	return sf::Sprite(NNRender.getTexture());
 }
 
-void visualNN::updateDots(const int layer, const std::vector<double> out, const std::vector<double> net) {
+void visualNN::updateDots(const int layer, const std::vector<double> &out, const std::vector<double> &net) {
 	current_rendred_layer = layer;
 	layers[layer]->setDots(out, net);
 
@@ -70,7 +70,7 @@ void visualNN::update(const int layer, const LayerParameters &gradients) {
 	set_update();
 }
 
-void visualNN::update(const gradient new_grad) {
+void visualNN::update(const gradient &new_grad) {
 	for (size_t i = 1; i < layers.size(); i++) {
 		((VParamLayer *)layers[i])->updateGrad(new_grad.gradients[i - 1]);
 	}

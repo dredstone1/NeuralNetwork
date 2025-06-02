@@ -29,9 +29,9 @@ class visualNN : public panel {
 	visualNN(const neural_network &network, const std::shared_ptr<state> state_);
 	~visualNN();
 	sf::Sprite getSprite();
-	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);
+	void updateDots(const int layer, const std::vector<double> &out, const std::vector<double> &net);
 	void update(const int layer, const LayerParameters &gradients);
-	void update(const gradient new_grad);
+	void update(const gradient &new_grad);
 };
 } // namespace Visualizer
 
