@@ -35,7 +35,7 @@ sf::Sprite vInteface::getSprite() {
 
 void vInteface::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
 	if (!needHandlePress) {
-        need_update = true;
+        set_update();
 		needHandlePress = true;
 		handleKeyPresed(mousePos_, boxPos);
 	}
@@ -43,7 +43,7 @@ void vInteface::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f box
 
 void vInteface::handleNoClick() {
 	needHandlePress = false;
-    need_update = true;
+    set_update();
 }
 
 void vInteface::do_render() {

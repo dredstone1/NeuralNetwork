@@ -53,18 +53,11 @@ void VisualizerRenderer::renderObjects() {
 	}
 }
 
-void VisualizerRenderer::render_frame() {
-
-	renderObjects();
-
-	window.display();
-}
-
 void VisualizerRenderer::renderLoop() {
 	running.store(true);
 	sf::Clock fpsClock;
 	int frameCount = 0;
-
+	window.setFramerateLimit(FPS_LIMIT);
 	window.clear(sf::Color(100, 100, 100));
 
 	while (window.isOpen() && running) {
@@ -80,7 +73,7 @@ void VisualizerRenderer::renderLoop() {
 		}
 
 		if (updateStatus()) {
-			render_frame();
+			renderObjects();
 			window.display();
 		}
 	}
@@ -118,6 +111,7 @@ VisualizerRenderer::~VisualizerRenderer() {
 }
 
 void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
+	statusV.set_update();
 	Vstate->nnMode.store(nn_mode);
 }
 } // namespace Visualizer

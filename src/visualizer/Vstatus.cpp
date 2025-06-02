@@ -31,7 +31,7 @@ std::string vStatus::get_text() {
 	std::ostringstream ss;
 	ss << CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << std::endl
 	   << RUNNING_MODE_TEXT << NNRunningModeName[vstate->pause.load()] << std::endl
-	   << FPS_TEXT << fps << std::endl;
+	   << FPS_TEXT << fps << "/" << FPS_LIMIT << std::endl;
 	return ss.str();
 }
 
@@ -55,6 +55,6 @@ sf::Sprite vStatus::getSprite() {
 
 void vStatus::update_fps(const float fps_) {
 	fps = fps_;
-	need_update = true;
+    set_update();
 }
 } // namespace Visualizer

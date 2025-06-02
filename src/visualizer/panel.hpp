@@ -8,9 +8,9 @@ namespace Visualizer {
 class panel {
   private:
 	virtual void do_render() = 0;
+	bool need_update;
 
   protected:
-	bool need_update;
 	std::shared_ptr<state> vstate;
 
   public:
@@ -26,6 +26,7 @@ class panel {
 	}
 	virtual ~panel() = default;
 	bool updateStatus() { return need_update; }
+	void set_update() { need_update = true; }
 };
 } // namespace Visualizer
 

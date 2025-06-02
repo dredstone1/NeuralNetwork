@@ -17,6 +17,7 @@ namespace Visualizer {
 #define CURRENT_PHASE_TEXT "current phase: "
 #define RUNNING_MODE_TEXT "running mode: "
 #define FPS_TEXT "fps: "
+#define FPS_LIMIT 60
 
 const std::string NNRunningModeName[] = {
     "Running",

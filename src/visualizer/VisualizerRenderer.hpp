@@ -22,7 +22,6 @@ class VisualizerRenderer {
 	vInteface interface;
 	vStatus statusV;
 	std::atomic<bool> running{false};
-	void render_frame();
 	void renderLoop();
 	void processEvents();
 	void renderObjects();
