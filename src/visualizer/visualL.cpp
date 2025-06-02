@@ -1,6 +1,5 @@
 #include "visualL.hpp"
 #include "fonts.hpp"
-#include "model/LayerParameters.hpp"
 #include <cmath>
 #include <iomanip>
 #include <ostream>

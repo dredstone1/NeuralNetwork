@@ -5,7 +5,8 @@
 #include <sstream>
 
 namespace Visualizer {
-vStatus::vStatus(std::shared_ptr<state> vstate_) : panel(vstate_) {
+vStatus::vStatus(const std::shared_ptr<state> vstate_)
+    : panel(vstate_) {
 	createVstatus();
 }
 

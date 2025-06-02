@@ -40,6 +40,7 @@ add_library(NeuralNetwork STATIC
     src/model/config.cpp
     src/visualizer/Vstatus.cpp
     src/visualizer/panel.cpp
+    src/visualizer/graph.cpp
 )
 
 target_include_directories(NeuralNetwork

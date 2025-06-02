@@ -34,8 +34,11 @@ void Trainer::train() {
 	model._model->visual.updateAlgoritemMode(Visualizer::algorithmMode::Training);
 	for (int loop_index = 0; loop_index < config.batch_count + 1; loop_index++) {
 		model._model->visual.updateBatchCounter(loop_index);
+
 		Batch &batch = dataBase.get_Batch();
-		backPropagation.run_back_propagation(batch, config.learning_rate);
+		double error = backPropagation.run_back_propagation(batch, config.learning_rate);
+
+		model._model->visual.updateError(error);
 
 		print_progress_bar(loop_index + 1, config.batch_count);
 	}

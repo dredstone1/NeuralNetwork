@@ -86,7 +86,7 @@ double BackPropagation::run_back_propagation(const Batch &batch, const double le
 	}
 
 	local_gradient.reset();
-    for (size_t i = 0; i < batch_size; i++) {
+	for (size_t i = 0; i < batch_size; i++) {
 		TrainSample *current_sample_ptr = batch.samples.at(i);
 		error += run_back_propagation(*current_sample_ptr);
 	}

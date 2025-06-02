@@ -2,7 +2,6 @@
 #include "state.hpp"
 #include "visualL.hpp"
 #include "visualNN.hpp"
-#include <SFML/Window/Event.hpp>
 #include <cstdio>
 #include <memory>
 
@@ -12,7 +11,8 @@ VisualizerRenderer::VisualizerRenderer(const neural_network &network, std::share
       visualNetwork(network, vstate),
       Vstate(vstate),
       interface(vstate),
-      statusV(vstate) {}
+      statusV(vstate),
+      Vgraph(vstate) {}
 
 void VisualizerRenderer::processEvents() {
 	sf::Event event;
@@ -51,6 +51,12 @@ void VisualizerRenderer::renderObjects() {
 		statusSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT);
 		window.draw(statusSprite);
 	}
+
+	if (Vgraph.render()) {
+		sf::Sprite graphSprite = Vgraph.getSprite();
+		graphSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT + VSTATUS_HEIGHT + UI_GAP);
+		window.draw(graphSprite);
+	}
 }
 
 void VisualizerRenderer::full_update() {
@@ -58,6 +64,7 @@ void VisualizerRenderer::full_update() {
 	statusV.set_update();
 	interface.set_update();
 	visualNetwork.set_update();
+    Vgraph.set_update();
 }
 
 void VisualizerRenderer::do_frame(int &frameCount, sf::Clock &fpsClock) {
@@ -119,6 +126,10 @@ void VisualizerRenderer::updateDots(const int layer, const std::vector<double> &
 
 void VisualizerRenderer::update(const int layer, const LayerParameters &gradients) {
 	visualNetwork.update(layer, gradients);
+}
+
+void VisualizerRenderer::updateBatchCounter(const double error) {
+    Vgraph.add_data(error);
 }
 
 void VisualizerRenderer::update(const gradient &new_grad) {

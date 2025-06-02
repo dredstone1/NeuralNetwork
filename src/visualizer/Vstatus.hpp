@@ -10,7 +10,7 @@
 
 namespace Visualizer {
 constexpr const int VSTATUS_WIDTH = 500;
-constexpr const int VSTATUS_HEIGHT = 585;
+constexpr const int VSTATUS_HEIGHT = 255;
 constexpr const int STATUS_TEXT_FONT = 30;
 constexpr const int FPS_LIMIT = 144;
 

@@ -2,6 +2,7 @@
 #include "VisualizerRenderer.hpp"
 #include "state.hpp"
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdio>
 #include <memory>
@@ -117,6 +118,19 @@ void visualizerController::updateDots(const int layer, std::vector<double> out, 
 			return;
 		}
 
+		// for debuging
+		// for (size_t i = 0; i < net.size(); i++) {
+		// 	if (net[i] > 100 ||std::isnan(net[i]) || !std::isfinite(net[i])) {
+		// 		pause();
+		// 		Vstate->settings.pause.store(true);
+		// 		Vstate->settings.autoPause.store(true);
+		// 		Vstate->settings.preciseMode.store(true);
+		// 		printf("work, dot: %f\n", net[i]);
+		// 		handleStates();
+		// 		return;
+		// 	}
+		// }
+
 		renderer->updateDots(layer, out, net);
 		handleStates();
 	}
@@ -128,6 +142,21 @@ void visualizerController::update(const int layer, const LayerParameters &gradie
 			stop();
 			return;
 		}
+
+		// for debuging
+		// for (size_t i = 0; i < gradient_.weights.size(); i++) {
+		// 	for (size_t j = 0; j < gradient_.weights[i].size(); j++) {
+		// 		if (gradient_.weights[i][j] > 100 || std::isnan(gradient_.weights[i][j]) || !std::isfinite(gradient_.weights[i][j])) {
+		// 			pause();
+		// 			Vstate->settings.pause.store(true);
+		// 			Vstate->settings.preciseMode.store(true);
+		// 			Vstate->settings.autoPause.store(true);
+		// 			printf("work, weight: %f\n", gradient_.weights[i][j]);
+		// 			handleStates();
+		// 			return;
+		// 		}
+		// 	}
+		// }
 
 		renderer->update(layer, gradient_);
 		handleStates();
@@ -166,6 +195,18 @@ void visualizerController::updateBatchCounter(const int batch) {
 		}
 
 		Vstate->current_batch = batch;
+		wait_until_updated();
+	}
+}
+
+void visualizerController::updateError(const double error) {
+	if (checkP()) {
+		if (!running.load()) {
+			stop();
+			return;
+		}
+
+		renderer->updateBatchCounter(error);
 		wait_until_updated();
 	}
 }

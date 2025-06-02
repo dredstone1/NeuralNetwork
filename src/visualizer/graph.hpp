@@ -1,0 +1,47 @@
+#ifndef GRAPH
+#define GRAPH
+
+#include "panel.hpp"
+#include <SFML/Graphics.hpp>
+
+namespace Visualizer {
+constexpr int GRAPH_WIDTH = 470;
+constexpr int GRAPH_HEIGHT = 315;
+constexpr int GRAPH_UI_WIDTH = 500;
+constexpr int GRAPH_TEXT_FONT = 30;
+constexpr int GRAPH_RESOLUTION = 100;
+constexpr float DATA_GAP_WIDTH = 1.f * GRAPH_WIDTH / GRAPH_RESOLUTION;
+constexpr float GRAPH_HEIGHT_ALPHA_DEFAULT = 100.f;
+constexpr int VERTICAL_NUMBERS_COUNT = 7;
+
+class GraphUI : public panel {
+  private:
+	std::array<double, GRAPH_RESOLUTION> data;
+	sf::RenderTexture VRender;
+	sf::RenderTexture Vgraph;
+	void createGraphUi();
+	void display();
+	void clear();
+	void renderGraph();
+	void render_numbers();
+	void render_vertical_numbers();
+	void do_render() override;
+	int currentData;
+	inline int data_gaps();
+	int newDataPlace();
+	void renderDot(const int index);
+	int get_highest();
+	double graph_alpha;
+	sf::Vector2f getPosition(const int index);
+	float get_hight(const int index);
+	inline int resolution();
+	inline float data_gap_width();
+
+  public:
+	GraphUI(const std::shared_ptr<state> vstate_);
+	sf::Sprite getSprite();
+	void add_data(const float new_data);
+};
+} // namespace Visualizer
+
+#endif // GRAPH
