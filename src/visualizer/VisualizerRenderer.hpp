@@ -9,6 +9,7 @@
 #include <SFML/Graphics.hpp>
 #include <atomic>
 #include <climits>
+#include <memory>
 
 namespace Visualizer {
 #define UI_GAP 15
@@ -17,22 +18,23 @@ class VisualizerRenderer {
   private:
 	sf::RenderWindow window;
 	visualNN visualNetwork;
-	state &Vstate;
+	std::shared_ptr<state> Vstate;
 	vInteface interface;
 	vStatus statusV;
 	std::atomic<int> needUpdate{true};
 	std::atomic<bool> running{false};
-	void update();
+	void render_frame();
 	void renderLoop();
 	void processEvents();
 	void renderObjects();
+	float fps;
 
   public:
-	VisualizerRenderer(const neural_network &network, state &vstate);
+	VisualizerRenderer(const neural_network &network, std::shared_ptr<state> vstate);
 	~VisualizerRenderer();
 	void close();
 	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);
-	bool updateStatus() { return needUpdate; }
+	bool updateStatus();
 	void update(const gradient new_grad);
 	void start();
 	void update(const int layer, const LayerParameters &gradients);

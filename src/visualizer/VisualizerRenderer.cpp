@@ -8,9 +8,10 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
 #include <cstdio>
+#include <memory>
 
 namespace Visualizer {
-VisualizerRenderer::VisualizerRenderer(const neural_network &network, state &vstate)
+VisualizerRenderer::VisualizerRenderer(const neural_network &network, std::shared_ptr<state> vstate)
     : window(sf::VideoMode(1600, 800), "Visualizer", sf::Style::Titlebar | sf::Style::Titlebar),
       visualNetwork(network, vstate),
       Vstate(vstate),
@@ -44,19 +45,19 @@ void VisualizerRenderer::renderObjects() {
 	visualNetworkSprite.setPosition(UI_GAP, UI_GAP);
 	window.draw(visualNetworkSprite);
 
-	interface.renderInterface();
+	interface.render();
 	sf::Sprite interfaceSprite = interface.getSprite();
 	interfaceSprite.setPosition(visualNetworkSprite.getGlobalBounds().getSize().x + visualNetworkSprite.getGlobalBounds().getPosition().x + UI_GAP, UI_GAP);
 	window.draw(interfaceSprite);
 
-	statusV.renderStatus();
+	statusV.render();
 	sf::Sprite statusSprite = statusV.getSprite();
 	statusSprite.setPosition(visualNetworkSprite.getGlobalBounds().getSize().x + visualNetworkSprite.getGlobalBounds().getPosition().x + UI_GAP, UI_GAP + interfaceSprite.getGlobalBounds().getSize().y + interfaceSprite.getGlobalBounds().getPosition().y);
 	window.draw(statusSprite);
 }
 
-void VisualizerRenderer::update() {
-	window.clear(sf::Color::White);
+void VisualizerRenderer::render_frame() {
+	// window.clear(sf::Color::White);
 
 	renderObjects();
 
@@ -65,14 +66,26 @@ void VisualizerRenderer::update() {
 
 void VisualizerRenderer::renderLoop() {
 	running.store(true);
+	sf::Clock fpsClock;
+	int frameCount = 0;
+
 	while (window.isOpen() && running) {
 		processEvents();
+		frameCount++;
 
-		if (needUpdate) {
-			update();
+		if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
+			fps = frameCount / fpsClock.getElapsedTime().asSeconds();
 
-			needUpdate.store(false);
+			fpsClock.restart();
+			frameCount = 0;
+			statusV.update_fps(fps);
+			needUpdate = true;
 		}
+
+		render_frame();
+
+		window.display();
+		needUpdate.store(false);
 	}
 
 	window.close();
@@ -80,6 +93,10 @@ void VisualizerRenderer::renderLoop() {
 
 void VisualizerRenderer::close() {
 	running.store(false);
+}
+
+bool VisualizerRenderer::updateStatus() {
+	return interface.updateStatus() || statusV.updateStatus();
 }
 
 void VisualizerRenderer::start() {
@@ -107,7 +124,7 @@ VisualizerRenderer::~VisualizerRenderer() {
 }
 
 void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
-	Vstate.nnMode.store(nn_mode);
+	Vstate->nnMode.store(nn_mode);
 	needUpdate.store(true);
 }
 } // namespace Visualizer

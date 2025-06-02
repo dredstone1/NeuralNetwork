@@ -17,7 +17,7 @@ class visualizerController {
 	std::atomic<bool> running{false};
 	std::unique_ptr<VisualizerRenderer> renderer;
 	const VisualizerConfig &config;
-	std::unique_ptr<state> Vstate;
+	std::shared_ptr<state> Vstate;
 	void stop();
 	std::thread display_thread;
 	void start_visuals(const neural_network &network);

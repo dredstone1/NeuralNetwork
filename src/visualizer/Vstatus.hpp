@@ -1,11 +1,14 @@
 #ifndef VSTATUS
 #define VSTATUS
 
+#include "panel.hpp"
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <climits>
+#include <curses.h>
+#include <memory>
 
 namespace Visualizer {
 #define VSTATUS_WIDTH 500
@@ -13,27 +16,28 @@ namespace Visualizer {
 #define STATUS_TEXT_FONT 30
 #define CURRENT_PHASE_TEXT "current phase: "
 #define RUNNING_MODE_TEXT "running mode: "
+#define FPS_TEXT "fps: "
 
 const std::string NNRunningModeName[] = {
     "Running",
     "Pause",
 };
 
-class vStatus {
+class vStatus : public panel {
   private:
 	sf::RenderTexture VRender;
-	state &vstate;
 	void createVstatus();
 	void display();
 	void drawText();
 	void clear();
 	std::string get_text();
+	float fps;
+	void do_render() override;
 
   public:
-	vStatus(state &vstate_);
-	~vStatus() = default;
+	vStatus(std::shared_ptr<state> vstate_);
 	sf::Sprite getSprite();
-	void renderStatus();
+	void update_fps(const float fps);
 };
 } // namespace Visualizer
 

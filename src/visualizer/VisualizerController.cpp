@@ -48,13 +48,13 @@ void visualizerController::start(const neural_network &network) {
 }
 
 void visualizerController::start_visuals(const neural_network &network) {
-	Vstate = std::make_unique<state>();
+	Vstate = std::make_shared<state>();
 	if (!Vstate)
 		return;
 
 	initState();
 
-	renderer = std::make_unique<VisualizerRenderer>(network, *Vstate);
+	renderer = std::make_unique<VisualizerRenderer>(network, Vstate);
 	if (!renderer) {
 		return;
 	}

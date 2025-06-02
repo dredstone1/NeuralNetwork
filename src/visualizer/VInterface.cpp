@@ -5,10 +5,11 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <cstddef>
+#include <memory>
 
 namespace Visualizer {
-vInteface::vInteface(state &vstate)
-    : vstate(vstate) {
+vInteface::vInteface(std::shared_ptr<state> vstate)
+    : panel(vstate) {
 	createVInterface();
 }
 
@@ -19,7 +20,7 @@ void vInteface::createVInterface() {
 	buttons.reserve(STATES_COUNT);
 
 	for (int i = 0; i < STATES_COUNT; i++) {
-		buttons.push_back(new button(vstate, vstate.getStateString((states)i), (states)i));
+		buttons.push_back(new button(vstate, vstate->getStateString((states)i), (states)i));
 	}
 }
 
@@ -34,6 +35,7 @@ sf::Sprite vInteface::getSprite() {
 
 void vInteface::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
 	if (!needHandlePress) {
+        need_update = true;
 		needHandlePress = true;
 		handleKeyPresed(mousePos_, boxPos);
 	}
@@ -41,9 +43,10 @@ void vInteface::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f box
 
 void vInteface::handleNoClick() {
 	needHandlePress = false;
+    need_update = true;
 }
 
-void vInteface::renderInterface() {
+void vInteface::do_render() {
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
 		buttons[button_]->render();
 		sf::Sprite buttonSprite = sf::Sprite(buttons[button_]->getSprite());

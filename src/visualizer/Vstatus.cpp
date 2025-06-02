@@ -1,13 +1,15 @@
 #include "Vstatus.hpp"
 #include "fonts.hpp"
+#include "visualizer/panel.hpp"
 #include "visualizer/state.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <cmath>
+#include <memory>
 #include <sstream>
 
 namespace Visualizer {
-vStatus::vStatus(state &vstate_) : vstate(vstate_) {
+vStatus::vStatus(std::shared_ptr<state> vstate_) : panel(vstate_) {
 	createVstatus();
 }
 
@@ -20,15 +22,16 @@ void vStatus::createVstatus() {
 	clear();
 }
 
-void vStatus::renderStatus() {
+void vStatus::do_render() {
 	clear();
 	drawText();
 }
 
 std::string vStatus::get_text() {
 	std::ostringstream ss;
-	ss << CURRENT_PHASE_TEXT << NNmodeName[(int)vstate.nnMode.load()] << std::endl
-	   << RUNNING_MODE_TEXT << NNRunningModeName[vstate.pause.load()] << std::endl;
+	ss << CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << std::endl
+	   << RUNNING_MODE_TEXT << NNRunningModeName[vstate->pause.load()] << std::endl
+	   << FPS_TEXT << fps << std::endl;
 	return ss.str();
 }
 
@@ -48,5 +51,10 @@ void vStatus::display() {
 sf::Sprite vStatus::getSprite() {
 	display();
 	return sf::Sprite(VRender.getTexture());
+}
+
+void vStatus::update_fps(const float fps_) {
+	fps = fps_;
+	need_update = true;
 }
 } // namespace Visualizer
