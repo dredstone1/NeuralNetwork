@@ -7,6 +7,8 @@
 #include "state.hpp"
 #include "visualNN.hpp"
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Clock.hpp>
 #include <atomic>
 #include <climits>
 #include <memory>
@@ -22,10 +24,13 @@ class VisualizerRenderer {
 	vInteface interface;
 	vStatus statusV;
 	std::atomic<bool> running{false};
+	float fps;
 	void renderLoop();
 	void processEvents();
 	void renderObjects();
-	float fps;
+	void full_update();
+	void clear();
+	void do_frame(int &frameCount, sf::Clock &fpsClock);
 
   public:
 	VisualizerRenderer(const neural_network &network, std::shared_ptr<state> vstate);

@@ -46,6 +46,7 @@ void VisualizerRenderer::renderObjects() {
 		interfaceSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP);
 		window.draw(interfaceSprite);
 	}
+
 	if (statusV.render()) {
 		sf::Sprite statusSprite = statusV.getSprite();
 		statusSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT);
@@ -53,29 +54,48 @@ void VisualizerRenderer::renderObjects() {
 	}
 }
 
+void VisualizerRenderer::full_update() {
+	clear();
+	statusV.set_update();
+	interface.set_update();
+	visualNetwork.set_update();
+}
+
+void VisualizerRenderer::do_frame(int &frameCount, sf::Clock &fpsClock) {
+	processEvents();
+
+	if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
+		fps = frameCount / fpsClock.getElapsedTime().asSeconds();
+
+		fpsClock.restart();
+		frameCount = 0;
+		statusV.update_fps(fps);
+
+		full_update();
+	}
+
+	if (updateStatus()) {
+		frameCount++;
+
+		renderObjects();
+		window.display();
+	}
+}
+
+void VisualizerRenderer::clear() {
+	window.clear(sf::Color(100, 100, 100));
+}
+
 void VisualizerRenderer::renderLoop() {
 	running.store(true);
 	sf::Clock fpsClock;
 	int frameCount = 0;
+
 	window.setFramerateLimit(FPS_LIMIT);
-	window.clear(sf::Color(100, 100, 100));
+	clear();
 
 	while (window.isOpen() && running) {
-		processEvents();
-		frameCount++;
-
-		if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
-			fps = frameCount / fpsClock.getElapsedTime().asSeconds();
-
-			fpsClock.restart();
-			frameCount = 0;
-			statusV.update_fps(fps);
-		}
-
-		if (updateStatus()) {
-			renderObjects();
-			window.display();
-		}
+		do_frame(frameCount, fpsClock);
 	}
 
 	window.close();

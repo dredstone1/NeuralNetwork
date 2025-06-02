@@ -15,15 +15,7 @@ class panel {
 
   public:
 	panel(std::shared_ptr<state> vstate_) : vstate(vstate_) {}
-	int render() {
-		if (need_update) {
-			do_render();
-			need_update = false;
-			return true;
-		}
-
-		return false;
-	}
+	int render();
 	virtual ~panel() = default;
 	bool updateStatus() { return need_update; }
 	void set_update() { need_update = true; }

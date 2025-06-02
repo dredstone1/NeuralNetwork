@@ -14,6 +14,11 @@ namespace Visualizer {
 #define BUTTON_WIDTH 200
 #define BUTTON_TEXT_FONT 30
 
+// sf::Color ButtonActiveColor(0, 123, 255);     // Bright Blue
+// sf::Color ButtonInactiveColor(224, 224, 224); // Light Gray
+// sf::Color ButtonTextActive(255, 255, 255);    // White
+// sf::Color ButtonTextInactive(51, 51, 51);     // Dark Gray
+
 class button : public panel {
   private:
 	sf::RenderTexture buttonRender;
