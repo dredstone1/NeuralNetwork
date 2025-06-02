@@ -11,7 +11,7 @@
 #include <thread>
 
 namespace Visualizer {
-visualizerController::visualizerController(const VisualizerConfig &_config)
+visualizerController::visualizerController(const ConfigData &_config)
     : config(_config) {
 	printf("start Visualizer\n");
 }
@@ -20,8 +20,8 @@ void visualizerController::initState() {
 	if (!Vstate)
 		return;
 
-	for (size_t i = 0; i < config.modes.size(); i++) {
-		Vstate->setState(config.modes[i].state, config.modes[i].mode);
+	for (size_t i = 0; i < config.visualizer_config.modes.size(); i++) {
+		Vstate->setState(config.visualizer_config.modes[i].state, config.visualizer_config.modes[i].mode);
 	}
 }
 
@@ -48,7 +48,7 @@ void visualizerController::start(const neural_network &network) {
 }
 
 void visualizerController::start_visuals(const neural_network &network) {
-	Vstate = std::make_shared<state>();
+	Vstate = std::make_shared<state>(config);
 	if (!Vstate)
 		return;
 
@@ -76,7 +76,7 @@ void visualizerController::wait_until_started() {
 }
 
 void visualizerController::wait_until_updated() {
-	if (!renderer || !Vstate->preciseMode.load())
+	if (!renderer || !Vstate->settings.preciseMode.load())
 		return;
 
 	while (renderer->updateStatus() && running.load()) {
@@ -88,14 +88,14 @@ void visualizerController::pause() {
 	if (!renderer || !Vstate)
 		return;
 
-	while (Vstate->pause.load() && running.load()) {
+	while (Vstate->settings.pause.load() && running.load()) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
 void visualizerController::autoPause() {
-	if (Vstate->autoPause.load())
-		Vstate->pause.store(true);
+	if (Vstate->settings.autoPause.load())
+		Vstate->settings.pause.store(true);
 
 	pause();
 }
@@ -160,4 +160,17 @@ void visualizerController::update(const gradient &new_grad) {
 		handleStates();
 	}
 }
+
+void visualizerController::updateBatchCounter(const int batch) {
+	if (checkP()) {
+		if (!running.load()) {
+			stop();
+			return;
+		}
+
+		Vstate->current_batch = batch;
+		wait_until_updated();
+	}
+}
+
 } // namespace Visualizer

@@ -30,8 +30,11 @@ void vStatus::do_render() {
 std::string vStatus::get_text() {
 	std::ostringstream ss;
 	ss << CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << std::endl
-	   << RUNNING_MODE_TEXT << NNRunningModeName[vstate->pause.load()] << std::endl
-	   << FPS_TEXT << fps << "/" << FPS_LIMIT << std::endl;
+	   << RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << std::endl
+	   << FPS_TEXT << fps << "/" << FPS_LIMIT << std::endl
+	   << CURRENT_BATCH_TEXT << vstate->current_batch << "/" << vstate->config.training_config.batch_count << std::endl
+	   << BATCH_SIZE_TEXT << vstate->config.training_config.batch_size << std::endl
+	   << LERNING_RATE_TEXT << vstate->config.training_config.learning_rate << std::endl;
 	return ss.str();
 }
 
@@ -55,6 +58,6 @@ sf::Sprite vStatus::getSprite() {
 
 void vStatus::update_fps(const float fps_) {
 	fps = fps_;
-    set_update();
+	set_update();
 }
 } // namespace Visualizer

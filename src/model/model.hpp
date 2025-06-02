@@ -15,6 +15,7 @@ class model {
 	visualizerController visual;
 	void run_model(const std::vector<double> &input, neural_network &temp_network);
 	friend class BackPropagation;
+	friend class Trainer;
 
   public:
 	model(Config &_config, bool use_visual);

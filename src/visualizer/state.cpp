@@ -6,13 +6,13 @@ namespace Visualizer {
 void state::toggle(states state_) {
 	switch (state_) {
 	case states::Pause:
-		pause.store(!pause.load());
+		settings.pause.store(!settings.pause.load());
 		break;
 	case states::PreciseMode:
-		preciseMode.store(!preciseMode.load());
+		settings.preciseMode.store(!settings.preciseMode.load());
 		break;
 	case states::AutoPause:
-		autoPause.store(!autoPause.load());
+		settings.autoPause.store(!settings.autoPause.load());
 		break;
 	default:
 		break;
@@ -36,13 +36,13 @@ states state::getStatefromString(const std::string &state_) {
 bool state::getState(states state_) {
 	switch (state_) {
 	case states::Pause:
-		return pause.load();
+		return settings.pause.load();
 		break;
 	case states::PreciseMode:
-		return preciseMode.load();
+		return settings.preciseMode.load();
 		break;
 	case states::AutoPause:
-		return autoPause.load();
+		return settings.autoPause.load();
 		break;
 	default:
 		return 0;
@@ -53,13 +53,13 @@ bool state::getState(states state_) {
 void state::setState(states state_, bool stateM) {
 	switch (state_) {
 	case states::Pause:
-		pause.store(stateM);
+		settings.pause.store(stateM);
 		break;
 	case states::PreciseMode:
-		preciseMode.store(stateM);
+		settings.preciseMode.store(stateM);
 		break;
 	case states::AutoPause:
-		autoPause.store(stateM);
+		settings.autoPause.store(stateM);
 		break;
 	default:
 		break;

@@ -1,7 +1,6 @@
 #include "../../include/trainer.hpp"
-#include "dataBase.hpp"
+#include "AiModel.hpp"
 #include "model/config.hpp"
-#include "model/model.hpp"
 #include <chrono>
 #include <cstdio>
 #include <iostream>
@@ -35,22 +34,12 @@ void Trainer::print_progress_bar(const int current, const int total) {
 void Trainer::train() {
 	std::cout << "Training AI" << std::endl;
 
-	const double graph_resolution = std::min(GRAPH_RESOLUTION, config.batch_count);
-	const int graph_draw_interval = config.batch_count / graph_resolution;
-	std::cout << "Graph resolution: " << graph_resolution << std::endl;
-	std::vector<double> errors(graph_resolution, 0.0);
-	double error = 0.0;
-
 	const auto start = std::chrono::high_resolution_clock::now();
 
-	for (int loop_index = 0; loop_index < config.batch_count; loop_index++) {
+	for (int loop_index = 0; loop_index < config.batch_count + 1; loop_index++) {
+		model._model->visual.updateBatchCounter(loop_index);
 		Batch &batch = dataBase.get_Batch();
-		error += backPropagation.run_back_propagation(batch, config.learning_rate);
-
-		if ((loop_index + 1) % graph_draw_interval == 0) {
-			errors[loop_index / graph_draw_interval] = error / graph_draw_interval;
-			error = 0.0;
-		}
+		backPropagation.run_back_propagation(batch, config.learning_rate);
 
 		print_progress_bar(loop_index + 1, config.batch_count);
 	}
@@ -63,7 +52,4 @@ void Trainer::train() {
 	std::cout << std::endl
 	          << "Training Done!" << std::endl
 	          << "Training time: " << minutes << " minutes " << seconds << " seconds" << " (" << time_taken_milliseconds << " ms)" << std::endl;
-
-	double min = *min_element(errors.begin(), errors.end());
-	printf("Minimum error: %f\n", min);
 }

@@ -25,7 +25,7 @@ class button : public panel {
 	void display();
 	void drawText();
 	sf::Color getBgColor();
-    void do_render() override;
+	void do_render() override;
 
   public:
 	button(std::shared_ptr<state> _state, const std::string lable, const states state_);

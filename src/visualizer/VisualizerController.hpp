@@ -1,6 +1,7 @@
 #ifndef VISUALIZERCONTROLLER
 #define VISUALIZERCONTROLLER
 
+#include "../model/config.hpp"
 #include "../model/neuralNetwork.hpp"
 #include "VisualizerRenderer.hpp"
 #include "state.hpp"
@@ -16,7 +17,7 @@ class visualizerController {
 	std::mutex mtx;
 	std::atomic<bool> running{false};
 	std::unique_ptr<VisualizerRenderer> renderer;
-	const VisualizerConfig &config;
+	const ConfigData &config;
 	std::shared_ptr<state> Vstate;
 	void stop();
 	std::thread display_thread;
@@ -30,13 +31,14 @@ class visualizerController {
 	void handleStates();
 
   public:
-	visualizerController(const VisualizerConfig &config);
+	visualizerController(const ConfigData &config);
 	~visualizerController();
 	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);
 	void update(const int layer, const LayerParameters &gradient);
 	void setNewPhaseMode(const NNmode nn_mode);
 	void start(const neural_network &network);
 	void update(const gradient &new_grad);
+	void updateBatchCounter(const int batch);
 };
 } // namespace Visualizer
 

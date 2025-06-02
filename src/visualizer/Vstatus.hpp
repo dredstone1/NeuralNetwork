@@ -16,8 +16,11 @@ namespace Visualizer {
 #define STATUS_TEXT_FONT 30
 #define CURRENT_PHASE_TEXT "current phase: "
 #define RUNNING_MODE_TEXT "running mode: "
+#define CURRENT_BATCH_TEXT "current batch: "
+#define BATCH_SIZE_TEXT "batch size: "
+#define LERNING_RATE_TEXT "learning rate: "
 #define FPS_TEXT "fps: "
-#define FPS_LIMIT 60
+#define FPS_LIMIT 144
 
 const std::string NNRunningModeName[] = {
     "Running",

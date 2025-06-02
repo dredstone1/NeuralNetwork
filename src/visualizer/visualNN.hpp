@@ -26,7 +26,7 @@ class visualNN : public panel {
 	void renderLayers();
 	void renderLayer(const int layer, const float posx);
 	static bool getBit(const long num, const int index);
-    void do_render() override;
+	void do_render() override;
 
   public:
 	visualNN(const neural_network &network, std::shared_ptr<state> state_);

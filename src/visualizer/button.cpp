@@ -59,7 +59,7 @@ bool button::checkForClick(sf::Vector2f mousePos, sf::Vector2f boxPos) {
 	sf::Sprite button_box = getSprite();
 	button_box.setPosition(boxPos);
 	if (button_box.getGlobalBounds().contains(mousePos)) {
-        set_update();
+		set_update();
 		sendCommand();
 		return true;
 	}

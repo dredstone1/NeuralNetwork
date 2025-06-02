@@ -8,7 +8,7 @@
 
 model::model(Config &_config, const bool useVisual)
     : network(_config.config_data.network_config),
-      visual(_config.config_data.visualizer_config),
+      visual(_config.config_data),
       useVisual(useVisual) {
 	if (useVisual)
 		visual.start(network);
