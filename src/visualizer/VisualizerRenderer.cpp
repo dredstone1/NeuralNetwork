@@ -1,12 +1,7 @@
 #include "VisualizerRenderer.hpp"
-#include "model/neuralNetwork.hpp"
 #include "state.hpp"
-#include "trainer/gradient.hpp"
 #include "visualL.hpp"
 #include "visualNN.hpp"
-#include "visualizer/VInterface.hpp"
-#include "visualizer/Vstatus.hpp"
-#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
 #include <cstdio>
 #include <memory>
@@ -22,14 +17,18 @@ VisualizerRenderer::VisualizerRenderer(const neural_network &network, std::share
 void VisualizerRenderer::processEvents() {
 	sf::Event event;
 	while (window.pollEvent(event)) {
-		if (event.type == sf::Event::Closed) {
+		switch (event.type) {
+		case sf::Event::Closed:
 			close();
-		}
-		if (event.type == sf::Event::MouseButtonPressed) {
-			sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-			interface.handleClick(mousePos, {NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
-		} else if (event.type == sf::Event::MouseButtonReleased) {
+			break;
+		case sf::Event::MouseButtonReleased:
 			interface.handleNoClick();
+			break;
+		case sf::Event::MouseButtonPressed:
+			interface.handleClick(sf::Mouse::getPosition(window), {NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
+			break;
+		default:
+			break;
 		}
 	}
 }
@@ -83,7 +82,7 @@ void VisualizerRenderer::do_frame(int &frameCount, sf::Clock &fpsClock) {
 }
 
 void VisualizerRenderer::clear() {
-	window.clear(sf::Color(100, 100, 100));
+	window.clear(BG_COLOR);
 }
 
 void VisualizerRenderer::renderLoop() {

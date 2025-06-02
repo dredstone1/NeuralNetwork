@@ -5,10 +5,10 @@
 #include "../src/model/model.hpp"
 #include <string>
 
-typedef struct prediction {
+struct prediction {
 	const int index;
 	const double value;
-} prediction;
+};
 
 class AiModel {
   private:
@@ -18,7 +18,7 @@ class AiModel {
 	friend class Trainer;
 
   public:
-	AiModel(const std::string &config_file, const bool use_visual);
+	AiModel(const std::string &config_file, const bool use_visual = false);
 	void run_model(const std::vector<double> &input);
 	prediction getPrediction();
 	Config &getConfig() { return config; }

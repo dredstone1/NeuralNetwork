@@ -1,6 +1,4 @@
-#include "../include/AiModel.hpp"
-#include "model/config.hpp"
-#include "model/model.hpp"
+#include "AiModel.hpp"
 #include <cstring>
 #include <memory>
 #include <string>

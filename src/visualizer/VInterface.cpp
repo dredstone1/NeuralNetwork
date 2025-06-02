@@ -1,14 +1,9 @@
 #include "VInterface.hpp"
 #include "button.hpp"
 #include "state.hpp"
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <cstddef>
-#include <memory>
 
 namespace Visualizer {
-vInteface::vInteface(std::shared_ptr<state> vstate)
+vInteface::vInteface(const std::shared_ptr<state> vstate)
     : panel(vstate) {
 	createVInterface();
 }
@@ -20,7 +15,7 @@ void vInteface::createVInterface() {
 	buttons.reserve(STATES_COUNT);
 
 	for (int i = 0; i < STATES_COUNT; i++) {
-		buttons.push_back(new button(vstate, vstate->getStateString((states)i), (states)i));
+		buttons.push_back(std::make_unique<button>(vstate, vstate->getStateString((states)i), (states)i));
 	}
 }
 
@@ -60,12 +55,6 @@ void vInteface::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
 		if (buttons[button_]->checkForClick(mousePos, {boxPos.x, boxPos.y + (BUTTON_HEIGHT + 10) * button_}))
 			return;
-	}
-}
-
-vInteface::~vInteface() {
-	for (size_t i = 0; i < buttons.size(); i++) {
-		delete buttons[i];
 	}
 }
 } // namespace Visualizer

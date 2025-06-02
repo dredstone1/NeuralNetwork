@@ -14,10 +14,11 @@ class panel {
 	std::shared_ptr<state> vstate;
 
   public:
-	panel(std::shared_ptr<state> vstate_) : vstate(vstate_) {}
+	panel(const std::shared_ptr<state> vstate_)
+	    : vstate(vstate_) {}
 	int render();
 	virtual ~panel() = default;
-	bool updateStatus() { return need_update; }
+	bool updateStatus() const { return need_update; }
 	void set_update() { need_update = true; }
 };
 } // namespace Visualizer

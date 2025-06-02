@@ -33,6 +33,5 @@ void gradient::multiply(const double value) {
 }
 
 gradient::gradient(const gradient &other)
-    : config(other.config) {
-	gradients = other.gradients;
+    : gradients(other.gradients), config(other.config) {
 }

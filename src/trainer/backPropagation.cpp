@@ -1,14 +1,11 @@
 #include "backPropagation.hpp"
-#include "AiModel.hpp"
 #include "gradient.hpp"
-#include "model/Layers/Hidden_Layer.hpp"
-#include "model/model.hpp"
-#include "trainer/dataBase.hpp"
 #include <cmath>
 #include <vector>
 
 BackPropagation::BackPropagation(AiModel &_model)
-    : model(_model) {}
+    : local_gradient(_model.getConfig().config_data.network_config),
+      model(_model) {}
 
 double BackPropagation::get_cross_entropy_loss(const std::vector<double> &prediction, const int target) {
 	return -std::log(prediction[target]);
@@ -53,10 +50,10 @@ std::vector<double> BackPropagation::calculate_delta_for_output(const std::vecto
 	return deltas;
 }
 
-void BackPropagation::calculate_pattern_gradients(const TrainSample &sample, gradient &_gradients, const neural_network &temp_network) {
+void BackPropagation::calculate_pattern_gradients(const TrainSample &sample, const neural_network &temp_network) {
 	std::vector<double> deltas;
 
-	for (int layer_index = _gradients.gradients.size() - 1; layer_index >= 0; layer_index--) {
+	for (int layer_index = local_gradient.gradients.size() - 1; layer_index >= 0; layer_index--) {
 		const Layer &layer = *temp_network.layers.at(layer_index);
 
 		if (layer.getType() == OUTPUT) {
@@ -66,16 +63,16 @@ void BackPropagation::calculate_pattern_gradients(const TrainSample &sample, gra
 		}
 
 		if (layer_index == 0) {
-			calculate_gradient(layer, deltas, sample.input, _gradients.gradients[layer_index]);
+			calculate_gradient(layer, deltas, sample.input, local_gradient.gradients[layer_index]);
 		} else {
-			calculate_gradient(layer, deltas, temp_network.layers[layer_index - 1]->getOut(), _gradients.gradients[layer_index]);
+			calculate_gradient(layer, deltas, temp_network.layers[layer_index - 1]->getOut(), local_gradient.gradients[layer_index]);
 		}
 	}
 }
 
-double BackPropagation::run_back_propagation(const TrainSample &sample, gradient &local_gradient) {
+double BackPropagation::run_back_propagation(const TrainSample &sample) {
 	model.run_model(sample.input);
-	calculate_pattern_gradients(sample, local_gradient, model._model->network);
+	calculate_pattern_gradients(sample, model._model->network);
 
 	return get_total_error(model._model->network, sample._prediction.index);
 }
@@ -84,22 +81,21 @@ double BackPropagation::run_back_propagation(const Batch &batch, const double le
 	const size_t batch_size = batch.size();
 	double error = 0.0;
 
-	gradient batch_gradient(model.config.config_data.network_config);
-
 	if (batch_size == 0) {
 		return 0.0;
 	}
 
-	for (size_t i = 0; i < batch_size; i++) {
+	local_gradient.reset();
+    for (size_t i = 0; i < batch_size; i++) {
 		TrainSample *current_sample_ptr = batch.samples.at(i);
-		error += run_back_propagation(*current_sample_ptr, batch_gradient);
+		error += run_back_propagation(*current_sample_ptr);
 	}
 
-	update_weights(batch_size, batch_gradient, learning_rate);
+	update_weights(batch_size, learning_rate);
 	return error / batch_size;
 }
 
-void BackPropagation::update_weights(int batch_size, gradient &gradients, double learning_rate) {
-	gradients.multiply(-learning_rate / batch_size);
-	model._model->updateWeights(gradients);
+void BackPropagation::update_weights(int batch_size, double learning_rate) {
+	local_gradient.multiply(-learning_rate / batch_size);
+	model._model->updateWeights(local_gradient);
 }

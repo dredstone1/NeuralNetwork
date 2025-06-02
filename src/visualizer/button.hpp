@@ -4,20 +4,19 @@
 #include "panel.hpp"
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <memory>
 
 namespace Visualizer {
-#define BUTTON_HEIGHT 50
-#define BUTTON_WIDTH 200
-#define BUTTON_TEXT_FONT 30
+constexpr const int BUTTON_HEIGHT = 50;
+constexpr const int BUTTON_WIDTH = 200;
+constexpr const int BUTTON_TEXT_FONT = 30;
 
-// sf::Color ButtonActiveColor(0, 123, 255);     // Bright Blue
-// sf::Color ButtonInactiveColor(224, 224, 224); // Light Gray
-// sf::Color ButtonTextActive(255, 255, 255);    // White
-// sf::Color ButtonTextInactive(51, 51, 51);     // Dark Gray
+namespace ButtonColors {
+const inline sf::Color ACTIVE = sf::Color(0, 123, 255);
+const inline sf::Color INACTIVE = sf::Color(187, 187, 187);
+const inline sf::Color TEXT_ACTIVE = sf::Color::White;
+const inline sf::Color TEXT_INACTIVE = sf::Color(34, 34, 34);
+} // namespace ButtonColors
 
 class button : public panel {
   private:
@@ -30,13 +29,14 @@ class button : public panel {
 	void display();
 	void drawText();
 	sf::Color getBgColor();
+	sf::Color getFontColor();
 	void do_render() override;
 
   public:
-	button(std::shared_ptr<state> _state, const std::string lable, const states state_);
+	button(const std::shared_ptr<state> _state, const std::string lable, const states state_);
 	~button() = default;
 	sf::Sprite getSprite();
-	bool checkForClick(const sf::Vector2f mousePos, sf::Vector2f boxPos);
+	bool checkForClick(const sf::Vector2f mousePos, const sf::Vector2f boxPos);
 };
 } // namespace Visualizer
 

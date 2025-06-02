@@ -1,12 +1,6 @@
 #include "visualL.hpp"
 #include "fonts.hpp"
 #include "model/LayerParameters.hpp"
-#include "model/Layers/layer.hpp"
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Window/Keyboard.hpp>
 #include <cmath>
 #include <iomanip>
 #include <ostream>
@@ -30,9 +24,9 @@ visualL::visualL(const int _size, const int _prev_size, const int size_a)
 
 float visualL::calculateWIDTH(const int size_a, const bool is_params) {
 	if (is_params && size_a <= 1) {
-		return 2 * NEURON_RADIUS * 5;
+		return NEURON_WIDTH * 5;
 	}
-	return is_params ? (NN_WIDTH - NEURON_RADIUS * 2) / (size_a - 1.f) : 2 * NEURON_RADIUS;
+	return is_params ? (NN_WIDTH - NEURON_WIDTH) / (size_a - 1.f) : NEURON_WIDTH;
 }
 
 void visualL::createLayerVisual() {
@@ -49,9 +43,9 @@ void visualL::clear(const bool render) {
 
 sf::Color visualL::getBGcolor(const bool render) {
 	if (render)
-		return sf::Color::Yellow;
+		return ACTIVE_BG_LAYER;
 
-	return sf::Color::White;
+	return NORMAL_BG_LAYER;
 }
 
 void visualL::renderLayer(const bool render) {
@@ -68,7 +62,7 @@ float visualL::calculateGap(const float size) {
 	if (size <= 0)
 		return 0;
 
-	return (NN_HEIGHT - (size * NEURON_RADIUS * 2)) / (size + 1);
+	return (NN_HEIGHT - (size * NEURON_WIDTH)) / (size + 1);
 }
 
 float visualL::calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2) {
@@ -87,7 +81,7 @@ void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const floa
 		float weightValue = Parameters.weights[neuron_i][neuronP];
 
 		float xP = 0.f;
-		float yP = prevGap + neuronP * (prevGap + NEURON_RADIUS * 2);
+		float yP = prevGap + neuronP * (prevGap + NEURON_WIDTH);
 
 		sf::Vector2f prevNeuronTopLeft(xP, yP);
 
@@ -152,8 +146,8 @@ void visualL::drawNeurons() {
 	float prevGap = calculateGap(getPrevSize());
 
 	for (int neuron = 0; neuron < getSize(); neuron++) {
-		float x = WIDTH - NEURON_RADIUS * 2;
-		float y = gap + neuron * (gap + NEURON_RADIUS * 2);
+		float x = WIDTH - NEURON_WIDTH;
+		float y = gap + neuron * (gap + NEURON_WIDTH);
 
 		if (is_params)
 			drawWeights(neuron, {x, y}, prevGap);
@@ -179,7 +173,7 @@ textT visualL::getTextT(const int, const int) {
 }
 
 void visualL::drawNeuron(const double input, const double output, const sf::Vector2f pos) {
-	sf::RectangleShape shape({NEURON_RADIUS * 2, NEURON_RADIUS * 2});
+	sf::RectangleShape shape({NEURON_WIDTH, NEURON_WIDTH});
 	shape.setFillColor(sf::Color::Blue);
 	shape.setPosition(pos);
 
@@ -203,13 +197,16 @@ void visualL::drawNeuron(const double input, const double output, const sf::Vect
 	layerRender.draw(text);
 }
 
-void visualL::setDots(const std::vector<double> out, const std::vector<double> net) {
+void visualL::setDots(const std::vector<double> &out, const std::vector<double> &net) {
 	dots.net = net;
 	dots.out = out;
 }
 
+void visualL::set_weights(const LayerParameters &Param) {
+	Parameters.set(Param);
+}
+
 void VParamLayer::updateGrad(const LayerParameters &new_grad) {
-	grad.reset();
-	grad.add(new_grad);
+	grad.set(new_grad);
 }
 } // namespace Visualizer

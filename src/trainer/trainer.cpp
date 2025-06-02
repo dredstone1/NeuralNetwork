@@ -1,14 +1,9 @@
-#include "../../include/trainer.hpp"
-#include "AiModel.hpp"
-#include "model/config.hpp"
-#include <chrono>
-#include <cstdio>
+#include "trainer.hpp"
 #include <iostream>
-#include <sstream>
 
 void Trainer::print_progress_bar(const int current, const int total) {
 	float progress = (float)current / total;
-	int progress_percentage = int(progress * 100.0);
+	int progress_percentage = int(progress * BAR_WIDTH);
 
 	if (progress_percentage != last_progress) {
 		int pos = BAR_WIDTH * progress;
@@ -36,6 +31,7 @@ void Trainer::train() {
 
 	const auto start = std::chrono::high_resolution_clock::now();
 
+	model._model->visual.updateAlgoritemMode(Visualizer::algorithmMode::Training);
 	for (int loop_index = 0; loop_index < config.batch_count + 1; loop_index++) {
 		model._model->visual.updateBatchCounter(loop_index);
 		Batch &batch = dataBase.get_Batch();
@@ -52,4 +48,6 @@ void Trainer::train() {
 	std::cout << std::endl
 	          << "Training Done!" << std::endl
 	          << "Training time: " << minutes << " minutes " << seconds << " seconds" << " (" << time_taken_milliseconds << " ms)" << std::endl;
+
+	model._model->visual.updateAlgoritemMode(Visualizer::algorithmMode::Normal);
 }

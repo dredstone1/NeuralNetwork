@@ -8,9 +8,6 @@
 #include "state.hpp"
 #include "visualL.hpp"
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <memory>
 #include <vector>
 
 namespace Visualizer {
@@ -29,7 +26,7 @@ class visualNN : public panel {
 	void do_render() override;
 
   public:
-	visualNN(const neural_network &network, std::shared_ptr<state> state_);
+	visualNN(const neural_network &network, const std::shared_ptr<state> state_);
 	~visualNN();
 	sf::Sprite getSprite();
 	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);

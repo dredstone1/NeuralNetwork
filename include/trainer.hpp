@@ -5,9 +5,8 @@
 #include "../src/trainer/dataBase.hpp"
 #include "AiModel.hpp"
 
-#define GRAPH_RESOLUTION 100
-#define BAR_WIDTH 100
-#define SECONDS_IN_MINUTE 60
+constexpr const int BAR_WIDTH = 100;
+constexpr const int SECONDS_IN_MINUTE = 60;
 
 class Trainer {
   private:

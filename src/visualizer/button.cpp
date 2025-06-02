@@ -1,16 +1,12 @@
 #include "button.hpp"
 #include "fonts.hpp"
 #include "state.hpp"
-#include "visualizer/panel.hpp"
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <memory>
 #include <sstream>
 
 namespace Visualizer {
-button::button(std::shared_ptr<state> _state, const std::string lable, const states Cstate)
+button::button(const std::shared_ptr<state> _state, const std::string lable, const states Cstate)
     : panel(_state),
       CurrentState(Cstate),
       lable(lable) {
@@ -26,9 +22,16 @@ void button::renderButton() {
 
 sf::Color button::getBgColor() {
 	if (vstate->getState(CurrentState))
-		return sf::Color::Red;
+		return ButtonColors::ACTIVE;
 	else
-		return sf::Color::Yellow;
+		return ButtonColors::INACTIVE;
+}
+
+sf::Color button::getFontColor() {
+	if (vstate->getState(CurrentState))
+		return ButtonColors::TEXT_ACTIVE;
+	else
+		return ButtonColors::TEXT_INACTIVE;
 }
 
 void button::drawText() {
@@ -37,7 +40,7 @@ void button::drawText() {
 	text.setFont(Fonts::getFont());
 	text.setCharacterSize(BUTTON_TEXT_FONT);
 	text.setString(lable);
-	text.setFillColor(sf::Color::Black);
+	text.setFillColor(getFontColor());
 	text.setPosition(2, 2);
 	buttonRender.draw(text);
 }
@@ -55,7 +58,7 @@ sf::Sprite button::getSprite() {
 	return sf::Sprite(buttonRender.getTexture());
 }
 
-bool button::checkForClick(sf::Vector2f mousePos, sf::Vector2f boxPos) {
+bool button::checkForClick(const sf::Vector2f mousePos, const sf::Vector2f boxPos) {
 	sf::Sprite button_box = getSprite();
 	button_box.setPosition(boxPos);
 	if (button_box.getGlobalBounds().contains(mousePos)) {

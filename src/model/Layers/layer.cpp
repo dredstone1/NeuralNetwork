@@ -1,4 +1,5 @@
 #include "layer.hpp"
+#include <cstdio>
 
 void Layer::add(const LayerParameters &gradients) {
 	Parameters.add(gradients);

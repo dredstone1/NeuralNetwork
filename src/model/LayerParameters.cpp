@@ -5,19 +5,24 @@
 
 LayerParameters::LayerParameters(const int size, const int prev_size, const double init_value) {
 	weights.resize(size, std::vector<double>(prev_size, init_value));
-	if (init_value >= 0.0)
-		return;
 
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::normal_distribution<> dist(0.0, sqrt(2.0 / (prev_size)));
+	if (init_value < 0.0)
+		initialize_Param_rn(prev_size);
+}
 
-	for (auto &dot : weights) {
-		for (auto &weight : dot) {
+void LayerParameters::initialize_Param_rn(const int prev_size) {
+	static std::mt19937 gen(std::random_device{}());
+
+	double std_dev = std::sqrt(2.0 / static_cast<double>(prev_size));
+	std::normal_distribution<> dist(0.0, std_dev);
+
+	double limit = 3.0 * std_dev;
+
+	for (auto &row : weights) {
+		for (auto &w : row) {
 			double random_value = dist(gen);
-			random_value = fmin(fmax(random_value, -1.0), 1.0);
-			random_value = round(random_value * 10000.0) / 10000.0;
-			weight = random_value;
+			w = std::min(std::max(random_value, -limit), limit);
+			w = std::round(w * RN_ROUND_VALUE) / RN_ROUND_VALUE;
 		}
 	}
 }
@@ -25,7 +30,7 @@ LayerParameters::LayerParameters(const int size, const int prev_size, const doub
 void LayerParameters::reset() {
 	for (int i = 0; i < getSize(); i++) {
 		for (int j = 0; j < getPrevSize(); j++) {
-			weights[i][j] = 0.0;
+			weights[i][j] = PARAM_RESET_VALUE;
 		}
 	}
 }
@@ -38,6 +43,14 @@ void LayerParameters::add(const LayerParameters &new_gradient_layer) {
 	}
 }
 
+void LayerParameters::set(const LayerParameters &new_gradient_layer) {
+	for (int i = 0; i < getSize(); i++) {
+		for (int j = 0; j < getPrevSize(); j++) {
+			weights[i][j] = new_gradient_layer.weights[i][j];
+		}
+	}
+}
+
 void LayerParameters::multiply(const double value) {
 	for (int i = 0; i < getSize(); i++) {
 		for (int j = 0; j < getPrevSize(); j++) {
@@ -46,6 +59,5 @@ void LayerParameters::multiply(const double value) {
 	}
 }
 
-LayerParameters::LayerParameters(const LayerParameters &other) {
-	weights = other.weights;
-}
+LayerParameters::LayerParameters(const LayerParameters &other)
+    : weights(other.weights) {}

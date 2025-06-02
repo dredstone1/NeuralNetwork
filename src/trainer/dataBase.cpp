@@ -1,13 +1,7 @@
 #include "dataBase.hpp"
-#include <algorithm>
-#include <climits>
-#include <cstddef>
-#include <cstdlib>
-#include <cstring>
 #include <fstream>
 #include <iostream>
-#include <numeric>
-#include <ostream>
+#include <memory>
 
 DataBase::DataBase(TrainingConfig &config_)
     : samples(nullptr),
@@ -22,45 +16,34 @@ DataBase::DataBase(TrainingConfig &config_)
 	generete_batches();
 }
 
-DataBase::~DataBase() {
-	delete samples;
-	samples = nullptr;
-}
-
 TrainSample DataBase::read_line(const std::string &line) {
-	char cstr[100];
-	strncpy(cstr, line.c_str(), sizeof(cstr) - 1);
-	cstr[sizeof(cstr) - 1] = '\0';
+	std::istringstream iss(line);
 
-	char *context = nullptr;
-	char *token = strtok_r(cstr, " ", &context);
+	std::string token;
+	iss >> token;
 	int best_next_move = std::stoi(token);
 
 	TrainSample new_sample({best_next_move, 1.f}, samples->sInputSize);
 
 	for (int i = 0; i < samples->sInputSize; ++i) {
-		token = strtok_r(NULL, " ", &context);
+		iss >> token;
+
 		new_sample.input[i] = std::stod(token);
 	}
+
 	return new_sample;
 }
 
 void DataBase::getDataBaseStatus(const std::string &line) {
-	char cstr[100];
-	strncpy(cstr, line.c_str(), sizeof(cstr) - 1);
-	cstr[sizeof(cstr) - 1] = '\0';
+	std::istringstream iss(line);
 
-	char *context = nullptr;
-	char *token = strtok_r(cstr, " ", &context);
-	int dataBaseSize = std::stoi(token);
+	int dataBaseSize = 0;
+	int sampleSize = 0;
 
-	token = strtok_r(NULL, " ", &context);
-	int sampleSize = std::stoi(token);
+	iss >> dataBaseSize;
+	iss >> sampleSize;
 
-	if (samples) {
-		delete samples;
-	}
-	samples = new Samples(sampleSize, dataBaseSize);
+	samples = std::make_unique<Samples>(sampleSize, dataBaseSize);
 }
 
 int DataBase::load() {

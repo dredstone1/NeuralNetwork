@@ -5,14 +5,14 @@
 #include <cmath>
 #include <vector>
 
-#define RELU_LEAKY_ALPHA 0.01
+constexpr float RELU_LEAKY_ALPHA = 0.01;
 
 enum class activation {
-	relu_ = 0,
-	leaky_relu_ = 1,
-	sigmoid_ = 2,
-	tanh_ = 3,
-	none = 4,
+	relu_,
+	leaky_relu_,
+	sigmoid_,
+	tanh_,
+	none,
 };
 
 class activations {

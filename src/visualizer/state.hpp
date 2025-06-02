@@ -6,7 +6,7 @@
 #include <string>
 
 namespace Visualizer {
-#define STATES_COUNT 3
+constexpr const int STATES_COUNT = 3;
 
 enum class states {
 	Pause,
@@ -15,7 +15,7 @@ enum class states {
 	None,
 };
 
-const std::string statesName[] = {
+const std::array<std::string, STATES_COUNT> statesName = {
     "pause",
     "precise mode",
     "auto pause",
@@ -27,19 +27,9 @@ enum class NNmode {
 	None,
 };
 
-const std::string NNmodeName[] = {
-    "Forword",
-    "Backward",
-};
-
-enum class algoritemMode {
+enum class algorithmMode {
 	Normal,
 	Training,
-};
-
-const std::string algoritemName[] = {
-    "Normal",
-    "Training",
 };
 
 struct set {
@@ -54,7 +44,7 @@ class state {
 	set settings;
 	std::atomic<bool> update_mode{false};
 	std::atomic<NNmode> nnMode{NNmode::Forword};
-	std::atomic<algoritemMode> algoritemMODE{algoritemMode::Normal};
+	std::atomic<algorithmMode> AlgorithmMode{algorithmMode::Normal};
 	int current_batch{0};
 	const ConfigData config;
 	void toggle(const states state_);

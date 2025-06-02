@@ -1,9 +1,6 @@
 #include "VisualizerController.hpp"
 #include "VisualizerRenderer.hpp"
-#include "model/config.hpp"
-#include "model/neuralNetwork.hpp"
 #include "state.hpp"
-#include "trainer/gradient.hpp"
 #include <chrono>
 #include <cstddef>
 #include <cstdio>
@@ -173,4 +170,15 @@ void visualizerController::updateBatchCounter(const int batch) {
 	}
 }
 
+void visualizerController::updateAlgoritemMode(const algorithmMode algoritem_mode) {
+	if (checkP()) {
+		if (!running.load()) {
+			stop();
+			return;
+		}
+
+		Vstate->AlgorithmMode = algoritem_mode;
+		wait_until_updated();
+	}
+}
 } // namespace Visualizer

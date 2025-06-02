@@ -43,7 +43,7 @@ class DataBase {
   private:
 	void getDataBaseStatus(const std::string &line);
 	TrainSample read_line(const std::string &line);
-	Samples *samples;
+	std::unique_ptr<Samples> samples;
 	int load();
 	std::vector<Batch> batches;
 	void generete_batches();
@@ -58,7 +58,7 @@ class DataBase {
 	DataBase(TrainingConfig &config_);
 	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
 	Batch &get_Batch();
-	~DataBase();
+	~DataBase() = default;
 };
 
 #endif // DATABASE

@@ -7,14 +7,13 @@
 #include "state.hpp"
 #include "visualNN.hpp"
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Clock.hpp>
 #include <atomic>
 #include <climits>
 #include <memory>
 
 namespace Visualizer {
-#define UI_GAP 15
+constexpr const int UI_GAP = 15;
+inline const sf::Color BG_COLOR = sf::Color(100, 100, 100);
 
 class VisualizerRenderer {
   private:
@@ -29,11 +28,11 @@ class VisualizerRenderer {
 	void processEvents();
 	void renderObjects();
 	void full_update();
-	void clear();
+	inline void clear();
 	void do_frame(int &frameCount, sf::Clock &fpsClock);
 
   public:
-	VisualizerRenderer(const neural_network &network, std::shared_ptr<state> vstate);
+	VisualizerRenderer(const neural_network &network, const std::shared_ptr<state> vstate);
 	~VisualizerRenderer();
 	void close();
 	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);

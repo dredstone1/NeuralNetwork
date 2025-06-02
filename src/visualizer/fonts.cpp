@@ -2,7 +2,6 @@
 #include <string>
 
 namespace Visualizer {
-
 sf::Font &Fonts::getFont() {
 	static sf::Font font;
 	static bool loaded = false;
@@ -13,5 +12,4 @@ sf::Font &Fonts::getFont() {
 	}
 	return font;
 }
-
 } // namespace Visualizer
