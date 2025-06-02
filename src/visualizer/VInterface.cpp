@@ -15,7 +15,7 @@ vInteface::vInteface(std::shared_ptr<state> vstate)
 
 void vInteface::createVInterface() {
 	VRender.create(VINTERFACE_WIDTH, VINTERFACE_HEIGHT);
-	VRender.clear(sf::Color::Magenta);
+	VRender.clear(sf::Color::White);
 
 	buttons.reserve(STATES_COUNT);
 

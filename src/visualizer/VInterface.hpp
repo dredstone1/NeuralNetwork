@@ -23,7 +23,7 @@ class vInteface : public panel {
 	void handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos);
 	bool needHandlePress{false};
 	std::vector<button *> buttons;
-    void do_render() override;
+	void do_render() override;
 
   public:
 	vInteface(std::shared_ptr<state> vstate);

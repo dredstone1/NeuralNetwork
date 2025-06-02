@@ -4,6 +4,7 @@
 #include "trainer/gradient.hpp"
 #include "visualL.hpp"
 #include "visualNN.hpp"
+#include "visualizer/VInterface.hpp"
 #include "visualizer/Vstatus.hpp"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/Event.hpp>
@@ -24,40 +25,35 @@ void VisualizerRenderer::processEvents() {
 		if (event.type == sf::Event::Closed) {
 			close();
 		}
-		if (event.type == sf::Event::Resized) {
-			needUpdate.store(true);
-		}
 		if (event.type == sf::Event::MouseButtonPressed) {
 			sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 			interface.handleClick(mousePos, {NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
-			needUpdate.store(true);
 		} else if (event.type == sf::Event::MouseButtonReleased) {
 			interface.handleNoClick();
-			needUpdate.store(true);
 		}
 	}
 }
 
 void VisualizerRenderer::renderObjects() {
-	visualNetwork.render();
+	if (visualNetwork.render()) {
+		sf::Sprite visualNetworkSprite = visualNetwork.getSprite();
+		visualNetworkSprite.setPosition(UI_GAP, UI_GAP);
+		window.draw(visualNetworkSprite);
+	}
 
-	sf::Sprite visualNetworkSprite = visualNetwork.getSprite();
-	visualNetworkSprite.setPosition(UI_GAP, UI_GAP);
-	window.draw(visualNetworkSprite);
-
-	interface.render();
-	sf::Sprite interfaceSprite = interface.getSprite();
-	interfaceSprite.setPosition(visualNetworkSprite.getGlobalBounds().getSize().x + visualNetworkSprite.getGlobalBounds().getPosition().x + UI_GAP, UI_GAP);
-	window.draw(interfaceSprite);
-
-	statusV.render();
-	sf::Sprite statusSprite = statusV.getSprite();
-	statusSprite.setPosition(visualNetworkSprite.getGlobalBounds().getSize().x + visualNetworkSprite.getGlobalBounds().getPosition().x + UI_GAP, UI_GAP + interfaceSprite.getGlobalBounds().getSize().y + interfaceSprite.getGlobalBounds().getPosition().y);
-	window.draw(statusSprite);
+	if (interface.render()) {
+		sf::Sprite interfaceSprite = interface.getSprite();
+		interfaceSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP);
+		window.draw(interfaceSprite);
+	}
+	if (statusV.render()) {
+		sf::Sprite statusSprite = statusV.getSprite();
+		statusSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT);
+		window.draw(statusSprite);
+	}
 }
 
 void VisualizerRenderer::render_frame() {
-	// window.clear(sf::Color::White);
 
 	renderObjects();
 
@@ -69,6 +65,8 @@ void VisualizerRenderer::renderLoop() {
 	sf::Clock fpsClock;
 	int frameCount = 0;
 
+	window.clear(sf::Color(100, 100, 100));
+
 	while (window.isOpen() && running) {
 		processEvents();
 		frameCount++;
@@ -79,13 +77,12 @@ void VisualizerRenderer::renderLoop() {
 			fpsClock.restart();
 			frameCount = 0;
 			statusV.update_fps(fps);
-			needUpdate = true;
 		}
 
-		render_frame();
-
-		window.display();
-		needUpdate.store(false);
+		if (updateStatus()) {
+			render_frame();
+			window.display();
+		}
 	}
 
 	window.close();
@@ -96,7 +93,7 @@ void VisualizerRenderer::close() {
 }
 
 bool VisualizerRenderer::updateStatus() {
-	return interface.updateStatus() || statusV.updateStatus();
+	return interface.updateStatus() || statusV.updateStatus() || visualNetwork.updateStatus();
 }
 
 void VisualizerRenderer::start() {
@@ -106,17 +103,14 @@ void VisualizerRenderer::start() {
 
 void VisualizerRenderer::updateDots(const int layer, const std::vector<double> out, const std::vector<double> net) {
 	visualNetwork.updateDots(layer, out, net);
-	needUpdate.store(true);
 }
 
 void VisualizerRenderer::update(const int layer, const LayerParameters &gradients) {
 	visualNetwork.update(layer, gradients);
-	needUpdate.store(true);
 }
 
 void VisualizerRenderer::update(const gradient new_grad) {
 	visualNetwork.update(new_grad);
-	needUpdate.store(true);
 }
 
 VisualizerRenderer::~VisualizerRenderer() {
@@ -125,6 +119,5 @@ VisualizerRenderer::~VisualizerRenderer() {
 
 void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
 	Vstate->nnMode.store(nn_mode);
-	needUpdate.store(true);
 }
 } // namespace Visualizer

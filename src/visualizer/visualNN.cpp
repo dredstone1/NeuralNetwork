@@ -29,7 +29,7 @@ visualNN::visualNN(const neural_network &network, std::shared_ptr<state> state_)
 
 void visualNN::createNnVisual() {
 	NNRender.create(NN_WIDTH, NN_HEIGHT);
-	clear();
+	// clear();
 }
 
 void visualNN::display() {

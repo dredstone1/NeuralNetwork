@@ -14,7 +14,7 @@ vStatus::vStatus(std::shared_ptr<state> vstate_) : panel(vstate_) {
 }
 
 void vStatus::clear() {
-	VRender.clear(sf::Color::Magenta);
+	VRender.clear(sf::Color::White);
 }
 
 void vStatus::createVstatus() {

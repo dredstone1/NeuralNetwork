@@ -21,7 +21,6 @@ class VisualizerRenderer {
 	std::shared_ptr<state> Vstate;
 	vInteface interface;
 	vStatus statusV;
-	std::atomic<int> needUpdate{true};
 	std::atomic<bool> running{false};
 	void render_frame();
 	void renderLoop();
