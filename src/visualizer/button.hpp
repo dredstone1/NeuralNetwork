@@ -4,18 +4,17 @@
 #include "panel.hpp"
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
-#include <memory>
 
 namespace Visualizer {
-constexpr const int BUTTON_HEIGHT = 50;
-constexpr const int BUTTON_WIDTH = 200;
-constexpr const int BUTTON_TEXT_FONT = 30;
+constexpr std::uint32_t BUTTON_HEIGHT = 50;
+constexpr std::uint32_t BUTTON_WIDTH = 200;
+constexpr std::uint32_t BUTTON_TEXT_FONT = 30;
 
 namespace ButtonColors {
-const inline sf::Color ACTIVE = sf::Color(0, 123, 255);
-const inline sf::Color INACTIVE = sf::Color(187, 187, 187);
-const inline sf::Color TEXT_ACTIVE = sf::Color::White;
-const inline sf::Color TEXT_INACTIVE = sf::Color(34, 34, 34);
+constexpr sf::Color ACTIVE(0, 123, 255);
+constexpr sf::Color INACTIVE(187, 187, 187);
+constexpr sf::Color TEXT_ACTIVE(255, 255, 255);
+constexpr sf::Color TEXT_INACTIVE(34, 34, 34);
 } // namespace ButtonColors
 
 class button : public panel {
@@ -31,6 +30,7 @@ class button : public panel {
 	sf::Color getBgColor();
 	sf::Color getFontColor();
 	void do_render() override;
+	void observe() override;
 
   public:
 	button(const std::shared_ptr<state> _state, const std::string lable, const states state_);

@@ -1,24 +1,14 @@
 #include "graph.hpp"
 #include "fonts.hpp"
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Sprite.hpp>
 #include <algorithm>
-#include <iomanip>
-#include <memory>
-#include <ostream>
 
 namespace Visualizer {
 GraphUI::GraphUI(const std::shared_ptr<state> vstate_)
     : panel(vstate_),
+      VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
+      Vgraph({GRAPH_WIDTH, GRAPH_HEIGHT}),
       currentData(0),
       graph_alpha(GRAPH_HEIGHT_ALPHA_DEFAULT) {
-	createGraphUi();
-}
-
-void GraphUI::createGraphUi() {
-	VRender.create(GRAPH_UI_WIDTH, GRAPH_HEIGHT);
-	Vgraph.create(GRAPH_WIDTH, GRAPH_HEIGHT);
-	clear();
 }
 
 void GraphUI::render_numbers() {
@@ -26,8 +16,7 @@ void GraphUI::render_numbers() {
 }
 
 void GraphUI::render_vertical_numbers() {
-	sf::Text text;
-	text.setFont(Fonts::getFont());
+	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(10);
 	text.setFillColor(sf::Color::Black);
 
@@ -56,7 +45,7 @@ void GraphUI::display() {
 
 void GraphUI::renderGraph() {
 	render_numbers();
-	for (int i = 0; i < resolution(); i++) {
+	for (size_t i = 0; i < resolution(); i++) {
 		renderDot(i);
 	}
 }
@@ -73,7 +62,7 @@ void GraphUI::clear() {
 
 int GraphUI::get_highest() {
 	int max = 0;
-	for (int i = 0; i < resolution(); i++) {
+	for (size_t i = 0; i < resolution(); i++) {
 		if (data[i] > data[max]) {
 			i = max;
 		}
@@ -107,12 +96,12 @@ void GraphUI::renderDot(const int index) {
 	Vgraph.draw(line_);
 }
 
-float GraphUI::data_gap_width() {
-	return std::max(DATA_GAP_WIDTH, 1.f * GRAPH_WIDTH / resolution());
+std::uint32_t GraphUI::data_gap_width() {
+	return std::max<std::uint32_t>(DATA_GAP_WIDTH, 1.f * GRAPH_WIDTH / resolution());
 }
 
-int GraphUI::resolution() {
-	return std::min(GRAPH_RESOLUTION, vstate->config.training_config.batch_count) - 1;
+std::uint32_t GraphUI::resolution() {
+	return std::min<std::uint32_t>(GRAPH_RESOLUTION, vstate->config.training_config.batch_count) - 1;
 }
 
 int GraphUI::data_gaps() {

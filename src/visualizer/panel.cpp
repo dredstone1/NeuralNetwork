@@ -2,6 +2,7 @@
 
 namespace Visualizer {
 int panel::render() {
+	observe();
 	if (need_update) {
 		do_render();
 		need_update = false;

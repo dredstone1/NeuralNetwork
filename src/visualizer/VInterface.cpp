@@ -4,12 +4,12 @@
 
 namespace Visualizer {
 vInteface::vInteface(const std::shared_ptr<state> vstate)
-    : panel(vstate) {
+    : panel(vstate),
+      VRender({VINTERFACE_WIDTH, VINTERFACE_HEIGHT}) {
 	createVInterface();
 }
 
 void vInteface::createVInterface() {
-	VRender.create(VINTERFACE_WIDTH, VINTERFACE_HEIGHT);
 	VRender.clear(sf::Color::White);
 
 	buttons.reserve(STATES_COUNT);
@@ -44,8 +44,8 @@ void vInteface::handleNoClick() {
 void vInteface::do_render() {
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
 		buttons[button_]->render();
-		sf::Sprite buttonSprite = sf::Sprite(buttons[button_]->getSprite());
-		buttonSprite.setPosition(0, button_ * (BUTTON_HEIGHT + BUTTON_GAP));
+		sf::Sprite buttonSprite = buttons[button_]->getSprite();
+		buttonSprite.setPosition(sf::Vector2f(0.f, button_ * (BUTTON_HEIGHT + BUTTON_GAP)));
 		VRender.draw(buttonSprite);
 	}
 }

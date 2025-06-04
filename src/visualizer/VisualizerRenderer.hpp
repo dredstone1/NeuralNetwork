@@ -8,13 +8,14 @@
 #include "state.hpp"
 #include "visualNN.hpp"
 #include <SFML/Graphics.hpp>
-#include <atomic>
-#include <climits>
-#include <memory>
 
 namespace Visualizer {
-constexpr const int UI_GAP = 15;
-inline const sf::Color BG_COLOR = sf::Color(100, 100, 100);
+constexpr sf::Color BG_COLOR(100, 100, 100);
+constexpr std::uint32_t UI_GAP = 15;
+
+constexpr std::uint32_t WINDOW_WIDTH = 1600;
+constexpr std::uint32_t WINDOW_HEIGHT = 800;
+constexpr std::string_view WINDOW_TITLE = "Visualizer";
 
 class VisualizerRenderer {
   private:
@@ -28,9 +29,9 @@ class VisualizerRenderer {
 	float fps;
 	void renderLoop();
 	void processEvents();
-	void renderObjects();
-	void full_update();
+	void renderPanels();
 	inline void clear();
+    void full_update();
 	void do_frame(int &frameCount, sf::Clock &fpsClock);
 
   public:
@@ -42,7 +43,7 @@ class VisualizerRenderer {
 	void update(const gradient &new_grad);
 	void start();
 	void update(const int layer, const LayerParameters &gradients);
-    void updateBatchCounter(const double error);
+	void updateBatchCounter(const double error);
 	void setNewPhaseMode(const NNmode nn_mode);
 };
 } // namespace Visualizer

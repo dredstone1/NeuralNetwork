@@ -1,8 +1,5 @@
 #include "model.hpp"
 #include "neuralNetwork.hpp"
-#include "trainer/gradient.hpp"
-#include "visualizer/VisualizerController.hpp"
-#include "visualizer/state.hpp"
 #include <cmath>
 #include <vector>
 

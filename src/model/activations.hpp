@@ -3,7 +3,6 @@
 
 #include "neuron.hpp"
 #include <cmath>
-#include <vector>
 
 constexpr float RELU_LEAKY_ALPHA = 0.01;
 

@@ -5,20 +5,14 @@
 namespace Visualizer {
 visualNN::visualNN(const neural_network &network, std::shared_ptr<state> state_)
     : panel(state_),
-      config(network.config),
+      NNRender({NN_WIDTH, NN_HEIGHT}),
       current_rendred_layer(0) {
 	layers.reserve(network.getLayerCount() + 1);
 
-	layers.emplace_back(new VEmptyLayer(config.input_size, 0, network.getLayerCount() + 1));
+	layers.emplace_back(new VEmptyLayer(vstate->config.network_config.input_size, network.getLayerCount() + 1, vstate));
 	for (int layer = 0; layer < network.getLayerCount(); layer++) {
-		layers.emplace_back(new VParamLayer(*network.layers.at(layer), network.getLayerCount() + 1));
+		layers.emplace_back(new VParamLayer(*network.layers.at(layer), vstate));
 	}
-
-	createNnVisual();
-}
-
-void visualNN::createNnVisual() {
-	NNRender.create(NN_WIDTH, NN_HEIGHT);
 }
 
 void visualNN::display() {
@@ -26,26 +20,37 @@ void visualNN::display() {
 }
 
 void visualNN::clear() {
-	NNRender.clear(sf::Color::Green);
+	NNRender.clear(sf::Color::White);
 }
 
 void visualNN::renderLayers() {
 	float posx = 0;
-	for (int layer = 0; layer < config.hidden_layer_count() + 2; layer++) {
+	for (int layer = 0; layer < vstate->config.network_config.hidden_layer_count() + 2; layer++) {
 		renderLayer(layer, posx);
 		posx += layers[layer]->WIDTH;
 	}
 }
 
 void visualNN::do_render() {
+	clear();
 	renderLayers();
 }
 
+void visualNN::render_active_layer(const sf::Vector2f box, const sf::Vector2f pos) {
+	sf::RectangleShape shape(box);
+	shape.setPosition(pos);
+	shape.setFillColor(ACTIVE_BG_LAYER);
+
+	NNRender.draw(shape);
+}
+
 void visualNN::renderLayer(const int layer, const float posx) {
-	layers[layer]->renderLayer(layer == current_rendred_layer);
+	layers[layer]->render();
 
 	sf::Sprite newSprite = layers[layer]->getSprite();
-	newSprite.setPosition(posx, 0);
+	if (layer == current_rendred_layer)
+		render_active_layer(newSprite.getLocalBounds().size, {posx, 0});
+	newSprite.setPosition({posx, 0});
 
 	NNRender.draw(newSprite);
 }

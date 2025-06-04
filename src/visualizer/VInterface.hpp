@@ -4,14 +4,11 @@
 #include "button.hpp"
 #include "panel.hpp"
 #include "state.hpp"
-#include <SFML/Graphics.hpp>
-#include <climits>
-#include <memory>
 
 namespace Visualizer {
-constexpr const int VINTERFACE_WIDTH = 500;
-constexpr const int VINTERFACE_HEIGHT = 170;
-constexpr const int BUTTON_GAP = 10;
+constexpr std::uint32_t VINTERFACE_WIDTH = 500;
+constexpr std::uint32_t VINTERFACE_HEIGHT = 170;
+constexpr std::uint32_t BUTTON_GAP = 10;
 
 class vInteface : public panel {
   private:

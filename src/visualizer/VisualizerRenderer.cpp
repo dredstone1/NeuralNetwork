@@ -2,69 +2,59 @@
 #include "state.hpp"
 #include "visualL.hpp"
 #include "visualNN.hpp"
-#include <cstdio>
 #include <memory>
 
 namespace Visualizer {
 VisualizerRenderer::VisualizerRenderer(const neural_network &network, std::shared_ptr<state> vstate)
-    : window(sf::VideoMode(1600, 800), "Visualizer", sf::Style::Titlebar | sf::Style::Titlebar),
+    : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), WINDOW_TITLE.data()),
       visualNetwork(network, vstate),
       Vstate(vstate),
       interface(vstate),
       statusV(vstate),
-      Vgraph(vstate) {}
+      Vgraph(vstate) {
+}
 
 void VisualizerRenderer::processEvents() {
-	sf::Event event;
-	while (window.pollEvent(event)) {
-		switch (event.type) {
-		case sf::Event::Closed:
-			close();
-			break;
-		case sf::Event::MouseButtonReleased:
+	while (const std::optional event = window.pollEvent()) {
+		if (event->is<sf::Event::Closed>()) {
+			window.close();
+		} else if (event->is<sf::Event::MouseButtonPressed>()) {
 			interface.handleNoClick();
-			break;
-		case sf::Event::MouseButtonPressed:
+		} else if (event->is<sf::Event::MouseButtonReleased>()) {
 			interface.handleClick(sf::Mouse::getPosition(window), {NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
-			break;
-		default:
-			break;
+		} else if (event->is<sf::Event::Resized>()) {
+			window.setSize({WINDOW_WIDTH, WINDOW_HEIGHT});
 		}
 	}
 }
 
-void VisualizerRenderer::renderObjects() {
-	if (visualNetwork.render()) {
-		sf::Sprite visualNetworkSprite = visualNetwork.getSprite();
-		visualNetworkSprite.setPosition(UI_GAP, UI_GAP);
-		window.draw(visualNetworkSprite);
-	}
+void VisualizerRenderer::renderPanels() {
+	visualNetwork.render();
+	sf::Sprite visualNetworkSprite = visualNetwork.getSprite();
+	visualNetworkSprite.setPosition({UI_GAP, UI_GAP});
+	window.draw(visualNetworkSprite);
 
-	if (interface.render()) {
-		sf::Sprite interfaceSprite = interface.getSprite();
-		interfaceSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP);
-		window.draw(interfaceSprite);
-	}
+	interface.render();
+	sf::Sprite interfaceSprite = interface.getSprite();
+	interfaceSprite.setPosition({NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
+	window.draw(interfaceSprite);
 
-	if (statusV.render()) {
-		sf::Sprite statusSprite = statusV.getSprite();
-		statusSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT);
-		window.draw(statusSprite);
-	}
+	statusV.render();
+	sf::Sprite statusSprite = statusV.getSprite();
+	statusSprite.setPosition({NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT});
+	window.draw(statusSprite);
 
-	if (Vgraph.render()) {
-		sf::Sprite graphSprite = Vgraph.getSprite();
-		graphSprite.setPosition(NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT + VSTATUS_HEIGHT + UI_GAP);
-		window.draw(graphSprite);
-	}
+	Vgraph.render();
+	sf::Sprite graphSprite = Vgraph.getSprite();
+	graphSprite.setPosition({NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT + VSTATUS_HEIGHT + UI_GAP});
+	window.draw(graphSprite);
 }
 
 void VisualizerRenderer::full_update() {
-	clear();
 	statusV.set_update();
 	interface.set_update();
 	visualNetwork.set_update();
-    Vgraph.set_update();
+	Vgraph.set_update();
 }
 
 void VisualizerRenderer::do_frame(int &frameCount, sf::Clock &fpsClock) {
@@ -76,14 +66,14 @@ void VisualizerRenderer::do_frame(int &frameCount, sf::Clock &fpsClock) {
 		fpsClock.restart();
 		frameCount = 0;
 		statusV.update_fps(fps);
-
 		full_update();
 	}
 
 	if (updateStatus()) {
+		clear();
 		frameCount++;
 
-		renderObjects();
+		renderPanels();
 		window.display();
 	}
 }
@@ -98,8 +88,8 @@ void VisualizerRenderer::renderLoop() {
 	int frameCount = 0;
 
 	window.setFramerateLimit(FPS_LIMIT);
-	clear();
 
+	clear();
 	while (window.isOpen() && running) {
 		do_frame(frameCount, fpsClock);
 	}
@@ -129,7 +119,7 @@ void VisualizerRenderer::update(const int layer, const LayerParameters &gradient
 }
 
 void VisualizerRenderer::updateBatchCounter(const double error) {
-    Vgraph.add_data(error);
+	Vgraph.add_data(error);
 }
 
 void VisualizerRenderer::update(const gradient &new_grad) {

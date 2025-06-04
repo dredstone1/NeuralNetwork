@@ -1,7 +1,6 @@
 #ifndef MODEL
 #define MODEL
 
-#include "../trainer/gradient.hpp"
 #include "../visualizer/VisualizerController.hpp"
 #include "Layers/layer.hpp"
 #include "config.hpp"

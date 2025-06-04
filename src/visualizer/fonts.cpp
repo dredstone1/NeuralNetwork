@@ -7,7 +7,10 @@ sf::Font &Fonts::getFont() {
 	static bool loaded = false;
 	if (!loaded) {
 		std::string path = std::string(RESOURCE_DIR) + "/Inter.ttc";
-		font.loadFromFile(path);
+		if (!font.openFromFile(path)) {
+			printf("Font not found: %s\n", path.c_str());
+		}
+
 		loaded = true;
 	}
 	return font;

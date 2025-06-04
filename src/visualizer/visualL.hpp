@@ -1,20 +1,25 @@
 #ifndef VISUALL
 #define VISUALL
 
-#include "../model/LayerParameters.hpp"
 #include "../model/Layers/layer.hpp"
+#include "panel.hpp"
 #include <SFML/Graphics.hpp>
+#include <memory>
 #include <vector>
 
 namespace Visualizer {
-constexpr int NN_HEIGHT = 770;
-constexpr int NN_WIDTH = 1055;
+constexpr std::uint32_t NN_HEIGHT = 770u;
+constexpr std::uint32_t NN_WIDTH = 1055u;
 
-constexpr int NEURON_RADIUS = 20;
-constexpr int NEURON_WIDTH = NEURON_RADIUS * 2;
+constexpr std::uint32_t NEURON_RADIUS = 20;
+constexpr std::uint32_t NEURON_WIDTH = NEURON_RADIUS * 2;
 
-inline const sf::Color NORMAL_BG_LAYER = sf::Color::White;
-inline const sf::Color ACTIVE_BG_LAYER = sf::Color(187, 187, 187);
+constexpr std::uint32_t calculate_width(const int layer_amount) {
+	return (NN_WIDTH - NEURON_WIDTH) / layer_amount;
+}
+
+constexpr sf::Color NORMAL_BG_LAYER(255, 255, 255);
+constexpr sf::Color ACTIVE_BG_LAYER(187, 187, 187);
 
 enum class textT {
 	UP,
@@ -22,59 +27,60 @@ enum class textT {
 	NORMAL,
 };
 
-class visualL : public Layer {
+class visualL : public Layer, public panel {
   private:
-	sf::RenderTexture layerRender;
-	void createLayerVisual();
-	void clear(const bool render);
+	void clear();
 	void display();
-	void drawNeuron(const double input, const double output, sf::Vector2f pos);
 	void drawNeurons();
-	void drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap);
-	static sf::Color getBGcolor(const bool render);
-	static float calculateGap(const float size);
+	virtual textT getTextT(const int layer_i, const int layer_p);
+	void do_render() override;
+	virtual void renderNeuron(const int index, const float gap, const float prevGap) = 0;
+
+  protected:
+	sf::RenderTexture layerRender;
+	static std::uint32_t calculateGap(const float size);
 	static float calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2);
 	static float calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2);
-	static float calculateWIDTH(const int size_a, const bool is_params);
-	virtual textT getTextT(const int layer_i, const int layer_p);
-	static sf::Color getColorFromTextT(const textT text_type);
+	void drawNeuron(const double input, const double output, sf::Vector2f pos);
 
   public:
-	visualL(const int _size, const int _prev_size, const int size_a);
-	visualL(const Layer &other, const int size_a);
+	visualL(const int _size, const int _prev_size, const std::shared_ptr<state> state_, const std::uint32_t width);
+	visualL(const Layer &other, const std::shared_ptr<state> state_, const std::uint32_t width);
 	LayerType getType() const override { return LayerType::NONE; }
 	sf::Sprite getSprite();
-	void renderLayer(const bool render);
-    void set_weights(const LayerParameters &Param);
+	void set_weights(const LayerParameters &Param);
 	void setDots(const std::vector<double> &out, const std::vector<double> &net);
-	const bool is_params;
-	const float WIDTH;
+	const std::uint32_t WIDTH;
 	virtual ~visualL() = default;
 };
 
 class VEmptyLayer : public visualL {
   private:
 	textT getTextT(const int, const int) override;
+	void renderNeuron(const int index, const float gap, const float) override;
 
   public:
-	VEmptyLayer(const int _size, const int _prev_size, const int size_a)
-	    : visualL(_size, _prev_size, size_a) {}
-	VEmptyLayer(const Layer &other, const int size_a)
-	    : visualL(other, size_a) {}
+	VEmptyLayer(const int _size, const int _prev_size, const std::shared_ptr<state> state_)
+	    : visualL(_size, _prev_size, state_, NEURON_WIDTH) {}
+	VEmptyLayer(const Layer &other, const std::shared_ptr<state> state_)
+	    : visualL(other, state_, NEURON_WIDTH) {}
 	~VEmptyLayer() = default;
 };
 
 class VParamLayer : public visualL {
   private:
 	LayerParameters grad;
+	static sf::Color getColorFromTextT(const textT text_type);
 	textT getTextT(const int layer_i, const int layer_p) override;
+	void drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap);
+	void renderNeuron(const int index, const float gap, const float prevGap) override;
 
   public:
-	VParamLayer(const int _size, const int _prev_size, const int size_a)
-	    : visualL(_size, _prev_size, size_a),
+	VParamLayer(const int _size, const int _prev_size, const std::shared_ptr<state> state_)
+	    : visualL(_size, _prev_size, state_, calculate_width(state_->config.network_config.hidden_layer_count() + 1)),
 	      grad(_size, _prev_size, 0.5) {}
-	VParamLayer(const Layer &other, const int size_a)
-	    : visualL(other, size_a),
+	VParamLayer(const Layer &other, const std::shared_ptr<state> state_)
+	    : visualL(other, state_, calculate_width(state_->config.network_config.hidden_layer_count() + 1)),
 	      grad(other.getSize(), other.getPrevSize(), 0.5) {}
 	void updateGrad(const LayerParameters &new_grad);
 	~VParamLayer() = default;

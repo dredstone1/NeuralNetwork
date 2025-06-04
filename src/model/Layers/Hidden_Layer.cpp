@@ -1,5 +1,4 @@
 #include "Hidden_Layer.hpp"
-#include <cstdio>
 
 void Hidden_Layer::forward(const std::vector<double> &metrix) {
 	for (int i = 0; i < dots.size(); i++) {

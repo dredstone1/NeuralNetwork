@@ -1,7 +1,5 @@
 #include "LayerParameters.hpp"
-#include <cmath>
 #include <random>
-#include <vector>
 
 LayerParameters::LayerParameters(const int size, const int prev_size, const double init_value) {
 	weights.resize(size, std::vector<double>(prev_size, init_value));

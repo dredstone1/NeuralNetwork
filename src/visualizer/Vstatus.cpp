@@ -1,22 +1,13 @@
 #include "Vstatus.hpp"
 #include "fonts.hpp"
-#include <cmath>
-#include <memory>
-#include <sstream>
 
 namespace Visualizer {
 vStatus::vStatus(const std::shared_ptr<state> vstate_)
-    : panel(vstate_) {
-	createVstatus();
-}
+    : panel(vstate_),
+      VRender({VSTATUS_WIDTH, VSTATUS_HEIGHT}) {}
 
 void vStatus::clear() {
 	VRender.clear(sf::Color::White);
-}
-
-void vStatus::createVstatus() {
-	VRender.create(VSTATUS_WIDTH, VSTATUS_HEIGHT);
-	clear();
 }
 
 void vStatus::do_render() {
@@ -37,8 +28,7 @@ std::string vStatus::get_text() {
 }
 
 void vStatus::drawText() {
-	sf::Text text;
-	text.setFont(Fonts::getFont());
+	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(STATUS_TEXT_FONT);
 	text.setString(get_text());
 	text.setFillColor(sf::Color::Black);

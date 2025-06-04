@@ -1,9 +1,7 @@
 #include "neuralNetwork.hpp"
 #include "Layers/Hidden_Layer.hpp"
 #include "Layers/Output_Layer.hpp"
-#include "Layers/layer.hpp"
 #include "config.hpp"
-#include <cstddef>
 
 neural_network::neural_network(const NetworkConfig &network_config)
     : config(network_config) {

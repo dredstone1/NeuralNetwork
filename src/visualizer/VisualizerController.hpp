@@ -1,20 +1,14 @@
 #ifndef VISUALIZERCONTROLLER
 #define VISUALIZERCONTROLLER
 
-#include "../model/config.hpp"
-#include "../model/neuralNetwork.hpp"
 #include "VisualizerRenderer.hpp"
-#include "state.hpp"
 #include <SFML/Graphics.hpp>
-#include <memory>
-#include <mutex>
 #include <thread>
 
 namespace Visualizer {
 class visualizerController {
   private:
 	void update_display();
-	std::mutex mtx;
 	std::atomic<bool> running{false};
 	std::unique_ptr<VisualizerRenderer> renderer;
 	const ConfigData &config;

@@ -1,54 +1,29 @@
 #include "visualL.hpp"
 #include "fonts.hpp"
-#include <cmath>
-#include <iomanip>
-#include <ostream>
-#include <sstream>
-#include <vector>
 
 namespace Visualizer {
-visualL::visualL(const Layer &other, const int size_a)
+visualL::visualL(const Layer &other, const std::shared_ptr<state> state_, const std::uint32_t width)
     : Layer(other),
-      is_params(other.getPrevSize() != 0),
-      WIDTH(calculateWIDTH(size_a, is_params)) {
-	createLayerVisual();
-}
+      panel(state_),
+      layerRender({width, NN_WIDTH}),
+      WIDTH(width) {}
 
-visualL::visualL(const int _size, const int _prev_size, const int size_a)
+visualL::visualL(const int _size, const int _prev_size, const std::shared_ptr<state> state_, const std::uint32_t width)
     : Layer(_size, _prev_size, 0),
-      is_params(_prev_size != 0),
-      WIDTH(calculateWIDTH(size_a, is_params)) {
-	createLayerVisual();
-}
-
-float visualL::calculateWIDTH(const int size_a, const bool is_params) {
-	if (is_params && size_a <= 1) {
-		return NEURON_WIDTH * 5;
-	}
-	return is_params ? (NN_WIDTH - NEURON_WIDTH) / (size_a - 1.f) : NEURON_WIDTH;
-}
-
-void visualL::createLayerVisual() {
-	layerRender.create(WIDTH, NN_HEIGHT);
-}
+      panel(state_),
+      layerRender({width, NN_WIDTH}),
+      WIDTH(width) {}
 
 void visualL::display() {
 	layerRender.display();
 }
 
-void visualL::clear(const bool render) {
-	layerRender.clear(getBGcolor(render));
+void visualL::clear() {
+	layerRender.clear(sf::Color::Transparent);
 }
 
-sf::Color visualL::getBGcolor(const bool render) {
-	if (render)
-		return ACTIVE_BG_LAYER;
-
-	return NORMAL_BG_LAYER;
-}
-
-void visualL::renderLayer(const bool render) {
-	clear(render);
+void visualL::do_render() {
+	clear();
 	drawNeurons();
 }
 
@@ -57,7 +32,7 @@ sf::Sprite visualL::getSprite() {
 	return sf::Sprite(layerRender.getTexture());
 }
 
-float visualL::calculateGap(const float size) {
+std::uint32_t visualL::calculateGap(const float size) {
 	if (size <= 0)
 		return 0;
 
@@ -72,7 +47,7 @@ float visualL::calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2) 
 	return atan2(pos2.y - pos1.y, pos2.x - pos1.x) * 180.0 / M_PI;
 }
 
-void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap) {
+void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap) {
 	const float FRACTION_ALONG_LINE = 0.8f;
 	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f;
 
@@ -90,27 +65,24 @@ void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const floa
 
 		float line_thickness_arg = std::max(std::min(weightValue, 4.f), 0.2f);
 
-		sf::RectangleShape line;
-		line.setSize({lineLength, line_thickness_arg});
+		sf::RectangleShape line({lineLength, line_thickness_arg});
 		line.setFillColor(sf::Color::Black);
 
 		sf::Vector2f lineGraphicalOrigin(xP, yP + NEURON_RADIUS);
 		line.setPosition(lineGraphicalOrigin);
-		line.setRotation(angleDeg);
-
+		line.setRotation(sf::degrees(angleDeg));
 
 		std::ostringstream ss;
 		ss << std::fixed << std::setprecision(4) << weightValue;
 
-		sf::Text text;
-		text.setFont(Fonts::getFont());
+		sf::Text text(Fonts::getFont());
 		text.setCharacterSize(10);
 		text.setString(ss.str());
 		text.setFillColor(getColorFromTextT(getTextT(neuron_i, neuronP)));
 
 		sf::FloatRect textBounds = text.getLocalBounds();
-		text.setOrigin(textBounds.left + textBounds.width / 2.0f,
-		               textBounds.top + textBounds.height / 2.0f);
+		text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
+		                textBounds.position.y + textBounds.size.y / 2.0f});
 
 		float text_anchor_local_x = FRACTION_ALONG_LINE * lineLength;
 		float text_anchor_local_y = line_thickness_arg / 2.0f;
@@ -124,15 +96,15 @@ void visualL::drawWeights(const int neuron_i, const sf::Vector2f pos, const floa
 		float final_text_pos_x = text_pos_x_transformed - (neuronP * HORIZONTAL_SHIFT_PER_WEIGHT_TEXT);
 		float final_text_pos_y = text_pos_y_transformed;
 
-		text.setPosition(final_text_pos_x, final_text_pos_y);
-		text.setRotation(angleDeg);
+		text.setPosition({final_text_pos_x, final_text_pos_y});
+		text.setRotation(sf::degrees(angleDeg));
 
 		layerRender.draw(line);
 		layerRender.draw(text);
 	}
 }
 
-sf::Color visualL::getColorFromTextT(const textT text_type) {
+sf::Color VParamLayer::getColorFromTextT(const textT text_type) {
 	if (text_type == textT::UP)
 		return sf::Color::Red;
 	if (text_type == textT::DOWN)
@@ -145,14 +117,23 @@ void visualL::drawNeurons() {
 	float prevGap = calculateGap(getPrevSize());
 
 	for (int neuron = 0; neuron < getSize(); neuron++) {
-		float x = WIDTH - NEURON_WIDTH;
-		float y = gap + neuron * (gap + NEURON_WIDTH);
-
-		if (is_params)
-			drawWeights(neuron, {x, y}, prevGap);
-
-		drawNeuron(dots.net[neuron], dots.out[neuron], {x, y});
+		renderNeuron(neuron, gap, prevGap);
 	}
+}
+
+void VParamLayer::renderNeuron(const int index, const float gap, const float prevGap) {
+	float x = WIDTH - NEURON_WIDTH;
+	float y = gap + index * (gap + NEURON_WIDTH);
+
+	drawWeights(index, {x, y}, prevGap);
+	drawNeuron(dots.net[index], dots.out[index], {x, y});
+}
+
+void VEmptyLayer::renderNeuron(const int index, const float gap, const float) {
+	float x = WIDTH - NEURON_WIDTH;
+	float y = gap + index * (gap + NEURON_WIDTH);
+
+	drawNeuron(dots.net[index], dots.out[index], {x, y});
 }
 
 textT VParamLayer::getTextT(const int layer_i, const int layer_p) {
@@ -180,32 +161,34 @@ void visualL::drawNeuron(const double input, const double output, const sf::Vect
 	ss << std::fixed << std::setprecision(4) << input << "\n"
 	   << output;
 
-	sf::Text text;
-	text.setFont(Fonts::getFont());
+	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(10);
 	text.setString(ss.str());
 	text.setFillColor(sf::Color::White);
 
 	sf::FloatRect textBounds = text.getLocalBounds();
-	text.setOrigin(textBounds.left + textBounds.width / 2.0f,
-	               textBounds.top + textBounds.height / 2.0f);
+	text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
+	                textBounds.position.y + textBounds.size.y / 2.0f});
 
-	text.setPosition(pos.x + NEURON_RADIUS, pos.y + NEURON_RADIUS);
+	text.setPosition({pos.x + NEURON_RADIUS, pos.y + NEURON_RADIUS});
 
 	layerRender.draw(shape);
 	layerRender.draw(text);
 }
 
 void visualL::setDots(const std::vector<double> &out, const std::vector<double> &net) {
+	set_update();
 	dots.net = net;
 	dots.out = out;
 }
 
 void visualL::set_weights(const LayerParameters &Param) {
+	set_update();
 	Parameters.set(Param);
 }
 
 void VParamLayer::updateGrad(const LayerParameters &new_grad) {
+	set_update();
 	grad.set(new_grad);
 }
 } // namespace Visualizer

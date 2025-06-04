@@ -1,20 +1,16 @@
 #include "button.hpp"
 #include "fonts.hpp"
-#include "state.hpp"
-#include <cmath>
-#include <memory>
-#include <sstream>
 
 namespace Visualizer {
 button::button(const std::shared_ptr<state> _state, const std::string lable, const states Cstate)
     : panel(_state),
+      buttonRender({BUTTON_WIDTH, BUTTON_HEIGHT}),
       CurrentState(Cstate),
       lable(lable) {
 	renderButton();
 }
 
 void button::renderButton() {
-	buttonRender.create(BUTTON_WIDTH, BUTTON_HEIGHT);
 	buttonRender.clear(getBgColor());
 	drawText();
 	visibleState = vstate->getState(CurrentState);
@@ -36,12 +32,11 @@ sf::Color button::getFontColor() {
 
 void button::drawText() {
 	std::ostringstream ss;
-	sf::Text text;
-	text.setFont(Fonts::getFont());
+	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(BUTTON_TEXT_FONT);
 	text.setString(lable);
 	text.setFillColor(getFontColor());
-	text.setPosition(2, 2);
+	text.setPosition({2, 2});
 	buttonRender.draw(text);
 }
 
@@ -73,6 +68,12 @@ bool button::checkForClick(const sf::Vector2f mousePos, const sf::Vector2f boxPo
 void button::do_render() {
 	if (vstate->getState(CurrentState) != visibleState) {
 		renderButton();
+	}
+}
+
+void button::observe() {
+	if (vstate->getState(CurrentState) != visibleState) {
+		set_update();
 	}
 }
 } // namespace Visualizer

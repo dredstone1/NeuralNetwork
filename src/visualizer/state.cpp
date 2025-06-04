@@ -1,6 +1,4 @@
 #include "state.hpp"
-#include <cstdio>
-#include <cstring>
 
 namespace Visualizer {
 void state::toggle(states state_) {

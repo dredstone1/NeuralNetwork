@@ -1,12 +1,6 @@
 #include "VisualizerController.hpp"
 #include "VisualizerRenderer.hpp"
 #include "state.hpp"
-#include <chrono>
-#include <cmath>
-#include <cstddef>
-#include <cstdio>
-#include <memory>
-#include <thread>
 
 namespace Visualizer {
 visualizerController::visualizerController(const ConfigData &_config)
@@ -131,8 +125,8 @@ void visualizerController::updateDots(const int layer, std::vector<double> out, 
 		// 	}
 		// }
 
-		renderer->updateDots(layer, out, net);
 		handleStates();
+		renderer->updateDots(layer, out, net);
 	}
 }
 
@@ -157,9 +151,9 @@ void visualizerController::update(const int layer, const LayerParameters &gradie
 		// 		}
 		// 	}
 		// }
+		handleStates();
 
 		renderer->update(layer, gradient_);
-		handleStates();
 	}
 }
 
@@ -170,8 +164,8 @@ void visualizerController::setNewPhaseMode(const NNmode nn_mode) {
 			return;
 		}
 
-		renderer->setNewPhaseMode(nn_mode);
 		wait_until_updated();
+		renderer->setNewPhaseMode(nn_mode);
 	}
 }
 
@@ -182,8 +176,8 @@ void visualizerController::update(const gradient &new_grad) {
 			return;
 		}
 
-		renderer->update(new_grad);
 		handleStates();
+		renderer->update(new_grad);
 	}
 }
 
@@ -194,8 +188,8 @@ void visualizerController::updateBatchCounter(const int batch) {
 			return;
 		}
 
-		Vstate->current_batch = batch;
 		wait_until_updated();
+		Vstate->current_batch = batch;
 	}
 }
 
@@ -206,8 +200,8 @@ void visualizerController::updateError(const double error) {
 			return;
 		}
 
-		renderer->updateBatchCounter(error);
 		wait_until_updated();
+		renderer->updateBatchCounter(error);
 	}
 }
 
@@ -218,8 +212,8 @@ void visualizerController::updateAlgoritemMode(const algorithmMode algoritem_mod
 			return;
 		}
 
-		Vstate->AlgorithmMode = algoritem_mode;
 		wait_until_updated();
+		Vstate->AlgorithmMode = algoritem_mode;
 	}
 }
 } // namespace Visualizer

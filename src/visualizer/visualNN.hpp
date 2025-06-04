@@ -1,29 +1,24 @@
 #ifndef VISUALNN
 #define VISUALNN
 
-#include "../model/LayerParameters.hpp"
 #include "../model/neuralNetwork.hpp"
 #include "../trainer/gradient.hpp"
-#include "panel.hpp"
-#include "state.hpp"
 #include "visualL.hpp"
 #include <SFML/Graphics.hpp>
-#include <vector>
 
 namespace Visualizer {
 class visualNN : public panel {
   private:
-	const NetworkConfig &config;
 	std::vector<visualL *> layers;
 	sf::RenderTexture NNRender;
 	int current_rendred_layer;
-	void createNnVisual();
 	void clear();
 	void display();
 	void renderLayers();
 	void renderLayer(const int layer, const float posx);
 	static bool getBit(const long num, const int index);
 	void do_render() override;
+	void render_active_layer(const sf::Vector2f box, const sf::Vector2f pos);
 
   public:
 	visualNN(const neural_network &network, const std::shared_ptr<state> state_);

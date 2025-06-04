@@ -5,10 +5,12 @@
 #include <memory>
 
 namespace Visualizer {
+
 class panel {
   private:
 	virtual void do_render() = 0;
-	bool need_update;
+	bool need_update{true};
+	virtual void observe() {}
 
   protected:
 	std::shared_ptr<state> vstate;

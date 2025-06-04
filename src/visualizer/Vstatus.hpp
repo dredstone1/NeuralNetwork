@@ -4,15 +4,12 @@
 #include "panel.hpp"
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
-#include <climits>
-#include <curses.h>
-#include <memory>
 
 namespace Visualizer {
-constexpr const int VSTATUS_WIDTH = 500;
-constexpr const int VSTATUS_HEIGHT = 255;
-constexpr const int STATUS_TEXT_FONT = 30;
-constexpr const int FPS_LIMIT = 144;
+constexpr std::uint32_t VSTATUS_WIDTH = 500;
+constexpr std::uint32_t VSTATUS_HEIGHT = 255;
+constexpr int STATUS_TEXT_FONT = 30;
+constexpr int FPS_LIMIT = 144;
 
 namespace TextLabels {
 constexpr const char *CURRENT_PHASE_TEXT = "current phase: ";
@@ -31,7 +28,6 @@ const std::array<std::string, 2> NNmodeName = {"Forword", "Backward"};
 class vStatus : public panel {
   private:
 	sf::RenderTexture VRender;
-	void createVstatus();
 	void display();
 	void drawText();
 	void clear();
@@ -40,7 +36,7 @@ class vStatus : public panel {
 	void do_render() override;
 
   public:
-	vStatus(std::shared_ptr<state> vstate_);
+	vStatus(const std::shared_ptr<state> vstate_);
 	sf::Sprite getSprite();
 	void update_fps(const float fps);
 };
