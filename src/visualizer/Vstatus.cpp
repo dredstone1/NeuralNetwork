@@ -7,12 +7,13 @@ vStatus::vStatus(const std::shared_ptr<state> vstate_)
       VRender({VSTATUS_WIDTH, VSTATUS_HEIGHT}) {}
 
 void vStatus::clear() {
-	VRender.clear(sf::Color::White);
+	VRender.clear(STATUSE_PANEL_COLOR);
 }
 
 void vStatus::do_render() {
 	clear();
 	drawText();
+	display();
 }
 
 std::string vStatus::get_text() {
@@ -31,7 +32,8 @@ void vStatus::drawText() {
 	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(STATUS_TEXT_FONT);
 	text.setString(get_text());
-	text.setFillColor(sf::Color::Black);
+	text.setFillColor(TEXT_COLOR);
+
 	VRender.draw(text);
 }
 
@@ -40,7 +42,6 @@ void vStatus::display() {
 }
 
 sf::Sprite vStatus::getSprite() {
-	display();
 	return sf::Sprite(VRender.getTexture());
 }
 

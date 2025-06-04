@@ -7,6 +7,8 @@
 #include <SFML/Graphics.hpp>
 
 namespace Visualizer {
+constexpr sf::Color NN_PANEL_BG = PANELS_BG;
+
 class visualNN : public panel {
   private:
 	std::vector<visualL *> layers;

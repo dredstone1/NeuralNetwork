@@ -2,9 +2,11 @@
 #define PANEL
 
 #include "state.hpp"
+#include <SFML/Graphics/Color.hpp>
 #include <memory>
 
 namespace Visualizer {
+constexpr sf::Color PANELS_BG(255, 255, 255);
 
 class panel {
   private:

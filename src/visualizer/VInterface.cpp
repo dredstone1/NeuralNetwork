@@ -10,7 +10,7 @@ vInteface::vInteface(const std::shared_ptr<state> vstate)
 }
 
 void vInteface::createVInterface() {
-	VRender.clear(sf::Color::White);
+	VRender.clear(INTERFACE_PANEL_COLOR);
 
 	buttons.reserve(STATES_COUNT);
 
@@ -24,7 +24,6 @@ void vInteface::display() {
 }
 
 sf::Sprite vInteface::getSprite() {
-	display();
 	return sf::Sprite(VRender.getTexture());
 }
 
@@ -48,13 +47,17 @@ void vInteface::do_render() {
 		buttonSprite.setPosition(sf::Vector2f(0.f, button_ * (BUTTON_HEIGHT + BUTTON_GAP)));
 		VRender.draw(buttonSprite);
 	}
+
+	display();
 }
 
 void vInteface::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
 	sf::Vector2f mousePos(static_cast<float>(mousePos_.x), static_cast<float>(mousePos_.y));
+
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
-		if (buttons[button_]->checkForClick(mousePos, {boxPos.x, boxPos.y + (BUTTON_HEIGHT + 10) * button_}))
+		if (buttons[button_]->checkForClick(mousePos, {boxPos.x, boxPos.y + (BUTTON_HEIGHT + 10) * button_})) {
 			return;
+		}
 	}
 }
 } // namespace Visualizer

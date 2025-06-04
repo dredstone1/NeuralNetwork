@@ -30,8 +30,8 @@ class VisualizerRenderer {
 	void renderLoop();
 	void processEvents();
 	void renderPanels();
-	inline void clear();
-    void full_update();
+	void clear();
+	void full_update();
 	void do_frame(int &frameCount, sf::Clock &fpsClock);
 
   public:

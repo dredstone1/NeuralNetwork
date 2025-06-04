@@ -18,7 +18,7 @@ void GraphUI::render_numbers() {
 void GraphUI::render_vertical_numbers() {
 	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(10);
-	text.setFillColor(sf::Color::Black);
+	text.setFillColor(GRAPH_VERTICAL_NUMBER_COLOR);
 
 	for (int i = 0; i < VERTICAL_NUMBERS_COUNT; i++) {
 		std::ostringstream number_str;
@@ -31,7 +31,6 @@ void GraphUI::render_vertical_numbers() {
 }
 
 sf::Sprite GraphUI::getSprite() {
-	display();
 	return sf::Sprite(VRender.getTexture());
 }
 
@@ -53,11 +52,12 @@ void GraphUI::renderGraph() {
 void GraphUI::do_render() {
 	clear();
 	renderGraph();
+	display();
 }
 
 void GraphUI::clear() {
-	VRender.clear(sf::Color::White);
-	Vgraph.clear(sf::Color::White);
+	VRender.clear(GRAPH_BG);
+	Vgraph.clear(GRAPH_BG);
 }
 
 int GraphUI::get_highest() {
@@ -91,8 +91,8 @@ void GraphUI::renderDot(const int index) {
 		graph_alpha = GRAPH_HEIGHT / data[index];
 	}
 
-	line_[0].color = sf::Color::Black;
-	line_[1].color = sf::Color::Black;
+	line_[0].color = GRAPH_LINE_COLOR;
+	line_[1].color = GRAPH_LINE_COLOR;
 	Vgraph.draw(line_);
 }
 

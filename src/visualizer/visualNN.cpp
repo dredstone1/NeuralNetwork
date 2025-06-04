@@ -20,7 +20,7 @@ void visualNN::display() {
 }
 
 void visualNN::clear() {
-	NNRender.clear(sf::Color::White);
+	NNRender.clear(NN_PANEL_BG);
 }
 
 void visualNN::renderLayers() {
@@ -34,6 +34,7 @@ void visualNN::renderLayers() {
 void visualNN::do_render() {
 	clear();
 	renderLayers();
+    display();
 }
 
 void visualNN::render_active_layer(const sf::Vector2f box, const sf::Vector2f pos) {
@@ -56,8 +57,6 @@ void visualNN::renderLayer(const int layer, const float posx) {
 }
 
 sf::Sprite visualNN::getSprite() {
-	display();
-
 	return sf::Sprite(NNRender.getTexture());
 }
 

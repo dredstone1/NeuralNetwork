@@ -49,7 +49,6 @@ void button::sendCommand() {
 }
 
 sf::Sprite button::getSprite() {
-	display();
 	return sf::Sprite(buttonRender.getTexture());
 }
 
@@ -69,6 +68,7 @@ void button::do_render() {
 	if (vstate->getState(CurrentState) != visibleState) {
 		renderButton();
 	}
+	display();
 }
 
 void button::observe() {

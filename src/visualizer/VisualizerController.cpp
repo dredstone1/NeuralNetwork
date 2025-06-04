@@ -27,6 +27,7 @@ void visualizerController::stop() {
 		if (renderer) {
 			renderer->close();
 		}
+
 		display_thread.join();
 	}
 }
@@ -59,10 +60,9 @@ void visualizerController::start_visuals(const neural_network &network) {
 
 void visualizerController::wait_until_started() {
 	while (true) {
-		{
-			if (renderer && Vstate)
-				break;
-		}
+		if (renderer && Vstate)
+			break;
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }

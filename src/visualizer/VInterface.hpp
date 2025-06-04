@@ -4,11 +4,14 @@
 #include "button.hpp"
 #include "panel.hpp"
 #include "state.hpp"
+#include <SFML/Graphics/Color.hpp>
 
 namespace Visualizer {
 constexpr std::uint32_t VINTERFACE_WIDTH = 500;
 constexpr std::uint32_t VINTERFACE_HEIGHT = 170;
 constexpr std::uint32_t BUTTON_GAP = 10;
+
+constexpr sf::Color INTERFACE_PANEL_COLOR = PANELS_BG;
 
 class vInteface : public panel {
   private:

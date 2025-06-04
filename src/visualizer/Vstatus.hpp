@@ -4,6 +4,7 @@
 #include "panel.hpp"
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 namespace Visualizer {
 constexpr std::uint32_t VSTATUS_WIDTH = 500;
@@ -24,6 +25,9 @@ constexpr const char *FPS_TEXT = "fps: ";
 const std::array<std::string, 2> NNRunningModeName = {"Running", "Pause"};
 const std::array<std::string, 2> algorithmName = {"Normal", "Training"};
 const std::array<std::string, 2> NNmodeName = {"Forword", "Backward"};
+
+constexpr sf::Color TEXT_COLOR(0, 0, 0);
+constexpr sf::Color STATUSE_PANEL_COLOR = PANELS_BG;
 
 class vStatus : public panel {
   private:

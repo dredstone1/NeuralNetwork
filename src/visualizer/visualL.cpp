@@ -25,10 +25,10 @@ void visualL::clear() {
 void visualL::do_render() {
 	clear();
 	drawNeurons();
+	display();
 }
 
 sf::Sprite visualL::getSprite() {
-	display();
 	return sf::Sprite(layerRender.getTexture());
 }
 
