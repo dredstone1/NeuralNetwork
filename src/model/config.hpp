@@ -1,6 +1,7 @@
 #ifndef CONFIG
 #define CONFIG
 
+#include "Globals.hpp"
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
 #include <string>
@@ -8,7 +9,7 @@
 
 struct LayerConfig {
 	int size;
-	double weights_init_value;
+    Global::ValueType weights_init_value;
 	activation AT;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, AT, weights_init_value);
@@ -16,14 +17,14 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, AT, weights_init_value);
 struct NetworkConfig {
 	int input_size;
 	int output_size;
-	double output_init_value;
+    Global::ValueType output_init_value;
 	std::vector<LayerConfig> layers_config;
 	int hidden_layer_count() const { return layers_config.size(); }
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, output_init_value, layers_config);
 
 struct TrainingConfig {
-	double learning_rate;
+    Global::ValueType learning_rate;
 	int batch_size;
 	int batch_count;
 	std::string db_filename;

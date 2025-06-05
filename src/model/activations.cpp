@@ -1,6 +1,6 @@
 #include "activations.hpp"
 
-double activations::activate(const double x) const {
+Global::ValueType activations::activate(const Global::ValueType x) const {
 	switch (_activation) {
 	case activation::relu_:
 		return Relu(x);
@@ -16,7 +16,7 @@ double activations::activate(const double x) const {
 	return x;
 }
 
-double activations::DerivativeActivate(const double x) const {
+Global::ValueType activations::DerivativeActivate(const Global::ValueType x) const {
 	switch (_activation) {
 	case activation::relu_:
 		return DerivativeRelu(x);
@@ -32,8 +32,8 @@ double activations::DerivativeActivate(const double x) const {
 	return x;
 }
 
-double activations::max_vector(const std::vector<double> &metrix) {
-	double max = metrix[0];
+Global::ValueType activations::max_vector(const std::vector<Global::ValueType> &metrix) {
+	Global::ValueType max = metrix[0];
 	for (auto &value : metrix) {
 		if (value > max) {
 			max = value;
@@ -43,8 +43,8 @@ double activations::max_vector(const std::vector<double> &metrix) {
 }
 
 void activations::Softmax(neurons &metrix) {
-	double max = max_vector(metrix.net);
-	double sum = 0.0;
+	Global::ValueType max = max_vector(metrix.net);
+	Global::ValueType sum = 0.0;
 	for (int i = 0; i < metrix.size(); ++i) {
 		metrix.out[i] = exp(metrix.net[i] - max);
 		sum += metrix.out[i];
@@ -54,32 +54,32 @@ void activations::Softmax(neurons &metrix) {
 	}
 }
 
-inline double activations::Relu(const double x) const {
+inline Global::ValueType activations::Relu(const Global::ValueType x) const {
 	return std::max(0.0, x);
 }
-inline double activations::DerivativeRelu(const double x) const {
+inline Global::ValueType activations::DerivativeRelu(const Global::ValueType x) const {
 	return (x > 0) ? 1.0 : 0.0;
 }
 
-inline double activations::LeakyRelu(const double x) const {
+inline Global::ValueType activations::LeakyRelu(const Global::ValueType x) const {
 	return (x > 0) ? x : RELU_LEAKY_ALPHA * x;
 }
-inline double activations::DerivativeLeakyRelu(const double x) const {
+inline Global::ValueType activations::DerivativeLeakyRelu(const Global::ValueType x) const {
 	return (x > 0) ? 1.0 : RELU_LEAKY_ALPHA;
 }
 
-inline double activations::Sigmoid(const double z) const {
+inline Global::ValueType activations::Sigmoid(const Global::ValueType z) const {
 	return 1.0 / (1.0 + std::exp(-z));
 }
-inline double activations::DerivativeSigmoid(const double z) const {
-	double s = Sigmoid(z);
+inline Global::ValueType activations::DerivativeSigmoid(const Global::ValueType z) const {
+	Global::ValueType s = Sigmoid(z);
 	return s * (1.0 - s);
 }
 
-inline double activations::Tanh(const double z) const {
+inline Global::ValueType activations::Tanh(const Global::ValueType z) const {
 	return std::tanh(z);
 }
-inline double activations::DerivativeTanh(const double z) const {
-	double t = std::tanh(z);
+inline Global::ValueType activations::DerivativeTanh(const Global::ValueType z) const {
+	Global::ValueType t = std::tanh(z);
 	return 1.0 - t * t;
 }

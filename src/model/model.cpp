@@ -11,11 +11,11 @@ model::model(Config &_config, const bool useVisual)
 		visual.start(network);
 }
 
-void model::run_model(const std::vector<double> &input) {
+void model::run_model(const std::vector<Global::ValueType> &input) {
 	run_model(input, network);
 }
 
-void model::run_model(const std::vector<double> &input, neural_network &temp_network) {
+void model::run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network) {
 	visual.setNewPhaseMode(NNmode::Forword);
 
 	visual.updateDots(0, input, input);
@@ -34,7 +34,7 @@ void model::reset() {
 	}
 }
 
-const std::vector<double> &model::getOutput() const {
+const std::vector<Global::ValueType> &model::getOutput() const {
 	return network.layers[getHiddenLayerCount()]->getOut();
 }
 

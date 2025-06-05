@@ -5,7 +5,7 @@ AiModel::AiModel(const std::string &config_file, const bool use_visual)
 	_model = std::make_unique<model>(config, use_visual);
 }
 
-void AiModel::run_model(const std::vector<double> &input) {
+void AiModel::run_model(const std::vector<Global::ValueType> &input) {
 	_model->run_model(input);
 }
 

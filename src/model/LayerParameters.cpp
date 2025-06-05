@@ -1,8 +1,8 @@
 #include "LayerParameters.hpp"
 #include <random>
 
-LayerParameters::LayerParameters(const int size, const int prev_size, const double init_value) {
-	weights.resize(size, std::vector<double>(prev_size, init_value));
+LayerParameters::LayerParameters(const int size, const int prev_size, const Global::ValueType init_value) {
+	weights.resize(size, std::vector<Global::ValueType>(prev_size, init_value));
 
 	if (init_value < 0.0)
 		initialize_Param_rn(prev_size);
@@ -11,14 +11,14 @@ LayerParameters::LayerParameters(const int size, const int prev_size, const doub
 void LayerParameters::initialize_Param_rn(const int prev_size) {
 	static std::mt19937 gen(std::random_device{}());
 
-	double std_dev = std::sqrt(2.0 / static_cast<double>(prev_size));
+    Global::ValueType std_dev = std::sqrt(2.0 / static_cast<Global::ValueType>(prev_size));
 	std::normal_distribution<> dist(0.0, std_dev);
 
-	double limit = 3.0 * std_dev;
+    Global::ValueType limit = 3.0 * std_dev;
 
 	for (auto &row : weights) {
 		for (auto &w : row) {
-			double random_value = dist(gen);
+            Global::ValueType random_value = dist(gen);
 			w = std::min(std::max(random_value, -limit), limit);
 			w = std::round(w * RN_ROUND_VALUE) / RN_ROUND_VALUE;
 		}
@@ -49,7 +49,7 @@ void LayerParameters::set(const LayerParameters &new_gradient_layer) {
 	}
 }
 
-void LayerParameters::multiply(const double value) {
+void LayerParameters::multiply(const Global::ValueType value) {
 	for (int i = 0; i < getSize(); i++) {
 		for (int j = 0; j < getPrevSize(); j++) {
 			weights[i][j] *= value;

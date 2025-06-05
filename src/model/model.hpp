@@ -12,15 +12,15 @@ class model {
   private:
 	neural_network network;
 	visualizerController visual;
-	void run_model(const std::vector<double> &input, neural_network &temp_network);
+	void run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network);
 	friend class BackPropagation;
 	friend class Trainer;
 
   public:
 	model(Config &_config, bool use_visual);
 	~model() = default;
-	void run_model(const std::vector<double> &input);
-	const std::vector<double> &getOutput() const;
+	void run_model(const std::vector<Global::ValueType> &input);
+	const std::vector<Global::ValueType> &getOutput() const;
 	void reset();
 	Layer &getLayer(const int i) { return *network.layers.at(i); }
 	void updateWeights(const gradient &gradients);

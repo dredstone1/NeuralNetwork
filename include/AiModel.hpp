@@ -7,7 +7,7 @@
 
 struct prediction {
 	const int index;
-	const double value;
+	const Global::ValueType value;
 };
 
 class AiModel {
@@ -19,7 +19,7 @@ class AiModel {
 
   public:
 	AiModel(const std::string &config_file, const bool use_visual = false);
-	void run_model(const std::vector<double> &input);
+	void run_model(const std::vector<Global::ValueType> &input);
 	prediction getPrediction();
 	Config &getConfig() { return config; }
 	~AiModel() = default;

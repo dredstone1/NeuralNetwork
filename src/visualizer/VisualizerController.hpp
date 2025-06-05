@@ -27,13 +27,13 @@ class visualizerController {
   public:
 	visualizerController(const ConfigData &config);
 	~visualizerController();
-	void updateDots(const int layer, const std::vector<double> out, const std::vector<double> net);
+	void updateDots(const int layer, const std::vector<Global::ValueType> out, const std::vector<Global::ValueType> net);
 	void update(const int layer, const LayerParameters &gradient);
 	void setNewPhaseMode(const NNmode nn_mode);
 	void start(const neural_network &network);
 	void update(const gradient &new_grad);
 	void updateBatchCounter(const int batch);
-	void updateError(const double error, const int index);
+	void updateError(const Global::ValueType error, const int index);
 	void updateAlgoritemMode(const algorithmMode algoritem_mode);
 };
 } // namespace Visualizer

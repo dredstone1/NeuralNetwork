@@ -1,11 +1,12 @@
 #ifndef NEURON
 #define NEURON
 
+#include "Globals.hpp"
 #include <vector>
 
 struct neurons {
-	std::vector<double> out;
-	std::vector<double> net;
+	std::vector<Global::ValueType> out;
+	std::vector<Global::ValueType> net;
 	neurons(const int size);
 	~neurons() = default;
 	neurons(const neurons &other)

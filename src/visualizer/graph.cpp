@@ -1,4 +1,5 @@
 #include "graph.hpp"
+#include "Globals.hpp"
 #include "fonts.hpp"
 #include <algorithm>
 #include <iostream>
@@ -94,6 +95,7 @@ void GraphUI::renderDot(const int index) {
 
 	line_[0].color = GRAPH_LINE_COLOR;
 	line_[1].color = GRAPH_LINE_COLOR;
+
 	Vgraph.draw(line_);
 }
 
@@ -117,7 +119,7 @@ int GraphUI::newDataPlace(const int index) {
 	return std::floor((index - 1) / data_gaps());
 }
 
-void GraphUI::add_data(const float new_data, const int index) {
+void GraphUI::add_data(const Global::ValueType new_data, const int index) {
 	data[newDataPlace(index)] += (new_data / data_gaps());
 	set_update();
 }

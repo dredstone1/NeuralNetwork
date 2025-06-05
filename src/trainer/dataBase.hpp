@@ -8,7 +8,7 @@
 
 typedef struct TrainSample {
 	prediction _prediction;
-	std::vector<double> input;
+	std::vector<Global::ValueType> input;
 	TrainSample(prediction _pre, const int sampleInputSize) : _prediction(_pre), input(sampleInputSize, 0) {}
 	TrainSample() : _prediction({0, 0}), input(0) {}
 	~TrainSample() = default;

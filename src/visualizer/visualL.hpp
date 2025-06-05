@@ -41,7 +41,7 @@ class visualL : public Layer, public panel {
 	static std::uint32_t calculateGap(const float size);
 	static float calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2);
 	static float calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2);
-	void drawNeuron(const double input, const double output, sf::Vector2f pos);
+	void drawNeuron(const Global::ValueType input, const Global::ValueType output, sf::Vector2f pos);
 
   public:
 	visualL(const int _size, const int _prev_size, const std::shared_ptr<state> state_, const std::uint32_t width);
@@ -49,7 +49,7 @@ class visualL : public Layer, public panel {
 	LayerType getType() const override { return LayerType::NONE; }
 	sf::Sprite getSprite();
 	void set_weights(const LayerParameters &Param);
-	void setDots(const std::vector<double> &out, const std::vector<double> &net);
+	void setDots(const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net);
 	const std::uint32_t WIDTH;
 	virtual ~visualL() = default;
 };

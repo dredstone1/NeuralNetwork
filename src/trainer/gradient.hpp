@@ -8,7 +8,7 @@
 struct gradient {
 	std::vector<LayerParameters> gradients;
 	void add(const gradient &new_gradient);
-	void multiply(const double value);
+	void multiply(const Global::ValueType value);
 	void reset();
 	~gradient() = default;
 	const NetworkConfig &config;

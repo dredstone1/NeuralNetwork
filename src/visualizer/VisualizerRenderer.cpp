@@ -110,7 +110,7 @@ void VisualizerRenderer::start() {
 	renderLoop();
 }
 
-void VisualizerRenderer::updateDots(const int layer, const std::vector<double> &out, const std::vector<double> &net) {
+void VisualizerRenderer::updateDots(const int layer, const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net) {
 	visualNetwork.updateDots(layer, out, net);
 }
 
@@ -118,7 +118,7 @@ void VisualizerRenderer::update(const int layer, const LayerParameters &gradient
 	visualNetwork.update(layer, gradients);
 }
 
-void VisualizerRenderer::updateBatchCounter(const double error, const int index) {
+void VisualizerRenderer::updateBatchCounter(const Global::ValueType error, const int index) {
 	Vgraph.add_data(error, index);
 }
 

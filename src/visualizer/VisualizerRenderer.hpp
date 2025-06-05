@@ -38,12 +38,12 @@ class VisualizerRenderer {
 	VisualizerRenderer(const neural_network &network, const std::shared_ptr<state> vstate);
 	~VisualizerRenderer();
 	void close();
-	void updateDots(const int layer, const std::vector<double> &out, const std::vector<double> &net);
+	void updateDots(const int layer, const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net);
 	bool updateStatus();
 	void update(const gradient &new_grad);
 	void start();
 	void update(const int layer, const LayerParameters &gradients);
-	void updateBatchCounter(const double error, const int index);
+	void updateBatchCounter(const Global::ValueType error, const int index);
 	void setNewPhaseMode(const NNmode nn_mode);
 };
 } // namespace Visualizer

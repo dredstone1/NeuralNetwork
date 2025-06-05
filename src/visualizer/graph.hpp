@@ -1,6 +1,7 @@
 #ifndef GRAPH
 #define GRAPH
 
+#include "Globals.hpp"
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
 
@@ -43,7 +44,7 @@ class GraphUI : public panel {
   public:
 	GraphUI(const std::shared_ptr<state> vstate_);
 	sf::Sprite getSprite();
-	void add_data(const float new_data, const int index);
+	void add_data(const Global::ValueType new_data, const int index);
 };
 } // namespace Visualizer
 

@@ -1,6 +1,7 @@
 #ifndef ACTIVATIONSP
 #define ACTIVATIONSP
 
+#include "Globals.hpp"
 #include "neuron.hpp"
 #include <cmath>
 
@@ -17,23 +18,23 @@ enum class activation {
 class activations {
   private:
 	const activation _activation;
-	inline double Relu(const double x) const;
-	inline double DerivativeRelu(const double x) const;
-	inline double LeakyRelu(const double x) const;
-	inline double DerivativeLeakyRelu(const double x) const;
-	inline double Sigmoid(const double z) const;
-	inline double DerivativeSigmoid(const double z) const;
-	inline double Tanh(const double z) const;
-	inline double DerivativeTanh(const double z) const;
-	static double max_vector(const std::vector<double> &metrix);
+	inline Global::ValueType Relu(const Global::ValueType x) const;
+	inline Global::ValueType DerivativeRelu(const Global::ValueType x) const;
+	inline Global::ValueType LeakyRelu(const Global::ValueType x) const;
+	inline Global::ValueType DerivativeLeakyRelu(const Global::ValueType x) const;
+	inline Global::ValueType Sigmoid(const Global::ValueType z) const;
+	inline Global::ValueType DerivativeSigmoid(const Global::ValueType z) const;
+	inline Global::ValueType Tanh(const Global::ValueType z) const;
+	inline Global::ValueType DerivativeTanh(const Global::ValueType z) const;
+	static Global::ValueType max_vector(const std::vector<Global::ValueType> &metrix);
 
   public:
 	activations(const activation activation)
 	    : _activation(activation) {}
 	activations(const activations &other)
 	    : _activation(other._activation) {}
-	double activate(const double x) const;
-	double DerivativeActivate(const double x) const;
+    Global::ValueType activate(const Global::ValueType x) const;
+    Global::ValueType DerivativeActivate(const Global::ValueType x) const;
 	static void Softmax(neurons &metrix);
 };
 

@@ -36,7 +36,7 @@ void Trainer::train() {
 		model._model->visual.updateBatchCounter(loop_index);
 
 		Batch &batch = dataBase.get_Batch();
-		double error = backPropagation.run_back_propagation(batch, config.learning_rate);
+        Global::ValueType error = backPropagation.run_back_propagation(batch, config.learning_rate);
 
 		model._model->visual.updateError(error, loop_index);
 

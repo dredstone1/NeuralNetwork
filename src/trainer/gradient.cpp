@@ -26,7 +26,7 @@ gradient::gradient(const NetworkConfig &_config) : config(_config) {
 	gradients.emplace_back(config.output_size, (config.hidden_layer_count() > 0) ? config.layers_config[i - 1].size : config.input_size, config.output_init_value);
 }
 
-void gradient::multiply(const double value) {
+void gradient::multiply(const Global::ValueType value) {
 	for (auto &gradient_layer : gradients) {
 		gradient_layer.multiply(value);
 	}

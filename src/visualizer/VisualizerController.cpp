@@ -105,7 +105,7 @@ bool visualizerController::checkP() {
 	return (renderer && Vstate);
 }
 
-void visualizerController::updateDots(const int layer, std::vector<double> out, std::vector<double> net) {
+void visualizerController::updateDots(const int layer, std::vector<Global::ValueType> out, std::vector<Global::ValueType> net) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -193,7 +193,7 @@ void visualizerController::updateBatchCounter(const int batch) {
 	}
 }
 
-void visualizerController::updateError(const double error, const int index) {
+void visualizerController::updateError(const Global::ValueType error, const int index) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
