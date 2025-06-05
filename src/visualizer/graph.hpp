@@ -11,7 +11,7 @@ constexpr std::uint32_t GRAPH_UI_WIDTH = 500;
 
 constexpr int GRAPH_TEXT_FONT = 30;
 constexpr std::uint32_t GRAPH_RESOLUTION = 100;
-constexpr std::uint32_t DATA_GAP_WIDTH = 1.f * GRAPH_WIDTH / GRAPH_RESOLUTION;
+constexpr std::uint32_t DATA_GAP_WIDTH = GRAPH_WIDTH / GRAPH_RESOLUTION;
 constexpr float GRAPH_HEIGHT_ALPHA_DEFAULT = 100.f;
 constexpr int VERTICAL_NUMBERS_COUNT = 7;
 
@@ -30,21 +30,20 @@ class GraphUI : public panel {
 	void render_numbers();
 	void render_vertical_numbers();
 	void do_render() override;
-	int currentData;
 	inline int data_gaps();
-	int newDataPlace();
+	int newDataPlace(const int index);
 	void renderDot(const int index);
 	int get_highest();
 	double graph_alpha;
 	sf::Vector2f getPosition(const int index);
 	float get_hight(const int index);
 	inline std::uint32_t resolution();
-	inline std::uint32_t data_gap_width();
+	inline float data_gap_width();
 
   public:
 	GraphUI(const std::shared_ptr<state> vstate_);
 	sf::Sprite getSprite();
-	void add_data(const float new_data);
+	void add_data(const float new_data, const int index);
 };
 } // namespace Visualizer
 

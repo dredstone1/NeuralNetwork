@@ -60,8 +60,8 @@ class VEmptyLayer : public visualL {
 	void renderNeuron(const int index, const float gap, const float) override;
 
   public:
-	VEmptyLayer(const int _size, const int _prev_size, const std::shared_ptr<state> state_)
-	    : visualL(_size, _prev_size, state_, NEURON_WIDTH) {}
+	VEmptyLayer(const int _size, const std::shared_ptr<state> state_)
+	    : visualL(_size, 0, state_, NEURON_WIDTH) {}
 	VEmptyLayer(const Layer &other, const std::shared_ptr<state> state_)
 	    : visualL(other, state_, NEURON_WIDTH) {}
 	~VEmptyLayer() = default;

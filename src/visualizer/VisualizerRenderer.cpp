@@ -118,8 +118,8 @@ void VisualizerRenderer::update(const int layer, const LayerParameters &gradient
 	visualNetwork.update(layer, gradients);
 }
 
-void VisualizerRenderer::updateBatchCounter(const double error) {
-	Vgraph.add_data(error);
+void VisualizerRenderer::updateBatchCounter(const double error, const int index) {
+	Vgraph.add_data(error, index);
 }
 
 void VisualizerRenderer::update(const gradient &new_grad) {

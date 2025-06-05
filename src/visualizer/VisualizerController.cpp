@@ -193,7 +193,7 @@ void visualizerController::updateBatchCounter(const int batch) {
 	}
 }
 
-void visualizerController::updateError(const double error) {
+void visualizerController::updateError(const double error, const int index) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -201,7 +201,7 @@ void visualizerController::updateError(const double error) {
 		}
 
 		wait_until_updated();
-		renderer->updateBatchCounter(error);
+		renderer->updateBatchCounter(error, index);
 	}
 }
 

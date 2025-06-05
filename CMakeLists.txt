@@ -9,6 +9,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(NN_RESOURCE_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+set(SANITIZER_FLAGS "-fsanitize=address -fno-omit-frame-pointer")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZER_FLAGS}")
 set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${SANITIZER_FLAGS}")
 
@@ -65,14 +66,6 @@ target_compile_definitions(NeuralNetwork
     PRIVATE "RESOURCE_DIR=\"${NN_RESOURCE_DIR_PATH}\""
 )
 
-target_compile_options(NeuralNetwork PRIVATE
-    ${SANITIZER_FLAGS}
-    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
-    $<$<CXX_COMPILER_ID:MSVC>:/W4>
-)
-
-target_link_options(NeuralNetwork PRIVATE ${SANITIZER_FLAGS})
-
 target_link_libraries(NeuralNetwork
    PUBLIC
         SFML::Graphics
@@ -80,6 +73,11 @@ target_link_libraries(NeuralNetwork
         SFML::System
         nlohmann_json::nlohmann_json
 )
+
+target_compile_options(NeuralNetwork PRIVATE -Wall -Wextra -Wpedantic)
+
+add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+add_link_options(-fsanitize=address)
 
 enable_testing()
 include(CTest)
@@ -90,29 +88,29 @@ file(GLOB TEST_SOURCES
 )
 
 if(NOT TEST_SOURCES)
-    message(WARNING "No test sources found in tests/ directory. Creating a dummy test executable that returns 0.")
-    set(DUMMY_MAIN_CONTENT "int main() {\n  // No actual tests found, returning success.\n  return 0;\n}\n")
-    set(DUMMY_MAIN_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/dummy_test_main.cpp")
-    file(WRITE "${DUMMY_MAIN_FILE_PATH}" "${DUMMY_MAIN_CONTENT}")
-    add_executable(run_tests "${DUMMY_MAIN_FILE_PATH}")
+    message(WARNING "No test sources found in tests/ directory.")
 else()
-    add_executable(run_tests ${TEST_SOURCES})
+    foreach(test_file ${TEST_SOURCES})
+        get_filename_component(test_name ${test_file} NAME_WE)
+
+        add_executable(${test_name} ${test_file})
+
+        target_link_libraries(${test_name} PRIVATE
+            NeuralNetwork
+            sfml-graphics
+            sfml-window
+            sfml-system
+            nlohmann_json::nlohmann_json
+        )
+
+        target_include_directories(${test_name} PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+            ${SFML_INCLUDE_DIR}
+        )
+
+        add_test(NAME ${test_name} COMMAND ${test_name})
+    endforeach()
 endif()
-
-target_link_libraries(run_tests PRIVATE
-    NeuralNetwork
-    sfml-graphics
-    sfml-window
-    sfml-system
-    nlohmann_json::nlohmann_json
-)
-
-target_include_directories(run_tests PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${SFML_INCLUDE_DIR}
-)
-
-add_test(NAME all_tests COMMAND run_tests)
 
 install(TARGETS NeuralNetwork ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)

@@ -38,7 +38,7 @@ void Trainer::train() {
 		Batch &batch = dataBase.get_Batch();
 		double error = backPropagation.run_back_propagation(batch, config.learning_rate);
 
-		model._model->visual.updateError(error);
+		model._model->visual.updateError(error, loop_index);
 
 		print_progress_bar(loop_index + 1, config.batch_count);
 	}

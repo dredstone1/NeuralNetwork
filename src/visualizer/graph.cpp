@@ -1,13 +1,14 @@
 #include "graph.hpp"
 #include "fonts.hpp"
 #include <algorithm>
+#include <iostream>
+#include <ostream>
 
 namespace Visualizer {
 GraphUI::GraphUI(const std::shared_ptr<state> vstate_)
     : panel(vstate_),
       VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
       Vgraph({GRAPH_WIDTH, GRAPH_HEIGHT}),
-      currentData(0),
       graph_alpha(GRAPH_HEIGHT_ALPHA_DEFAULT) {
 }
 
@@ -72,7 +73,7 @@ int GraphUI::get_highest() {
 }
 
 float GraphUI::get_hight(const int index) {
-	return GRAPH_HEIGHT - std::max(1.f, static_cast<float>(data[index] * graph_alpha));
+	return GRAPH_HEIGHT - std::max(1.0, data[index] * graph_alpha);
 }
 
 sf::Vector2f GraphUI::getPosition(const int index) {
@@ -96,29 +97,28 @@ void GraphUI::renderDot(const int index) {
 	Vgraph.draw(line_);
 }
 
-std::uint32_t GraphUI::data_gap_width() {
-	return std::max<std::uint32_t>(DATA_GAP_WIDTH, 1.f * GRAPH_WIDTH / resolution());
+float GraphUI::data_gap_width() {
+	return GRAPH_WIDTH / (float)resolution();
 }
 
 std::uint32_t GraphUI::resolution() {
-	return std::min<std::uint32_t>(GRAPH_RESOLUTION, vstate->config.training_config.batch_count) - 1;
+	return std::min(GRAPH_RESOLUTION, (std::uint32_t)vstate->config.training_config.batch_count) - 1;
 }
 
 int GraphUI::data_gaps() {
 	return vstate->config.training_config.batch_count / resolution();
 }
 
-int GraphUI::newDataPlace() {
+int GraphUI::newDataPlace(const int index) {
 	if (data_gaps() == 0) {
 		return 0;
 	}
 
-	return std::floor((vstate->current_batch - 1) / data_gaps());
+	return std::floor((index - 1) / data_gaps());
 }
 
-void GraphUI::add_data(const float new_data) {
-	currentData = newDataPlace();
-	data[currentData] += (new_data / data_gaps());
+void GraphUI::add_data(const float new_data, const int index) {
+	data[newDataPlace(index)] += (new_data / data_gaps());
 	set_update();
 }
 } // namespace Visualizer

@@ -8,11 +8,15 @@ visualNN::visualNN(const neural_network &network, std::shared_ptr<state> state_)
       NNRender({NN_WIDTH, NN_HEIGHT}),
       current_rendred_layer(0) {
 	layers.reserve(network.getLayerCount() + 1);
+	int layer = 0;
 
-	layers.emplace_back(new VEmptyLayer(vstate->config.network_config.input_size, network.getLayerCount() + 1, vstate));
-	for (int layer = 0; layer < network.getLayerCount(); layer++) {
-		layers.emplace_back(new VParamLayer(*network.layers.at(layer), vstate));
+	layers.emplace_back(std::make_unique<VEmptyLayer>(vstate->config.network_config.input_size, vstate));
+
+	for (; layer < network.getLayerCount() - 1; layer++) {
+		layers.emplace_back(std::make_unique<VParamLayer>(vstate->config.network_config.layers_config[layer].size, layers[layer]->getSize(), vstate));
 	}
+
+	layers.emplace_back(std::make_unique<VParamLayer>(vstate->config.network_config.output_size, layers[layer]->getSize(), vstate));
 }
 
 void visualNN::display() {
@@ -34,7 +38,7 @@ void visualNN::renderLayers() {
 void visualNN::do_render() {
 	clear();
 	renderLayers();
-    display();
+	display();
 }
 
 void visualNN::render_active_layer(const sf::Vector2f box, const sf::Vector2f pos) {
@@ -76,15 +80,10 @@ void visualNN::update(const int layer, const LayerParameters &gradients) {
 
 void visualNN::update(const gradient &new_grad) {
 	for (size_t i = 1; i < layers.size(); i++) {
-		((VParamLayer *)layers[i])->updateGrad(new_grad.gradients[i - 1]);
+		VParamLayer *test = dynamic_cast<VParamLayer *>(layers[i].get());
+		test->updateGrad(new_grad.gradients[i - 1]);
 	}
 
 	set_update();
-}
-
-visualNN::~visualNN() {
-	for (size_t i = 0; i < layers.size(); i++) {
-		delete layers[i];
-	}
 }
 } // namespace Visualizer

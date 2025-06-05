@@ -33,7 +33,7 @@ class visualizerController {
 	void start(const neural_network &network);
 	void update(const gradient &new_grad);
 	void updateBatchCounter(const int batch);
-	void updateError(const double error);
+	void updateError(const double error, const int index);
 	void updateAlgoritemMode(const algorithmMode algoritem_mode);
 };
 } // namespace Visualizer

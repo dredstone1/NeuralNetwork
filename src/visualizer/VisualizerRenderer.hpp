@@ -43,7 +43,7 @@ class VisualizerRenderer {
 	void update(const gradient &new_grad);
 	void start();
 	void update(const int layer, const LayerParameters &gradients);
-	void updateBatchCounter(const double error);
+	void updateBatchCounter(const double error, const int index);
 	void setNewPhaseMode(const NNmode nn_mode);
 };
 } // namespace Visualizer
