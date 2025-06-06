@@ -6,6 +6,7 @@
 #include <thread>
 
 namespace Visualizer {
+constexpr int WAIT_DELAY_MM = 1; 
 class visualizerController {
   private:
 	void update_display();

@@ -34,6 +34,8 @@ class VisualizerRenderer {
 	void clear();
 	void full_update();
 	void do_frame(int &frameCount, int &batchCount, sf::Clock &fpsClock);
+    bool need_resize{false};
+    void reset_size();
 
   public:
 	VisualizerRenderer(const neural_network &network, const std::shared_ptr<state> vstate);

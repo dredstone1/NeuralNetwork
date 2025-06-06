@@ -63,7 +63,7 @@ void visualizerController::wait_until_started() {
 		if (renderer && Vstate)
 			break;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_DELAY_MM));
 	}
 }
 
@@ -72,7 +72,7 @@ void visualizerController::wait_until_updated() {
 		return;
 
 	while (renderer->updateStatus() && running.load()) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_DELAY_MM));
 	}
 }
 
@@ -81,7 +81,7 @@ void visualizerController::pause() {
 		return;
 
 	while (Vstate->settings.pause.load() && running.load()) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_DELAY_MM));
 	}
 }
 
@@ -151,6 +151,7 @@ void visualizerController::update(const int layer, const LayerParameters &gradie
 		// 		}
 		// 	}
 		// }
+
 		handleStates();
 
 		renderer->update(layer, gradient_);
@@ -225,7 +226,7 @@ void visualizerController::update_prediction(const int index) {
 		}
 
 		wait_until_updated();
-        renderer->update_prediction(index);
+		renderer->update_prediction(index);
 	}
 }
 } // namespace Visualizer

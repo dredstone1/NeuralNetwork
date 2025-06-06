@@ -4,6 +4,7 @@
 #include "visualNN.hpp"
 #include "visualizer/Vstatus.hpp"
 #include <memory>
+#include <type_traits>
 
 namespace Visualizer {
 VisualizerRenderer::VisualizerRenderer(const neural_network &network, std::shared_ptr<state> vstate)
@@ -24,9 +25,17 @@ void VisualizerRenderer::processEvents() {
 		} else if (event->is<sf::Event::MouseButtonReleased>()) {
 			interface.handleClick(sf::Mouse::getPosition(window), {NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
 		} else if (event->is<sf::Event::Resized>()) {
-			window.setSize({WINDOW_WIDTH, WINDOW_HEIGHT});
+			need_resize = true;
 		}
 	}
+}
+
+void VisualizerRenderer::reset_size() {
+	if (need_resize) {
+		window.setSize({WINDOW_WIDTH, WINDOW_HEIGHT});
+	}
+
+	need_resize = false;
 }
 
 void VisualizerRenderer::renderPanels() {
@@ -41,6 +50,7 @@ void VisualizerRenderer::renderPanels() {
 	window.draw(interfaceSprite);
 
 	statusV.render();
+
 	sf::Sprite statusSprite = statusV.getSprite();
 	statusSprite.setPosition({NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT});
 	window.draw(statusSprite);
@@ -52,6 +62,7 @@ void VisualizerRenderer::renderPanels() {
 }
 
 void VisualizerRenderer::full_update() {
+	reset_size();
 	statusV.set_update();
 	interface.set_update();
 	visualNetwork.set_update();
