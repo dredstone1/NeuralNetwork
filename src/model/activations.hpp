@@ -5,6 +5,7 @@
 #include "neuron.hpp"
 #include <cmath>
 
+namespace nn {
 constexpr float RELU_LEAKY_ALPHA = 0.01;
 
 enum class activation {
@@ -33,9 +34,10 @@ class activations {
 	    : _activation(activation) {}
 	activations(const activations &other)
 	    : _activation(other._activation) {}
-    Global::ValueType activate(const Global::ValueType x) const;
-    Global::ValueType DerivativeActivate(const Global::ValueType x) const;
+	Global::ValueType activate(const Global::ValueType x) const;
+	Global::ValueType DerivativeActivate(const Global::ValueType x) const;
 	static void Softmax(neurons &metrix);
 };
+} // namespace nn
 
 #endif // ACTIVATIONS

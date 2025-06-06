@@ -6,6 +6,7 @@
 #include <memory>
 #include <type_traits>
 
+namespace nn {
 namespace Visualizer {
 VisualizerRenderer::VisualizerRenderer(const neural_network &network, std::shared_ptr<state> vstate)
     : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), WINDOW_TITLE.data()),
@@ -155,3 +156,4 @@ void VisualizerRenderer::update_prediction(const int index) {
 	visualNetwork.update_prediction(index);
 }
 } // namespace Visualizer
+} // namespace nn

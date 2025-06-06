@@ -1,6 +1,7 @@
 #include "Vstatus.hpp"
 #include "fonts.hpp"
 
+namespace nn {
 namespace Visualizer {
 vStatus::vStatus(const std::shared_ptr<state> vstate_)
     : panel(vstate_),
@@ -53,5 +54,6 @@ void vStatus::update_fps(const float fps_) {
 void vStatus::update_bps(const float bps_) {
 	batchPerSecond = bps_;
 	set_update();
+}
 }
 } // namespace Visualizer

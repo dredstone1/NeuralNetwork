@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+namespace nn {
 namespace Visualizer {
 visualNN::visualNN(const neural_network &network, std::shared_ptr<state> state_)
     : panel(state_),
@@ -86,7 +87,7 @@ void visualNN::update(const int layer, const LayerParameters &gradients) {
 }
 
 void visualNN::update(const gradient &new_grad) {
-	for (size_t i = 1; i < layers.size()-1; i++) {
+	for (size_t i = 1; i < layers.size() - 1; i++) {
 		VParamLayer *test = dynamic_cast<VParamLayer *>(layers[i].get());
 		test->updateGrad(new_grad.gradients[i - 1]);
 	}
@@ -95,11 +96,12 @@ void visualNN::update(const gradient &new_grad) {
 }
 
 void visualNN::update_prediction(const int index) {
-    std::vector<Global::ValueType> pre(layers[layers.size()-1]->getSize(), 0);
-    pre[index] = 1;
+	std::vector<Global::ValueType> pre(layers[layers.size() - 1]->getSize(), 0);
+	pre[index] = 1;
 
-    layers[layers.size()-1]->setDots(pre, pre);
+	layers[layers.size() - 1]->setDots(pre, pre);
 
 	set_update();
 }
 } // namespace Visualizer
+} // namespace nn

@@ -19,7 +19,7 @@ A work-in-progress C++ neural network library designed for building, training, a
 ### Prerequisites
 
 - 🛠️ C++17-compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
-- 📋 CMake 3.15 or later
+- 📋 CMake 3.28 or later
 
 ### 🔨 Build Instructions
 

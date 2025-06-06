@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 
+namespace nn {
 Config::Config(const std::string &config_filepath) {
 	std::ifstream ifs(config_filepath);
 	if (!ifs.is_open()) {
@@ -25,4 +26,5 @@ Config::Config(const std::string &config_filepath) {
 		          << e.what() << std::endl;
 		throw;
 	}
+}
 }

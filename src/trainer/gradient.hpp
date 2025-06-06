@@ -5,6 +5,7 @@
 #include "../model/config.hpp"
 #include <vector>
 
+namespace nn {
 struct gradient {
 	std::vector<LayerParameters> gradients;
 	void add(const gradient &new_gradient);
@@ -15,5 +16,6 @@ struct gradient {
 	gradient(const NetworkConfig &config);
 	gradient(const gradient &other);
 };
+} // namespace nn
 
 #endif // GRADIENT

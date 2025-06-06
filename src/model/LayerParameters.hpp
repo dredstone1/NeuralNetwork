@@ -5,6 +5,7 @@
 #include <cmath>
 #include <vector>
 
+namespace nn {
 constexpr int PARAM_RESET_VALUE = 0;
 constexpr int RN_ROUND_VALUE = 10000;
 
@@ -21,5 +22,5 @@ struct LayerParameters {
 	void reset();
 	void initialize_Param_rn(const int prev_size);
 };
-
+} // namespace nn
 #endif // LAYER_PARAMETERS

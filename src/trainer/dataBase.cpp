@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 
+namespace nn {
 DataBase::DataBase(TrainingConfig &config_)
     : samples(nullptr),
       config(config_),
@@ -105,3 +106,4 @@ Batch &DataBase::get_Batch() {
 
 	return batches.at(currentBatch++);
 }
+} // namespace nn

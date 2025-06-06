@@ -1,5 +1,6 @@
 #include "AiModel.hpp"
 
+namespace nn {
 AiModel::AiModel(const std::string &config_file, const bool use_visual)
     : config(config_file) {
 	_model = std::make_unique<model>(config, use_visual);
@@ -19,3 +20,4 @@ prediction AiModel::getPrediction() {
 
 	return {max, _model->getOutput()[max]};
 }
+} // namespace nn

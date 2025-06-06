@@ -3,6 +3,7 @@
 
 #include "layer.hpp"
 
+namespace nn {
 class Output_Layer : public Layer {
   public:
 	Output_Layer(const int _size, const int _prev_size, const Global::ValueType init_value)
@@ -12,5 +13,6 @@ class Output_Layer : public Layer {
 	void forward(const std::vector<Global::ValueType> &metrix) override;
 	LayerType getType() const override { return LayerType::OUTPUT; }
 };
+} // namespace nn
 
 #endif // OUTPUT_LAYER

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 
+namespace nn {
 BackPropagation::BackPropagation(AiModel &_model)
     : local_gradient(_model.getConfig().config_data.network_config),
       model(_model) {}
@@ -100,3 +101,4 @@ void BackPropagation::update_weights(int batch_size, Global::ValueType learning_
 	local_gradient.multiply(-learning_rate / batch_size);
 	model._model->updateWeights(local_gradient);
 }
+} // namespace nn

@@ -1,6 +1,7 @@
 #include "Output_Layer.hpp"
 #include "../activations.hpp"
 
+namespace nn {
 void Output_Layer::forward(const std::vector<Global::ValueType> &metrix) {
 	for (int i = 0; i < dots.size(); i++) {
 		dots.net[i] = 0;
@@ -12,3 +13,4 @@ void Output_Layer::forward(const std::vector<Global::ValueType> &metrix) {
 
 	activations::Softmax(dots);
 }
+} // namespace nn

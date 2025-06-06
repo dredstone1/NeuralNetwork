@@ -5,6 +5,7 @@
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
 
+namespace nn {
 namespace Visualizer {
 constexpr std::uint32_t GRAPH_WIDTH = 470;
 constexpr std::uint32_t GRAPH_HEIGHT = 315;
@@ -50,5 +51,6 @@ class GraphUI : public panel {
 	void add_data(const Global::ValueType new_data, const int index);
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // GRAPH

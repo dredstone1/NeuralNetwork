@@ -5,8 +5,9 @@
 #include <atomic>
 #include <string>
 
+namespace nn {
 namespace Visualizer {
-constexpr const int STATES_COUNT = 3;
+constexpr int STATES_COUNT = 3;
 
 enum class states {
 	Pause,
@@ -57,5 +58,6 @@ class state {
 	~state() = default;
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // STATE

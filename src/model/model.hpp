@@ -6,12 +6,11 @@
 #include "config.hpp"
 #include "neuralNetwork.hpp"
 
-using namespace Visualizer;
-
+namespace nn {
 class model {
   private:
 	neural_network network;
-	visualizerController visual;
+	Visualizer::visualizerController visual;
 	void run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network);
 	friend class BackPropagation;
 	friend class Trainer;
@@ -30,5 +29,6 @@ class model {
 	int getLayerCount() const { return network.config.hidden_layer_count() + 1; }
 	const bool useVisual;
 };
+} // namespace nn
 
 #endif // MODEL

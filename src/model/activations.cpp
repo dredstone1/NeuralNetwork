@@ -1,5 +1,6 @@
 #include "activations.hpp"
 
+namespace nn {
 Global::ValueType activations::activate(const Global::ValueType x) const {
 	switch (_activation) {
 	case activation::relu_:
@@ -83,3 +84,4 @@ inline Global::ValueType activations::DerivativeTanh(const Global::ValueType z) 
 	Global::ValueType t = std::tanh(z);
 	return 1.0 - t * t;
 }
+} // namespace nn

@@ -1,6 +1,7 @@
 #include "trainer.hpp"
 #include <iostream>
 
+namespace nn {
 void Trainer::print_progress_bar(const int current, const int total) {
 	float progress = (float)current / total;
 	int progress_percentage = int(progress * BAR_WIDTH);
@@ -36,7 +37,7 @@ void Trainer::train() {
 		model._model->visual.updateBatchCounter(loop_index);
 
 		Batch &batch = dataBase.get_Batch();
-        Global::ValueType error = backPropagation.run_back_propagation(batch, config.learning_rate);
+		Global::ValueType error = backPropagation.run_back_propagation(batch, config.learning_rate);
 
 		model._model->visual.updateError(error, loop_index);
 
@@ -54,3 +55,4 @@ void Trainer::train() {
 
 	model._model->visual.updateAlgoritemMode(Visualizer::algorithmMode::Normal);
 }
+} // namespace nn

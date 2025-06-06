@@ -1,5 +1,6 @@
 #include "gradient.hpp"
 
+namespace nn {
 void gradient::add(const gradient &new_gradient) {
 	for (size_t i = 0; i < gradients.size(); i++) {
 		gradients.at(i).add(new_gradient.gradients.at(i));
@@ -35,3 +36,4 @@ void gradient::multiply(const Global::ValueType value) {
 gradient::gradient(const gradient &other)
     : gradients(other.gradients), config(other.config) {
 }
+} // namespace nn

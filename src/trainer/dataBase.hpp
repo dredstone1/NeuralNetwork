@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+namespace nn {
 typedef struct TrainSample {
 	prediction _prediction;
 	std::vector<Global::ValueType> input;
@@ -60,5 +61,6 @@ class DataBase {
 	Batch &get_Batch();
 	~DataBase() = default;
 };
+} // namespace nn
 
 #endif // DATABASE

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 
+namespace nn {
 model::model(Config &_config, const bool useVisual)
     : network(_config.config_data.network_config),
       visual(_config.config_data),
@@ -16,7 +17,7 @@ void model::run_model(const std::vector<Global::ValueType> &input) {
 }
 
 void model::run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network) {
-	visual.setNewPhaseMode(NNmode::Forword);
+	visual.setNewPhaseMode(Visualizer::NNmode::Forword);
 
 	visual.updateDots(0, input, input);
 	temp_network.layers[0]->forward(input);
@@ -39,7 +40,7 @@ const std::vector<Global::ValueType> &model::getOutput() const {
 }
 
 void model::updateWeights(const gradient &gradients) {
-	visual.setNewPhaseMode(NNmode::Backward);
+	visual.setNewPhaseMode(Visualizer::NNmode::Backward);
 	visual.update(gradients);
 
 	for (int i = network.config.hidden_layer_count(); i >= 0; i--) {
@@ -47,5 +48,6 @@ void model::updateWeights(const gradient &gradients) {
 		visual.update(i + 1, getLayer(i).getParms());
 	}
 
-	visual.setNewPhaseMode(NNmode::Forword);
+	visual.setNewPhaseMode(Visualizer::NNmode::Forword);
 }
+} // namespace nn

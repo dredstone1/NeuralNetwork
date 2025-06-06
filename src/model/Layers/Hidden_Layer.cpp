@@ -1,5 +1,6 @@
 #include "Hidden_Layer.hpp"
 
+namespace nn {
 void Hidden_Layer::forward(const std::vector<Global::ValueType> &metrix) {
 	for (int i = 0; i < dots.size(); i++) {
 		dots.net[i] = 0;
@@ -10,3 +11,4 @@ void Hidden_Layer::forward(const std::vector<Global::ValueType> &metrix) {
 		dots.out[i] = activate_(dots.net[i]);
 	}
 }
+} // namespace nn

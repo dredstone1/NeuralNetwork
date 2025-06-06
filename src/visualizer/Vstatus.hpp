@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 
+namespace nn {
 namespace Visualizer {
 constexpr std::uint32_t VSTATUS_WIDTH = 500;
 constexpr std::uint32_t VSTATUS_HEIGHT = 255;
@@ -47,5 +48,6 @@ class vStatus : public panel {
 	void update_bps(const float fps);
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // VSTATUS

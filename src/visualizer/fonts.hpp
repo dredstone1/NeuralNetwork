@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+namespace nn {
 namespace Visualizer {
 class Fonts {
   public:
@@ -11,5 +12,6 @@ class Fonts {
 	~Fonts() = default;
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // FONTS

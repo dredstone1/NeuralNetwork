@@ -9,6 +9,7 @@
 #include "visualNN.hpp"
 #include <SFML/Graphics.hpp>
 
+namespace nn {
 namespace Visualizer {
 constexpr sf::Color BG_COLOR(100, 100, 100);
 constexpr std::uint32_t UI_GAP = 15;
@@ -34,8 +35,8 @@ class VisualizerRenderer {
 	void clear();
 	void full_update();
 	void do_frame(int &frameCount, int &batchCount, sf::Clock &fpsClock);
-    bool need_resize{false};
-    void reset_size();
+	bool need_resize{false};
+	void reset_size();
 
   public:
 	VisualizerRenderer(const neural_network &network, const std::shared_ptr<state> vstate);
@@ -51,5 +52,6 @@ class VisualizerRenderer {
 	void update_prediction(const int index);
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // VISUALIZERRENDERER

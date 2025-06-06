@@ -1,6 +1,7 @@
 #include "button.hpp"
 #include "fonts.hpp"
 
+namespace nn {
 namespace Visualizer {
 button::button(const std::shared_ptr<state> _state, const std::string lable, const states Cstate)
     : panel(_state),
@@ -77,3 +78,4 @@ void button::observe() {
 	}
 }
 } // namespace Visualizer
+} // namespace nn

@@ -1,5 +1,6 @@
 #include "panel.hpp"
 
+namespace nn {
 namespace Visualizer {
 int panel::render() {
 	observe();
@@ -12,3 +13,4 @@ int panel::render() {
 	return false;
 }
 } // namespace Visualizer
+} // namespace nn

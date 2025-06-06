@@ -6,6 +6,7 @@
 #include "state.hpp"
 #include <SFML/Graphics/Color.hpp>
 
+namespace nn {
 namespace Visualizer {
 constexpr std::uint32_t VINTERFACE_WIDTH = 500;
 constexpr std::uint32_t VINTERFACE_HEIGHT = 170;
@@ -31,5 +32,5 @@ class vInteface : public panel {
 	void handleNoClick();
 };
 } // namespace Visualizer
-
+} // namespace nn
 #endif // VINTERFACE

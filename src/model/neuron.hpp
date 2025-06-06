@@ -4,6 +4,7 @@
 #include "Globals.hpp"
 #include <vector>
 
+namespace nn {
 struct neurons {
 	std::vector<Global::ValueType> out;
 	std::vector<Global::ValueType> net;
@@ -15,5 +16,5 @@ struct neurons {
 	int size() const { return out.size(); }
 	void reset();
 };
-
+} // namespace nn
 #endif // NEURON

@@ -5,6 +5,7 @@
 #include "../src/model/model.hpp"
 #include <string>
 
+namespace nn {
 struct prediction {
 	const int index;
 	const Global::ValueType value;
@@ -24,5 +25,6 @@ class AiModel {
 	Config &getConfig() { return config; }
 	~AiModel() = default;
 };
+} // namespace nn
 
 #endif // AIMODEL

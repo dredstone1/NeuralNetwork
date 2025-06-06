@@ -5,6 +5,7 @@
 #include "config.hpp"
 #include <memory>
 
+namespace nn {
 struct neural_network {
 	std::vector<std::unique_ptr<Layer>> layers;
 	const NetworkConfig &config;
@@ -13,5 +14,5 @@ struct neural_network {
 	void reset();
 	~neural_network() = default;
 };
-
+} // namespace nn
 #endif // NEURAL_NETWORK

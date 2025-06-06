@@ -1,5 +1,6 @@
 #include "layer.hpp"
 
+namespace nn {
 void Layer::add(const LayerParameters &gradients) {
 	Parameters.add(gradients);
 }
@@ -26,3 +27,4 @@ void Layer::forward(const std::vector<Global::ValueType> &metrix) {
 		dots.out[i] = dots.net[i];
 	}
 }
+} // namespace nn

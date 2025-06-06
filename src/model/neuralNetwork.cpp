@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include <memory>
 
+namespace nn {
 neural_network::neural_network(const NetworkConfig &network_config)
     : config(network_config) {
 	layers.reserve(network_config.hidden_layer_count() + 1);
@@ -30,3 +31,4 @@ void neural_network::reset() {
 		layer->reset();
 	}
 }
+} // namespace nn

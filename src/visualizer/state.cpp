@@ -1,5 +1,6 @@
 #include "state.hpp"
 
+namespace nn {
 namespace Visualizer {
 void state::toggle(states state_) {
 	switch (state_) {
@@ -64,3 +65,4 @@ void state::setState(states state_, bool stateM) {
 	}
 }
 } // namespace Visualizer
+} // namespace nn

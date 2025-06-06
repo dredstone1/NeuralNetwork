@@ -2,6 +2,7 @@
 #include "VisualizerRenderer.hpp"
 #include "state.hpp"
 
+namespace nn {
 namespace Visualizer {
 visualizerController::visualizerController(const ConfigData &_config)
     : config(_config) {
@@ -230,3 +231,4 @@ void visualizerController::update_prediction(const int index) {
 	}
 }
 } // namespace Visualizer
+} // namespace nn

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <ostream>
 
+namespace nn {
 namespace Visualizer {
 GraphUI::GraphUI(const std::shared_ptr<state> vstate_)
     : panel(vstate_),
@@ -151,3 +152,4 @@ void GraphUI::add_data(const Global::ValueType new_data, const int index) {
 	set_update();
 }
 } // namespace Visualizer
+} // namespace nn

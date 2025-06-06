@@ -1,6 +1,7 @@
 #include "visualL.hpp"
 #include "fonts.hpp"
 
+namespace nn {
 namespace Visualizer {
 visualL::visualL(const Layer &other, const std::shared_ptr<state> state_, const std::uint32_t width)
     : Layer(other),
@@ -192,3 +193,4 @@ void VParamLayer::updateGrad(const LayerParameters &new_grad) {
 	grad.set(new_grad);
 }
 } // namespace Visualizer
+} // namespace nn

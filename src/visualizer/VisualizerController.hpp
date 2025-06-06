@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <thread>
 
+namespace nn {
 namespace Visualizer {
 constexpr int WAIT_DELAY_MM = 1;
 
@@ -40,5 +41,6 @@ class visualizerController {
 	void update_prediction(const int index);
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // VISUALIZERCONTROLLER

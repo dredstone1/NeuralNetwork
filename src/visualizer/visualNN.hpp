@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 
+namespace nn {
 namespace Visualizer {
 constexpr sf::Color NN_PANEL_BG = PANELS_BG;
 
@@ -30,8 +31,9 @@ class visualNN : public panel {
 	void updateDots(const int layer, const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net);
 	void update(const int layer, const LayerParameters &gradients);
 	void update(const gradient &new_grad);
-    void update_prediction(const int index);
+	void update_prediction(const int index);
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // VISUALNN

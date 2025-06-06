@@ -8,6 +8,7 @@
 constexpr const int BAR_WIDTH = 100;
 constexpr const int SECONDS_IN_MINUTE = 60;
 
+namespace nn {
 class Trainer {
   private:
 	TrainingConfig &config;
@@ -27,5 +28,6 @@ class Trainer {
 	void train();
 	~Trainer() = default;
 };
+} // namespace nn
 
 #endif // TRAINER

@@ -2,6 +2,7 @@
 #include "button.hpp"
 #include "state.hpp"
 
+namespace nn {
 namespace Visualizer {
 vInteface::vInteface(const std::shared_ptr<state> vstate)
     : panel(vstate),
@@ -61,3 +62,4 @@ void vInteface::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f
 	}
 }
 } // namespace Visualizer
+} // namespace nn

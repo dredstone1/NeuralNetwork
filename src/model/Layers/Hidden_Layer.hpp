@@ -4,6 +4,7 @@
 #include "../activations.hpp"
 #include "layer.hpp"
 
+namespace nn {
 class Hidden_Layer : public Layer {
   private:
 	activations activate;
@@ -17,8 +18,9 @@ class Hidden_Layer : public Layer {
 	      activate(other.activate) {}
 	void forward(const std::vector<Global::ValueType> &metrix) override;
 	LayerType getType() const override { return LayerType::HIDDEN; }
-    Global::ValueType activate_(const Global::ValueType x) const { return activate.activate(x); }
-    Global::ValueType Derivative_activate(const Global::ValueType x) { return activate.DerivativeActivate(x); }
+	Global::ValueType activate_(const Global::ValueType x) const { return activate.activate(x); }
+	Global::ValueType Derivative_activate(const Global::ValueType x) { return activate.DerivativeActivate(x); }
 };
+} // namespace nn
 
 #endif // HIDDEN_LAYER

@@ -47,10 +47,10 @@ int main(int argc, char *argv[]) {
 		}
 		std::string config_FN = "config.json";
 
-		AiModel model(config_FN, mods & visual);
+		nn::AiModel model(config_FN, mods & visual);
 
 		if (mods & train) {
-			Trainer trainer(model);
+			nn::Trainer trainer(model);
 
 			trainer.train();
 		}

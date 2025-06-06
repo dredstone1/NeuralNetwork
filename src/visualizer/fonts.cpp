@@ -1,6 +1,7 @@
 #include "fonts.hpp"
 #include <string>
 
+namespace nn {
 namespace Visualizer {
 sf::Font &Fonts::getFont() {
 	static sf::Font font;
@@ -16,3 +17,4 @@ sf::Font &Fonts::getFont() {
 	return font;
 }
 } // namespace Visualizer
+} // namespace nn

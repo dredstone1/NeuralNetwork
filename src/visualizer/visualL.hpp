@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 
+namespace nn {
 namespace Visualizer {
 constexpr std::uint32_t NN_HEIGHT = 770u;
 constexpr std::uint32_t NN_WIDTH = 1055u;
@@ -15,7 +16,7 @@ constexpr std::uint32_t NEURON_RADIUS = 20;
 constexpr std::uint32_t NEURON_WIDTH = NEURON_RADIUS * 2;
 
 constexpr std::uint32_t calculate_width(const int layer_amount) {
-	return (NN_WIDTH - NEURON_WIDTH*2) / layer_amount;
+	return (NN_WIDTH - NEURON_WIDTH * 2) / layer_amount;
 }
 
 constexpr sf::Color NORMAL_BG_LAYER(255, 255, 255);
@@ -86,5 +87,6 @@ class VParamLayer : public visualL {
 	~VParamLayer() = default;
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // VISUALL

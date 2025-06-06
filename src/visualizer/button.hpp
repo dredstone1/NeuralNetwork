@@ -5,6 +5,7 @@
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
 
+namespace nn {
 namespace Visualizer {
 constexpr std::uint32_t BUTTON_HEIGHT = 50;
 constexpr std::uint32_t BUTTON_WIDTH = 200;
@@ -39,5 +40,6 @@ class button : public panel {
 	bool checkForClick(const sf::Vector2f mousePos, const sf::Vector2f boxPos);
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // BUTTON

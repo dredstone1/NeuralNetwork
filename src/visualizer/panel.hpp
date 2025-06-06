@@ -3,8 +3,8 @@
 
 #include "state.hpp"
 #include <SFML/Graphics/Color.hpp>
-#include <memory>
 
+namespace nn {
 namespace Visualizer {
 constexpr sf::Color PANELS_BG(255, 255, 255);
 
@@ -26,5 +26,6 @@ class panel {
 	void set_update() { need_update = true; }
 };
 } // namespace Visualizer
+} // namespace nn
 
 #endif // PANEL
