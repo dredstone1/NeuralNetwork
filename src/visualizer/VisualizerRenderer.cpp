@@ -2,6 +2,7 @@
 #include "state.hpp"
 #include "visualL.hpp"
 #include "visualNN.hpp"
+#include "visualizer/Vstatus.hpp"
 #include <memory>
 
 namespace Visualizer {
@@ -57,15 +58,18 @@ void VisualizerRenderer::full_update() {
 	Vgraph.set_update();
 }
 
-void VisualizerRenderer::do_frame(int &frameCount, sf::Clock &fpsClock) {
+void VisualizerRenderer::do_frame(int &frameCount, int &batchCount, sf::Clock &fpsClock) {
 	processEvents();
 
 	if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
 		fps = frameCount / fpsClock.getElapsedTime().asSeconds();
+		bps = (Vstate->current_batch - batchCount) / fpsClock.getElapsedTime().asSeconds();
 
 		fpsClock.restart();
 		frameCount = 0;
+		batchCount = Vstate->current_batch;
 		statusV.update_fps(fps);
+		statusV.update_bps(bps);
 		full_update();
 	}
 
@@ -86,12 +90,13 @@ void VisualizerRenderer::renderLoop() {
 	running.store(true);
 	sf::Clock fpsClock;
 	int frameCount = 0;
+	int batchCount = 0;
 
 	window.setFramerateLimit(FPS_LIMIT);
 
 	clear();
 	while (window.isOpen() && running) {
-		do_frame(frameCount, fpsClock);
+		do_frame(frameCount, batchCount, fpsClock);
 	}
 
 	window.close();
@@ -136,6 +141,6 @@ void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
 }
 
 void VisualizerRenderer::update_prediction(const int index) {
-    visualNetwork.update_prediction(index);
+	visualNetwork.update_prediction(index);
 }
 } // namespace Visualizer

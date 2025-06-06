@@ -27,12 +27,13 @@ class VisualizerRenderer {
 	GraphUI Vgraph;
 	std::atomic<bool> running{false};
 	float fps;
+	float bps;
 	void renderLoop();
 	void processEvents();
 	void renderPanels();
 	void clear();
 	void full_update();
-	void do_frame(int &frameCount, sf::Clock &fpsClock);
+	void do_frame(int &frameCount, int &batchCount, sf::Clock &fpsClock);
 
   public:
 	VisualizerRenderer(const neural_network &network, const std::shared_ptr<state> vstate);
@@ -45,7 +46,7 @@ class VisualizerRenderer {
 	void update(const int layer, const LayerParameters &gradients);
 	void updateBatchCounter(const Global::ValueType error, const int index);
 	void setNewPhaseMode(const NNmode nn_mode);
-    void update_prediction(const int index);
+	void update_prediction(const int index);
 };
 } // namespace Visualizer
 

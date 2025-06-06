@@ -22,7 +22,7 @@ std::string vStatus::get_text() {
 	   << TextLabels::RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << std::endl
 	   << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->AlgorithmMode.load()] << std::endl
 	   << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << std::endl
-	   << TextLabels::CURRENT_BATCH_TEXT << vstate->current_batch << "/" << vstate->config.training_config.batch_count << std::endl
+	   << TextLabels::CURRENT_BATCH_TEXT << vstate->current_batch << "/" << vstate->config.training_config.batch_count << "#" << batchPerSecond << std::endl
 	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.training_config.batch_size << std::endl
 	   << TextLabels::LERNING_RATE_TEXT << vstate->config.training_config.learning_rate << std::endl;
 	return ss.str();
@@ -47,6 +47,11 @@ sf::Sprite vStatus::getSprite() {
 
 void vStatus::update_fps(const float fps_) {
 	fps = fps_;
+	set_update();
+}
+
+void vStatus::update_bps(const float bps_) {
+	batchPerSecond = bps_;
 	set_update();
 }
 } // namespace Visualizer

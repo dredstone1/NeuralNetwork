@@ -37,12 +37,14 @@ class vStatus : public panel {
 	void clear();
 	std::string get_text();
 	float fps;
+	float batchPerSecond;
 	void do_render() override;
 
   public:
 	vStatus(const std::shared_ptr<state> vstate_);
 	sf::Sprite getSprite();
 	void update_fps(const float fps);
+	void update_bps(const float fps);
 };
 } // namespace Visualizer
 
