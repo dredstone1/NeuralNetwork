@@ -35,6 +35,7 @@ class visualizerController {
 	void updateBatchCounter(const int batch);
 	void updateError(const Global::ValueType error, const int index);
 	void updateAlgoritemMode(const algorithmMode algoritem_mode);
+    void update_prediction(const int index);
 };
 } // namespace Visualizer
 

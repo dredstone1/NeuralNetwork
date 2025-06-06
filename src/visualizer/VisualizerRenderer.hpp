@@ -45,6 +45,7 @@ class VisualizerRenderer {
 	void update(const int layer, const LayerParameters &gradients);
 	void updateBatchCounter(const Global::ValueType error, const int index);
 	void setNewPhaseMode(const NNmode nn_mode);
+    void update_prediction(const int index);
 };
 } // namespace Visualizer
 

@@ -7,7 +7,7 @@ BackPropagation::BackPropagation(AiModel &_model)
     : local_gradient(_model.getConfig().config_data.network_config),
       model(_model) {}
 
-      Global::ValueType BackPropagation::get_cross_entropy_loss(const std::vector<Global::ValueType> &prediction, const int target) {
+Global::ValueType BackPropagation::get_cross_entropy_loss(const std::vector<Global::ValueType> &prediction, const int target) {
 	return -std::log(prediction[target]);
 }
 
@@ -45,7 +45,7 @@ void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const s
 std::vector<Global::ValueType> BackPropagation::calculate_delta_for_output(const std::vector<Global::ValueType> &out, const int target) {
 	std::vector<Global::ValueType> deltas(out);
 
-	deltas[target] += 1.0;
+	deltas[target] = 1.0;
 
 	return deltas;
 }
@@ -79,7 +79,7 @@ Global::ValueType BackPropagation::run_back_propagation(const TrainSample &sampl
 
 Global::ValueType BackPropagation::run_back_propagation(const Batch &batch, const Global::ValueType learning_rate) {
 	const size_t batch_size = batch.size();
-    Global::ValueType error = 0.0;
+	Global::ValueType error = 0.0;
 
 	if (batch_size == 0) {
 		return 0.0;
@@ -88,6 +88,7 @@ Global::ValueType BackPropagation::run_back_propagation(const Batch &batch, cons
 	local_gradient.reset();
 	for (size_t i = 0; i < batch_size; i++) {
 		TrainSample *current_sample_ptr = batch.samples.at(i);
+		model._model->visual.update_prediction(current_sample_ptr->_prediction.index);
 		error += run_back_propagation(*current_sample_ptr);
 	}
 

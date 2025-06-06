@@ -216,4 +216,16 @@ void visualizerController::updateAlgoritemMode(const algorithmMode algoritem_mod
 		Vstate->AlgorithmMode = algoritem_mode;
 	}
 }
+
+void visualizerController::update_prediction(const int index) {
+	if (checkP()) {
+		if (!running.load()) {
+			stop();
+			return;
+		}
+
+		wait_until_updated();
+        renderer->update_prediction(index);
+	}
+}
 } // namespace Visualizer

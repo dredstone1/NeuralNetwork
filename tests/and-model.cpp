@@ -69,17 +69,16 @@ int main(int argc, char *argv[]) {
 			if (num1 == 5)
 				break;
 
-			std::cout << "Enter an integer 2: ";
-			std::getline(std::cin, str_num);
-			if (!isNumber(str_num)) {
-				std::cout << str_num << " is not a number, please enter a valid integer" << std::endl;
-				continue;
-			}
-			num2 = std::stoi(str_num);
+			// std::cout << "Enter an integer 2: ";
+			// std::getline(std::cin, str_num);
+			// if (!isNumber(str_num)) {
+			// 	std::cout << str_num << " is not a number, please enter a valid integer" << std::endl;
+			// 	continue;
+			// }
+			// num2 = std::stoi(str_num);
 
 			std::vector<double> input(2, 0);
-			input[0] = num1;
-			input[1] = num2;
+			input[num1] = 1;
 			model.run_model(input);
 			printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
 		}

@@ -1,6 +1,7 @@
 #include "graph.hpp"
 #include "Globals.hpp"
 #include "fonts.hpp"
+#include <SFML/Graphics/Color.hpp>
 #include <algorithm>
 #include <iostream>
 #include <ostream>
@@ -24,12 +25,34 @@ void GraphUI::render_vertical_numbers() {
 
 	for (int i = 0; i < VERTICAL_NUMBERS_COUNT; i++) {
 		std::ostringstream number_str;
-		number_str << std::fixed << std::setprecision(2) << (GRAPH_HEIGHT / graph_alpha) * (1.f - (i / (float)VERTICAL_NUMBERS_COUNT));
+
+		text.setOrigin({0, 0});
+		text.setPosition({5.f, i * ((float)GRAPH_HEIGHT / VERTICAL_NUMBERS_COUNT) + 15 + 4});
+		float value = get_value_from_height(text.getPosition().y - text.getOrigin().y);
+		number_str << std::fixed << std::setprecision(2) << value;
 
 		text.setString(number_str.str());
-		text.setPosition({5.f, i * ((float)GRAPH_HEIGHT / VERTICAL_NUMBERS_COUNT)});
+		text.setOrigin({0, text.getLocalBounds().getCenter().y});
+
 		VRender.draw(text);
+		render_horizontal_line(value);
 	}
+}
+
+void GraphUI::render_horizontal_line(const float value) {
+	float pos_y = get_height(value);
+	std::array line{
+	    sf::Vertex{sf::Vector2f(0, pos_y)},
+	    sf::Vertex{sf::Vector2f(GRAPH_WIDTH, pos_y)}};
+
+	line[0].color = sf::Color::Blue;
+	line[1].color = sf::Color::Blue;
+
+	Vgraph.draw(line.data(), line.size(), sf::PrimitiveType::Lines);
+}
+
+float GraphUI::get_value_from_height(const float height) {
+	return (GRAPH_HEIGHT - height) / graph_alpha;
 }
 
 sf::Sprite GraphUI::getSprite() {
@@ -73,14 +96,18 @@ int GraphUI::get_highest() {
 	return max;
 }
 
-float GraphUI::get_hight(const int index) {
-	return GRAPH_HEIGHT - std::max(1.0, data[index] * graph_alpha);
+float GraphUI::get_height(const float value) {
+	return GRAPH_HEIGHT - std::max(1.0, value * graph_alpha);
+}
+
+float GraphUI::get_height(const int index) {
+	return get_height((float)data[index]);
 }
 
 sf::Vector2f GraphUI::getPosition(const int index) {
 	return sf::Vector2f(
 	    index * data_gap_width(),
-	    get_hight(index));
+	    get_height(index));
 }
 
 void GraphUI::renderDot(const int index) {

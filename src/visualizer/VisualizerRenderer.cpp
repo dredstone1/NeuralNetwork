@@ -134,4 +134,8 @@ void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
 	statusV.set_update();
 	Vstate->nnMode.store(nn_mode);
 }
+
+void VisualizerRenderer::update_prediction(const int index) {
+    visualNetwork.update_prediction(index);
+}
 } // namespace Visualizer

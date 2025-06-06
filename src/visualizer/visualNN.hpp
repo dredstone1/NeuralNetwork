@@ -30,6 +30,7 @@ class visualNN : public panel {
 	void updateDots(const int layer, const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net);
 	void update(const int layer, const LayerParameters &gradients);
 	void update(const gradient &new_grad);
+    void update_prediction(const int index);
 };
 } // namespace Visualizer
 
