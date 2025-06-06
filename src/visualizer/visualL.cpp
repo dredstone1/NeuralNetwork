@@ -107,10 +107,10 @@ void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const 
 
 sf::Color VParamLayer::getColorFromTextT(const textT text_type) {
 	if (text_type == textT::UP)
-		return sf::Color::Red;
+		return FONT_COLOR_UP;
 	if (text_type == textT::DOWN)
-		return sf::Color::Blue;
-	return sf::Color(50, 50, 50);
+		return FONT_COLOR_DOWN;
+	return FONT_COLOR_NORMAL;
 }
 
 void visualL::drawNeurons() {

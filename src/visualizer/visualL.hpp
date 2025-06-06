@@ -22,6 +22,10 @@ constexpr std::uint32_t calculate_width(const int layer_amount) {
 constexpr sf::Color NORMAL_BG_LAYER(255, 255, 255);
 constexpr sf::Color ACTIVE_BG_LAYER(187, 187, 187);
 
+constexpr sf::Color FONT_COLOR_DOWN(255, 0, 0);
+constexpr sf::Color FONT_COLOR_UP(0, 0, 255);
+constexpr sf::Color FONT_COLOR_NORMAL(50, 50, 50);
+
 enum class textT {
 	UP,
 	DOWN,

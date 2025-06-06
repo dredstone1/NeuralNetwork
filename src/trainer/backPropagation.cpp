@@ -1,6 +1,8 @@
 #include "backPropagation.hpp"
+#include "Globals.hpp"
 #include "gradient.hpp"
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 namespace nn {
@@ -46,7 +48,7 @@ void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const s
 std::vector<Global::ValueType> BackPropagation::calculate_delta_for_output(const std::vector<Global::ValueType> &out, const int target) {
 	std::vector<Global::ValueType> deltas(out);
 
-	deltas[target] = 1.0;
+	deltas[target] += 1.0;
 
 	return deltas;
 }
@@ -98,7 +100,7 @@ Global::ValueType BackPropagation::run_back_propagation(const Batch &batch, cons
 }
 
 void BackPropagation::update_weights(int batch_size, Global::ValueType learning_rate) {
-	local_gradient.multiply(-learning_rate / batch_size);
+	local_gradient.multiply(learning_rate / batch_size);
 	model._model->updateWeights(local_gradient);
 }
 } // namespace nn
