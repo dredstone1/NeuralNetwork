@@ -6,7 +6,8 @@
 #include <thread>
 
 namespace Visualizer {
-constexpr int WAIT_DELAY_MM = 1; 
+constexpr int WAIT_DELAY_MM = 1;
+
 class visualizerController {
   private:
 	void update_display();
@@ -36,7 +37,7 @@ class visualizerController {
 	void updateBatchCounter(const int batch);
 	void updateError(const Global::ValueType error, const int index);
 	void updateAlgoritemMode(const algorithmMode algoritem_mode);
-    void update_prediction(const int index);
+	void update_prediction(const int index);
 };
 } // namespace Visualizer
 
