@@ -32,9 +32,11 @@ void Trainer::train() {
 	std::cout << "Training AI" << std::endl;
 
 	const auto start = std::chrono::high_resolution_clock::now();
-	Global::ValueType error;
+	Global::ValueType error = 0.0;
 
 	model._model->visual.updateAlgoritemMode(Visualizer::algorithmMode::Training);
+	lr.update_batch(0, error);
+	model._model->visual.update_lr(lr.getLearningRate());
 	for (int loop_index = 0; loop_index < config.batch_count + 1; loop_index++) {
 		model._model->visual.updateBatchCounter(loop_index);
 
@@ -44,6 +46,9 @@ void Trainer::train() {
 		model._model->visual.updateError(error, loop_index);
 
 		print_progress_bar(loop_index + 1, config.batch_count);
+
+		lr.update_batch(loop_index, error);
+		model._model->visual.update_lr(lr.getLearningRate());
 	}
 
 	const auto end = std::chrono::high_resolution_clock::now();

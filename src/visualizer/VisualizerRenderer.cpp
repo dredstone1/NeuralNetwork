@@ -1,10 +1,10 @@
 #include "VisualizerRenderer.hpp"
+#include "Globals.hpp"
 #include "state.hpp"
 #include "visualL.hpp"
 #include "visualNN.hpp"
 #include "visualizer/Vstatus.hpp"
 #include <memory>
-#include <type_traits>
 
 namespace nn {
 namespace Visualizer {
@@ -154,6 +154,9 @@ void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
 
 void VisualizerRenderer::update_prediction(const int index) {
 	visualNetwork.update_prediction(index);
+}
+void VisualizerRenderer::update_lr(const Global::ValueType lr) {
+	statusV.update_lr(lr);
 }
 } // namespace Visualizer
 } // namespace nn

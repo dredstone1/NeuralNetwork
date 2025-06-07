@@ -39,14 +39,15 @@ class visualL : public Layer, public panel {
 	void drawNeurons();
 	virtual textT getTextT(const int layer_i, const int layer_p);
 	void do_render() override;
-	virtual void renderNeuron(const int index, const float gap, const float prevGap) = 0;
+	virtual void renderNeuron(const int index, const float gap, const float prevGap, const float scale) = 0;
+	float getScaleFactor(std::size_t neuron_count) const;
 
   protected:
 	sf::RenderTexture layerRender;
 	static std::uint32_t calculateGap(const float size);
 	static float calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2);
 	static float calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2);
-	void drawNeuron(const Global::ValueType input, const Global::ValueType output, sf::Vector2f pos);
+	void drawNeuron(const double input, const double output, const sf::Vector2f pos, float scale);
 
   public:
 	visualL(const int _size, const int _prev_size, const std::shared_ptr<state> state_, const std::uint32_t width);
@@ -62,7 +63,7 @@ class visualL : public Layer, public panel {
 class VEmptyLayer : public visualL {
   private:
 	textT getTextT(const int, const int) override;
-	void renderNeuron(const int index, const float gap, const float) override;
+	void renderNeuron(const int index, const float gap, const float, const float scale) override;
 
   public:
 	VEmptyLayer(const int _size, const std::shared_ptr<state> state_)
@@ -77,8 +78,8 @@ class VParamLayer : public visualL {
 	LayerParameters grad;
 	static sf::Color getColorFromTextT(const textT text_type);
 	textT getTextT(const int layer_i, const int layer_p) override;
-	void drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap);
-	void renderNeuron(const int index, const float gap, const float prevGap) override;
+	void drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap, float scale);
+	void renderNeuron(const int index, const float gap, const float prevGap, const float scale) override;
 
   public:
 	VParamLayer(const int _size, const int _prev_size, const std::shared_ptr<state> state_)

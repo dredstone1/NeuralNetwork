@@ -46,10 +46,19 @@ Global::ValueType activations::max_vector(const std::vector<Global::ValueType> &
 void activations::Softmax(neurons &metrix) {
 	Global::ValueType max = max_vector(metrix.net);
 	Global::ValueType sum = 0.0;
+
 	for (size_t i = 0; i < metrix.size(); ++i) {
-		metrix.out[i] = exp(metrix.net[i] - max);
+		Global::ValueType x = metrix.net[i] - max;
+		if (x < -700.0)
+			x = -700.0;
+		if (x > 700.0)
+			x = 700.0;
+		metrix.out[i] = std::exp(x);
 		sum += metrix.out[i];
 	}
+
+	sum = std::max(sum, 1e-10);
+
 	for (size_t i = 0; i < metrix.size(); ++i) {
 		metrix.out[i] /= sum;
 	}

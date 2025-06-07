@@ -2,16 +2,17 @@
 #define LEARNINGRATE
 
 #include "../model/config.hpp"
+#include "Globals.hpp"
 
 namespace nn {
 class LearningRate {
   private:
 	Global::ValueType current_learningRate;
-	const DecayType decay_type;
+	const TrainingConfig &config;
 
   public:
-	LearningRate(const DecayType decay_type_, const Global::ValueType initial_lr);
-	void update_batch();
+	LearningRate(const TrainingConfig &config);
+	void update_batch(const int current_batch, const Global::ValueType error);
 	Global::ValueType getLearningRate() { return current_learningRate; }
 	~LearningRate() = default;
 };

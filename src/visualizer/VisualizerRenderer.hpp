@@ -2,6 +2,7 @@
 #define VISUALIZERRENDERER
 
 #include "../model/neuralNetwork.hpp"
+#include "Globals.hpp"
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "graph.hpp"
@@ -50,6 +51,7 @@ class VisualizerRenderer {
 	void updateBatchCounter(const Global::ValueType error, const int index);
 	void setNewPhaseMode(const NNmode nn_mode);
 	void update_prediction(const int index);
+	void update_lr(const Global::ValueType lr);
 };
 } // namespace Visualizer
 } // namespace nn

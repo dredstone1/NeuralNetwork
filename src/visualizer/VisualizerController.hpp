@@ -1,6 +1,7 @@
 #ifndef VISUALIZERCONTROLLER
 #define VISUALIZERCONTROLLER
 
+#include "Globals.hpp"
 #include "VisualizerRenderer.hpp"
 #include <SFML/Graphics.hpp>
 #include <thread>
@@ -39,6 +40,7 @@ class visualizerController {
 	void updateError(const Global::ValueType error, const int index);
 	void updateAlgoritemMode(const algorithmMode algoritem_mode);
 	void update_prediction(const int index);
+	void update_lr(const Global::ValueType lr);
 };
 } // namespace Visualizer
 } // namespace nn

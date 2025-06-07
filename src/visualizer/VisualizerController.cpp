@@ -1,4 +1,5 @@
 #include "VisualizerController.hpp"
+#include "Globals.hpp"
 #include "VisualizerRenderer.hpp"
 #include "state.hpp"
 
@@ -69,7 +70,7 @@ void visualizerController::wait_until_started() {
 }
 
 void visualizerController::wait_until_updated() {
-	if (!renderer || !Vstate->settings.preciseMode.load())
+	if (!renderer || !Vstate->settings.preciseMode)
 		return;
 
 	while (renderer->updateStatus() && running.load()) {
@@ -230,5 +231,18 @@ void visualizerController::update_prediction(const int index) {
 		renderer->update_prediction(index);
 	}
 }
+
+void visualizerController::update_lr(const Global::ValueType lr) {
+	if (checkP()) {
+		if (!running.load()) {
+			stop();
+			return;
+		}
+
+		wait_until_updated();
+		renderer->update_lr(lr);
+	}
+}
+
 } // namespace Visualizer
 } // namespace nn

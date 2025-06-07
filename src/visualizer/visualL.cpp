@@ -48,15 +48,30 @@ float visualL::calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2) 
 	return atan2(pos2.y - pos1.y, pos2.x - pos1.x) * 180.0 / M_PI;
 }
 
-void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap) {
+float visualL::getScaleFactor(std::size_t neuron_count) const {
+	constexpr float MIN_NEURON_WIDTH = 6.0f;
+	constexpr float MAX_NEURON_WIDTH = NEURON_WIDTH; // the default
+	constexpr float MIN_GAP = 2.0f;
+
+	float totalHeight = static_cast<float>(NN_HEIGHT);
+	float maxNeuronSpace = totalHeight - (neuron_count + 1) * MIN_GAP;
+
+	float neuronWidth = maxNeuronSpace / std::max<float>(neuron_count, 1);
+	neuronWidth = std::clamp(neuronWidth, MIN_NEURON_WIDTH, MAX_NEURON_WIDTH);
+
+	return neuronWidth / MAX_NEURON_WIDTH;
+}
+
+void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap, float scale) {
 	const float FRACTION_ALONG_LINE = 0.8f;
-	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f;
+	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f * scale;
 
 	for (size_t neuronP = 0; neuronP < getPrevSize(); neuronP++) {
 		float weightValue = Parameters.weights[neuron_i][neuronP];
 
 		float xP = 0.f;
-		float yP = prevGap + neuronP * (prevGap + NEURON_WIDTH);
+		float neuron_width_scaled = NEURON_WIDTH * scale;
+		float yP = prevGap + neuronP * (prevGap + neuron_width_scaled);
 
 		sf::Vector2f prevNeuronTopLeft(xP, yP);
 
@@ -64,12 +79,12 @@ void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const 
 		float angleDeg = calculateAngle(prevNeuronTopLeft, pos);
 		float angleRad = angleDeg * M_PI / 180.0f;
 
-		float line_thickness_arg = std::max(std::min(weightValue, 4.f), 0.2f);
+		float line_thickness_arg = std::max(std::min(weightValue * scale, 4.f * scale), 0.2f * scale);
 
 		sf::RectangleShape line({lineLength, line_thickness_arg});
 		line.setFillColor(sf::Color::Black);
 
-		sf::Vector2f lineGraphicalOrigin(xP, yP + NEURON_RADIUS);
+		sf::Vector2f lineGraphicalOrigin(xP, yP + (neuron_width_scaled / 2.0f));
 		line.setPosition(lineGraphicalOrigin);
 		line.setRotation(sf::degrees(angleDeg));
 
@@ -77,7 +92,7 @@ void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const 
 		ss << std::fixed << std::setprecision(4) << weightValue;
 
 		sf::Text text(Fonts::getFont());
-		text.setCharacterSize(10);
+		text.setCharacterSize(static_cast<unsigned int>(10 * scale));
 		text.setString(ss.str());
 		text.setFillColor(getColorFromTextT(getTextT(neuron_i, neuronP)));
 
@@ -114,27 +129,32 @@ sf::Color VParamLayer::getColorFromTextT(const textT text_type) {
 }
 
 void visualL::drawNeurons() {
-	float gap = calculateGap(getSize());
-	float prevGap = calculateGap(getPrevSize());
+	float scale = getScaleFactor(getSize());
+	float neuron_width_scaled = NEURON_WIDTH * scale;
+
+	float gap = (NN_HEIGHT - (getSize() * neuron_width_scaled)) / (getSize() + 1);
+	float prevGap = (NN_HEIGHT - (getPrevSize() * neuron_width_scaled)) / (getPrevSize() + 1);
 
 	for (size_t neuron = 0; neuron < getSize(); neuron++) {
-		renderNeuron(neuron, gap, prevGap);
+		renderNeuron(neuron, gap, prevGap, scale);
 	}
 }
 
-void VParamLayer::renderNeuron(const int index, const float gap, const float prevGap) {
-	float x = WIDTH - NEURON_WIDTH;
-	float y = gap + index * (gap + NEURON_WIDTH);
+void VParamLayer::renderNeuron(const int index, const float gap, const float prevGap, const float scale) {
+	float neuron_width_scaled = NEURON_WIDTH * scale;
+	float x = WIDTH - neuron_width_scaled;
+	float y = gap + index * (gap + neuron_width_scaled);
 
-	drawWeights(index, {x, y}, prevGap);
-	drawNeuron(dots.net[index], dots.out[index], {x, y});
+	drawWeights(index, {x, y}, prevGap, scale);
+	drawNeuron(dots.net[index], dots.out[index], {x, y}, scale);
 }
 
-void VEmptyLayer::renderNeuron(const int index, const float gap, const float) {
-	float x = WIDTH - NEURON_WIDTH;
-	float y = gap + index * (gap + NEURON_WIDTH);
+void VEmptyLayer::renderNeuron(const int index, const float gap, const float, const float scale) {
+	float neuron_width_scaled = NEURON_WIDTH * scale;
+	float x = WIDTH - neuron_width_scaled;
+	float y = gap + index * (gap + neuron_width_scaled);
 
-	drawNeuron(dots.net[index], dots.out[index], {x, y});
+	drawNeuron(dots.net[index], dots.out[index], {x, y}, scale);
 }
 
 textT VParamLayer::getTextT(const int layer_i, const int layer_p) {
@@ -153,8 +173,9 @@ textT visualL::getTextT(const int, const int) {
 	return textT::NORMAL;
 }
 
-void visualL::drawNeuron(const double input, const double output, const sf::Vector2f pos) {
-	sf::RectangleShape shape({NEURON_WIDTH, NEURON_WIDTH});
+void visualL::drawNeuron(const double input, const double output, const sf::Vector2f pos, float scale) {
+	float neuron_width_scaled = NEURON_WIDTH * scale;
+	sf::RectangleShape shape({neuron_width_scaled, neuron_width_scaled});
 	shape.setFillColor(sf::Color::Blue);
 	shape.setPosition(pos);
 
@@ -163,7 +184,7 @@ void visualL::drawNeuron(const double input, const double output, const sf::Vect
 	   << output;
 
 	sf::Text text(Fonts::getFont());
-	text.setCharacterSize(10);
+	text.setCharacterSize(static_cast<unsigned int>(10 * scale));
 	text.setString(ss.str());
 	text.setFillColor(sf::Color::White);
 
@@ -171,12 +192,11 @@ void visualL::drawNeuron(const double input, const double output, const sf::Vect
 	text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
 	                textBounds.position.y + textBounds.size.y / 2.0f});
 
-	text.setPosition({pos.x + NEURON_RADIUS, pos.y + NEURON_RADIUS});
+	text.setPosition({pos.x + neuron_width_scaled / 2.0f, pos.y + neuron_width_scaled / 2.0f});
 
 	layerRender.draw(shape);
 	layerRender.draw(text);
 }
-
 void visualL::setDots(const std::vector<double> &out, const std::vector<double> &net) {
 	set_update();
 	dots.net = net;

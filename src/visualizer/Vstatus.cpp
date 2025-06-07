@@ -1,4 +1,5 @@
 #include "Vstatus.hpp"
+#include "Globals.hpp"
 #include "fonts.hpp"
 
 namespace nn {
@@ -25,7 +26,7 @@ std::string vStatus::get_text() {
 	   << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << std::endl
 	   << TextLabels::CURRENT_BATCH_TEXT << vstate->current_batch << "/" << vstate->config.training_config.batch_count << "#" << batchPerSecond << std::endl
 	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.training_config.batch_size << std::endl
-	   << TextLabels::LERNING_RATE_TEXT << vstate->config.training_config.learning_rate << std::endl;
+	   << TextLabels::LERNING_RATE_TEXT << lr << std::endl;
 	return ss.str();
 }
 
@@ -55,5 +56,10 @@ void vStatus::update_bps(const float bps_) {
 	batchPerSecond = bps_;
 	set_update();
 }
+
+void vStatus::update_lr(const Global::ValueType lr_) {
+	lr = lr_;
+	set_update();
 }
 } // namespace Visualizer
+} // namespace nn

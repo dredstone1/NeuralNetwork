@@ -1,6 +1,7 @@
 #ifndef VSTATUS
 #define VSTATUS
 
+#include "Globals.hpp"
 #include "panel.hpp"
 #include "state.hpp"
 #include <SFML/Graphics.hpp>
@@ -39,13 +40,15 @@ class vStatus : public panel {
 	std::string get_text();
 	float fps;
 	float batchPerSecond;
+    Global::ValueType lr;
 	void do_render() override;
 
   public:
 	vStatus(const std::shared_ptr<state> vstate_);
 	sf::Sprite getSprite();
 	void update_fps(const float fps);
-	void update_bps(const float fps);
+	void update_bps(const float bps);
+	void update_lr(const Global::ValueType lr_);
 };
 } // namespace Visualizer
 } // namespace nn

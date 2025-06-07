@@ -24,7 +24,7 @@ class Trainer {
 	    : config(_model.getConfig().config_data.training_config),
 	      dataBase(config),
 	      model(_model),
-	      lr(config.decay_type, config.learning_rate),
+	      lr(config),
 	      backPropagation(_model, lr),
 	      last_progress(-1) {}
 	void train();

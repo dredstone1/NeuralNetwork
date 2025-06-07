@@ -13,7 +13,7 @@ BackPropagation::BackPropagation(AiModel &_model, LearningRate &lr_)
       lr(lr_) {}
 
 Global::ValueType BackPropagation::get_cross_entropy_loss(const std::vector<Global::ValueType> &prediction, const int target) {
-	return -std::log(prediction[target]);
+	return -std::log(std::max(prediction[target], 1e-10));
 }
 
 Global::ValueType BackPropagation::get_total_error(const neural_network &temp_network, const int target) {

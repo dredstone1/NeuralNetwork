@@ -50,6 +50,9 @@ void visualNN::do_render() {
 }
 
 void visualNN::render_active_layer(const sf::Vector2f box, const sf::Vector2f pos) {
+	if (!vstate->settings.preciseMode)
+		return;
+
 	sf::RectangleShape shape(box);
 	shape.setPosition(pos);
 	shape.setFillColor(ACTIVE_BG_LAYER);

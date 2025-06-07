@@ -8,37 +8,52 @@
 
 namespace nn {
 enum class DecayType {
-	None = 0,
+	Constant = 0,
+	StepDecay = 1,
+	ExponentialDecay = 2,
 };
 
 struct LayerConfig {
 	int size;
-	Global::ValueType weights_init_value;
-	activation AT;
+	Global::ValueType weights_init_value = -1;
+	activation AT = activation::leaky_relu_;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, AT, weights_init_value);
 
 struct NetworkConfig {
 	int input_size;
 	int output_size;
-	Global::ValueType output_init_value;
+	Global::ValueType output_init_value = -1;
 	std::vector<LayerConfig> layers_config;
 	size_t hidden_layer_count() const { return layers_config.size(); }
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, output_init_value, layers_config);
 
+struct LrConfig {
+	DecayType decay_type = DecayType::Constant;
+	Global::ValueType lr_init_value = 0.001;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    LrConfig,
+    decay_type,
+    lr_init_value);
+
 struct TrainingConfig {
-	Global::ValueType learning_rate;
-	DecayType decay_type;
+	LrConfig lr_config;
 	int batch_size;
 	int batch_count;
 	std::string db_filename;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TrainingConfig, learning_rate, decay_type, batch_size, batch_count, db_filename);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    TrainingConfig,
+    lr_config,
+    batch_size,
+    batch_count,
+    db_filename);
 
 struct VisualMode {
 	std::string state;
-	bool mode;
+	bool mode = true;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
 
