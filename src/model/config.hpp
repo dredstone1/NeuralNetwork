@@ -1,13 +1,16 @@
 #ifndef CONFIG
 #define CONFIG
 
-#include "Globals.hpp"
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
 namespace nn {
+enum class DecayType {
+	None = 0,
+};
+
 struct LayerConfig {
 	int size;
 	Global::ValueType weights_init_value;
@@ -20,17 +23,18 @@ struct NetworkConfig {
 	int output_size;
 	Global::ValueType output_init_value;
 	std::vector<LayerConfig> layers_config;
-	int hidden_layer_count() const { return layers_config.size(); }
+	size_t hidden_layer_count() const { return layers_config.size(); }
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, output_init_value, layers_config);
 
 struct TrainingConfig {
 	Global::ValueType learning_rate;
+	DecayType decay_type;
 	int batch_size;
 	int batch_count;
 	std::string db_filename;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TrainingConfig, learning_rate, batch_size, batch_count, db_filename)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TrainingConfig, learning_rate, decay_type, batch_size, batch_count, db_filename);
 
 struct VisualMode {
 	std::string state;

@@ -40,6 +40,7 @@ add_library(NeuralNetwork STATIC
     src/trainer/dataBase.cpp
     src/trainer/backPropagation.cpp
     src/trainer/gradient.cpp
+    src/trainer/learning_rate.cpp
     src/visualizer/VisualizerRenderer.cpp
     src/visualizer/VisualizerController.cpp
     src/visualizer/visualNN.cpp

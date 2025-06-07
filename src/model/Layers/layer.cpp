@@ -1,4 +1,5 @@
 #include "layer.hpp"
+#include <cstddef>
 
 namespace nn {
 void Layer::add(const LayerParameters &gradients) {
@@ -6,7 +7,7 @@ void Layer::add(const LayerParameters &gradients) {
 }
 
 void Layer::reset() {
-	for (int i = 0; i < dots.size(); i++) {
+	for (size_t i = 0; i < dots.size(); i++) {
 		dots.out[i] = dots.net[i] = 0.0;
 	}
 }
@@ -16,11 +17,11 @@ const LayerParameters Layer::getParms() {
 }
 
 void Layer::forward(const std::vector<Global::ValueType> &metrix) {
-	for (int i = 0; i < Parameters.getSize(); ++i) {
+	for (size_t i = 0; i < Parameters.getSize(); ++i) {
 		dots.net[i] = 0;
 
-		for (int j = 0; j < Parameters.getPrevSize(); ++j) {
-			if (j < static_cast<int>(metrix.size())) {
+		for (size_t j = 0; j < Parameters.getPrevSize(); ++j) {
+			if (j < static_cast<size_t>(metrix.size())) {
 				dots.net[i] += Parameters.weights[i][j] * metrix[j];
 			}
 		}

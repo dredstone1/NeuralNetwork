@@ -27,32 +27,32 @@ void LayerParameters::initialize_Param_rn(const int prev_size) {
 }
 
 void LayerParameters::reset() {
-	for (int i = 0; i < getSize(); i++) {
-		for (int j = 0; j < getPrevSize(); j++) {
+	for (size_t i = 0; i < getSize(); i++) {
+		for (size_t j = 0; j < getPrevSize(); j++) {
 			weights[i][j] = PARAM_RESET_VALUE;
 		}
 	}
 }
 
 void LayerParameters::add(const LayerParameters &new_gradient_layer) {
-	for (int i = 0; i < getSize(); i++) {
-		for (int j = 0; j < getPrevSize(); j++) {
+	for (size_t i = 0; i < getSize(); i++) {
+		for (size_t j = 0; j < getPrevSize(); j++) {
 			weights[i][j] += new_gradient_layer.weights[i][j];
 		}
 	}
 }
 
 void LayerParameters::set(const LayerParameters &new_gradient_layer) {
-	for (int i = 0; i < getSize(); i++) {
-		for (int j = 0; j < getPrevSize(); j++) {
+	for (size_t i = 0; i < getSize(); i++) {
+		for (size_t j = 0; j < getPrevSize(); j++) {
 			weights[i][j] = new_gradient_layer.weights[i][j];
 		}
 	}
 }
 
 void LayerParameters::multiply(const Global::ValueType value) {
-	for (int i = 0; i < getSize(); i++) {
-		for (int j = 0; j < getPrevSize(); j++) {
+	for (size_t i = 0; i < getSize(); i++) {
+		for (size_t j = 0; j < getPrevSize(); j++) {
 			weights[i][j] *= value;
 		}
 	}

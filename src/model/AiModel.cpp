@@ -11,9 +11,9 @@ void AiModel::run_model(const std::vector<Global::ValueType> &input) {
 }
 
 prediction AiModel::getPrediction() {
-	int max = 0;
+	size_t max = 0;
 
-	for (int i = 1; i < _model->getOutputSize(); i++) {
+	for (size_t i = 1; i < _model->getOutputSize(); i++) {
 		if (_model->getOutput()[i] > _model->getOutput()[max])
 			max = i;
 	}

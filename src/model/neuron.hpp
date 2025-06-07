@@ -1,7 +1,7 @@
 #ifndef NEURON
 #define NEURON
 
-#include "Globals.hpp"
+#include <Globals.hpp>
 #include <vector>
 
 namespace nn {
@@ -13,7 +13,7 @@ struct neurons {
 	neurons(const neurons &other)
 	    : out(other.out),
 	      net(other.net) {}
-	int size() const { return out.size(); }
+	size_t size() const { return out.size(); }
 	void reset();
 };
 } // namespace nn

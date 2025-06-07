@@ -3,7 +3,7 @@
 
 namespace nn {
 void Output_Layer::forward(const std::vector<Global::ValueType> &metrix) {
-	for (int i = 0; i < dots.size(); i++) {
+	for (size_t i = 0; i < dots.size(); i++) {
 		dots.net[i] = 0;
 
 		for (size_t j = 0; j < metrix.size(); j++) {

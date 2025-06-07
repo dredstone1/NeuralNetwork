@@ -11,7 +11,7 @@ visualNN::visualNN(const neural_network &network, std::shared_ptr<state> state_)
       NNRender({NN_WIDTH, NN_HEIGHT}),
       current_rendred_layer(0) {
 	layers.reserve(network.getLayerCount() + 2);
-	int layer = 0;
+	size_t layer = 0;
 
 	layers.emplace_back(std::make_unique<VEmptyLayer>(vstate->config.network_config.input_size, vstate));
 
@@ -37,7 +37,7 @@ void visualNN::clear() {
 
 void visualNN::renderLayers() {
 	float posx = 0;
-	for (int layer = 0; layer < vstate->config.network_config.hidden_layer_count() + 3; layer++) {
+	for (size_t layer = 0; layer < vstate->config.network_config.hidden_layer_count() + 3; layer++) {
 		renderLayer(layer, posx);
 		posx += layers[layer]->WIDTH;
 	}

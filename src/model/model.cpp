@@ -23,7 +23,7 @@ void model::run_model(const std::vector<Global::ValueType> &input, neural_networ
 	temp_network.layers[0]->forward(input);
 	visual.updateDots(1, temp_network.layers[0]->getOut(), temp_network.layers[0]->getNet());
 
-	for (int i = 1; i < temp_network.getLayerCount(); i++) {
+	for (size_t i = 1; i < temp_network.getLayerCount(); i++) {
 		temp_network.layers[i]->forward(temp_network.layers[i - 1]->getOut());
 		visual.updateDots(i + 1, temp_network.layers[i]->getOut(), temp_network.layers[i]->getNet());
 	}

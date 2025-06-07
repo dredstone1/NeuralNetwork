@@ -22,7 +22,7 @@ TrainSample DataBase::read_line(const std::string &line) {
 
 	std::string token;
 	iss >> token;
-	int best_next_move = std::stoi(token);
+	size_t best_next_move = std::stoi(token);
 
 	TrainSample new_sample({best_next_move, 1.f}, samples->sInputSize);
 

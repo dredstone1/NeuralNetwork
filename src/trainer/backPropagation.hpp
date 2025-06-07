@@ -4,12 +4,14 @@
 #include "../model/Layers/Hidden_Layer.hpp"
 #include "dataBase.hpp"
 #include "gradient.hpp"
+#include "learning_rate.hpp"
 
 namespace nn {
 class BackPropagation {
   private:
 	gradient local_gradient;
 	AiModel &model;
+	LearningRate &lr;
 	Global::ValueType get_total_error(const neural_network &temp_network, const int target);
 	Global::ValueType get_cross_entropy_loss(const std::vector<Global::ValueType> &prediction, const int target);
 	void calculate_pattern_gradients(const TrainSample &targer, const neural_network &temp_network);
@@ -21,8 +23,8 @@ class BackPropagation {
 	void calculate_gradient_for_weights(const Layer &layer, const std::vector<Global::ValueType> &prevLayer, const std::vector<Global::ValueType> &deltas, LayerParameters &gradients);
 
   public:
-	BackPropagation(AiModel &_model);
-	Global::ValueType run_back_propagation(const Batch &batch, const Global::ValueType learning_rate);
+	BackPropagation(AiModel &_model, LearningRate &lr_);
+	Global::ValueType run_back_propagation(const Batch &batch);
 	~BackPropagation() = default;
 };
 } // namespace nn

@@ -1,10 +1,8 @@
 #ifndef DATABASE
 #define DATABASE
 
-#include "AiModel.hpp"
+#include <AiModel.hpp>
 #include <random>
-#include <string>
-#include <vector>
 
 namespace nn {
 typedef struct TrainSample {

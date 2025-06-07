@@ -3,10 +3,10 @@
 
 #include "../src/trainer/backPropagation.hpp"
 #include "../src/trainer/dataBase.hpp"
-#include "AiModel.hpp"
+#include <AiModel.hpp>
 
-constexpr const int BAR_WIDTH = 100;
-constexpr const int SECONDS_IN_MINUTE = 60;
+constexpr int BAR_WIDTH = 100;
+constexpr int SECONDS_IN_MINUTE = 60;
 
 namespace nn {
 class Trainer {
@@ -14,6 +14,7 @@ class Trainer {
 	TrainingConfig &config;
 	DataBase dataBase;
 	AiModel &model;
+	LearningRate lr;
 	BackPropagation backPropagation;
 	void print_progress_bar(const int current, const int total);
 	int last_progress;
@@ -23,7 +24,8 @@ class Trainer {
 	    : config(_model.getConfig().config_data.training_config),
 	      dataBase(config),
 	      model(_model),
-	      backPropagation(_model),
+	      lr(config.decay_type, config.learning_rate),
+	      backPropagation(_model, lr),
 	      last_progress(-1) {}
 	void train();
 	~Trainer() = default;

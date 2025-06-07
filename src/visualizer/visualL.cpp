@@ -52,7 +52,7 @@ void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const 
 	const float FRACTION_ALONG_LINE = 0.8f;
 	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f;
 
-	for (int neuronP = 0; neuronP < getPrevSize(); neuronP++) {
+	for (size_t neuronP = 0; neuronP < getPrevSize(); neuronP++) {
 		float weightValue = Parameters.weights[neuron_i][neuronP];
 
 		float xP = 0.f;
@@ -117,7 +117,7 @@ void visualL::drawNeurons() {
 	float gap = calculateGap(getSize());
 	float prevGap = calculateGap(getPrevSize());
 
-	for (int neuron = 0; neuron < getSize(); neuron++) {
+	for (size_t neuron = 0; neuron < getSize(); neuron++) {
 		renderNeuron(neuron, gap, prevGap);
 	}
 }

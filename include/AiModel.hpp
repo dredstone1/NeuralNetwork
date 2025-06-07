@@ -3,12 +3,19 @@
 
 #include "../src/model/config.hpp"
 #include "../src/model/model.hpp"
+#include <Globals.hpp>
 #include <string>
 
 namespace nn {
 struct prediction {
 	const int index;
 	const Global::ValueType value;
+	prediction(const size_t index_, const Global::ValueType value_)
+	    : index(index_),
+	      value(value_) {}
+	prediction(const prediction &other)
+	    : index(other.index),
+	      value(other.value) {}
 };
 
 class AiModel {

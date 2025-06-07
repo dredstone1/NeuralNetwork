@@ -1,14 +1,16 @@
 #include "backPropagation.hpp"
 #include "Globals.hpp"
 #include "gradient.hpp"
+#include "trainer/learning_rate.hpp"
 #include <cmath>
 #include <cstddef>
 #include <vector>
 
 namespace nn {
-BackPropagation::BackPropagation(AiModel &_model)
+BackPropagation::BackPropagation(AiModel &_model, LearningRate &lr_)
     : local_gradient(_model.getConfig().config_data.network_config),
-      model(_model) {}
+      model(_model),
+      lr(lr_) {}
 
 Global::ValueType BackPropagation::get_cross_entropy_loss(const std::vector<Global::ValueType> &prediction, const int target) {
 	return -std::log(prediction[target]);
@@ -25,9 +27,9 @@ void BackPropagation::calculate_gradient(const Layer &layer, const std::vector<G
 std::vector<Global::ValueType> BackPropagation::calculate_delta_for_hidden(const Hidden_Layer &current_layer, const Layer &next_layer, const std::vector<Global::ValueType> &next_deltas) {
 	std::vector<Global::ValueType> deltas(current_layer.getSize(), 0.0);
 
-	for (int i = 0; i < current_layer.getSize(); i++) {
+	for (size_t i = 0; i < current_layer.getSize(); i++) {
 		deltas[i] = 0.0;
-		for (int j = 0; j < next_layer.getSize(); j++) {
+		for (size_t j = 0; j < next_layer.getSize(); j++) {
 			deltas[i] += next_deltas[j] * next_layer.getWeight(j, i);
 		}
 
@@ -38,8 +40,8 @@ std::vector<Global::ValueType> BackPropagation::calculate_delta_for_hidden(const
 }
 
 void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const std::vector<Global::ValueType> &prevLayer, const std::vector<Global::ValueType> &deltas, LayerParameters &gradients) {
-	for (int i = 0; i < layer.getSize(); i++) {
-		for (int j = 0; j < layer.getPrevSize(); j++) {
+	for (size_t i = 0; i < layer.getSize(); i++) {
+		for (size_t j = 0; j < layer.getPrevSize(); j++) {
 			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
 	}
@@ -48,7 +50,7 @@ void BackPropagation::calculate_gradient_for_weights(const Layer &layer, const s
 std::vector<Global::ValueType> BackPropagation::calculate_delta_for_output(const std::vector<Global::ValueType> &out, const int target) {
 	std::vector<Global::ValueType> deltas(out);
 
-	deltas[target] += 1.0;
+	deltas[target] -= 1;
 
 	return deltas;
 }
@@ -80,27 +82,26 @@ Global::ValueType BackPropagation::run_back_propagation(const TrainSample &sampl
 	return get_total_error(model._model->network, sample._prediction.index);
 }
 
-Global::ValueType BackPropagation::run_back_propagation(const Batch &batch, const Global::ValueType learning_rate) {
-	const size_t batch_size = batch.size();
+Global::ValueType BackPropagation::run_back_propagation(const Batch &batch) {
 	Global::ValueType error = 0.0;
 
-	if (batch_size == 0) {
+	if (batch.size() == 0) {
 		return 0.0;
 	}
 
 	local_gradient.reset();
-	for (size_t i = 0; i < batch_size; i++) {
+	for (size_t i = 0; i < batch.size(); i++) {
 		TrainSample *current_sample_ptr = batch.samples.at(i);
 		model._model->visual.update_prediction(current_sample_ptr->_prediction.index);
 		error += run_back_propagation(*current_sample_ptr);
 	}
 
-	update_weights(batch_size, learning_rate);
-	return error / batch_size;
+	update_weights(batch.size(), lr.getLearningRate());
+	return error / batch.size();
 }
 
 void BackPropagation::update_weights(int batch_size, Global::ValueType learning_rate) {
-	local_gradient.multiply(learning_rate / batch_size);
+	local_gradient.multiply(-learning_rate / batch_size);
 	model._model->updateWeights(local_gradient);
 }
 } // namespace nn

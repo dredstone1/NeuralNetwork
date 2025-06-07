@@ -15,7 +15,7 @@ void gradient::reset() {
 
 gradient::gradient(const NetworkConfig &_config) : config(_config) {
 	gradients.reserve(config.hidden_layer_count() + 1);
-	int i = 1;
+	size_t i = 1;
 
 	if (config.hidden_layer_count() > 0)
 		gradients.emplace_back(config.layers_config[0].size, config.input_size, _config.layers_config[0].weights_init_value);

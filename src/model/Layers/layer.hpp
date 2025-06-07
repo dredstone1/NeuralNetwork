@@ -31,8 +31,8 @@ class Layer {
 	const std::vector<Global::ValueType> &getNet() const { return dots.net; }
 	const std::vector<Global::ValueType> &getOut() const { return dots.out; }
 	void add(const LayerParameters &gradients);
-	int getSize() const { return dots.size(); }
-	int getPrevSize() const { return Parameters.getPrevSize(); }
+	size_t getSize() const { return dots.size(); }
+	size_t getPrevSize() const { return Parameters.getPrevSize(); }
 	void reset();
 	const LayerParameters getParms();
 	virtual ~Layer() = default;
