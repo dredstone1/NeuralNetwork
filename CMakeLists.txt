@@ -115,3 +115,4 @@ endif()
 
 install(TARGETS NeuralNetwork ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
+
