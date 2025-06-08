@@ -22,6 +22,10 @@ TrainSample DataBase::read_line(const std::string &line) {
 
 	std::string token;
 	iss >> token;
+	if (token == ("--")) {
+		return {{0, 0}, 0};
+	}
+
 	size_t best_next_move = std::stoi(token);
 
 	TrainSample new_sample({best_next_move, 1.f}, samples->sInputSize);
@@ -62,7 +66,11 @@ int DataBase::load() {
 		if (line.empty() || line.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
 			continue;
 		}
-		samples->add(read_line(line));
+		TrainSample new_sample = read_line(line);
+		if (new_sample.input.size() == 0)
+			continue;
+
+		samples->add(new_sample);
 	}
 
 	if (samples->samples.capacity() > samples->size()) {

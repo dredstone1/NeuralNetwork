@@ -176,7 +176,7 @@ textT visualL::getTextT(const int, const int) {
 void visualL::drawNeuron(const double input, const double output, const sf::Vector2f pos, float scale) {
 	float neuron_width_scaled = NEURON_WIDTH * scale;
 	sf::RectangleShape shape({neuron_width_scaled, neuron_width_scaled});
-	shape.setFillColor(sf::Color::Blue);
+	shape.setFillColor(sf::Color(0, 0, 100 * output));
 	shape.setPosition(pos);
 
 	std::ostringstream ss;
@@ -197,6 +197,7 @@ void visualL::drawNeuron(const double input, const double output, const sf::Vect
 	layerRender.draw(shape);
 	layerRender.draw(text);
 }
+
 void visualL::setDots(const std::vector<double> &out, const std::vector<double> &net) {
 	set_update();
 	dots.net = net;

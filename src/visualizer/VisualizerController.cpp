@@ -217,6 +217,7 @@ void visualizerController::updateAlgoritemMode(const algorithmMode algoritem_mod
 
 		wait_until_updated();
 		Vstate->AlgorithmMode = algoritem_mode;
+		Vstate->settings.exitTraining = algoritem_mode == algorithmMode::Normal;
 	}
 }
 
@@ -242,6 +243,10 @@ void visualizerController::update_lr(const Global::ValueType lr) {
 		wait_until_updated();
 		renderer->update_lr(lr);
 	}
+}
+
+bool visualizerController::exit_training() {
+    return Vstate->getState(states::ExitTraining);
 }
 
 } // namespace Visualizer

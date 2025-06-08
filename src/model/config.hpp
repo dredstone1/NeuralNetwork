@@ -1,6 +1,7 @@
 #ifndef CONFIG
 #define CONFIG
 
+#include "Globals.hpp"
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
 #include <string>
@@ -43,13 +44,17 @@ struct TrainingConfig {
 	int batch_size;
 	int batch_count;
 	std::string db_filename;
+	Global::ValueType noise_level = 0;
+	Global::ValueType drop_out_rate = -1;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     TrainingConfig,
     lr_config,
     batch_size,
     batch_count,
-    db_filename);
+    db_filename,
+    noise_level,
+    drop_out_rate);
 
 struct VisualMode {
 	std::string state;

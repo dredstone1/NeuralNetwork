@@ -10,7 +10,7 @@ class Output_Layer : public Layer {
 	    : Layer(_size, _prev_size, init_value) {}
 	Output_Layer(const Layer &other)
 	    : Layer(other) {}
-	void forward(const std::vector<Global::ValueType> &metrix) override;
+	void forward(const std::vector<Global::ValueType> &metrix, const Global::ValueType) override;
 	LayerType getType() const override { return LayerType::OUTPUT; }
 };
 } // namespace nn

@@ -13,6 +13,9 @@ void state::toggle(states state_) {
 	case states::AutoPause:
 		settings.autoPause.store(!settings.autoPause.load());
 		break;
+	case states::ExitTraining:
+		settings.exitTraining.store(!settings.exitTraining.load());
+		break;
 	default:
 		break;
 	}
@@ -43,6 +46,9 @@ bool state::getState(states state_) {
 	case states::AutoPause:
 		return settings.autoPause.load();
 		break;
+	case states::ExitTraining:
+		return settings.exitTraining.load();
+		break;
 	default:
 		return 0;
 		break;
@@ -59,6 +65,9 @@ void state::setState(states state_, bool stateM) {
 		break;
 	case states::AutoPause:
 		settings.autoPause.store(stateM);
+		break;
+	case states::ExitTraining:
+		settings.exitTraining.store(stateM);
 		break;
 	default:
 		break;

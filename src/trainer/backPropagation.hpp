@@ -2,11 +2,18 @@
 #define BACKPROPAGATION
 
 #include "../model/Layers/Hidden_Layer.hpp"
+#include "Globals.hpp"
 #include "dataBase.hpp"
 #include "gradient.hpp"
 #include "learning_rate.hpp"
+#include <vector>
 
 namespace nn {
+constexpr Global::ValueType MIN_ABS_CLIPPING_VALUE = 0.0001;
+constexpr Global::ValueType MAX_ABS_CLIPPING_VALUE = 10;
+
+constexpr Global::ValueType MIN_LOSS_VALUE = 1e-10;
+
 class BackPropagation {
   private:
 	gradient local_gradient;
@@ -21,6 +28,8 @@ class BackPropagation {
 	std::vector<Global::ValueType> calculate_delta_for_hidden(const Hidden_Layer &current_layer, const Layer &next_layer, const std::vector<Global::ValueType> &next_deltas);
 	std::vector<Global::ValueType> calculate_delta_for_output(const std::vector<Global::ValueType> &out, const int target);
 	void calculate_gradient_for_weights(const Layer &layer, const std::vector<Global::ValueType> &prevLayer, const std::vector<Global::ValueType> &deltas, LayerParameters &gradients);
+	Global::ValueType clippValue(const Global::ValueType value);
+	void addNoise(std::vector<Global::ValueType> &input, Global::ValueType noise_level = 0.05);
 
   public:
 	BackPropagation(AiModel &_model, LearningRate &lr_);

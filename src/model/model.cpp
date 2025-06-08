@@ -1,4 +1,6 @@
 #include "model.hpp"
+#include "Globals.hpp"
+#include "model/Layers/layer.hpp"
 #include "neuralNetwork.hpp"
 #include <cmath>
 #include <vector>
@@ -12,19 +14,19 @@ model::model(Config &_config, const bool useVisual)
 		visual.start(network);
 }
 
-void model::run_model(const std::vector<Global::ValueType> &input) {
-	run_model(input, network);
+void model::run_model(const std::vector<Global::ValueType> &input, const Global::ValueType drop_out_rate) {
+	run_model(input, network, drop_out_rate);
 }
 
-void model::run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network) {
+void model::run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network, const Global::ValueType drop_out_rate) {
 	visual.setNewPhaseMode(Visualizer::NNmode::Forword);
 
 	visual.updateDots(0, input, input);
-	temp_network.layers[0]->forward(input);
+	temp_network.layers[0]->forward(input, -1);
 	visual.updateDots(1, temp_network.layers[0]->getOut(), temp_network.layers[0]->getNet());
 
 	for (size_t i = 1; i < temp_network.getLayerCount(); i++) {
-		temp_network.layers[i]->forward(temp_network.layers[i - 1]->getOut());
+		temp_network.layers[i]->forward(temp_network.layers[i - 1]->getOut(), drop_out_rate);
 		visual.updateDots(i + 1, temp_network.layers[i]->getOut(), temp_network.layers[i]->getNet());
 	}
 }

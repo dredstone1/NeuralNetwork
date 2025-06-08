@@ -15,6 +15,7 @@ class Layer {
   protected:
 	neurons dots;
 	LayerParameters Parameters;
+    friend class model;
 
   public:
 	Layer(const Layer &other)
@@ -24,7 +25,7 @@ class Layer {
 	    : dots(_size),
 	      Parameters(_size, _prev_size, init_value) {}
 	virtual LayerType getType() const { return NONE; }
-	virtual void forward(const std::vector<Global::ValueType> &metrix);
+	virtual void forward(const std::vector<Global::ValueType> &metrix, const Global::ValueType);
 	const neurons &getDots() const { return dots; }
 	Global::ValueType getWeight(const int i, const int j) const { return Parameters.weights[i][j]; }
 	void setWeight(const int i, const int j, const Global::ValueType weight) { Parameters.weights[i][j] = weight; }

@@ -11,7 +11,7 @@ namespace nn {
 namespace Visualizer {
 constexpr std::uint32_t VSTATUS_WIDTH = 500;
 constexpr std::uint32_t VSTATUS_HEIGHT = 255;
-constexpr int STATUS_TEXT_FONT = 30;
+constexpr int STATUS_TEXT_FONT = 20;
 constexpr int FPS_LIMIT = 144;
 
 namespace TextLabels {

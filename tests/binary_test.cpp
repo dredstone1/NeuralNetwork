@@ -48,16 +48,15 @@ void print_database(int actual_size, int input_size, int database_size) {
 		for (int shift = 0; shift <= input_size - actual_size && count < database_size; ++shift) {
 			std::cout << std::setw(2) << num << " ";
 
-			for (int i = 0; i < input_size; ++i) {
+			for (int i = 0; i < input_size; i++) {
 				int bit_index = i - shift;
 
 				if (bit_index < 0 || bit_index >= actual_size) {
-					// Outside the number → padding
-					std::cout << "0 ";
+					std::cout << 0.1 + i << " ";
 				} else {
-					// Inside the number's bits
 					int bit = (num >> (actual_size - 1 - bit_index)) & 1;
-					std::cout << (bit ? "1 " : "0.5 ");
+
+					std::cout << (bit ? 1 : 0.5) + i << " ";
 				}
 			}
 			std::cout << std::endl;
@@ -75,7 +74,8 @@ void printVector(const std::vector<double> &vec) {
 
 int main(int argc, char *argv[]) {
 	int input_size = 10;
-	// print_database(4, input_size, 1000);
+	print_database(4, input_size, 1000);
+
 	std::string config_FN = "config1.json";
 
 	nn::AiModel model(config_FN, true);
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 
 	trainer.train();
 
-	int num1 = 0;
+	int num1 = 0, num2 = 0;
 	std::string str_num;
 	while (num1 != -1) {
 		std::cout << "Enter an integer 1: ";
@@ -102,10 +102,23 @@ int main(int argc, char *argv[]) {
 
 		std::cout << "binary: " << binary << std::endl;
 
-		std::vector<double> input(input_size, 0.5);
+		std::vector<double> input(input_size, 0.1);
+		for (int i = 0; i < input.size(); i++) {
+			input[i] += i;
+		}
 
-		for (size_t i = input.size(); i > 0; i--) {
-			input[i - 1] = bit_by_index(num1, input_size - i);
+		std::cout << "Enter an integer 2: ";
+		std::getline(std::cin, str_num);
+		if (!isNumber(str_num)) {
+			std::cout << str_num << " is not a number, please enter a valid integer" << std::endl;
+			continue;
+		}
+		num2 = std::stoi(str_num);
+
+		for (size_t i = 4 + num2; i > num2; i--) {
+			input[i - 1] = bit_by_index(num1, 4 + num2 - i) - 0.1;
+			if (input[i - 1] == 0)
+				input[i - 1] += 0.4;
 		}
 
 		printVector(input);

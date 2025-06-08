@@ -7,12 +7,13 @@
 
 namespace nn {
 namespace Visualizer {
-constexpr int STATES_COUNT = 3;
+constexpr int STATES_COUNT = 4;
 
 enum class states {
 	Pause,
 	PreciseMode,
 	AutoPause,
+	ExitTraining,
 	None,
 };
 
@@ -20,6 +21,7 @@ const std::array<std::string, STATES_COUNT> statesName = {
     "pause",
     "precise mode",
     "auto pause",
+    "exit training",
 };
 
 enum class NNmode {
@@ -37,6 +39,7 @@ struct set {
 	std::atomic<bool> pause{true};
 	std::atomic<bool> preciseMode{true};
 	std::atomic<bool> autoPause{true};
+	std::atomic<bool> exitTraining{false};
 };
 
 class state {

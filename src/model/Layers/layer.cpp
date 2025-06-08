@@ -16,7 +16,7 @@ const LayerParameters Layer::getParms() {
 	return Parameters;
 }
 
-void Layer::forward(const std::vector<Global::ValueType> &metrix) {
+void Layer::forward(const std::vector<Global::ValueType> &metrix, const Global::ValueType) {
 	for (size_t i = 0; i < Parameters.getSize(); ++i) {
 		dots.net[i] = 0;
 

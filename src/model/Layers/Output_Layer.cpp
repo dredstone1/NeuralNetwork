@@ -2,7 +2,7 @@
 #include "../activations.hpp"
 
 namespace nn {
-void Output_Layer::forward(const std::vector<Global::ValueType> &metrix) {
+void Output_Layer::forward(const std::vector<Global::ValueType> &metrix, const Global::ValueType) {
 	for (size_t i = 0; i < dots.size(); i++) {
 		dots.net[i] = 0;
 

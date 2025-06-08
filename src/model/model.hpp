@@ -2,6 +2,7 @@
 #define MODEL
 
 #include "../visualizer/VisualizerController.hpp"
+#include "Globals.hpp"
 #include "Layers/layer.hpp"
 #include "config.hpp"
 #include "neuralNetwork.hpp"
@@ -11,14 +12,14 @@ class model {
   private:
 	neural_network network;
 	Visualizer::visualizerController visual;
-	void run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network);
+	void run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network, const Global::ValueType drop_out_rate = -1);
 	friend class BackPropagation;
 	friend class Trainer;
 
   public:
 	model(Config &_config, bool use_visual);
 	~model() = default;
-	void run_model(const std::vector<Global::ValueType> &input);
+	void run_model(const std::vector<Global::ValueType> &input, const Global::ValueType drop_out_rate = -1);
 	const std::vector<Global::ValueType> &getOutput() const;
 	void reset();
 	Layer &getLayer(const int i) { return *network.layers.at(i); }

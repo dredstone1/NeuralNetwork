@@ -41,6 +41,7 @@ class visualizerController {
 	void updateAlgoritemMode(const algorithmMode algoritem_mode);
 	void update_prediction(const int index);
 	void update_lr(const Global::ValueType lr);
+    bool exit_training();
 };
 } // namespace Visualizer
 } // namespace nn

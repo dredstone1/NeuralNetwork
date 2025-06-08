@@ -49,6 +49,8 @@ void Trainer::train() {
 
 		lr.update_batch(loop_index, error);
 		model._model->visual.update_lr(lr.getLearningRate());
+		if (model._model->visual.exit_training() == true)
+			break;
 	}
 
 	const auto end = std::chrono::high_resolution_clock::now();
