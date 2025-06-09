@@ -1,13 +1,12 @@
 #ifndef CONFIG
 #define CONFIG
 
-#include "Globals.hpp"
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
-namespace nn {
+namespace nn::model {
 enum class DecayType {
 	Constant = 0,
 	StepDecay = 1,
@@ -16,15 +15,15 @@ enum class DecayType {
 
 struct LayerConfig {
 	int size;
-	Global::ValueType weights_init_value = -1;
-	activation AT = activation::leaky_relu_;
+	global::ValueType weights_init_value = -1;
+	ActivationType AT = ActivationType::LeakyRelu;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, AT, weights_init_value);
 
 struct NetworkConfig {
 	int input_size;
 	int output_size;
-	Global::ValueType output_init_value = -1;
+	global::ValueType output_init_value = -1;
 	std::vector<LayerConfig> layers_config;
 	size_t hidden_layer_count() const { return layers_config.size(); }
 };
@@ -32,7 +31,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, outpu
 
 struct LrConfig {
 	DecayType decay_type = DecayType::Constant;
-	Global::ValueType lr_init_value = 0.001;
+	global::ValueType lr_init_value = 0.001;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     LrConfig,
@@ -44,8 +43,8 @@ struct TrainingConfig {
 	int batch_size;
 	int batch_count;
 	std::string db_filename;
-	Global::ValueType noise_level = 0;
-	Global::ValueType drop_out_rate = -1;
+	global::ValueType noise_level = 0;
+	global::ValueType drop_out_rate = -1;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     TrainingConfig,
@@ -79,6 +78,6 @@ class Config {
 	Config(const std::string &config_filepath);
 	ConfigData config_data;
 };
-} // namespace nn
+} // namespace nn::model
 
 #endif // CONFIG

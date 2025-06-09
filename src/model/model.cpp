@@ -1,12 +1,11 @@
 #include "model.hpp"
 #include "Globals.hpp"
-#include "model/Layers/layer.hpp"
+#include "model/neuron.hpp"
 #include "neuralNetwork.hpp"
 #include <cmath>
-#include <vector>
 
-namespace nn {
-model::model(Config &_config, const bool useVisual)
+namespace nn::model {
+Model::Model(Config &_config, const bool useVisual)
     : network(_config.config_data.network_config),
       visual(_config.config_data),
       useVisual(useVisual) {
@@ -14,42 +13,42 @@ model::model(Config &_config, const bool useVisual)
 		visual.start(network);
 }
 
-void model::run_model(const std::vector<Global::ValueType> &input, const Global::ValueType drop_out_rate) {
-	run_model(input, network, drop_out_rate);
+void Model::runModel(const global::ParamMetrix &input) {
+	runModel(input, network);
 }
 
-void model::run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network, const Global::ValueType drop_out_rate) {
-	visual.setNewPhaseMode(Visualizer::NNmode::Forword);
+void Model::runModel(const global::ParamMetrix &input, NeuralNetwork &temp_network) {
+	visual.setNewPhaseMode(visualizer::NnMode::Forword);
 
-	visual.updateDots(0, input, input);
-	temp_network.layers[0]->forward(input, -1);
-	visual.updateDots(1, temp_network.layers[0]->getOut(), temp_network.layers[0]->getNet());
+	visual.updateDots(0, {input, input});
+	temp_network.layers[0]->forward(input);
+	visual.updateDots(1, {temp_network.layers[0]->getOut(), temp_network.layers[0]->getNet()});
 
 	for (size_t i = 1; i < temp_network.getLayerCount(); i++) {
-		temp_network.layers[i]->forward(temp_network.layers[i - 1]->getOut(), drop_out_rate);
-		visual.updateDots(i + 1, temp_network.layers[i]->getOut(), temp_network.layers[i]->getNet());
+		temp_network.layers[i]->forward(temp_network.layers[i - 1]->getOut());
+		visual.updateDots(i + 1, {temp_network.layers[i]->getOut(), temp_network.layers[i]->getNet()});
 	}
 }
 
-void model::reset() {
+void Model::reset() {
 	for (auto &layer : network.layers) {
 		layer->reset();
 	}
 }
 
-const std::vector<Global::ValueType> &model::getOutput() const {
+const global::ParamMetrix &Model::getOutput() const {
 	return network.layers[getHiddenLayerCount()]->getOut();
 }
 
-void model::updateWeights(const gradient &gradients) {
-	visual.setNewPhaseMode(Visualizer::NNmode::Backward);
+void Model::updateWeights(const training::gradient &gradients) {
+	visual.setNewPhaseMode(visualizer::NnMode::Backward);
 	visual.update(gradients);
 
 	for (int i = network.config.hidden_layer_count(); i >= 0; i--) {
-		getLayer(i).add(gradients.gradients[i]);
+		getLayer(i).addParams(gradients.gradients[i]);
 		visual.update(i + 1, getLayer(i).getParms());
 	}
 
-	visual.setNewPhaseMode(Visualizer::NNmode::Forword);
+	visual.setNewPhaseMode(visualizer::NnMode::Forword);
 }
-} // namespace nn
+} // namespace nn::model

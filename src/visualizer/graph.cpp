@@ -1,25 +1,21 @@
 #include "graph.hpp"
-#include "Globals.hpp"
 #include "fonts.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <algorithm>
-#include <iostream>
-#include <ostream>
 
-namespace nn {
-namespace Visualizer {
-GraphUI::GraphUI(const std::shared_ptr<state> vstate_)
-    : panel(vstate_),
+namespace nn::visualizer {
+GraphUI::GraphUI(const std::shared_ptr<StateManager> vstate_)
+    : Panel(vstate_),
       VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
       Vgraph({GRAPH_WIDTH, GRAPH_HEIGHT}),
-      graph_alpha(GRAPH_HEIGHT_ALPHA_DEFAULT) {
+      graphAlpha(GRAPH_HEIGHT_ALPHA_DEFAULT) {
 }
 
 void GraphUI::render_numbers() {
-	render_vertical_numbers();
+	renderVerticalNumbers();
 }
 
-void GraphUI::render_vertical_numbers() {
+void GraphUI::renderVerticalNumbers() {
 	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(10);
 	text.setFillColor(GRAPH_VERTICAL_NUMBER_COLOR);
@@ -29,18 +25,18 @@ void GraphUI::render_vertical_numbers() {
 
 		text.setOrigin({0, 0});
 		text.setPosition({5.f, i * ((float)GRAPH_HEIGHT / VERTICAL_NUMBERS_COUNT) + 15 + 4});
-		float value = get_value_from_height(text.getPosition().y - text.getOrigin().y);
+		float value = getValueFromHeight(text.getPosition().y - text.getOrigin().y);
 		number_str << std::fixed << std::setprecision(2) << value;
 
 		text.setString(number_str.str());
 		text.setOrigin({0, text.getLocalBounds().getCenter().y});
 
 		VRender.draw(text);
-		render_horizontal_line(value);
+		renderHorizontalLine(value);
 	}
 }
 
-void GraphUI::render_horizontal_line(const float value) {
+void GraphUI::renderHorizontalLine(const float value) {
 	float pos_y = get_height(value);
 	std::array line{
 	    sf::Vertex{sf::Vector2f(0, pos_y)},
@@ -52,8 +48,8 @@ void GraphUI::render_horizontal_line(const float value) {
 	Vgraph.draw(line.data(), line.size(), sf::PrimitiveType::Lines);
 }
 
-float GraphUI::get_value_from_height(const float height) {
-	return (GRAPH_HEIGHT - height) / graph_alpha;
+float GraphUI::getValueFromHeight(const float height) {
+	return (GRAPH_HEIGHT - height) / graphAlpha;
 }
 
 sf::Sprite GraphUI::getSprite() {
@@ -75,7 +71,7 @@ void GraphUI::renderGraph() {
 	}
 }
 
-void GraphUI::do_render() {
+void GraphUI::doRender() {
 	clear();
 	renderGraph();
 	display();
@@ -98,7 +94,7 @@ int GraphUI::get_highest() {
 }
 
 float GraphUI::get_height(const float value) {
-	return GRAPH_HEIGHT - std::max(1.0, value * graph_alpha);
+	return GRAPH_HEIGHT - std::max(1.0, value * graphAlpha);
 }
 
 float GraphUI::get_height(const int index) {
@@ -117,8 +113,8 @@ void GraphUI::renderDot(const int index) {
 	line_[0].position = getPosition(index);
 	line_[1].position = getPosition(index + 1);
 
-	if (GRAPH_HEIGHT < data[index] * graph_alpha) {
-		graph_alpha = GRAPH_HEIGHT / data[index];
+	if (GRAPH_HEIGHT < data[index] * graphAlpha) {
+		graphAlpha = GRAPH_HEIGHT / data[index];
 	}
 
 	line_[0].color = GRAPH_LINE_COLOR;
@@ -147,9 +143,8 @@ int GraphUI::newDataPlace(const int index) {
 	return std::floor((index - 1) / data_gaps());
 }
 
-void GraphUI::add_data(const Global::ValueType new_data, const int index) {
+void GraphUI::add_data(const global::ValueType new_data, const int index) {
 	data[newDataPlace(index)] += (new_data / data_gaps());
-	set_update();
+	setUpdate();
 }
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer

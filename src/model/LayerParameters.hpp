@@ -1,26 +1,28 @@
 #ifndef LAYER_PARAMETERS
 #define LAYER_PARAMETERS
 
-#include "Globals.hpp"
+#include <Globals.hpp>
 #include <cmath>
 #include <vector>
 
-namespace nn {
-constexpr Global::ValueType PARAM_RESET_VALUE = 0;
+namespace nn::model {
+constexpr global::ValueType PARAM_RESET_VALUE = 0;
 constexpr int RN_ROUND_VALUE = 10000;
 
 struct LayerParameters {
-	LayerParameters(const int size, const int prev_size, const Global::ValueType init_value);
-	LayerParameters(const LayerParameters &other);
+	std::vector<global::ParamMetrix> weights;
+
+	LayerParameters(const int size, const int prevSize, const global::ValueType initValue);
+	LayerParameters(const LayerParameters &other)
+	    : weights(other.weights) {}
 	~LayerParameters() = default;
-	std::vector<std::vector<Global::ValueType>> weights;
 	size_t getSize() const { return weights.size(); }
 	size_t getPrevSize() const { return (weights.empty()) ? 0 : weights[0].size(); }
-	void add(const LayerParameters &new_gradient);
-	void multiply(const double value);
-	void set(const LayerParameters &new_gradient);
+	void add(const LayerParameters &newGradient);
+	void multiply(const global::ValueType value);
+	void set(const LayerParameters &newGradient);
 	void reset();
-	void initialize_Param_rn(const int prev_size);
+	void initializeParamRandom(const int prevSize);
 };
-} // namespace nn
+} // namespace nn::model
 #endif // LAYER_PARAMETERS

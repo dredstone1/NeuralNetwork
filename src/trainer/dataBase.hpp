@@ -1,21 +1,28 @@
 #ifndef DATABASE
 #define DATABASE
 
+#include "Globals.hpp"
 #include <AiModel.hpp>
 #include <random>
 
-namespace nn {
-typedef struct TrainSample {
-	prediction _prediction;
-	std::vector<Global::ValueType> input;
-	TrainSample(prediction _pre, const int sampleInputSize) : _prediction(_pre), input(sampleInputSize, 0) {}
-	TrainSample() : _prediction({0, 0}), input(0) {}
-	~TrainSample() = default;
-} TrainSample;
+namespace nn::training {
+struct TrainSample {
+	Prediction prediction;
+	global::ParamMetrix input;
 
-typedef struct Samples {
+	TrainSample(Prediction _pre, const int sampleInputSize)
+	    : prediction(_pre),
+	      input(sampleInputSize, 0) {}
+	TrainSample()
+	    : prediction(0, 0),
+	      input(0) {}
+	~TrainSample() = default;
+};
+
+struct Samples {
 	const int sInputSize;
 	std::vector<TrainSample> samples;
+
 	size_t size() const { return samples.size(); }
 	void add(TrainSample sample) { samples.push_back(sample); }
 	Samples(const int sampleInputSize, const int _size)
@@ -25,10 +32,11 @@ typedef struct Samples {
 		}
 	}
 	~Samples() = default;
-} Samples;
+};
 
-typedef struct Batch {
+struct Batch {
 	std::vector<TrainSample *> samples;
+
 	size_t size() const { return samples.size(); }
 	Batch(const int length) {
 		if (length > 0) {
@@ -36,7 +44,7 @@ typedef struct Batch {
 		}
 	}
 	~Batch() = default;
-} Batch;
+};
 
 class DataBase {
   private:
@@ -47,18 +55,18 @@ class DataBase {
 	std::vector<Batch> batches;
 	void generete_batches();
 
-	TrainingConfig &config;
+	model::TrainingConfig &config;
 	size_t currentBatch;
 
 	std::vector<int> shuffled_indices;
 	std::mt19937 rng;
 
   public:
-	DataBase(TrainingConfig &config_);
+	DataBase(model::TrainingConfig &config_);
 	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
 	Batch &get_Batch();
 	~DataBase() = default;
 };
-} // namespace nn
+} // namespace nn::training
 
 #endif // DATABASE

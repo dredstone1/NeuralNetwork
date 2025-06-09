@@ -1,9 +1,5 @@
 #include <AiModel.hpp>
-#include <cctype>
-#include <cstdlib>
 #include <iostream>
-#include <ostream>
-#include <string>
 #include <trainer.hpp>
 
 enum mode {
@@ -50,7 +46,7 @@ int main(int argc, char *argv[]) {
 		nn::AiModel model(config_FN, mods & visual);
 
 		if (mods & train) {
-			nn::Trainer trainer(model);
+            nn::training::Trainer trainer(model);
 
 			trainer.train();
 		}
@@ -80,7 +76,7 @@ int main(int argc, char *argv[]) {
 			std::vector<double> input(2, 0);
 			input[0] = num1;
 			input[1] = num2;
-			model.run_model(input);
+			model.runModel(input);
 			printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
 		}
 

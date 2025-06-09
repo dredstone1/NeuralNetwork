@@ -8,10 +8,10 @@
 #include <memory>
 
 namespace nn {
-namespace Visualizer {
+namespace visualizer {
 constexpr sf::Color NN_PANEL_BG = PANELS_BG;
 
-class visualNN : public panel {
+class visualNN : public Panel {
   private:
 	std::vector<std::unique_ptr<visualL>> layers;
 	sf::RenderTexture NNRender;
@@ -21,16 +21,16 @@ class visualNN : public panel {
 	void renderLayers();
 	void renderLayer(const int layer, const float posx);
 	static bool getBit(const long num, const int index);
-	void do_render() override;
+	void doRender() override;
 	void render_active_layer(const sf::Vector2f box, const sf::Vector2f pos);
 
   public:
-	visualNN(const neural_network &network, const std::shared_ptr<state> state_);
+	visualNN(const model::NeuralNetwork &network, const std::shared_ptr<StateManager> state_);
 	~visualNN() = default;
 	sf::Sprite getSprite();
-	void updateDots(const int layer, const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net);
-	void update(const int layer, const LayerParameters &gradients);
-	void update(const gradient &new_grad);
+	void updateDots(const int layer, const model::Neurons &newNeurons);
+	void update(const int layer, const model::LayerParameters &gradients);
+	void update(const training::gradient &new_grad);
 	void update_prediction(const int index);
 };
 } // namespace Visualizer

@@ -1,8 +1,7 @@
-#include "Globals.hpp"
 #include <iostream>
 #include <trainer.hpp>
 
-namespace nn {
+namespace nn::training {
 void Trainer::print_progress_bar(const int current, const int total) {
 	float progress = (float)current / total;
 	int progress_percentage = int(progress * BAR_WIDTH);
@@ -32,24 +31,22 @@ void Trainer::train() {
 	std::cout << "Training AI" << std::endl;
 
 	const auto start = std::chrono::high_resolution_clock::now();
-	Global::ValueType error = 0.0;
+	global::ValueType error = 0.0;
 
-	model._model->visual.updateAlgoritemMode(Visualizer::algorithmMode::Training);
-	lr.update_batch(0, error);
-	model._model->visual.update_lr(lr.getLearningRate());
+	model.model->visual.updateAlgoritemMode(visualizer::AlgorithmMode::Training);
+	model.model->visual.update_lr(lr.getLearningRate());
 	for (int loop_index = 0; loop_index < config.batch_count + 1; loop_index++) {
-		model._model->visual.updateBatchCounter(loop_index);
+		model.model->visual.updateBatchCounter(loop_index);
 
 		Batch &batch = dataBase.get_Batch();
 		error = backPropagation.run_back_propagation(batch);
 
-		model._model->visual.updateError(error, loop_index);
+		model.model->visual.updateError(error, loop_index);
 
 		print_progress_bar(loop_index + 1, config.batch_count);
 
-		lr.update_batch(loop_index, error);
-		model._model->visual.update_lr(lr.getLearningRate());
-		if (model._model->visual.exit_training() == true)
+		model.model->visual.update_lr(lr.getLearningRate());
+		if (model.model->visual.exit_training() == true)
 			break;
 	}
 
@@ -66,6 +63,6 @@ void Trainer::train() {
 	          << time_taken_milliseconds << " ms)" << std::endl
 	          << "final_score: " << error << std::endl;
 
-	model._model->visual.updateAlgoritemMode(Visualizer::algorithmMode::Normal);
+	model.model->visual.updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
 }
-} // namespace nn
+} // namespace nn::training

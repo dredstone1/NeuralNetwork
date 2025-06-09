@@ -1,10 +1,11 @@
 #ifndef GLOBAL
 #define GLOBAL
 
-namespace nn {
-namespace Global {
+#include <vector>
+
+namespace nn::global {
 using ValueType = double;
-}
-} // namespace nn
+using ParamMetrix = std::vector<ValueType>;
+} // namespace nn::global
 
 #endif // GLOBAL

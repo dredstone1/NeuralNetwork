@@ -2,34 +2,38 @@
 #define MODEL
 
 #include "../visualizer/VisualizerController.hpp"
-#include "Globals.hpp"
 #include "Layers/layer.hpp"
 #include "config.hpp"
 #include "neuralNetwork.hpp"
 
-namespace nn {
-class model {
+namespace nn::training {
+class BackPropagation;
+class Trainer;
+} // namespace nn::training
+
+namespace nn::model {
+class Model {
   private:
-	neural_network network;
-	Visualizer::visualizerController visual;
-	void run_model(const std::vector<Global::ValueType> &input, neural_network &temp_network, const Global::ValueType drop_out_rate = -1);
-	friend class BackPropagation;
-	friend class Trainer;
+	NeuralNetwork network;
+	visualizer::visualizerController visual;
+	void runModel(const global::ParamMetrix &input, NeuralNetwork &temp_network);
+	friend class training::BackPropagation;
+	friend class training::Trainer;
 
   public:
-	model(Config &_config, bool use_visual);
-	~model() = default;
-	void run_model(const std::vector<Global::ValueType> &input, const Global::ValueType drop_out_rate = -1);
-	const std::vector<Global::ValueType> &getOutput() const;
+	Model(Config &_config, bool use_visual);
+	~Model() = default;
+	void runModel(const global::ParamMetrix &input);
+	const global::ParamMetrix &getOutput() const;
 	void reset();
 	Layer &getLayer(const int i) { return *network.layers.at(i); }
-	void updateWeights(const gradient &gradients);
+	void updateWeights(const training::gradient &gradients);
 	size_t getOutputSize() const { return network.config.output_size; }
 	size_t getInputSize() const { return network.config.input_size; }
 	size_t getHiddenLayerCount() const { return network.config.hidden_layer_count(); }
 	size_t getLayerCount() const { return network.config.hidden_layer_count() + 1; }
 	const bool useVisual;
 };
-} // namespace nn
+} // namespace nn::model
 
 #endif // MODEL

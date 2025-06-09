@@ -1,11 +1,8 @@
 #include "VInterface.hpp"
-#include "button.hpp"
-#include "state.hpp"
 
-namespace nn {
-namespace Visualizer {
-vInteface::vInteface(const std::shared_ptr<state> vstate)
-    : panel(vstate),
+namespace nn::visualizer {
+vInteface::vInteface(const std::shared_ptr<StateManager> vstate)
+    : Panel(vstate),
       VRender({VINTERFACE_WIDTH, VINTERFACE_HEIGHT}) {
 	createVInterface();
 }
@@ -16,7 +13,7 @@ void vInteface::createVInterface() {
 	buttons.reserve(STATES_COUNT);
 
 	for (int i = 0; i < STATES_COUNT; i++) {
-		buttons.push_back(std::make_unique<button>(vstate, vstate->getStateString((states)i), (states)i));
+		buttons.push_back(std::make_unique<Button>(vstate, vstate->getStateString((SettingType)i), (SettingType)i));
 	}
 }
 
@@ -30,7 +27,7 @@ sf::Sprite vInteface::getSprite() {
 
 void vInteface::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
 	if (!needHandlePress) {
-		set_update();
+		setUpdate();
 		needHandlePress = true;
 		handleKeyPresed(mousePos_, boxPos);
 	}
@@ -38,10 +35,10 @@ void vInteface::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f box
 
 void vInteface::handleNoClick() {
 	needHandlePress = false;
-	set_update();
+	setUpdate();
 }
 
-void vInteface::do_render() {
+void vInteface::doRender() {
 	int row = 0;
 	int column = -1;
 
@@ -78,5 +75,4 @@ void vInteface::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f
 		}
 	}
 }
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer

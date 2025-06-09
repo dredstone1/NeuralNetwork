@@ -4,39 +4,39 @@
 #include "neuron.hpp"
 #include <cmath>
 
-namespace nn {
-constexpr Global::ValueType RELU_LEAKY_ALPHA = 0.01;
+namespace nn::model {
+constexpr global::ValueType RELU_LEAKY_ALPHA = 0.01;
 
-enum class activation {
-	relu_,
-	leaky_relu_,
-	sigmoid_,
-	tanh_,
-	none,
+enum class ActivationType {
+	Relu,
+	LeakyRelu,
+	Sigmoid,
+	Tanh,
+	None,
 };
 
-class activations {
+class Activation {
   private:
-	const activation _activation;
-	static Global::ValueType Relu(const Global::ValueType x);
-	static Global::ValueType DerivativeRelu(const Global::ValueType x);
-	static Global::ValueType LeakyRelu(const Global::ValueType x);
-	static Global::ValueType DerivativeLeakyRelu(const Global::ValueType x);
-	static Global::ValueType Sigmoid(const Global::ValueType z);
-	static Global::ValueType DerivativeSigmoid(const Global::ValueType z);
-	static Global::ValueType Tanh(const Global::ValueType z);
-	static Global::ValueType DerivativeTanh(const Global::ValueType z);
-	static Global::ValueType max_vector(const std::vector<Global::ValueType> &metrix);
+	const ActivationType activationType;
+	static global::ValueType relu(const global::ValueType x);
+	static global::ValueType derivativeRelu(const global::ValueType x);
+	static global::ValueType leakyRelu(const global::ValueType x);
+	static global::ValueType derivativeLeakyRelu(const global::ValueType x);
+	static global::ValueType sigmoid(const global::ValueType z);
+	static global::ValueType derivativeSigmoid(const global::ValueType z);
+	static global::ValueType tanh(const global::ValueType z);
+	static global::ValueType derivativeTanh(const global::ValueType z);
+	static global::ValueType maxVector(const global::ParamMetrix &metrix);
 
   public:
-	activations(const activation activation)
-	    : _activation(activation) {}
-	activations(const activations &other)
-	    : _activation(other._activation) {}
-	Global::ValueType activate(const Global::ValueType x) const;
-	Global::ValueType DerivativeActivate(const Global::ValueType x) const;
-	static void Softmax(neurons &metrix);
+	Activation(const ActivationType activationType_)
+	    : activationType(activationType_) {}
+	Activation(const Activation &other)
+	    : activationType(other.activationType) {}
+	global::ValueType activate(const global::ValueType x) const;
+	global::ValueType derivativeActivate(const global::ValueType x) const;
+	static void softmax(Neurons &metrix);
 };
-} // namespace nn
+} // namespace nn::model
 
 #endif // ACTIVATIONS

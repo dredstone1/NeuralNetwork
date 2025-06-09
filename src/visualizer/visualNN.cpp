@@ -2,12 +2,10 @@
 #include "Globals.hpp"
 #include "visualL.hpp"
 #include <memory>
-#include <vector>
 
-namespace nn {
-namespace Visualizer {
-visualNN::visualNN(const neural_network &network, std::shared_ptr<state> state_)
-    : panel(state_),
+namespace nn::visualizer {
+visualNN::visualNN(const model::NeuralNetwork &network, std::shared_ptr<StateManager> state_)
+    : Panel(state_),
       NNRender({NN_WIDTH, NN_HEIGHT}),
       current_rendred_layer(0) {
 	layers.reserve(network.getLayerCount() + 2);
@@ -18,12 +16,12 @@ visualNN::visualNN(const neural_network &network, std::shared_ptr<state> state_)
 	for (; layer < network.getLayerCount() - 1; layer++) {
 		layers.emplace_back(std::make_unique<VParamLayer>(vstate->config.network_config.layers_config[layer].size, layers[layer]->getSize(), vstate));
 		layers[layers.size() - 1]->reset();
-		layers[layers.size() - 1]->add(network.layers[layer]->getParms());
+		layers[layers.size() - 1]->addParams(network.layers[layer]->getParms());
 	}
 
 	layers.emplace_back(std::make_unique<VParamLayer>(vstate->config.network_config.output_size, layers[layer]->getSize(), vstate));
 	layers[layers.size() - 1]->reset();
-	layers[layers.size() - 1]->add(network.layers[layer]->getParms());
+	layers[layers.size() - 1]->addParams(network.layers[layer]->getParms());
 	layers.emplace_back(std::make_unique<VEmptyLayer>(vstate->config.network_config.output_size, vstate));
 }
 
@@ -43,7 +41,7 @@ void visualNN::renderLayers() {
 	}
 }
 
-void visualNN::do_render() {
+void visualNN::doRender() {
 	clear();
 	renderLayers();
 	display();
@@ -75,36 +73,35 @@ sf::Sprite visualNN::getSprite() {
 	return sf::Sprite(NNRender.getTexture());
 }
 
-void visualNN::updateDots(const int layer, const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net) {
+void visualNN::updateDots(const int layer, const model::Neurons &newNeurons) {
 	current_rendred_layer = layer;
-	layers[layer]->setDots(out, net);
+	layers[layer]->setDots(newNeurons);
 
-	set_update();
+	setUpdate();
 }
 
-void visualNN::update(const int layer, const LayerParameters &gradients) {
+void visualNN::update(const int layer, const model::LayerParameters &gradients) {
 	current_rendred_layer = layer;
 	layers[layer]->set_weights(gradients);
 
-	set_update();
+	setUpdate();
 }
 
-void visualNN::update(const gradient &new_grad) {
+void visualNN::update(const training::gradient &new_grad) {
 	for (size_t i = 1; i < layers.size() - 1; i++) {
 		VParamLayer *test = dynamic_cast<VParamLayer *>(layers[i].get());
 		test->updateGrad(new_grad.gradients[i - 1]);
 	}
 
-	set_update();
+	setUpdate();
 }
 
 void visualNN::update_prediction(const int index) {
-	std::vector<Global::ValueType> pre(layers[layers.size() - 1]->getSize(), 0);
+	global::ParamMetrix pre(layers[layers.size() - 1]->getSize(), 0);
 	pre[index] = 1;
 
-	layers[layers.size() - 1]->setDots(pre, pre);
+	layers[layers.size() - 1]->setDots({pre, pre});
 
-	set_update();
+	setUpdate();
 }
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer

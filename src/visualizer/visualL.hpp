@@ -4,11 +4,8 @@
 #include "../model/Layers/layer.hpp"
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
-#include <memory>
-#include <vector>
 
-namespace nn {
-namespace Visualizer {
+namespace nn::visualizer {
 constexpr std::uint32_t NN_HEIGHT = 770u;
 constexpr std::uint32_t NN_WIDTH = 1055u;
 
@@ -32,13 +29,13 @@ enum class textT {
 	NORMAL,
 };
 
-class visualL : public Layer, public panel {
+class visualL : public model::Layer, public Panel {
   private:
 	void clear();
 	void display();
 	void drawNeurons();
 	virtual textT getTextT(const int layer_i, const int layer_p);
-	void do_render() override;
+	void doRender() override;
 	virtual void renderNeuron(const int index, const float gap, const float prevGap, const float scale) = 0;
 	float getScaleFactor(std::size_t neuron_count) const;
 
@@ -50,12 +47,12 @@ class visualL : public Layer, public panel {
 	void drawNeuron(const double input, const double output, const sf::Vector2f pos, float scale);
 
   public:
-	visualL(const int _size, const int _prev_size, const std::shared_ptr<state> state_, const std::uint32_t width);
-	visualL(const Layer &other, const std::shared_ptr<state> state_, const std::uint32_t width);
-	LayerType getType() const override { return LayerType::NONE; }
+	visualL(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width);
+	visualL(const Layer &other, const std::shared_ptr<StateManager> state_, const std::uint32_t width);
+	model::LayerType getType() const override { return model::LayerType::NONE; }
 	sf::Sprite getSprite();
-	void set_weights(const LayerParameters &Param);
-	void setDots(const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net);
+	void set_weights(const model::LayerParameters &Param);
+	void setDots(const model::Neurons &newNeurons);
 	const std::uint32_t WIDTH;
 	virtual ~visualL() = default;
 };
@@ -66,32 +63,31 @@ class VEmptyLayer : public visualL {
 	void renderNeuron(const int index, const float gap, const float, const float scale) override;
 
   public:
-	VEmptyLayer(const int _size, const std::shared_ptr<state> state_)
+	VEmptyLayer(const int _size, const std::shared_ptr<StateManager> state_)
 	    : visualL(_size, 0, state_, NEURON_WIDTH) {}
-	VEmptyLayer(const Layer &other, const std::shared_ptr<state> state_)
+	VEmptyLayer(const Layer &other, const std::shared_ptr<StateManager> state_)
 	    : visualL(other, state_, NEURON_WIDTH) {}
 	~VEmptyLayer() = default;
 };
 
 class VParamLayer : public visualL {
   private:
-	LayerParameters grad;
+	model::LayerParameters grad;
 	static sf::Color getColorFromTextT(const textT text_type);
 	textT getTextT(const int layer_i, const int layer_p) override;
 	void drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap, float scale);
 	void renderNeuron(const int index, const float gap, const float prevGap, const float scale) override;
 
   public:
-	VParamLayer(const int _size, const int _prev_size, const std::shared_ptr<state> state_)
+	VParamLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_)
 	    : visualL(_size, _prev_size, state_, calculate_width(state_->config.network_config.hidden_layer_count() + 1)),
 	      grad(_size, _prev_size, 0.5) {}
-	VParamLayer(const Layer &other, const std::shared_ptr<state> state_)
+	VParamLayer(const Layer &other, const std::shared_ptr<StateManager> state_)
 	    : visualL(other, state_, calculate_width(state_->config.network_config.hidden_layer_count() + 1)),
 	      grad(other.getSize(), other.getPrevSize(), 0.5) {}
-	void updateGrad(const LayerParameters &new_grad);
+	void updateGrad(const model::LayerParameters &new_grad);
 	~VParamLayer() = default;
 };
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer
 
 #endif // VISUALL

@@ -1,56 +1,54 @@
 #ifndef VSTATUS
 #define VSTATUS
 
-#include "Globals.hpp"
 #include "panel.hpp"
-#include "state.hpp"
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Color.hpp>
+#include <string_view>
 
-namespace nn {
-namespace Visualizer {
+namespace nn::visualizer {
 constexpr std::uint32_t VSTATUS_WIDTH = 500;
 constexpr std::uint32_t VSTATUS_HEIGHT = 255;
 constexpr int STATUS_TEXT_FONT = 20;
 constexpr int FPS_LIMIT = 144;
 
 namespace TextLabels {
-constexpr const char *CURRENT_PHASE_TEXT = "current phase: ";
-constexpr const char *RUNNING_MODE_TEXT = "running mode: ";
-constexpr const char *ALGORITHM_MODE_TEXT = "current algorithm mode: ";
-constexpr const char *CURRENT_BATCH_TEXT = "current batch: ";
-constexpr const char *BATCH_SIZE_TEXT = "batch size: ";
-constexpr const char *LERNING_RATE_TEXT = "learning rate: ";
-constexpr const char *FPS_TEXT = "fps: ";
+constexpr std::string_view CURRENT_PHASE_TEXT = "current phase: ";
+constexpr std::string_view RUNNING_MODE_TEXT = "running mode: ";
+constexpr std::string_view ALGORITHM_MODE_TEXT = "current algorithm mode: ";
+constexpr std::string_view CURRENT_BATCH_TEXT = "current batch: ";
+constexpr std::string_view BATCH_SIZE_TEXT = "batch size: ";
+constexpr std::string_view LERNING_RATE_TEXT = "learning rate: ";
+constexpr std::string_view FPS_TEXT = "fps: ";
 } // namespace TextLabels
 
-const std::array<std::string, 2> NNRunningModeName = {"Running", "Pause"};
-const std::array<std::string, 2> algorithmName = {"Normal", "Training"};
-const std::array<std::string, 2> NNmodeName = {"Forword", "Backward"};
+constexpr std::array<std::string_view, 2> NNRunningModeName = {"Running", "Pause"};
+constexpr std::array<std::string_view, 2> algorithmName = {"Normal", "Training"};
+constexpr std::array<std::string_view, 2> NNmodeName = {"Forword", "Backward"};
 
 constexpr sf::Color TEXT_COLOR(0, 0, 0);
 constexpr sf::Color STATUSE_PANEL_COLOR = PANELS_BG;
 
-class vStatus : public panel {
+class vStatus : public Panel {
   private:
 	sf::RenderTexture VRender;
+	float fps;
+	float batchPerSecond;
+	global::ValueType learningRate;
+
+	std::string getText();
 	void display();
 	void drawText();
 	void clear();
-	std::string get_text();
-	float fps;
-	float batchPerSecond;
-    Global::ValueType lr;
-	void do_render() override;
+	void doRender() override;
 
   public:
-	vStatus(const std::shared_ptr<state> vstate_);
+	vStatus(const std::shared_ptr<StateManager> vstate_);
+	~vStatus() = default;
 	sf::Sprite getSprite();
-	void update_fps(const float fps);
-	void update_bps(const float bps);
-	void update_lr(const Global::ValueType lr_);
+	void updateFps(const float fps);
+	void updateBps(const float bps);
+	void updateLerningRate(const global::ValueType newLarningRate);
 };
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer
 
 #endif // VSTATUS

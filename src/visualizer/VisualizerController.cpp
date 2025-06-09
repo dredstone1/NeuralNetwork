@@ -1,11 +1,10 @@
 #include "VisualizerController.hpp"
-#include "Globals.hpp"
-#include "VisualizerRenderer.hpp"
-#include "state.hpp"
+#include "model/neuralNetwork.hpp"
+#include "model/neuron.hpp"
+#include "visualizer/state.hpp"
 
-namespace nn {
-namespace Visualizer {
-visualizerController::visualizerController(const ConfigData &_config)
+namespace nn::visualizer {
+visualizerController::visualizerController(const model::ConfigData &_config)
     : config(_config) {
 	printf("start Visualizer\n");
 }
@@ -34,7 +33,7 @@ void visualizerController::stop() {
 	}
 }
 
-void visualizerController::start(const neural_network &network) {
+void visualizerController::start(const model::NeuralNetwork &network) {
 	if (running.load())
 		return;
 
@@ -42,8 +41,8 @@ void visualizerController::start(const neural_network &network) {
 	wait_until_started();
 }
 
-void visualizerController::start_visuals(const neural_network &network) {
-	Vstate = std::make_shared<state>(config);
+void visualizerController::start_visuals(const model::NeuralNetwork &network) {
+	Vstate = std::make_shared<StateManager>(config);
 	if (!Vstate)
 		return;
 
@@ -107,7 +106,7 @@ bool visualizerController::checkP() {
 	return (renderer && Vstate);
 }
 
-void visualizerController::updateDots(const int layer, std::vector<Global::ValueType> out, std::vector<Global::ValueType> net) {
+void visualizerController::updateDots(const int layer, const model::Neurons &newNeurons) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -128,11 +127,11 @@ void visualizerController::updateDots(const int layer, std::vector<Global::Value
 		// }
 
 		handleStates();
-		renderer->updateDots(layer, out, net);
+		renderer->updateDots(layer, newNeurons);
 	}
 }
 
-void visualizerController::update(const int layer, const LayerParameters &gradient_) {
+void visualizerController::update(const int layer, const model::LayerParameters &gradient_) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -160,7 +159,7 @@ void visualizerController::update(const int layer, const LayerParameters &gradie
 	}
 }
 
-void visualizerController::setNewPhaseMode(const NNmode nn_mode) {
+void visualizerController::setNewPhaseMode(const NnMode nn_mode) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -172,7 +171,7 @@ void visualizerController::setNewPhaseMode(const NNmode nn_mode) {
 	}
 }
 
-void visualizerController::update(const gradient &new_grad) {
+void visualizerController::update(const training::gradient &new_grad) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -192,11 +191,11 @@ void visualizerController::updateBatchCounter(const int batch) {
 		}
 
 		wait_until_updated();
-		Vstate->current_batch = batch;
+		Vstate->currentBatch = batch;
 	}
 }
 
-void visualizerController::updateError(const Global::ValueType error, const int index) {
+void visualizerController::updateError(const global::ValueType error, const int index) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -208,7 +207,7 @@ void visualizerController::updateError(const Global::ValueType error, const int 
 	}
 }
 
-void visualizerController::updateAlgoritemMode(const algorithmMode algoritem_mode) {
+void visualizerController::updateAlgoritemMode(const AlgorithmMode algoritem_mode) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -216,8 +215,8 @@ void visualizerController::updateAlgoritemMode(const algorithmMode algoritem_mod
 		}
 
 		wait_until_updated();
-		Vstate->AlgorithmMode = algoritem_mode;
-		Vstate->settings.exitTraining = algoritem_mode == algorithmMode::Normal;
+		Vstate->algorithmMode = algoritem_mode;
+		Vstate->settings.exitTraining = algoritem_mode == AlgorithmMode::Normal;
 	}
 }
 
@@ -233,7 +232,7 @@ void visualizerController::update_prediction(const int index) {
 	}
 }
 
-void visualizerController::update_lr(const Global::ValueType lr) {
+void visualizerController::update_lr(const global::ValueType newLerningRate) {
 	if (checkP()) {
 		if (!running.load()) {
 			stop();
@@ -241,13 +240,11 @@ void visualizerController::update_lr(const Global::ValueType lr) {
 		}
 
 		wait_until_updated();
-		renderer->update_lr(lr);
+		renderer->update_lr(newLerningRate);
 	}
 }
 
 bool visualizerController::exit_training() {
-    return Vstate->getState(states::ExitTraining);
+	return Vstate->getState(SettingType::ExitTraining);
 }
-
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace nn {
+namespace nn::model {
 Config::Config(const std::string &config_filepath) {
 	std::ifstream ifs(config_filepath);
 	if (!ifs.is_open()) {
@@ -15,7 +15,6 @@ Config::Config(const std::string &config_filepath) {
 	try {
 		ifs >> j;
 		config_data = j.get<ConfigData>();
-
 	} catch (const nlohmann::json::parse_error &e) {
 		std::cerr << "JSON parse error in file '" << config_filepath << "':\n"
 		          << e.what() << "\n"
@@ -27,4 +26,4 @@ Config::Config(const std::string &config_filepath) {
 		throw;
 	}
 }
-}
+} // namespace nn::model::config

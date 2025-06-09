@@ -1,54 +1,57 @@
 #include "activations.hpp"
+#include "Globals.hpp"
 
-namespace nn {
-Global::ValueType activations::activate(const Global::ValueType x) const {
-	switch (_activation) {
-	case activation::relu_:
-		return Relu(x);
-	case activation::leaky_relu_:
-		return LeakyRelu(x);
-	case activation::sigmoid_:
-		return Sigmoid(x);
-	case activation::tanh_:
-		return Tanh(x);
-	case activation::none:
+namespace nn::model {
+global::ValueType Activation::activate(const global::ValueType x) const {
+	switch (activationType) {
+	case ActivationType::Relu:
+		return relu(x);
+	case ActivationType::LeakyRelu:
+		return leakyRelu(x);
+	case ActivationType::Sigmoid:
+		return sigmoid(x);
+	case ActivationType::Tanh:
+		return tanh(x);
+	case ActivationType::None:
 		return x;
 	}
 	return x;
 }
 
-Global::ValueType activations::DerivativeActivate(const Global::ValueType x) const {
-	switch (_activation) {
-	case activation::relu_:
-		return DerivativeRelu(x);
-	case activation::leaky_relu_:
-		return DerivativeLeakyRelu(x);
-	case activation::sigmoid_:
-		return DerivativeSigmoid(x);
-	case activation::tanh_:
-		return DerivativeTanh(x);
-	case activation::none:
+global::ValueType Activation::derivativeActivate(const global::ValueType x) const {
+	switch (activationType) {
+	case ActivationType::Relu:
+		return derivativeRelu(x);
+	case ActivationType::LeakyRelu:
+		return derivativeLeakyRelu(x);
+	case ActivationType::Sigmoid:
+		return derivativeSigmoid(x);
+	case ActivationType::Tanh:
+		return derivativeTanh(x);
+	case ActivationType::None:
 		return x;
 	}
+
 	return x;
 }
 
-Global::ValueType activations::max_vector(const std::vector<Global::ValueType> &metrix) {
-	Global::ValueType max = metrix[0];
+global::ValueType Activation::maxVector(const global::ParamMetrix &metrix) {
+	global::ValueType max = metrix[0];
 	for (auto &value : metrix) {
 		if (value > max) {
 			max = value;
 		}
 	}
+
 	return max;
 }
 
-void activations::Softmax(neurons &metrix) {
-	Global::ValueType max = max_vector(metrix.net);
-	Global::ValueType sum = 0.0;
+void Activation::softmax(Neurons &metrix) {
+	global::ValueType max = maxVector(metrix.net);
+	global::ValueType sum = 0.0;
 
-	for (size_t i = 0; i < metrix.size(); ++i) {
-		Global::ValueType x = metrix.net[i] - max;
+	for (size_t i = 0; i < metrix.size(); i++) {
+		global::ValueType x = metrix.net[i] - max;
 		if (x < -700.0)
 			x = -700.0;
 		if (x > 700.0)
@@ -59,38 +62,38 @@ void activations::Softmax(neurons &metrix) {
 
 	sum = std::max(sum, 1e-10);
 
-	for (size_t i = 0; i < metrix.size(); ++i) {
+	for (size_t i = 0; i < metrix.size(); i++) {
 		metrix.out[i] /= sum;
 	}
 }
 
-Global::ValueType activations::Relu(const Global::ValueType x) {
+global::ValueType Activation::relu(const global::ValueType x) {
 	return std::max(0.0, x);
 }
-Global::ValueType activations::DerivativeRelu(const Global::ValueType x) {
+global::ValueType Activation::derivativeRelu(const global::ValueType x) {
 	return (x > 0) ? 1.0 : 0.0;
 }
 
-Global::ValueType activations::LeakyRelu(const Global::ValueType x) {
+global::ValueType Activation::leakyRelu(const global::ValueType x) {
 	return (x > 0) ? x : RELU_LEAKY_ALPHA * x;
 }
-Global::ValueType activations::DerivativeLeakyRelu(const Global::ValueType x) {
+global::ValueType Activation::derivativeLeakyRelu(const global::ValueType x) {
 	return (x > 0) ? 1.0 : RELU_LEAKY_ALPHA;
 }
 
-Global::ValueType activations::Sigmoid(const Global::ValueType z) {
+global::ValueType Activation::sigmoid(const global::ValueType z) {
 	return 1.0 / (1.0 + std::exp(-z));
 }
-Global::ValueType activations::DerivativeSigmoid(const Global::ValueType z) {
-	Global::ValueType s = Sigmoid(z);
+global::ValueType Activation::derivativeSigmoid(const global::ValueType z) {
+	global::ValueType s = sigmoid(z);
 	return s * (1.0 - s);
 }
 
-Global::ValueType activations::Tanh(const Global::ValueType z) {
+global::ValueType Activation::tanh(const global::ValueType z) {
 	return std::tanh(z);
 }
-Global::ValueType activations::DerivativeTanh(const Global::ValueType z) {
-	Global::ValueType t = std::tanh(z);
+global::ValueType Activation::derivativeTanh(const global::ValueType z) {
+	global::ValueType t = std::tanh(z);
 	return 1.0 - t * t;
 }
-} // namespace nn
+} // namespace nn::model

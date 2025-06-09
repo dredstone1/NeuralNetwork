@@ -4,8 +4,8 @@
 #include "config.hpp"
 #include <memory>
 
-namespace nn {
-neural_network::neural_network(const NetworkConfig &network_config)
+namespace nn::model {
+NeuralNetwork::NeuralNetwork(const NetworkConfig &network_config)
     : config(network_config) {
 	layers.reserve(network_config.hidden_layer_count() + 1);
 
@@ -26,7 +26,7 @@ neural_network::neural_network(const NetworkConfig &network_config)
 	    network_config.output_init_value));
 }
 
-void neural_network::reset() {
+void NeuralNetwork::reset() {
 	for (auto &layer : layers) {
 		layer->reset();
 	}

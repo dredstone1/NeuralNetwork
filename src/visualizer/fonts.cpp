@@ -1,13 +1,14 @@
 #include "fonts.hpp"
 #include <string>
 
-namespace nn {
-namespace Visualizer {
+namespace nn::visualizer {
 sf::Font &Fonts::getFont() {
 	static sf::Font font;
 	static bool loaded = false;
+
 	if (!loaded) {
 		std::string path = std::string(RESOURCE_DIR) + "/Inter.ttc";
+
 		if (!font.openFromFile(path)) {
 			printf("Font not found: %s\n", path.c_str());
 		}
@@ -16,5 +17,4 @@ sf::Font &Fonts::getFont() {
 	}
 	return font;
 }
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer

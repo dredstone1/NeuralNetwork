@@ -1,16 +1,14 @@
 #include "panel.hpp"
 
-namespace nn {
-namespace Visualizer {
-int panel::render() {
+namespace nn::visualizer {
+int Panel::render() {
 	observe();
 	if (need_update) {
-		do_render();
+		doRender();
 		need_update = false;
 		return true;
 	}
 
 	return false;
 }
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer

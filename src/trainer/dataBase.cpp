@@ -3,8 +3,8 @@
 #include <iostream>
 #include <memory>
 
-namespace nn {
-DataBase::DataBase(TrainingConfig &config_)
+namespace nn::training {
+DataBase::DataBase(model::TrainingConfig &config_)
     : samples(nullptr),
       config(config_),
       currentBatch(0) {
@@ -114,4 +114,4 @@ Batch &DataBase::get_Batch() {
 
 	return batches.at(currentBatch++);
 }
-} // namespace nn
+} // namespace nn::training

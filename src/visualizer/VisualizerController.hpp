@@ -1,13 +1,10 @@
 #ifndef VISUALIZERCONTROLLER
 #define VISUALIZERCONTROLLER
 
-#include "Globals.hpp"
 #include "VisualizerRenderer.hpp"
-#include <SFML/Graphics.hpp>
 #include <thread>
 
-namespace nn {
-namespace Visualizer {
+namespace nn::visualizer {
 constexpr int WAIT_DELAY_MM = 1;
 
 class visualizerController {
@@ -15,11 +12,12 @@ class visualizerController {
 	void update_display();
 	std::atomic<bool> running{false};
 	std::unique_ptr<VisualizerRenderer> renderer;
-	const ConfigData &config;
-	std::shared_ptr<state> Vstate;
-	void stop();
+	const model::ConfigData &config;
+	std::shared_ptr<StateManager> Vstate;
 	std::thread display_thread;
-	void start_visuals(const neural_network &network);
+
+	void stop();
+	void start_visuals(const model::NeuralNetwork &network);
 	bool checkP();
 	void wait_until_updated();
 	void wait_until_started();
@@ -29,21 +27,20 @@ class visualizerController {
 	void handleStates();
 
   public:
-	visualizerController(const ConfigData &config);
+	visualizerController(const model::ConfigData &config);
 	~visualizerController();
-	void updateDots(const int layer, const std::vector<Global::ValueType> out, const std::vector<Global::ValueType> net);
-	void update(const int layer, const LayerParameters &gradient);
-	void setNewPhaseMode(const NNmode nn_mode);
-	void start(const neural_network &network);
-	void update(const gradient &new_grad);
+	void updateDots(const int layer, const model::Neurons &newNeurons);
+	void update(const int layer, const model::LayerParameters &gradient);
+	void setNewPhaseMode(const NnMode nn_mode);
+	void start(const model::NeuralNetwork &network);
+	void update(const training::gradient &new_grad);
 	void updateBatchCounter(const int batch);
-	void updateError(const Global::ValueType error, const int index);
-	void updateAlgoritemMode(const algorithmMode algoritem_mode);
+	void updateError(const global::ValueType error, const int index);
+	void updateAlgoritemMode(const AlgorithmMode algoritem_mode);
 	void update_prediction(const int index);
-	void update_lr(const Global::ValueType lr);
-    bool exit_training();
+	void update_lr(const global::ValueType newLerningRate);
+	bool exit_training();
 };
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer
 
 #endif // VISUALIZERCONTROLLER

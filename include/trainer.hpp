@@ -2,22 +2,21 @@
 #define TRAINER
 
 #include "../src/trainer/backPropagation.hpp"
-#include "../src/trainer/dataBase.hpp"
-#include <AiModel.hpp>
 
+namespace nn::training {
 constexpr int BAR_WIDTH = 100;
 constexpr int SECONDS_IN_MINUTE = 60;
 
-namespace nn {
 class Trainer {
   private:
-	TrainingConfig &config;
+	model::TrainingConfig &config;
 	DataBase dataBase;
 	AiModel &model;
 	LearningRate lr;
 	BackPropagation backPropagation;
-	void print_progress_bar(const int current, const int total);
 	int last_progress;
+
+	void print_progress_bar(const int current, const int total);
 
   public:
 	Trainer(AiModel &_model)
@@ -30,6 +29,6 @@ class Trainer {
 	void train();
 	~Trainer() = default;
 };
-} // namespace nn
+} // namespace nn::training
 
 #endif // TRAINER

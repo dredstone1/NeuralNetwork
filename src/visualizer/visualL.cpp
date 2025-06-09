@@ -1,17 +1,16 @@
 #include "visualL.hpp"
 #include "fonts.hpp"
 
-namespace nn {
-namespace Visualizer {
-visualL::visualL(const Layer &other, const std::shared_ptr<state> state_, const std::uint32_t width)
+namespace nn::visualizer {
+visualL::visualL(const Layer &other, const std::shared_ptr<StateManager> state_, const std::uint32_t width)
     : Layer(other),
-      panel(state_),
+      Panel(state_),
       layerRender({width, NN_WIDTH}),
       WIDTH(width) {}
 
-visualL::visualL(const int _size, const int _prev_size, const std::shared_ptr<state> state_, const std::uint32_t width)
+visualL::visualL(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width)
     : Layer(_size, _prev_size, 0),
-      panel(state_),
+      Panel(state_),
       layerRender({width, NN_WIDTH}),
       WIDTH(width) {}
 
@@ -23,7 +22,7 @@ void visualL::clear() {
 	layerRender.clear(sf::Color::Transparent);
 }
 
-void visualL::do_render() {
+void visualL::doRender() {
 	clear();
 	drawNeurons();
 	display();
@@ -67,7 +66,7 @@ void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const 
 	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f * scale;
 
 	for (size_t neuronP = 0; neuronP < getPrevSize(); neuronP++) {
-		float weightValue = Parameters.weights[neuron_i][neuronP];
+		float weightValue = parameters.weights[neuron_i][neuronP];
 
 		float xP = 0.f;
 		float neuron_width_scaled = NEURON_WIDTH * scale;
@@ -198,20 +197,19 @@ void visualL::drawNeuron(const double input, const double output, const sf::Vect
 	layerRender.draw(text);
 }
 
-void visualL::setDots(const std::vector<double> &out, const std::vector<double> &net) {
-	set_update();
-	dots.net = net;
-	dots.out = out;
+void visualL::setDots(const model::Neurons &newNeurons) {
+	setUpdate();
+	dots.net = newNeurons.net;
+	dots.out = newNeurons.out;
 }
 
-void visualL::set_weights(const LayerParameters &Param) {
-	set_update();
-	Parameters.set(Param);
+void visualL::set_weights(const model::LayerParameters &Param) {
+	setUpdate();
+	parameters.set(Param);
 }
 
-void VParamLayer::updateGrad(const LayerParameters &new_grad) {
-	set_update();
+void VParamLayer::updateGrad(const model::LayerParameters &new_grad) {
+	setUpdate();
 	grad.set(new_grad);
 }
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer

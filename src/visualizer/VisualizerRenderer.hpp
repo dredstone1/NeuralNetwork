@@ -8,10 +8,8 @@
 #include "graph.hpp"
 #include "state.hpp"
 #include "visualNN.hpp"
-#include <SFML/Graphics.hpp>
 
-namespace nn {
-namespace Visualizer {
+namespace nn::visualizer {
 constexpr sf::Color BG_COLOR(100, 100, 100);
 constexpr std::uint32_t UI_GAP = 15;
 
@@ -23,37 +21,37 @@ class VisualizerRenderer {
   private:
 	sf::RenderWindow window;
 	visualNN visualNetwork;
-	std::shared_ptr<state> Vstate;
+	std::shared_ptr<StateManager> Vstate;
 	vInteface interface;
 	vStatus statusV;
 	GraphUI Vgraph;
 	std::atomic<bool> running{false};
 	float fps;
 	float bps;
+	bool need_resize{false};
+
 	void renderLoop();
 	void processEvents();
 	void renderPanels();
 	void clear();
 	void full_update();
 	void do_frame(int &frameCount, int &batchCount, sf::Clock &fpsClock);
-	bool need_resize{false};
 	void reset_size();
 
   public:
-	VisualizerRenderer(const neural_network &network, const std::shared_ptr<state> vstate);
+	VisualizerRenderer(const model::NeuralNetwork &network, const std::shared_ptr<StateManager> vstate);
 	~VisualizerRenderer();
 	void close();
-	void updateDots(const int layer, const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net);
+	void updateDots(const int layer, const model::Neurons &newNeurons);
 	bool updateStatus();
-	void update(const gradient &new_grad);
+	void update(const training::gradient &new_grad);
 	void start();
-	void update(const int layer, const LayerParameters &gradients);
-	void updateBatchCounter(const Global::ValueType error, const int index);
-	void setNewPhaseMode(const NNmode nn_mode);
+	void update(const int layer, const model::LayerParameters &gradients);
+	void updateBatchCounter(const global::ValueType error, const int index);
+	void setNewPhaseMode(const NnMode nn_mode);
 	void update_prediction(const int index);
-	void update_lr(const Global::ValueType lr);
+	void update_lr(const global::ValueType newLerningRate);
 };
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer
 
 #endif // VISUALIZERRENDERER

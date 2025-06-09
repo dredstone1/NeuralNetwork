@@ -3,16 +3,16 @@
 
 #include "Layers/layer.hpp"
 #include "config.hpp"
-#include <memory>
 
-namespace nn {
-struct neural_network {
+namespace nn::model {
+struct NeuralNetwork {
 	std::vector<std::unique_ptr<Layer>> layers;
 	const NetworkConfig &config;
+
+	NeuralNetwork(const NetworkConfig &networkConfig);
 	size_t getLayerCount() const { return (config.hidden_layer_count() + 1); }
-	neural_network(const NetworkConfig &network_config);
 	void reset();
-	~neural_network() = default;
+	~NeuralNetwork() = default;
 };
-} // namespace nn
+} // namespace nn::model
 #endif // NEURAL_NETWORK

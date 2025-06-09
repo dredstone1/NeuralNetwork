@@ -1,37 +1,37 @@
 #include "button.hpp"
 #include "fonts.hpp"
+#include "visualizer/state.hpp"
 
-namespace nn {
-namespace Visualizer {
-button::button(const std::shared_ptr<state> _state, const std::string lable, const states Cstate)
-    : panel(_state),
+namespace nn::visualizer {
+Button::Button(const std::shared_ptr<StateManager> _state, const std::string_view &lable, const SettingType initState)
+    : Panel(_state),
       buttonRender({BUTTON_WIDTH, BUTTON_HEIGHT}),
-      CurrentState(Cstate),
+      CurrentState(initState),
       lable(lable) {
 	renderButton();
 }
 
-void button::renderButton() {
+void Button::renderButton() {
 	buttonRender.clear(getBgColor());
 	drawText();
 	visibleState = vstate->getState(CurrentState);
 }
 
-sf::Color button::getBgColor() {
+sf::Color Button::getBgColor() {
 	if (vstate->getState(CurrentState))
-		return ButtonColors::ACTIVE;
+		return buttoncolors::ACTIVE;
 	else
-		return ButtonColors::INACTIVE;
+		return buttoncolors::INACTIVE;
 }
 
-sf::Color button::getFontColor() {
+sf::Color Button::getFontColor() {
 	if (vstate->getState(CurrentState))
-		return ButtonColors::TEXT_ACTIVE;
+		return buttoncolors::TEXT_ACTIVE;
 	else
-		return ButtonColors::TEXT_INACTIVE;
+		return buttoncolors::TEXT_INACTIVE;
 }
 
-void button::drawText() {
+void Button::drawText() {
 	std::ostringstream ss;
 	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(BUTTON_TEXT_FONT);
@@ -41,23 +41,23 @@ void button::drawText() {
 	buttonRender.draw(text);
 }
 
-void button::display() {
+void Button::display() {
 	buttonRender.display();
 }
 
-void button::sendCommand() {
+void Button::sendCommand() {
 	vstate->toggle(CurrentState);
 }
 
-sf::Sprite button::getSprite() {
+sf::Sprite Button::getSprite() {
 	return sf::Sprite(buttonRender.getTexture());
 }
 
-bool button::checkForClick(const sf::Vector2f mousePos, const sf::Vector2f boxPos) {
+bool Button::checkForClick(const sf::Vector2f mousePos, const sf::Vector2f boxPos) {
 	sf::Sprite button_box = getSprite();
 	button_box.setPosition(boxPos);
 	if (button_box.getGlobalBounds().contains(mousePos)) {
-		set_update();
+		setUpdate();
 		sendCommand();
 		return true;
 	}
@@ -65,17 +65,16 @@ bool button::checkForClick(const sf::Vector2f mousePos, const sf::Vector2f boxPo
 	return false;
 }
 
-void button::do_render() {
+void Button::doRender() {
 	if (vstate->getState(CurrentState) != visibleState) {
 		renderButton();
 	}
 	display();
 }
 
-void button::observe() {
+void Button::observe() {
 	if (vstate->getState(CurrentState) != visibleState) {
-		set_update();
+		setUpdate();
 	}
 }
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer

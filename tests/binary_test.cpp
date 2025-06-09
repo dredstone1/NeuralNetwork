@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 
 	nn::AiModel model(config_FN, true);
 
-	nn::Trainer trainer(model);
+	nn::training::Trainer trainer(model);
 
 	trainer.train();
 
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		printVector(input);
-		model.run_model(input);
+		model.runModel(input);
 		printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
 	}
 

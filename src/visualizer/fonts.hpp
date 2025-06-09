@@ -3,15 +3,13 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace nn {
-namespace Visualizer {
+namespace nn::visualizer {
 class Fonts {
   public:
 	Fonts() = delete;
 	static sf::Font &getFont();
 	~Fonts() = default;
 };
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer
 
 #endif // FONTS

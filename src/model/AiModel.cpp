@@ -1,23 +1,25 @@
 #include "AiModel.hpp"
+#include "Globals.hpp"
+#include <memory>
 
 namespace nn {
 AiModel::AiModel(const std::string &config_file, const bool use_visual)
     : config(config_file) {
-	_model = std::make_unique<model>(config, use_visual);
+	model = std::make_unique<model::Model>(config, use_visual);
 }
 
-void AiModel::run_model(const std::vector<Global::ValueType> &input) {
-	_model->run_model(input);
+void AiModel::runModel(const global::ParamMetrix &input) {
+	model->runModel(input);
 }
 
-prediction AiModel::getPrediction() {
+Prediction AiModel::getPrediction() {
 	size_t max = 0;
 
-	for (size_t i = 1; i < _model->getOutputSize(); i++) {
-		if (_model->getOutput()[i] > _model->getOutput()[max])
+	for (size_t i = 1; i < model->getOutputSize(); i++) {
+		if (model->getOutput()[i] > model->getOutput()[max])
 			max = i;
 	}
 
-	return {max, _model->getOutput()[max]};
+	return {max, model->getOutput()[max]};
 }
 } // namespace nn

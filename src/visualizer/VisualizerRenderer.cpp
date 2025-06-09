@@ -1,14 +1,11 @@
 #include "VisualizerRenderer.hpp"
-#include "Globals.hpp"
-#include "state.hpp"
-#include "visualL.hpp"
+#include "model/neuron.hpp"
 #include "visualNN.hpp"
-#include "visualizer/Vstatus.hpp"
 #include <memory>
 
 namespace nn {
-namespace Visualizer {
-VisualizerRenderer::VisualizerRenderer(const neural_network &network, std::shared_ptr<state> vstate)
+namespace visualizer {
+VisualizerRenderer::VisualizerRenderer(const model::NeuralNetwork &network, std::shared_ptr<StateManager> vstate)
     : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), WINDOW_TITLE.data()),
       visualNetwork(network, vstate),
       Vstate(vstate),
@@ -64,10 +61,10 @@ void VisualizerRenderer::renderPanels() {
 
 void VisualizerRenderer::full_update() {
 	reset_size();
-	statusV.set_update();
-	interface.set_update();
-	visualNetwork.set_update();
-	Vgraph.set_update();
+	statusV.setUpdate();
+	interface.setUpdate();
+	visualNetwork.setUpdate();
+	Vgraph.setUpdate();
 }
 
 void VisualizerRenderer::do_frame(int &frameCount, int &batchCount, sf::Clock &fpsClock) {
@@ -75,13 +72,13 @@ void VisualizerRenderer::do_frame(int &frameCount, int &batchCount, sf::Clock &f
 
 	if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
 		fps = frameCount / fpsClock.getElapsedTime().asSeconds();
-		bps = (Vstate->current_batch - batchCount) / fpsClock.getElapsedTime().asSeconds();
+		bps = (Vstate->currentBatch - batchCount) / fpsClock.getElapsedTime().asSeconds();
 
 		fpsClock.restart();
 		frameCount = 0;
-		batchCount = Vstate->current_batch;
-		statusV.update_fps(fps);
-		statusV.update_bps(bps);
+		batchCount = Vstate->currentBatch;
+		statusV.updateFps(fps);
+		statusV.updateBps(bps);
 		full_update();
 	}
 
@@ -127,19 +124,19 @@ void VisualizerRenderer::start() {
 	renderLoop();
 }
 
-void VisualizerRenderer::updateDots(const int layer, const std::vector<Global::ValueType> &out, const std::vector<Global::ValueType> &net) {
-	visualNetwork.updateDots(layer, out, net);
+void VisualizerRenderer::updateDots(const int layer, const model::Neurons &newNeurons) {
+	visualNetwork.updateDots(layer, newNeurons);
 }
 
-void VisualizerRenderer::update(const int layer, const LayerParameters &gradients) {
+void VisualizerRenderer::update(const int layer, const model::LayerParameters &gradients) {
 	visualNetwork.update(layer, gradients);
 }
 
-void VisualizerRenderer::updateBatchCounter(const Global::ValueType error, const int index) {
+void VisualizerRenderer::updateBatchCounter(const global::ValueType error, const int index) {
 	Vgraph.add_data(error, index);
 }
 
-void VisualizerRenderer::update(const gradient &new_grad) {
+void VisualizerRenderer::update(const training::gradient &new_grad) {
 	visualNetwork.update(new_grad);
 }
 
@@ -147,16 +144,16 @@ VisualizerRenderer::~VisualizerRenderer() {
 	close();
 }
 
-void VisualizerRenderer::setNewPhaseMode(const NNmode nn_mode) {
-	statusV.set_update();
+void VisualizerRenderer::setNewPhaseMode(const NnMode nn_mode) {
+	statusV.setUpdate();
 	Vstate->nnMode.store(nn_mode);
 }
 
 void VisualizerRenderer::update_prediction(const int index) {
 	visualNetwork.update_prediction(index);
 }
-void VisualizerRenderer::update_lr(const Global::ValueType lr) {
-	statusV.update_lr(lr);
+void VisualizerRenderer::update_lr(const global::ValueType lr) {
+	statusV.updateLerningRate(lr);
 }
-} // namespace Visualizer
+} // namespace visualizer
 } // namespace nn

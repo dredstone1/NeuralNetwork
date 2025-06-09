@@ -3,19 +3,19 @@
 
 #include "../model/LayerParameters.hpp"
 #include "../model/config.hpp"
-#include <vector>
 
-namespace nn {
+namespace nn::training {
 struct gradient {
-	std::vector<LayerParameters> gradients;
+	std::vector<model::LayerParameters> gradients;
+	const model::NetworkConfig &config;
+
 	void add(const gradient &new_gradient);
-	void multiply(const Global::ValueType value);
+	void multiply(const global::ValueType value);
 	void reset();
 	~gradient() = default;
-	const NetworkConfig &config;
-	gradient(const NetworkConfig &config);
+	gradient(const model::NetworkConfig &config);
 	gradient(const gradient &other);
 };
-} // namespace nn
+} // namespace nn::training
 
 #endif // GRADIENT

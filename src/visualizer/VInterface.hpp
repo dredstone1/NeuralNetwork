@@ -2,12 +2,9 @@
 #define VINTERFACE
 
 #include "button.hpp"
-#include "panel.hpp"
-#include "state.hpp"
-#include <SFML/Graphics/Color.hpp>
+#include <memory>
 
-namespace nn {
-namespace Visualizer {
+namespace nn::visualizer {
 constexpr std::uint32_t VINTERFACE_WIDTH = 500;
 constexpr std::uint32_t BUTTON_GAP = 10;
 constexpr int BUTTON_PER_COLLUM = 3;
@@ -15,23 +12,23 @@ constexpr std::uint32_t VINTERFACE_HEIGHT = BUTTON_HEIGHT * BUTTON_PER_COLLUM + 
 
 constexpr sf::Color INTERFACE_PANEL_COLOR = PANELS_BG;
 
-class vInteface : public panel {
+class vInteface : public Panel {
   private:
 	sf::RenderTexture VRender;
+	bool needHandlePress{false};
+	std::vector<std::unique_ptr<Button>> buttons;
+
 	void createVInterface();
 	void display();
 	void handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos);
-	bool needHandlePress{false};
-	std::vector<std::unique_ptr<button>> buttons;
-	void do_render() override;
+	void doRender() override;
 
   public:
-	vInteface(const std::shared_ptr<state> vstate);
+	vInteface(const std::shared_ptr<StateManager> vstate);
 	~vInteface() = default;
 	sf::Sprite getSprite();
 	void handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos);
 	void handleNoClick();
 };
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer
 #endif // VINTERFACE

@@ -3,13 +3,12 @@
 
 #include "../model/config.hpp"
 #include <atomic>
-#include <string>
+#include <string_view>
 
-namespace nn {
-namespace Visualizer {
+namespace nn::visualizer {
 constexpr int STATES_COUNT = 4;
 
-enum class states {
+enum class SettingType {
 	Pause,
 	PreciseMode,
 	AutoPause,
@@ -17,50 +16,51 @@ enum class states {
 	None,
 };
 
-const std::array<std::string, STATES_COUNT> statesName = {
+const std::array<std::string_view, STATES_COUNT> statesName = {
     "pause",
     "precise mode",
     "auto pause",
     "exit training",
 };
 
-enum class NNmode {
+enum class NnMode {
 	Forword,
 	Backward,
 	None,
 };
 
-enum class algorithmMode {
+enum class AlgorithmMode {
 	Normal,
 	Training,
 };
 
-struct set {
+struct Settings {
 	std::atomic<bool> pause{true};
 	std::atomic<bool> preciseMode{true};
 	std::atomic<bool> autoPause{true};
 	std::atomic<bool> exitTraining{false};
 };
 
-class state {
+class StateManager {
   public:
-	state(const ConfigData config_) : config(config_) {}
-	set settings;
-	std::atomic<bool> update_mode{false};
-	std::atomic<NNmode> nnMode{NNmode::Forword};
-	std::atomic<algorithmMode> AlgorithmMode{algorithmMode::Normal};
-	int current_batch{0};
-	const ConfigData config;
-	void toggle(const states state_);
-	void toggle(const std::string state_) { toggle(getStatefromString(state_)); }
-	std::string getStateString(const states state_);
-	states getStatefromString(const std::string &_state);
-	bool getState(const states state_);
-	void setState(const states state_, const bool stateM);
-	void setState(const std::string &state_, const bool stateM) { setState(getStatefromString(state_), stateM); }
-	~state() = default;
+	Settings settings;
+	int currentBatch{0};
+	const model::ConfigData config;
+	std::atomic<bool> updateMode{false};
+	std::atomic<NnMode> nnMode{NnMode::Forword};
+	std::atomic<AlgorithmMode> algorithmMode{AlgorithmMode::Normal};
+
+	StateManager(const model::ConfigData config)
+	    : config(config) {}
+	void toggle(const SettingType state);
+	void toggle(const std::string state) { toggle(getStatefromString(state)); }
+	std::string_view getStateString(const SettingType state);
+	SettingType getStatefromString(const std::string &state);
+	bool getState(const SettingType state);
+	void setState(const SettingType state, const bool stateMode);
+	void setState(const std::string &state, const bool stateMode) { setState(getStatefromString(state), stateMode); }
+	~StateManager() = default;
 };
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer
 
 #endif // STATE
