@@ -2,7 +2,6 @@
 #define VINTERFACE
 
 #include "button.hpp"
-#include <memory>
 
 namespace nn::visualizer {
 constexpr std::uint32_t VINTERFACE_WIDTH = 500;

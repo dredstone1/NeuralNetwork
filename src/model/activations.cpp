@@ -60,7 +60,7 @@ void Activation::softmax(Neurons &metrix) {
 		sum += metrix.out[i];
 	}
 
-	sum = std::max(sum, 1e-10);
+	sum = maxValue(sum, 1e-10);
 
 	for (size_t i = 0; i < metrix.size(); i++) {
 		metrix.out[i] /= sum;
@@ -68,7 +68,7 @@ void Activation::softmax(Neurons &metrix) {
 }
 
 global::ValueType Activation::relu(const global::ValueType x) {
-	return std::max(0.0, x);
+	return maxValue(x, 0.0f);
 }
 global::ValueType Activation::derivativeRelu(const global::ValueType x) {
 	return (x > 0) ? 1.0 : 0.0;

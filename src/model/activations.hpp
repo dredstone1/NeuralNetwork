@@ -7,6 +7,10 @@
 namespace nn::model {
 constexpr global::ValueType RELU_LEAKY_ALPHA = 0.01;
 
+constexpr global::ValueType maxValue(const global::ValueType &a, const float &b) {
+	return (a < b) ? b : a;
+}
+
 enum class ActivationType {
 	Relu,
 	LeakyRelu,

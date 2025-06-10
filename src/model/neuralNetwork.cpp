@@ -1,8 +1,4 @@
 #include "neuralNetwork.hpp"
-#include "Layers/Hidden_Layer.hpp"
-#include "Layers/Output_Layer.hpp"
-#include "config.hpp"
-#include <memory>
 
 namespace nn::model {
 NeuralNetwork::NeuralNetwork(const NetworkConfig &network_config)

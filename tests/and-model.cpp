@@ -1,3 +1,4 @@
+#include "Globals.hpp"
 #include <AiModel.hpp>
 #include <iostream>
 #include <trainer.hpp>
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
 			}
 			num2 = std::stoi(str_num);
 
-			std::vector<double> input(2, 0);
+            nn::global::ParamMetrix input(2, 0);
 			input[0] = num1;
 			input[1] = num2;
 			model.runModel(input);

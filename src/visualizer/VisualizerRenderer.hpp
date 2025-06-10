@@ -2,11 +2,9 @@
 #define VISUALIZERRENDERER
 
 #include "../model/neuralNetwork.hpp"
-#include "Globals.hpp"
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "graph.hpp"
-#include "state.hpp"
 #include "visualNN.hpp"
 
 namespace nn::visualizer {

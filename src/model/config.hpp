@@ -4,15 +4,8 @@
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
 #include <string>
-#include <vector>
 
 namespace nn::model {
-enum class DecayType {
-	Constant = 0,
-	StepDecay = 1,
-	ExponentialDecay = 2,
-};
-
 struct LayerConfig {
 	int size;
 	global::ValueType weights_init_value = -1;
@@ -29,31 +22,17 @@ struct NetworkConfig {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, output_init_value, layers_config);
 
-struct LrConfig {
-	DecayType decay_type = DecayType::Constant;
-	global::ValueType lr_init_value = 0.001;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    LrConfig,
-    decay_type,
-    lr_init_value);
-
 struct TrainingConfig {
-	LrConfig lr_config;
 	int batch_size;
 	int batch_count;
 	std::string db_filename;
-	global::ValueType noise_level = 0;
-	global::ValueType drop_out_rate = -1;
+	global::ValueType lr_init_value = 0.001;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     TrainingConfig,
-    lr_config,
     batch_size,
     batch_count,
-    db_filename,
-    noise_level,
-    drop_out_rate);
+    db_filename);
 
 struct VisualMode {
 	std::string state;

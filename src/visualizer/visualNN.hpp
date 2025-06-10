@@ -5,7 +5,6 @@
 #include "../trainer/gradient.hpp"
 #include "visualL.hpp"
 #include <SFML/Graphics.hpp>
-#include <memory>
 
 namespace nn {
 namespace visualizer {

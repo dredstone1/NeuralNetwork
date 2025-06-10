@@ -1,8 +1,8 @@
 #ifndef NEURAL_NETWORK
 #define NEURAL_NETWORK
 
-#include "Layers/layer.hpp"
 #include "config.hpp"
+#include "layer.hpp"
 
 namespace nn::model {
 struct NeuralNetwork {

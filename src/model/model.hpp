@@ -2,7 +2,7 @@
 #define MODEL
 
 #include "../visualizer/VisualizerController.hpp"
-#include "Layers/layer.hpp"
+#include "layer.hpp"
 #include "config.hpp"
 #include "neuralNetwork.hpp"
 

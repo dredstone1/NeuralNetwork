@@ -1,7 +1,6 @@
 #ifndef BACKPROPAGATION
 #define BACKPROPAGATION
 
-#include "../model/Layers/Hidden_Layer.hpp"
 #include "Globals.hpp"
 #include "dataBase.hpp"
 #include "gradient.hpp"

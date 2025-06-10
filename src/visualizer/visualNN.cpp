@@ -1,7 +1,4 @@
 #include "visualNN.hpp"
-#include "Globals.hpp"
-#include "visualL.hpp"
-#include <memory>
 
 namespace nn::visualizer {
 visualNN::visualNN(const model::NeuralNetwork &network, std::shared_ptr<StateManager> state_)

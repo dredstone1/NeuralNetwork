@@ -3,7 +3,6 @@
 
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
-#include <string_view>
 
 namespace nn::visualizer {
 constexpr std::uint32_t VSTATUS_WIDTH = 500;

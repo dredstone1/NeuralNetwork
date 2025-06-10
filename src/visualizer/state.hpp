@@ -3,7 +3,6 @@
 
 #include "../model/config.hpp"
 #include <atomic>
-#include <string_view>
 
 namespace nn::visualizer {
 constexpr int STATES_COUNT = 4;

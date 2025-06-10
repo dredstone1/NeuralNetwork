@@ -1,11 +1,6 @@
 #include <AiModel.hpp>
-#include <cctype>
-#include <cstdlib>
 #include <iostream>
-#include <ostream>
-#include <string>
 #include <trainer.hpp>
-#include <vector>
 
 int int_to_binaray(int num) {
 	int binary = 0;
@@ -33,6 +28,7 @@ bool isNumber(const std::string &s) {
 		if (!std::isdigit(c))
 			return false;
 	}
+
 	return true;
 }
 
@@ -65,7 +61,7 @@ void print_database(int actual_size, int input_size, int database_size) {
 	}
 }
 
-void printVector(const std::vector<double> &vec) {
+void printVector(const nn::global::ParamMetrix &vec) {
 	for (const auto &elem : vec) {
 		std::cout << elem << ' ';
 	}
@@ -74,7 +70,7 @@ void printVector(const std::vector<double> &vec) {
 
 int main(int argc, char *argv[]) {
 	int input_size = 10;
-	print_database(4, input_size, 1000);
+	// print_database(4, input_size, 1000);
 
 	std::string config_FN = "config1.json";
 
@@ -102,7 +98,7 @@ int main(int argc, char *argv[]) {
 
 		std::cout << "binary: " << binary << std::endl;
 
-		std::vector<double> input(input_size, 0.1);
+		nn::global::ParamMetrix input(input_size, 0.1);
 		for (int i = 0; i < input.size(); i++) {
 			input[i] += i;
 		}

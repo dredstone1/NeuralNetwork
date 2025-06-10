@@ -3,8 +3,6 @@
 
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
-#include <string>
-#include <string_view>
 
 namespace nn::visualizer {
 constexpr std::uint32_t BUTTON_HEIGHT = 50;

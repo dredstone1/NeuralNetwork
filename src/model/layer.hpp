@@ -1,8 +1,9 @@
 #ifndef LAYER
 #define LAYER
 
-#include "../LayerParameters.hpp"
-#include "../neuron.hpp"
+#include "LayerParameters.hpp"
+#include "activations.hpp"
+#include "neuron.hpp"
 
 namespace nn::model {
 enum class LayerType {
@@ -38,5 +39,34 @@ class Layer {
 	const LayerParameters getParms() { return parameters; }
 	virtual ~Layer() = default;
 };
+
+class Hidden_Layer : public Layer {
+  private:
+	Activation activationFunction;
+
+  public:
+	Hidden_Layer(const int _size, const int _prev_size, const ActivationType activation, const global::ValueType init_value)
+	    : Layer(_size, _prev_size, init_value),
+	      activationFunction(activation) {}
+	Hidden_Layer(const Hidden_Layer &other)
+	    : Layer(other),
+	      activationFunction(other.activationFunction) {}
+
+	void forward(const global::ParamMetrix &metrix) override;
+	LayerType getType() const override { return LayerType::HIDDEN; }
+	global::ValueType activation(const global::ValueType x) const { return activationFunction.activate(x); }
+	global::ValueType derivativeActivation(const global::ValueType x) const { return activationFunction.derivativeActivate(x); }
+};
+
+class Output_Layer : public Layer {
+  public:
+	Output_Layer(const int _size, const int _prev_size, const global::ValueType init_value)
+	    : Layer(_size, _prev_size, init_value) {}
+	Output_Layer(const Layer &other)
+	    : Layer(other) {}
+	void forward(const global::ParamMetrix &metrix) override;
+	LayerType getType() const override { return LayerType::OUTPUT; }
+};
+
 } // namespace nn::model
 #endif // LAYER

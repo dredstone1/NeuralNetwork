@@ -1,5 +1,4 @@
 #include "Vstatus.hpp"
-#include "Globals.hpp"
 #include "fonts.hpp"
 
 namespace nn::visualizer {

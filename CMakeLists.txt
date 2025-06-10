@@ -32,9 +32,7 @@ add_library(NeuralNetwork STATIC
     src/model/neuralNetwork.cpp
     src/model/LayerParameters.cpp
     src/model/neuron.cpp
-    src/model/Layers/Hidden_Layer.cpp
-    src/model/Layers/layer.cpp
-    src/model/Layers/Output_Layer.cpp
+    src/model/layer.cpp
     src/model/config.cpp
     src/trainer/trainer.cpp
     src/trainer/dataBase.cpp

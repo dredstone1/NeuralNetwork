@@ -1,7 +1,4 @@
 #include "VisualizerController.hpp"
-#include "model/neuralNetwork.hpp"
-#include "model/neuron.hpp"
-#include "visualizer/state.hpp"
 
 namespace nn::visualizer {
 visualizerController::visualizerController(const model::ConfigData &_config)

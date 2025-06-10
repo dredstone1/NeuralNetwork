@@ -1,6 +1,4 @@
 #include "AiModel.hpp"
-#include "Globals.hpp"
-#include <memory>
 
 namespace nn {
 AiModel::AiModel(const std::string &config_file, const bool use_visual)
@@ -16,8 +14,9 @@ Prediction AiModel::getPrediction() {
 	size_t max = 0;
 
 	for (size_t i = 1; i < model->getOutputSize(); i++) {
-		if (model->getOutput()[i] > model->getOutput()[max])
+		if (model->getOutput()[i] > model->getOutput()[max]) {
 			max = i;
+		}
 	}
 
 	return {max, model->getOutput()[max]};

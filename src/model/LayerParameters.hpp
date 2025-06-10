@@ -3,7 +3,6 @@
 
 #include <Globals.hpp>
 #include <cmath>
-#include <vector>
 
 namespace nn::model {
 constexpr global::ValueType PARAM_RESET_VALUE = 0;

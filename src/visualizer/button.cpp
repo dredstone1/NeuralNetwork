@@ -1,6 +1,5 @@
 #include "button.hpp"
 #include "fonts.hpp"
-#include "visualizer/state.hpp"
 
 namespace nn::visualizer {
 Button::Button(const std::shared_ptr<StateManager> _state, const std::string_view &lable, const SettingType initState)

@@ -1,7 +1,7 @@
 #ifndef VISUALL
 #define VISUALL
 
-#include "../model/Layers/layer.hpp"
+#include "../model/layer.hpp"
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
 
