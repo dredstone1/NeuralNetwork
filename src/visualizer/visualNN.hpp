@@ -4,10 +4,8 @@
 #include "../model/neuralNetwork.hpp"
 #include "../trainer/gradient.hpp"
 #include "visualL.hpp"
-#include <SFML/Graphics.hpp>
 
-namespace nn {
-namespace visualizer {
+namespace nn::visualizer {
 constexpr sf::Color NN_PANEL_BG = PANELS_BG;
 
 class visualNN : public Panel {
@@ -32,7 +30,6 @@ class visualNN : public Panel {
 	void update(const training::gradient &new_grad);
 	void update_prediction(const int index);
 };
-} // namespace Visualizer
-} // namespace nn
+} // namespace nn::visualizer
 
 #endif // VISUALNN

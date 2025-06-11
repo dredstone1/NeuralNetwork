@@ -1,21 +1,24 @@
 cmake_minimum_required(VERSION 3.28)
 project(NeuralNetwork LANGUAGES CXX)
 
+# ------------------------------------------------------------------
+# Configuration
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-# Resource path macro
-set(NN_RESOURCE_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts")
-
-# Sanitizer flags
-add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
-add_link_options(-fsanitize=address)
+# Default to Debug build type
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+endif()
 
 # ------------------------------------------------------------------
-# Fetch dependencies
+# Paths
+set(NN_RESOURCE_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts")
+
+# ------------------------------------------------------------------
+# Dependencies (FetchContent)
 include(FetchContent)
 
 FetchContent_Declare(SFML
@@ -38,39 +41,17 @@ FetchContent_MakeAvailable(SFML nlohmann_json)
 
 # ------------------------------------------------------------------
 # Main library
-add_library(NeuralNetwork STATIC
-    src/model/AiModel.cpp
-    src/model/model.cpp
-    src/model/activations.cpp
-    src/model/neuralNetwork.cpp
-    src/model/LayerParameters.cpp
-    src/model/neuron.cpp
-    src/model/layer.cpp
-    src/model/config.cpp
-    src/trainer/trainer.cpp
-    src/trainer/dataBase.cpp
-    src/trainer/backPropagation.cpp
-    src/trainer/gradient.cpp
-    src/trainer/learning_rate.cpp
-    src/visualizer/VisualizerRenderer.cpp
-    src/visualizer/VisualizerController.cpp
-    src/visualizer/visualNN.cpp
-    src/visualizer/visualL.cpp
-    src/visualizer/state.cpp
-    src/visualizer/VInterface.cpp
-    src/visualizer/button.cpp
-    src/visualizer/fonts.cpp
-    src/visualizer/Vstatus.cpp
-    src/visualizer/panel.cpp
-    src/visualizer/graph.cpp
+file(GLOB_RECURSE NN_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
+
+add_library(NeuralNetwork STATIC ${NN_SOURCES})
+set_target_properties(NeuralNetwork PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(NeuralNetwork
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_compile_definitions(NeuralNetwork
@@ -88,32 +69,47 @@ target_link_libraries(NeuralNetwork
 target_compile_options(NeuralNetwork PRIVATE -Wall -Wextra -Wpedantic)
 
 # ------------------------------------------------------------------
+# Sanitizers (enabled in Debug mode only)
+option(ENABLE_SANITIZERS "Enable address sanitizer" ON)
+if(ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(NeuralNetwork PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
+    target_link_options(NeuralNetwork PRIVATE -fsanitize=address)
+endif()
+
+# ------------------------------------------------------------------
 # Tests
-enable_testing()
-include(CTest)
+option(BUILD_NN_TESTS "Build NeuralNetwork tests" OFF)
 
-file(GLOB TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
+if(BUILD_NN_TESTS)
+    enable_testing()
+    include(CTest)
 
-if(TEST_SOURCES)
-    foreach(test_file ${TEST_SOURCES})
-        get_filename_component(test_name ${test_file} NAME_WE)
+    file(GLOB TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
 
-        add_executable(${test_name} ${test_file})
+    if(TEST_SOURCES)
+        foreach(test_file ${TEST_SOURCES})
+            get_filename_component(test_name "${test_file}" NAME_WE)
 
-        target_link_libraries(${test_name} PRIVATE NeuralNetwork)
+            add_executable(${test_name} ${test_file})
 
-        target_include_directories(${test_name} PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/include
-        )
+            target_link_libraries(${test_name} PRIVATE NeuralNetwork)
 
-        add_test(NAME ${test_name} COMMAND ${test_name})
-    endforeach()
-else()
-    message(WARNING "No test sources found in tests/ directory.")
+            target_include_directories(${test_name} PRIVATE
+                "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            )
+
+            add_test(NAME ${test_name} COMMAND ${test_name})
+        endforeach()
+    else()
+        message(WARNING "No test sources found in tests/ directory.")
+    endif()
 endif()
 
 # ------------------------------------------------------------------
 # Install
-install(TARGETS NeuralNetwork ARCHIVE DESTINATION lib)
+install(TARGETS NeuralNetwork
+    ARCHIVE DESTINATION lib
+)
+
 install(DIRECTORY include/ DESTINATION include)
 

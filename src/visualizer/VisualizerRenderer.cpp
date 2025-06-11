@@ -1,10 +1,6 @@
 #include "VisualizerRenderer.hpp"
-#include "model/neuron.hpp"
-#include "visualNN.hpp"
-#include <memory>
 
-namespace nn {
-namespace visualizer {
+namespace nn::visualizer {
 VisualizerRenderer::VisualizerRenderer(const model::NeuralNetwork &network, std::shared_ptr<StateManager> vstate)
     : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), WINDOW_TITLE.data()),
       visualNetwork(network, vstate),
@@ -152,8 +148,8 @@ void VisualizerRenderer::setNewPhaseMode(const NnMode nn_mode) {
 void VisualizerRenderer::update_prediction(const int index) {
 	visualNetwork.update_prediction(index);
 }
+
 void VisualizerRenderer::update_lr(const global::ValueType lr) {
 	statusV.updateLerningRate(lr);
 }
-} // namespace visualizer
-} // namespace nn
+} // namespace nn::visualizer

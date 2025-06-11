@@ -1,6 +1,5 @@
 #include "graph.hpp"
 #include "fonts.hpp"
-#include <SFML/Graphics/Color.hpp>
 #include <algorithm>
 
 namespace nn::visualizer {

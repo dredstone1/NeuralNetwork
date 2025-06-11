@@ -1,7 +1,4 @@
 #include "model.hpp"
-#include "Globals.hpp"
-#include "model/neuron.hpp"
-#include "neuralNetwork.hpp"
 #include <cmath>
 
 namespace nn::model {
