@@ -5,26 +5,39 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-set(NN_RESOURCE_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(SANITIZER_FLAGS "-fsanitize=address -fno-omit-frame-pointer")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZER_FLAGS}")
-set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${SANITIZER_FLAGS}")
+# Resource path macro
+set(NN_RESOURCE_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts")
 
+# Sanitizer flags
+add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+add_link_options(-fsanitize=address)
+
+# ------------------------------------------------------------------
+# Fetch dependencies
 include(FetchContent)
+
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
     GIT_TAG 3.0.1
     GIT_SHALLOW ON
-    EXCLUDE_FROM_ALL
     SYSTEM
+    EXCLUDE_FROM_ALL
 )
-FetchContent_MakeAvailable(SFML)
 
-find_package(nlohmann_json CONFIG REQUIRED)
+FetchContent_Declare(nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.12.0
+    GIT_SHALLOW ON
+    SYSTEM
+    EXCLUDE_FROM_ALL
+)
 
+FetchContent_MakeAvailable(SFML nlohmann_json)
+
+# ------------------------------------------------------------------
+# Main library
 add_library(NeuralNetwork STATIC
     src/model/AiModel.cpp
     src/model/model.cpp
@@ -58,7 +71,6 @@ target_include_directories(NeuralNetwork
         $<INSTALL_INTERFACE:include>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${SFML_INCLUDE_DIR}
 )
 
 target_compile_definitions(NeuralNetwork
@@ -66,7 +78,7 @@ target_compile_definitions(NeuralNetwork
 )
 
 target_link_libraries(NeuralNetwork
-   PUBLIC
+    PUBLIC
         SFML::Graphics
         SFML::Window
         SFML::System
@@ -75,42 +87,33 @@ target_link_libraries(NeuralNetwork
 
 target_compile_options(NeuralNetwork PRIVATE -Wall -Wextra -Wpedantic)
 
-add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
-add_link_options(-fsanitize=address)
-
+# ------------------------------------------------------------------
+# Tests
 enable_testing()
 include(CTest)
 
-file(GLOB TEST_SOURCES
-    RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-    "tests/*.cpp"
-)
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
 
-if(NOT TEST_SOURCES)
-    message(WARNING "No test sources found in tests/ directory.")
-else()
+if(TEST_SOURCES)
     foreach(test_file ${TEST_SOURCES})
         get_filename_component(test_name ${test_file} NAME_WE)
 
         add_executable(${test_name} ${test_file})
 
-        target_link_libraries(${test_name} PRIVATE
-            NeuralNetwork
-            sfml-graphics
-            sfml-window
-            sfml-system
-            nlohmann_json::nlohmann_json
-        )
+        target_link_libraries(${test_name} PRIVATE NeuralNetwork)
 
         target_include_directories(${test_name} PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/include
-            ${SFML_INCLUDE_DIR}
         )
 
         add_test(NAME ${test_name} COMMAND ${test_name})
     endforeach()
+else()
+    message(WARNING "No test sources found in tests/ directory.")
 endif()
 
+# ------------------------------------------------------------------
+# Install
 install(TARGETS NeuralNetwork ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
 
