@@ -8,29 +8,15 @@ defaults:
 
 jobs:
   build:
-    name: ${{ matrix.platform.name }} ${{ matrix.config.name }}
-    runs-on: ${{ matrix.platform.os }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-        - { name: Windows VS2019, os: windows-2019  }
-        - { name: Windows VS2022, os: windows-2022  }
-        - { name: Linux GCC,      os: ubuntu-latest }
-        - { name: Linux Clang,    os: ubuntu-latest, flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: macOS,          os: macos-latest  }
-        config:
-        - { name: Shared, flags: -DBUILD_SHARED_LIBS=TRUE }
-        - { name: Static, flags: -DBUILD_SHARED_LIBS=FALSE }
+    runs-on: ubuntu-latest
 
     steps:
-    
-    - name: Install Linux Dependencies
-      if: runner.os == 'Linux'
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
+          build-essential \
+          cmake \
           libxrandr-dev \
           libxcursor-dev \
           libudev-dev \
@@ -39,13 +25,14 @@ jobs:
           libvorbis-dev \
           libgl1-mesa-dev \
           libegl1-mesa-dev \
-          libxi-dev
+          libxi-dev \
+          libfreetype6-dev
 
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Configure
-      run: cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}}
+      run: cmake -B build -DBUILD_SHARED_LIBS=TRUE
 
     - name: Build
       run: cmake --build build --config Release
