@@ -10,10 +10,6 @@ A work-in-progress C++ neural network library designed for building, training, a
 - **📦 CMake Ready**: Seamless build system integration
 - **🎯 Research Focused**: Designed with experimentation and learning in mind
 
-## 🚧 Development Status
-
-⚠️ **Under Active Development** - This project is currently being built from the ground up. Features may be incomplete or subject to significant changes. Your feedback and contributions are highly appreciated!
-
 ## 🏗️ Quick Start
 
 ### Prerequisites
