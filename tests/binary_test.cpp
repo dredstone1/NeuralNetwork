@@ -49,7 +49,7 @@ void print_database(int actual_size, int input_size, int database_size) {
 				int bit_index = i - shift;
 
 				if (bit_index < 0 || bit_index >= actual_size) {
-					std::cout << 0.1  << " ";
+					std::cout << 0.1 << " ";
 				} else {
 					int bit = (num >> (actual_size - 1 - bit_index)) & 1;
 
@@ -71,7 +71,7 @@ void printVector(const nn::global::ParamMetrix &vec) {
 
 int main(int argc, char *argv[]) {
 	int input_size = 10;
-	print_database(4, input_size, 1000);
+	// print_database(4, input_size, 1000);
 
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
 
@@ -113,9 +113,10 @@ int main(int argc, char *argv[]) {
 		num2 = std::stoi(str_num);
 
 		for (size_t i = 4 + num2; i > num2; i--) {
-			input[i - 1] = bit_by_index(num1, 4 + num2 - i) - 0.1;
-			if (input[i - 1] == 0)
+			input[i - 1] = bit_by_index(num1, 4 - i) - 0.1;
+			if (input[i - 1] == 0) {
 				input[i - 1] += 0.4;
+            }
 		}
 
 		printVector(input);

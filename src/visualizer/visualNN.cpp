@@ -3,8 +3,8 @@
 namespace nn::visualizer {
 NNPanel::NNPanel(const model::NeuralNetwork &network, std::shared_ptr<StateManager> state_)
     : Panel(state_),
-      current_rendred_layer(0),
-      NNRender({NN_WIDTH, NN_HEIGHT}) {
+      NNRender({NN_WIDTH, NN_HEIGHT}),
+      current_rendred_layer(0) {
 	layers.reserve(network.getLayerCount() + 2);
 	size_t layer = 0;
 
@@ -34,7 +34,7 @@ void NNPanel::renderLayers() {
 	float posx = 0;
 	for (size_t layer = 0; layer < vstate->config.network_config.hidden_layer_count() + 3; layer++) {
 		renderLayer(layer, posx);
-		posx += layers[layer]->WIDTH;
+		posx += layers[layer]->getWidth();
 	}
 }
 

@@ -25,10 +25,9 @@ class BackPropagation {
 	void update_weights(int bash_size, global::ValueType learning_rate);
 	void calculate_gradient(const model::Layer &layer, const global::ParamMetrix &deltas, const global::ParamMetrix &prevLayer, model::LayerParameters &gradients);
 	global::ValueType run_back_propagation(const TrainSample &sample);
-	global::ParamMetrix calculate_delta_for_hidden(const model::Hidden_Layer &current_layer, const model::Layer &next_layer, const global::ParamMetrix &next_deltas);
-	global::ParamMetrix calculate_delta_for_output(const global::ParamMetrix &out, const int target);
+	global::ParamMetrix calculateDeltaHidden(const model::Hidden_Layer &current_layer, const model::Layer &next_layer, const global::ParamMetrix &next_deltas);
+	global::ParamMetrix calculateDeltaForOutput(const global::ParamMetrix &out, const int target);
 	void calculate_gradient_for_weights(const model::Layer &layer, const global::ParamMetrix &prevLayer, const global::ParamMetrix &deltas, model::LayerParameters &gradients);
-	static global::ValueType clippValue(const global::ValueType value);
 
   public:
 	BackPropagation(AiModel &_model, learningRateParams &learningRate_);

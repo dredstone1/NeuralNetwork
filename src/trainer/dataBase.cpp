@@ -4,10 +4,7 @@
 #include <memory>
 
 namespace nn::training {
-DataBase::DataBase(model::TrainingConfig &config_)
-    : samples(nullptr),
-      config(config_),
-      currentBatch(0) {
+DataBase::DataBase(model::TrainingConfig &config_) : config(config_) {
 	std::random_device rd;
 	rng = std::mt19937(rd());
 
@@ -42,8 +39,7 @@ TrainSample DataBase::read_line(const std::string &line) {
 void DataBase::getDataBaseStatus(const std::string &line) {
 	std::istringstream iss(line);
 
-	int dataBaseSize = 0;
-	int sampleSize = 0;
+	int dataBaseSize = 0, sampleSize = 0;
 
 	iss >> dataBaseSize;
 	iss >> sampleSize;

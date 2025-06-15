@@ -19,7 +19,7 @@ void BackPropagation::calculate_gradient(const model::Layer &layer, const global
 	calculate_gradient_for_weights(layer, prevLayer, deltas, gradient_);
 }
 
-global::ParamMetrix BackPropagation::calculate_delta_for_hidden(
+global::ParamMetrix BackPropagation::calculateDeltaHidden(
     const model::Hidden_Layer &current_layer,
     const model::Layer &next_layer,
     const global::ParamMetrix &next_deltas) {
@@ -27,6 +27,7 @@ global::ParamMetrix BackPropagation::calculate_delta_for_hidden(
 
 	for (size_t i = 0; i < current_layer.getSize(); i++) {
 		deltas[i] = 0.0;
+
 		for (size_t j = 0; j < next_layer.getSize(); j++) {
 			deltas[i] += next_deltas[j] * next_layer.getWeight(j, i);
 		}
@@ -36,23 +37,16 @@ global::ParamMetrix BackPropagation::calculate_delta_for_hidden(
 
 	return deltas;
 }
-global::ValueType BackPropagation::clippValue(const global::ValueType value) {
-	// if (std::abs(value) < 0.0001)
-	// 	return 0.0001;
-	// if (std::abs(value) > 1)
-	// 	return 1;
-	return value;
-}
 
 void BackPropagation::calculate_gradient_for_weights(const model::Layer &layer, const global::ParamMetrix &prevLayer, const global::ParamMetrix &deltas, model::LayerParameters &gradients) {
 	for (size_t i = 0; i < layer.getSize(); i++) {
 		for (size_t j = 0; j < layer.getPrevSize(); j++) {
-			gradients.weights[i][j] += clippValue(deltas[i] * prevLayer[j]);
+			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
 	}
 }
 
-global::ParamMetrix BackPropagation::calculate_delta_for_output(const global::ParamMetrix &out, const int target) {
+global::ParamMetrix BackPropagation::calculateDeltaForOutput(const global::ParamMetrix &out, const int target) {
 	global::ParamMetrix deltas(out);
 
 	deltas[target] -= 1;
@@ -67,9 +61,9 @@ void BackPropagation::calculate_pattern_gradients(const TrainSample &sample, con
 		const model::Layer &layer = *temp_network.layers.at(layer_index);
 
 		if (layer.getType() == model::LayerType::OUTPUT) {
-			deltas = calculate_delta_for_output(layer.getOut(), sample.prediction.index);
+			deltas = calculateDeltaForOutput(layer.getOut(), sample.prediction.index);
 		} else {
-			deltas = calculate_delta_for_hidden((model::Hidden_Layer &)layer, *temp_network.layers[layer_index + 1], deltas);
+			deltas = calculateDeltaHidden((model::Hidden_Layer &)layer, *temp_network.layers[layer_index + 1], deltas);
 		}
 
 		if (layer_index == 0) {
