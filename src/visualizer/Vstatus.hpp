@@ -27,7 +27,7 @@ constexpr std::array<std::string_view, 2> NNmodeName = {"Forword", "Backward"};
 constexpr sf::Color TEXT_COLOR(0, 0, 0);
 constexpr sf::Color STATUSE_PANEL_COLOR = PANELS_BG;
 
-class vStatus : public Panel {
+class StatusPanel : public Panel {
   private:
 	sf::RenderTexture VRender;
 	float fps;
@@ -41,8 +41,8 @@ class vStatus : public Panel {
 	void doRender() override;
 
   public:
-	vStatus(const std::shared_ptr<StateManager> vstate_);
-	~vStatus() = default;
+	StatusPanel(const std::shared_ptr<StateManager> vstate_);
+	~StatusPanel() = default;
 	sf::Sprite getSprite();
 	void updateFps(const float fps);
 	void updateBps(const float bps);

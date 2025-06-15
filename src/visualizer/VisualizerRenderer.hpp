@@ -15,14 +15,14 @@ constexpr std::uint32_t WINDOW_WIDTH = 1600;
 constexpr std::uint32_t WINDOW_HEIGHT = 800;
 constexpr std::string_view WINDOW_TITLE = "Visualizer";
 
-class VisualizerRenderer {
+class VisualRender {
   private:
 	sf::RenderWindow window;
-	visualNN visualNetwork;
+	NNPanel visualNetwork;
 	std::shared_ptr<StateManager> Vstate;
-	vInteface interface;
-	vStatus statusV;
-	GraphUI Vgraph;
+	IntefacePanel interface;
+	StatusPanel statusV;
+	GraphUIPanel Vgraph;
 	std::atomic<bool> running{false};
 	float fps;
 	float bps;
@@ -32,23 +32,25 @@ class VisualizerRenderer {
 	void processEvents();
 	void renderPanels();
 	void clear();
-	void full_update();
-	void do_frame(int &frameCount, int &batchCount, sf::Clock &fpsClock);
-	void reset_size();
+	void fullUpdate();
+	void doFrame(int &frameCount, int &batchCount, sf::Clock &fpsClock);
+	void resetSize();
 
   public:
-	VisualizerRenderer(const model::NeuralNetwork &network, const std::shared_ptr<StateManager> vstate);
-	~VisualizerRenderer();
+	VisualRender(const model::NeuralNetwork &network, const std::shared_ptr<StateManager> vstate);
+	~VisualRender();
+
 	void close();
+	void start();
+
 	void updateDots(const int layer, const model::Neurons &newNeurons);
 	bool updateStatus();
 	void update(const training::gradient &new_grad);
-	void start();
 	void update(const int layer, const model::LayerParameters &gradients);
 	void updateBatchCounter(const global::ValueType error, const int index);
 	void setNewPhaseMode(const NnMode nn_mode);
-	void update_prediction(const int index);
-	void update_lr(const global::ValueType newLerningRate);
+	void updatePrediction(const int index);
+	void updateLearningRate(const global::ValueType newLerningRate);
 };
 } // namespace nn::visualizer
 

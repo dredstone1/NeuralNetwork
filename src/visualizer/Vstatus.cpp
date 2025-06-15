@@ -2,21 +2,21 @@
 #include "fonts.hpp"
 
 namespace nn::visualizer {
-vStatus::vStatus(const std::shared_ptr<StateManager> vstate_)
+StatusPanel::StatusPanel(const std::shared_ptr<StateManager> vstate_)
     : Panel(vstate_),
       VRender({VSTATUS_WIDTH, VSTATUS_HEIGHT}) {}
 
-void vStatus::clear() {
+void StatusPanel::clear() {
 	VRender.clear(STATUSE_PANEL_COLOR);
 }
 
-void vStatus::doRender() {
+void StatusPanel::doRender() {
 	clear();
 	drawText();
 	display();
 }
 
-std::string vStatus::getText() {
+std::string StatusPanel::getText() {
 	std::ostringstream ss;
 	ss << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << std::endl
 	   << TextLabels::RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << std::endl
@@ -28,7 +28,7 @@ std::string vStatus::getText() {
 	return ss.str();
 }
 
-void vStatus::drawText() {
+void StatusPanel::drawText() {
 	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(STATUS_TEXT_FONT);
 	text.setString(getText());
@@ -37,25 +37,25 @@ void vStatus::drawText() {
 	VRender.draw(text);
 }
 
-void vStatus::display() {
+void StatusPanel::display() {
 	VRender.display();
 }
 
-sf::Sprite vStatus::getSprite() {
+sf::Sprite StatusPanel::getSprite() {
 	return sf::Sprite(VRender.getTexture());
 }
 
-void vStatus::updateFps(const float newFps) {
+void StatusPanel::updateFps(const float newFps) {
 	fps = newFps;
 	setUpdate();
 }
 
-void vStatus::updateBps(const float newBps) {
+void StatusPanel::updateBps(const float newBps) {
 	batchPerSecond = newBps;
 	setUpdate();
 }
 
-void vStatus::updateLerningRate(const global::ValueType newLerningRate) {
+void StatusPanel::updateLerningRate(const global::ValueType newLerningRate) {
 	learningRate = newLerningRate;
 	setUpdate();
 }

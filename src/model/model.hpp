@@ -3,37 +3,41 @@
 
 #include "../visualizer/VisualizerController.hpp"
 #include "layer.hpp"
-#include "config.hpp"
 #include "neuralNetwork.hpp"
 
-namespace nn::training {
+namespace nn {
+namespace training {
 class BackPropagation;
 class Trainer;
-} // namespace nn::training
+} // namespace training
 
-namespace nn::model {
+namespace model {
 class Model {
   private:
 	NeuralNetwork network;
-	visualizer::visualizerController visual;
+	visualizer::VisualManager visual;
+
 	void runModel(const global::ParamMetrix &input, NeuralNetwork &temp_network);
+
 	friend class training::BackPropagation;
 	friend class training::Trainer;
 
   public:
-	Model(Config &_config, bool use_visual);
+	Model(Config &_config);
 	~Model() = default;
+
 	void runModel(const global::ParamMetrix &input);
-	const global::ParamMetrix &getOutput() const;
 	void reset();
-	Layer &getLayer(const int i) { return *network.layers.at(i); }
 	void updateWeights(const training::gradient &gradients);
+
+	Layer &getLayer(const int i) { return *network.layers.at(i); }
+	const global::ParamMetrix &getOutput() const;
 	size_t getOutputSize() const { return network.config.output_size; }
 	size_t getInputSize() const { return network.config.input_size; }
 	size_t getHiddenLayerCount() const { return network.config.hidden_layer_count(); }
 	size_t getLayerCount() const { return network.config.hidden_layer_count() + 1; }
-	const bool useVisual;
 };
-} // namespace nn::model
+} // namespace model
+} // namespace nn
 
 #endif // MODEL

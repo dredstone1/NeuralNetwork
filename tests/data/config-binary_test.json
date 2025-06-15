@@ -1,0 +1,29 @@
+{
+  "network_config": {
+    "input_size": 10,
+    "output_size": 16,
+    "output_init_value": -1,
+    "layers_config": [
+      { "size": 15, "weights_init_value": -1, "AT": 1},
+      { "size": 20, "weights_init_value": -1, "AT": 1}
+    ]
+  },
+  "training_config": {
+    "lr_config": {
+      "decay_type": 0,
+      "lr_init_value": 0.001
+    },
+    "batch_size": 8,
+    "batch_count": 100000,
+    "db_filename": "../tests/data/database-binary_test",
+    "noise_level": 0.1,
+    "drop_out_rate": 0
+  },
+  "visualizer_config": {
+    "modes": [
+      { "state": "pause",       "mode": true },
+      { "state": "precise mode","mode": true },
+      { "state": "auto pause",  "mode": true }
+    ]
+  }
+}

@@ -12,10 +12,9 @@ class Trainer {
 	model::TrainingConfig &config;
 	DataBase dataBase;
 	AiModel &model;
-	LearningRate lr;
 	BackPropagation backPropagation;
 	int last_progress;
-
+	learningRateParams learningRate;
 	void print_progress_bar(const int current, const int total);
 
   public:
@@ -23,8 +22,7 @@ class Trainer {
 	    : config(_model.getConfig().config_data.training_config),
 	      dataBase(config),
 	      model(_model),
-	      lr(config),
-	      backPropagation(_model, lr),
+	      backPropagation(_model, learningRate),
 	      last_progress(-1) {}
 	void train();
 	~Trainer() = default;

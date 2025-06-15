@@ -1,10 +1,8 @@
 #ifndef BACKPROPAGATION
 #define BACKPROPAGATION
 
-#include "Globals.hpp"
 #include "dataBase.hpp"
 #include "gradient.hpp"
-#include "learning_rate.hpp"
 
 namespace nn::training {
 constexpr global::ValueType MIN_ABS_CLIPPING_VALUE = 0.0001;
@@ -12,11 +10,15 @@ constexpr global::ValueType MAX_ABS_CLIPPING_VALUE = 10;
 
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
+struct learningRateParams {
+	global::ValueType currentLearningRate;
+};
+
 class BackPropagation {
   private:
 	gradient local_gradient;
 	AiModel &model;
-	LearningRate &learningRate;
+	learningRateParams &learningRate;
 	global::ValueType get_total_error(const model::NeuralNetwork &temp_network, const int target);
 	global::ValueType get_cross_entropy_loss(const global::ParamMetrix &prediction, const int target);
 	void calculate_pattern_gradients(const TrainSample &targer, const model::NeuralNetwork &temp_network);
@@ -29,7 +31,7 @@ class BackPropagation {
 	static global::ValueType clippValue(const global::ValueType value);
 
   public:
-	BackPropagation(AiModel &_model, LearningRate &learningRate_);
+	BackPropagation(AiModel &_model, learningRateParams &learningRate_);
 	global::ValueType run_back_propagation(const Batch &batch);
 	~BackPropagation() = default;
 };

@@ -72,4 +72,4 @@ void StateManager::setState(SettingType state_, bool stateM) {
 		break;
 	}
 }
-} // namespace nn
+} // namespace nn::visualizer

@@ -1,9 +1,9 @@
 #include "AiModel.hpp"
 
 namespace nn {
-AiModel::AiModel(const std::string &config_file, const bool use_visual)
+AiModel::AiModel(const std::string &config_file)
     : config(config_file) {
-	model = std::make_unique<model::Model>(config, use_visual);
+	model = std::make_unique<model::Model>(config);
 }
 
 void AiModel::runModel(const global::ParamMetrix &input) {

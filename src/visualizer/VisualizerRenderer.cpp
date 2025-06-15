@@ -1,30 +1,29 @@
 #include "VisualizerRenderer.hpp"
 
 namespace nn::visualizer {
-VisualizerRenderer::VisualizerRenderer(const model::NeuralNetwork &network, std::shared_ptr<StateManager> vstate)
+VisualRender::VisualRender(const model::NeuralNetwork &network, std::shared_ptr<StateManager> vstate)
     : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), WINDOW_TITLE.data()),
       visualNetwork(network, vstate),
       Vstate(vstate),
       interface(vstate),
       statusV(vstate),
-      Vgraph(vstate) {
-}
+      Vgraph(vstate) {}
 
-void VisualizerRenderer::processEvents() {
+void VisualRender::processEvents() {
 	while (const std::optional event = window.pollEvent()) {
 		if (event->is<sf::Event::Closed>()) {
 			window.close();
 		} else if (event->is<sf::Event::MouseButtonPressed>()) {
 			interface.handleNoClick();
 		} else if (event->is<sf::Event::MouseButtonReleased>()) {
-			interface.handleClick(sf::Mouse::getPosition(window), {NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
+			interface.handleClick(sf::Mouse::getPosition(window), {NN_WIDTH + UI_GAP * 2, UI_GAP});
 		} else if (event->is<sf::Event::Resized>()) {
 			need_resize = true;
 		}
 	}
 }
 
-void VisualizerRenderer::reset_size() {
+void VisualRender::resetSize() {
 	if (need_resize) {
 		window.setSize({WINDOW_WIDTH, WINDOW_HEIGHT});
 	}
@@ -32,7 +31,7 @@ void VisualizerRenderer::reset_size() {
 	need_resize = false;
 }
 
-void VisualizerRenderer::renderPanels() {
+void VisualRender::renderPanels() {
 	visualNetwork.render();
 	sf::Sprite visualNetworkSprite = visualNetwork.getSprite();
 	visualNetworkSprite.setPosition({UI_GAP, UI_GAP});
@@ -40,42 +39,42 @@ void VisualizerRenderer::renderPanels() {
 
 	interface.render();
 	sf::Sprite interfaceSprite = interface.getSprite();
-	interfaceSprite.setPosition({NN_WIDTH + UI_GAP + UI_GAP, UI_GAP});
+	interfaceSprite.setPosition({NN_WIDTH + UI_GAP * 2, UI_GAP});
 	window.draw(interfaceSprite);
 
 	statusV.render();
-
 	sf::Sprite statusSprite = statusV.getSprite();
-	statusSprite.setPosition({NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT});
+	statusSprite.setPosition({NN_WIDTH + UI_GAP * 2, UI_GAP * 2 + VINTERFACE_HEIGHT});
 	window.draw(statusSprite);
 
 	Vgraph.render();
 	sf::Sprite graphSprite = Vgraph.getSprite();
-	graphSprite.setPosition({NN_WIDTH + UI_GAP + UI_GAP, UI_GAP + UI_GAP + VINTERFACE_HEIGHT + VSTATUS_HEIGHT + UI_GAP});
+	graphSprite.setPosition({NN_WIDTH + UI_GAP * 2, UI_GAP * 3 + VINTERFACE_HEIGHT + VSTATUS_HEIGHT});
 	window.draw(graphSprite);
 }
 
-void VisualizerRenderer::full_update() {
-	reset_size();
+void VisualRender::fullUpdate() {
+	resetSize();
 	statusV.setUpdate();
 	interface.setUpdate();
 	visualNetwork.setUpdate();
 	Vgraph.setUpdate();
 }
 
-void VisualizerRenderer::do_frame(int &frameCount, int &batchCount, sf::Clock &fpsClock) {
+void VisualRender::doFrame(int &frameCount, int &batchCount, sf::Clock &fpsClock) {
 	processEvents();
 
 	if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
-		fps = frameCount / fpsClock.getElapsedTime().asSeconds();
-		bps = (Vstate->currentBatch - batchCount) / fpsClock.getElapsedTime().asSeconds();
+		const float timeOffset = fpsClock.getElapsedTime().asSeconds();
+		fps = frameCount / timeOffset;
+		bps = (Vstate->currentBatch - batchCount) / timeOffset;
 
 		fpsClock.restart();
 		frameCount = 0;
 		batchCount = Vstate->currentBatch;
 		statusV.updateFps(fps);
 		statusV.updateBps(bps);
-		full_update();
+		fullUpdate();
 	}
 
 	if (updateStatus()) {
@@ -87,69 +86,68 @@ void VisualizerRenderer::do_frame(int &frameCount, int &batchCount, sf::Clock &f
 	}
 }
 
-void VisualizerRenderer::clear() {
+void VisualRender::clear() {
 	window.clear(BG_COLOR);
 }
 
-void VisualizerRenderer::renderLoop() {
+void VisualRender::renderLoop() {
 	running.store(true);
 	sf::Clock fpsClock;
-	int frameCount = 0;
-	int batchCount = 0;
+	int frameCount = 0, batchCount = 0;
 
 	window.setFramerateLimit(FPS_LIMIT);
 
 	clear();
 	while (window.isOpen() && running) {
-		do_frame(frameCount, batchCount, fpsClock);
+		doFrame(frameCount, batchCount, fpsClock);
 	}
 
 	window.close();
 }
 
-void VisualizerRenderer::close() {
+void VisualRender::close() {
 	running.store(false);
 }
 
-bool VisualizerRenderer::updateStatus() {
+bool VisualRender::updateStatus() {
 	return interface.updateStatus() || statusV.updateStatus() || visualNetwork.updateStatus();
 }
 
-void VisualizerRenderer::start() {
+void VisualRender::start() {
 	running.store(true);
 	renderLoop();
 }
 
-void VisualizerRenderer::updateDots(const int layer, const model::Neurons &newNeurons) {
+void VisualRender::updateDots(const int layer, const model::Neurons &newNeurons) {
 	visualNetwork.updateDots(layer, newNeurons);
 }
 
-void VisualizerRenderer::update(const int layer, const model::LayerParameters &gradients) {
+void VisualRender::update(const int layer, const model::LayerParameters &gradients) {
 	visualNetwork.update(layer, gradients);
 }
 
-void VisualizerRenderer::updateBatchCounter(const global::ValueType error, const int index) {
+void VisualRender::updateBatchCounter(const global::ValueType error, const int index) {
 	Vgraph.add_data(error, index);
 }
 
-void VisualizerRenderer::update(const training::gradient &new_grad) {
+void VisualRender::update(const training::gradient &new_grad) {
 	visualNetwork.update(new_grad);
 }
 
-VisualizerRenderer::~VisualizerRenderer() {
+VisualRender::~VisualRender() {
 	close();
 }
 
-void VisualizerRenderer::setNewPhaseMode(const NnMode nn_mode) {
+void VisualRender::setNewPhaseMode(const NnMode nn_mode) {
 	statusV.setUpdate();
 	Vstate->nnMode.store(nn_mode);
 }
 
-void VisualizerRenderer::update_prediction(const int index) {
+void VisualRender::updatePrediction(const int index) {
 	visualNetwork.update_prediction(index);
 }
 
-void VisualizerRenderer::update_lr(const global::ValueType lr) {
+void VisualRender::updateLearningRate(const global::ValueType lr) {
 	statusV.updateLerningRate(lr);
 }
 } // namespace nn::visualizer

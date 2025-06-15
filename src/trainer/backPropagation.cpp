@@ -2,7 +2,7 @@
 #include <cmath>
 
 namespace nn::training {
-BackPropagation::BackPropagation(AiModel &_model, LearningRate &learningRate_)
+BackPropagation::BackPropagation(AiModel &_model, learningRateParams &learningRate_)
     : local_gradient(_model.getConfig().config_data.network_config),
       model(_model),
       learningRate(learningRate_) {}
@@ -98,11 +98,11 @@ global::ValueType BackPropagation::run_back_propagation(const Batch &batch) {
 	for (size_t i = 0; i < batch.size(); i++) {
 		const TrainSample *current_sample_ptr = batch.samples.at(i);
 
-		model.model->visual.update_prediction(current_sample_ptr->prediction.index);
+		model.model->visual.updatePrediction(current_sample_ptr->prediction.index);
 		error += run_back_propagation(*current_sample_ptr);
 	}
 
-	update_weights(batch.size(), learningRate.getLearningRate());
+	update_weights(batch.size(), learningRate.currentLearningRate);
 	return error / batch.size();
 }
 

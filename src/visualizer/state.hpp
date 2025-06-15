@@ -43,22 +43,27 @@ struct Settings {
 class StateManager {
   public:
 	Settings settings;
-	int currentBatch{0};
 	const model::ConfigData config;
+
+	int currentBatch{0};
 	std::atomic<bool> updateMode{false};
 	std::atomic<NnMode> nnMode{NnMode::Forword};
 	std::atomic<AlgorithmMode> algorithmMode{AlgorithmMode::Normal};
 
-	StateManager(const model::ConfigData config)
-	    : config(config) {}
+	StateManager(const model::ConfigData config) : config(config) {}
+	~StateManager() = default;
+
 	void toggle(const SettingType state);
 	void toggle(const std::string state) { toggle(getStatefromString(state)); }
+
 	std::string_view getStateString(const SettingType state);
 	SettingType getStatefromString(const std::string &state);
+
 	bool getState(const SettingType state);
 	void setState(const SettingType state, const bool stateMode);
-	void setState(const std::string &state, const bool stateMode) { setState(getStatefromString(state), stateMode); }
-	~StateManager() = default;
+	void setState(const std::string &state, const bool stateMode) {
+		setState(getStatefromString(state), stateMode);
+	}
 };
 } // namespace nn::visualizer
 

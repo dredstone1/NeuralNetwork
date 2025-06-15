@@ -2,7 +2,10 @@
 #include "fonts.hpp"
 
 namespace nn::visualizer {
-Button::Button(const std::shared_ptr<StateManager> _state, const std::string_view &lable, const SettingType initState)
+Button::Button(
+    const std::shared_ptr<StateManager> _state,
+    const std::string_view &lable,
+    const SettingType initState)
     : Panel(_state),
       buttonRender({BUTTON_WIDTH, BUTTON_HEIGHT}),
       CurrentState(initState),
@@ -17,17 +20,19 @@ void Button::renderButton() {
 }
 
 sf::Color Button::getBgColor() {
-	if (vstate->getState(CurrentState))
+	if (vstate->getState(CurrentState)) {
 		return buttoncolors::ACTIVE;
-	else
+	} else {
 		return buttoncolors::INACTIVE;
+	}
 }
 
 sf::Color Button::getFontColor() {
-	if (vstate->getState(CurrentState))
+	if (vstate->getState(CurrentState)) {
 		return buttoncolors::TEXT_ACTIVE;
-	else
+	} else {
 		return buttoncolors::TEXT_INACTIVE;
+	}
 }
 
 void Button::drawText() {
@@ -54,6 +59,7 @@ sf::Sprite Button::getSprite() {
 
 bool Button::checkForClick(const sf::Vector2f mousePos, const sf::Vector2f boxPos) {
 	sf::Sprite button_box = getSprite();
+
 	button_box.setPosition(boxPos);
 	if (button_box.getGlobalBounds().contains(mousePos)) {
 		setUpdate();
@@ -68,6 +74,7 @@ void Button::doRender() {
 	if (vstate->getState(CurrentState) != visibleState) {
 		renderButton();
 	}
+
 	display();
 }
 

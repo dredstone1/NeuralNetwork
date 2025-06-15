@@ -1,10 +1,10 @@
 #include "visualNN.hpp"
 
 namespace nn::visualizer {
-visualNN::visualNN(const model::NeuralNetwork &network, std::shared_ptr<StateManager> state_)
+NNPanel::NNPanel(const model::NeuralNetwork &network, std::shared_ptr<StateManager> state_)
     : Panel(state_),
-      NNRender({NN_WIDTH, NN_HEIGHT}),
-      current_rendred_layer(0) {
+      current_rendred_layer(0),
+      NNRender({NN_WIDTH, NN_HEIGHT}) {
 	layers.reserve(network.getLayerCount() + 2);
 	size_t layer = 0;
 
@@ -22,15 +22,15 @@ visualNN::visualNN(const model::NeuralNetwork &network, std::shared_ptr<StateMan
 	layers.emplace_back(std::make_unique<VEmptyLayer>(vstate->config.network_config.output_size, vstate));
 }
 
-void visualNN::display() {
+void NNPanel::display() {
 	NNRender.display();
 }
 
-void visualNN::clear() {
+void NNPanel::clear() {
 	NNRender.clear(NN_PANEL_BG);
 }
 
-void visualNN::renderLayers() {
+void NNPanel::renderLayers() {
 	float posx = 0;
 	for (size_t layer = 0; layer < vstate->config.network_config.hidden_layer_count() + 3; layer++) {
 		renderLayer(layer, posx);
@@ -38,13 +38,13 @@ void visualNN::renderLayers() {
 	}
 }
 
-void visualNN::doRender() {
+void NNPanel::doRender() {
 	clear();
 	renderLayers();
 	display();
 }
 
-void visualNN::render_active_layer(const sf::Vector2f box, const sf::Vector2f pos) {
+void NNPanel::render_active_layer(const sf::Vector2f box, const sf::Vector2f pos) {
 	if (!vstate->settings.preciseMode)
 		return;
 
@@ -55,7 +55,7 @@ void visualNN::render_active_layer(const sf::Vector2f box, const sf::Vector2f po
 	NNRender.draw(shape);
 }
 
-void visualNN::renderLayer(const int layer, const float posx) {
+void NNPanel::renderLayer(const int layer, const float posx) {
 	layers[layer]->render();
 
 	sf::Sprite newSprite = layers[layer]->getSprite();
@@ -66,25 +66,25 @@ void visualNN::renderLayer(const int layer, const float posx) {
 	NNRender.draw(newSprite);
 }
 
-sf::Sprite visualNN::getSprite() {
+sf::Sprite NNPanel::getSprite() {
 	return sf::Sprite(NNRender.getTexture());
 }
 
-void visualNN::updateDots(const int layer, const model::Neurons &newNeurons) {
+void NNPanel::updateDots(const int layer, const model::Neurons &newNeurons) {
 	current_rendred_layer = layer;
 	layers[layer]->setDots(newNeurons);
 
 	setUpdate();
 }
 
-void visualNN::update(const int layer, const model::LayerParameters &gradients) {
+void NNPanel::update(const int layer, const model::LayerParameters &gradients) {
 	current_rendred_layer = layer;
 	layers[layer]->set_weights(gradients);
 
 	setUpdate();
 }
 
-void visualNN::update(const training::gradient &new_grad) {
+void NNPanel::update(const training::gradient &new_grad) {
 	for (size_t i = 1; i < layers.size() - 1; i++) {
 		VParamLayer *test = dynamic_cast<VParamLayer *>(layers[i].get());
 		test->updateGrad(new_grad.gradients[i - 1]);
@@ -93,7 +93,7 @@ void visualNN::update(const training::gradient &new_grad) {
 	setUpdate();
 }
 
-void visualNN::update_prediction(const int index) {
+void NNPanel::update_prediction(const int index) {
 	global::ParamMetrix pre(layers[layers.size() - 1]->getSize(), 0);
 	pre[index] = 1;
 

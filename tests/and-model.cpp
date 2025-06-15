@@ -1,4 +1,5 @@
 #include "Globals.hpp"
+#include "tests.hpp"
 #include <AiModel.hpp>
 #include <iostream>
 #include <trainer.hpp>
@@ -42,12 +43,12 @@ int main(int argc, char *argv[]) {
 
 			arg++;
 		}
-		std::string config_FN = "config.json";
+		std::string config_FN = tests::appendToBase("config.json");
 
-		nn::AiModel model(config_FN, mods & visual);
+		nn::AiModel model(config_FN);
 
 		if (mods & train) {
-            nn::training::Trainer trainer(model);
+			nn::training::Trainer trainer(model);
 
 			trainer.train();
 		}
@@ -74,7 +75,7 @@ int main(int argc, char *argv[]) {
 			}
 			num2 = std::stoi(str_num);
 
-            nn::global::ParamMetrix input(2, 0);
+			nn::global::ParamMetrix input(2, 0);
 			input[0] = num1;
 			input[1] = num2;
 			model.runModel(input);

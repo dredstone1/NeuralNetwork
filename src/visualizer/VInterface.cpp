@@ -1,15 +1,14 @@
 #include "VInterface.hpp"
 
 namespace nn::visualizer {
-vInteface::vInteface(const std::shared_ptr<StateManager> vstate)
+IntefacePanel::IntefacePanel(const std::shared_ptr<StateManager> vstate)
     : Panel(vstate),
       VRender({VINTERFACE_WIDTH, VINTERFACE_HEIGHT}) {
 	createVInterface();
 }
 
-void vInteface::createVInterface() {
+void IntefacePanel::createVInterface() {
 	VRender.clear(INTERFACE_PANEL_COLOR);
-
 	buttons.reserve(STATES_COUNT);
 
 	for (int i = 0; i < STATES_COUNT; i++) {
@@ -17,30 +16,31 @@ void vInteface::createVInterface() {
 	}
 }
 
-void vInteface::display() {
+void IntefacePanel::display() {
 	VRender.display();
 }
 
-sf::Sprite vInteface::getSprite() {
+sf::Sprite IntefacePanel::getSprite() {
 	return sf::Sprite(VRender.getTexture());
 }
 
-void vInteface::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
-	if (!needHandlePress) {
-		setUpdate();
-		needHandlePress = true;
-		handleKeyPresed(mousePos_, boxPos);
+void IntefacePanel::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
+	if (needHandlePress) {
+		return;
 	}
+
+	setUpdate();
+	needHandlePress = true;
+	handleKeyPresed(mousePos_, boxPos);
 }
 
-void vInteface::handleNoClick() {
+void IntefacePanel::handleNoClick() {
 	needHandlePress = false;
 	setUpdate();
 }
 
-void vInteface::doRender() {
-	int row = 0;
-	int column = -1;
+void IntefacePanel::doRender() {
+	int row = 0, column = -1;
 
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
 		if (button_ % BUTTON_PER_COLLUM == 0) {
@@ -49,8 +49,10 @@ void vInteface::doRender() {
 		} else {
 			row++;
 		}
+
 		buttons[button_]->render();
 		sf::Sprite buttonSprite = buttons[button_]->getSprite();
+
 		buttonSprite.setPosition(sf::Vector2f((BUTTON_WIDTH + BUTTON_GAP) * column, row * (BUTTON_HEIGHT + BUTTON_GAP)));
 		VRender.draw(buttonSprite);
 	}
@@ -58,11 +60,10 @@ void vInteface::doRender() {
 	display();
 }
 
-void vInteface::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
+void IntefacePanel::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
+	int row = 0, column = -1;
 	sf::Vector2f mousePos(static_cast<float>(mousePos_.x), static_cast<float>(mousePos_.y));
 
-	int row = 0;
-	int column = -1;
 	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
 		if (button_ % BUTTON_PER_COLLUM == 0) {
 			row = 0;
@@ -70,6 +71,7 @@ void vInteface::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f
 		} else {
 			row++;
 		}
+
 		if (buttons[button_]->checkForClick(mousePos, {boxPos.x + (BUTTON_WIDTH + BUTTON_GAP) * column, boxPos.y + (BUTTON_HEIGHT + BUTTON_GAP) * row})) {
 			return;
 		}

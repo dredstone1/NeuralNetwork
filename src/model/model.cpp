@@ -2,12 +2,10 @@
 #include <cmath>
 
 namespace nn::model {
-Model::Model(Config &_config, const bool useVisual)
+Model::Model(Config &_config)
     : network(_config.config_data.network_config),
-      visual(_config.config_data),
-      useVisual(useVisual) {
-	if (useVisual)
-		visual.start(network);
+      visual(_config.config_data) {
+	visual.start(network);
 }
 
 void Model::runModel(const global::ParamMetrix &input) {

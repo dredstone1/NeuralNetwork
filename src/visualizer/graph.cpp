@@ -1,20 +1,17 @@
 #include "graph.hpp"
 #include "fonts.hpp"
+#include <SFML/Window/Keyboard.hpp>
 #include <algorithm>
 
 namespace nn::visualizer {
-GraphUI::GraphUI(const std::shared_ptr<StateManager> vstate_)
+GraphUIPanel::GraphUIPanel(const std::shared_ptr<StateManager> vstate_)
     : Panel(vstate_),
       VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
       Vgraph({GRAPH_WIDTH, GRAPH_HEIGHT}),
       graphAlpha(GRAPH_HEIGHT_ALPHA_DEFAULT) {
 }
 
-void GraphUI::render_numbers() {
-	renderVerticalNumbers();
-}
-
-void GraphUI::renderVerticalNumbers() {
+void GraphUIPanel::renderVerticalNumbers() {
 	sf::Text text(Fonts::getFont());
 	text.setCharacterSize(10);
 	text.setFillColor(GRAPH_VERTICAL_NUMBER_COLOR);
@@ -35,53 +32,52 @@ void GraphUI::renderVerticalNumbers() {
 	}
 }
 
-void GraphUI::renderHorizontalLine(const float value) {
+void GraphUIPanel::renderHorizontalLine(const float value) {
 	float pos_y = get_height(value);
 	std::array line{
-	    sf::Vertex{sf::Vector2f(0, pos_y)},
-	    sf::Vertex{sf::Vector2f(GRAPH_WIDTH, pos_y)}};
-
-	line[0].color = sf::Color::Blue;
-	line[1].color = sf::Color::Blue;
+	    sf::Vertex{sf::Vector2f(0, pos_y), GRAPH_HORIZONTAL_LINE_COLOR},
+	    sf::Vertex{sf::Vector2f(GRAPH_WIDTH, pos_y), GRAPH_HORIZONTAL_LINE_COLOR}};
 
 	Vgraph.draw(line.data(), line.size(), sf::PrimitiveType::Lines);
 }
 
-float GraphUI::getValueFromHeight(const float height) {
+float GraphUIPanel::getValueFromHeight(const float height) {
 	return (GRAPH_HEIGHT - height) / graphAlpha;
 }
 
-sf::Sprite GraphUI::getSprite() {
+sf::Sprite GraphUIPanel::getSprite() {
 	return sf::Sprite(VRender.getTexture());
 }
 
-void GraphUI::display() {
+void GraphUIPanel::display() {
 	Vgraph.display();
+
 	sf::Sprite graph_sprite = sf::Sprite(Vgraph.getTexture());
 	graph_sprite.setPosition({GRAPH_UI_WIDTH - GRAPH_WIDTH, 0});
 	VRender.draw(graph_sprite);
 	VRender.display();
 }
 
-void GraphUI::renderGraph() {
-	render_numbers();
+void GraphUIPanel::renderGraph() {
+	renderVerticalNumbers();
+
 	for (size_t i = 0; i < resolution(); i++) {
 		renderDot(i);
 	}
 }
 
-void GraphUI::doRender() {
+void GraphUIPanel::doRender() {
 	clear();
 	renderGraph();
 	display();
 }
 
-void GraphUI::clear() {
+void GraphUIPanel::clear() {
 	VRender.clear(GRAPH_BG);
 	Vgraph.clear(GRAPH_BG);
 }
 
-int GraphUI::get_highest() {
+int GraphUIPanel::get_highest() {
 	int max = 0;
 	for (size_t i = 0; i < resolution(); i++) {
 		if (data[i] > data[max]) {
@@ -92,21 +88,21 @@ int GraphUI::get_highest() {
 	return max;
 }
 
-float GraphUI::get_height(const float value) {
+float GraphUIPanel::get_height(const float value) {
 	return GRAPH_HEIGHT - std::max(1.0, value * graphAlpha);
 }
 
-float GraphUI::get_height(const int index) {
+float GraphUIPanel::get_height(const int index) {
 	return get_height((float)data[index]);
 }
 
-sf::Vector2f GraphUI::getPosition(const int index) {
+sf::Vector2f GraphUIPanel::getPosition(const int index) {
 	return sf::Vector2f(
 	    index * data_gap_width(),
 	    get_height(index));
 }
 
-void GraphUI::renderDot(const int index) {
+void GraphUIPanel::renderDot(const int index) {
 	sf::VertexArray line_(sf::PrimitiveType::Lines, 2);
 
 	line_[0].position = getPosition(index);
@@ -122,19 +118,19 @@ void GraphUI::renderDot(const int index) {
 	Vgraph.draw(line_);
 }
 
-float GraphUI::data_gap_width() {
+float GraphUIPanel::data_gap_width() {
 	return GRAPH_WIDTH / (float)resolution();
 }
 
-std::uint32_t GraphUI::resolution() {
+std::uint32_t GraphUIPanel::resolution() {
 	return std::min(GRAPH_RESOLUTION, (std::uint32_t)vstate->config.training_config.batch_count) - 1;
 }
 
-int GraphUI::data_gaps() {
+int GraphUIPanel::data_gaps() {
 	return vstate->config.training_config.batch_count / resolution();
 }
 
-int GraphUI::newDataPlace(const int index) {
+int GraphUIPanel::newDataPlace(const int index) {
 	if (data_gaps() == 0) {
 		return 0;
 	}
@@ -142,7 +138,7 @@ int GraphUI::newDataPlace(const int index) {
 	return std::floor((index - 1) / data_gaps());
 }
 
-void GraphUI::add_data(const global::ValueType new_data, const int index) {
+void GraphUIPanel::add_data(const global::ValueType new_data, const int index) {
 	data[newDataPlace(index)] += (new_data / data_gaps());
 	setUpdate();
 }

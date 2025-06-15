@@ -2,7 +2,6 @@
 #define AIMODEL
 
 #include "../src/model/model.hpp"
-#include <Globals.hpp>
 #include <string>
 
 namespace nn {
@@ -27,11 +26,12 @@ class AiModel {
 	friend class training::Trainer;
 
   public:
-	AiModel(const std::string &config_file, const bool use_visual = false);
+	AiModel(const std::string &config_file);
+	~AiModel() = default;
+
 	void runModel(const global::ParamMetrix &input);
 	Prediction getPrediction();
 	model::Config &getConfig() { return config; }
-	~AiModel() = default;
 };
 } // namespace nn
 

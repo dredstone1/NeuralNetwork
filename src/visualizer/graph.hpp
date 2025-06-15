@@ -16,10 +16,11 @@ constexpr float GRAPH_HEIGHT_ALPHA_DEFAULT = GRAPH_HEIGHT;
 constexpr int VERTICAL_NUMBERS_COUNT = 10;
 
 constexpr sf::Color GRAPH_LINE_COLOR(0, 0, 0);
+constexpr sf::Color GRAPH_HORIZONTAL_LINE_COLOR(0, 0, 255);
 constexpr sf::Color GRAPH_VERTICAL_NUMBER_COLOR(0, 0, 0);
 constexpr sf::Color GRAPH_BG = PANELS_BG;
 
-class GraphUI : public Panel {
+class GraphUIPanel : public Panel {
   private:
 	std::array<global::ValueType, GRAPH_RESOLUTION> data;
 	sf::RenderTexture VRender;
@@ -29,7 +30,6 @@ class GraphUI : public Panel {
 	void display();
 	void clear();
 	void renderGraph();
-	void render_numbers();
 	void renderVerticalNumbers();
 	void doRender() override;
 	inline int data_gaps();
@@ -45,10 +45,12 @@ class GraphUI : public Panel {
 	void renderHorizontalLine(const float value);
 
   public:
-	GraphUI(const std::shared_ptr<StateManager> vstate_);
+	GraphUIPanel(const std::shared_ptr<StateManager> vstate_);
+	~GraphUIPanel() = default;
+
 	sf::Sprite getSprite();
+
 	void add_data(const global::ValueType new_data, const int index);
-	~GraphUI() = default;
 };
 } // namespace nn::visualizer
 

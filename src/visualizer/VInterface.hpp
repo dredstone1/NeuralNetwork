@@ -11,7 +11,7 @@ constexpr std::uint32_t VINTERFACE_HEIGHT = BUTTON_HEIGHT * BUTTON_PER_COLLUM + 
 
 constexpr sf::Color INTERFACE_PANEL_COLOR = PANELS_BG;
 
-class vInteface : public Panel {
+class IntefacePanel : public Panel {
   private:
 	sf::RenderTexture VRender;
 	bool needHandlePress{false};
@@ -23,9 +23,11 @@ class vInteface : public Panel {
 	void doRender() override;
 
   public:
-	vInteface(const std::shared_ptr<StateManager> vstate);
-	~vInteface() = default;
+	IntefacePanel(const std::shared_ptr<StateManager> vstate);
+	~IntefacePanel() = default;
+
 	sf::Sprite getSprite();
+
 	void handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos);
 	void handleNoClick();
 };

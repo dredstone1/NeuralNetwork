@@ -1,7 +1,6 @@
 #ifndef DATABASE
 #define DATABASE
 
-#include "Globals.hpp"
 #include <AiModel.hpp>
 #include <random>
 

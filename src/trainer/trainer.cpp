@@ -34,7 +34,7 @@ void Trainer::train() {
 	global::ValueType error = 0.0;
 
 	model.model->visual.updateAlgoritemMode(visualizer::AlgorithmMode::Training);
-	model.model->visual.update_lr(lr.getLearningRate());
+	model.model->visual.updateLearningRate(learningRate.currentLearningRate);
 	for (int loop_index = 0; loop_index < config.batch_count + 1; loop_index++) {
 		model.model->visual.updateBatchCounter(loop_index);
 
@@ -45,7 +45,7 @@ void Trainer::train() {
 
 		print_progress_bar(loop_index + 1, config.batch_count);
 
-		model.model->visual.update_lr(lr.getLearningRate());
+		model.model->visual.updateLearningRate(learningRate.currentLearningRate);
 		if (model.model->visual.exit_training() == true)
 			break;
 	}

@@ -1,3 +1,4 @@
+#include "tests.hpp"
 #include <AiModel.hpp>
 #include <iostream>
 #include <trainer.hpp>
@@ -48,11 +49,11 @@ void print_database(int actual_size, int input_size, int database_size) {
 				int bit_index = i - shift;
 
 				if (bit_index < 0 || bit_index >= actual_size) {
-					std::cout << 0.1 + i << " ";
+					std::cout << 0.1  << " ";
 				} else {
 					int bit = (num >> (actual_size - 1 - bit_index)) & 1;
 
-					std::cout << (bit ? 1 : 0.5) + i << " ";
+					std::cout << (bit ? 1 : 0.5) << " ";
 				}
 			}
 			std::cout << std::endl;
@@ -70,11 +71,11 @@ void printVector(const nn::global::ParamMetrix &vec) {
 
 int main(int argc, char *argv[]) {
 	int input_size = 10;
-	// print_database(4, input_size, 1000);
+	print_database(4, input_size, 1000);
 
-	std::string config_FN = "config1.json";
+	std::string config_FN = tests::appendToBase("config-binary_test.json");
 
-	nn::AiModel model(config_FN, true);
+	nn::AiModel model(config_FN);
 
 	nn::training::Trainer trainer(model);
 
