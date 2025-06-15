@@ -6,15 +6,10 @@
 		"layers_config": [{ "size": 15, "weights_init_value": -1, "AT": 1 }]
 	},
 	"training_config": {
-		"lr_config": {
-			"decay_type": 0,
-			"lr_init_value": 0.001
-		},
+		"lr_init_value": 0.01,
 		"batch_size": 8,
 		"batch_count": 100000,
-		"db_filename": "../tests/data/database-binary_test",
-		"noise_level": 0.1,
-		"drop_out_rate": 0
+		"db_filename": "../tests/data/database-binary_test"
 	},
 	"visualizer_config": {
 		"modes": [

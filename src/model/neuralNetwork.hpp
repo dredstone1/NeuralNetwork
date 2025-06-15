@@ -10,9 +10,11 @@ struct NeuralNetwork {
 	const NetworkConfig &config;
 
 	NeuralNetwork(const NetworkConfig &networkConfig);
-	size_t getLayerCount() const { return (config.hidden_layer_count() + 1); }
-	void reset();
 	~NeuralNetwork() = default;
+
+	size_t getLayerCount() const { return layers.size(); }
+	void reset();
 };
 } // namespace nn::model
+
 #endif // NEURAL_NETWORK

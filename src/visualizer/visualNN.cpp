@@ -3,8 +3,7 @@
 namespace nn::visualizer {
 NNPanel::NNPanel(const model::NeuralNetwork &network, std::shared_ptr<StateManager> state_)
     : Panel(state_),
-      NNRender({NN_WIDTH, NN_HEIGHT}),
-      current_rendred_layer(0) {
+      NNRender({NN_WIDTH, NN_HEIGHT}) {
 	layers.reserve(network.getLayerCount() + 2);
 	size_t layer = 0;
 
@@ -12,13 +11,12 @@ NNPanel::NNPanel(const model::NeuralNetwork &network, std::shared_ptr<StateManag
 
 	for (; layer < network.getLayerCount() - 1; layer++) {
 		layers.emplace_back(std::make_unique<VParamLayer>(vstate->config.network_config.layers_config[layer].size, layers[layer]->getSize(), vstate));
-		layers[layers.size() - 1]->reset();
-		layers[layers.size() - 1]->addParams(network.layers[layer]->getParms());
+		layers[layers.size() - 1]->setParams(network.layers[layer]->getParms());
 	}
 
 	layers.emplace_back(std::make_unique<VParamLayer>(vstate->config.network_config.output_size, layers[layer]->getSize(), vstate));
-	layers[layers.size() - 1]->reset();
-	layers[layers.size() - 1]->addParams(network.layers[layer]->getParms());
+	layers[layers.size() - 1]->setParams(network.layers[layer]->getParms());
+
 	layers.emplace_back(std::make_unique<VEmptyLayer>(vstate->config.network_config.output_size, vstate));
 }
 
@@ -32,6 +30,7 @@ void NNPanel::clear() {
 
 void NNPanel::renderLayers() {
 	float posx = 0;
+
 	for (size_t layer = 0; layer < vstate->config.network_config.hidden_layer_count() + 3; layer++) {
 		renderLayer(layer, posx);
 		posx += layers[layer]->getWidth();

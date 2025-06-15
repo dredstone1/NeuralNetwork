@@ -15,6 +15,7 @@ global::ValueType Activation::activate(const global::ValueType x) const {
 	case ActivationType::None:
 		return x;
 	}
+
 	return x;
 }
 

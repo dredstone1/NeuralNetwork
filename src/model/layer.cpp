@@ -4,7 +4,7 @@
 namespace nn::model {
 void Layer::forward(const global::ParamMetrix &metrix) {
 	for (size_t i = 0; i < parameters.getSize(); ++i) {
-		dots.net[i] = 0;
+		dots.net[i] = parameters.bias[i];
 
 		for (size_t j = 0; j < parameters.getPrevSize(); ++j) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
@@ -16,7 +16,7 @@ void Layer::forward(const global::ParamMetrix &metrix) {
 
 void Output_Layer::forward(const global::ParamMetrix &metrix) {
 	for (size_t i = 0; i < dots.size(); i++) {
-		dots.net[i] = 0;
+		dots.net[i] = parameters.bias[i];
 
 		for (size_t j = 0; j < metrix.size(); j++) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
@@ -28,7 +28,7 @@ void Output_Layer::forward(const global::ParamMetrix &metrix) {
 
 void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 	for (size_t i = 0; i < dots.size(); i++) {
-		dots.net[i] = 0;
+		dots.net[i] = parameters.bias[i];
 
 		for (size_t j = 0; j < metrix.size(); j++) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];

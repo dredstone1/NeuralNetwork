@@ -11,7 +11,11 @@ struct LayerConfig {
 	global::ValueType weights_init_value = -1;
 	ActivationType AT = ActivationType::LeakyRelu;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LayerConfig, size, AT, weights_init_value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    LayerConfig,
+    size,
+    AT,
+    weights_init_value);
 
 struct NetworkConfig {
 	int input_size;
@@ -20,7 +24,12 @@ struct NetworkConfig {
 	std::vector<LayerConfig> layers_config;
 	size_t hidden_layer_count() const { return layers_config.size(); }
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NetworkConfig, input_size, output_size, output_init_value, layers_config);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    NetworkConfig,
+    input_size,
+    output_size,
+    output_init_value,
+    layers_config);
 
 struct TrainingConfig {
 	int batch_size;
@@ -38,19 +47,28 @@ struct VisualMode {
 	std::string state;
 	bool mode = true;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    VisualMode,
+    state,
+    mode);
 
 struct VisualizerConfig {
 	std::vector<VisualMode> modes;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualizerConfig, modes);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    VisualizerConfig,
+    modes);
 
 struct ConfigData {
 	NetworkConfig network_config;
 	TrainingConfig training_config;
 	VisualizerConfig visualizer_config;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ConfigData, network_config, training_config, visualizer_config);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    ConfigData,
+    network_config,
+    training_config,
+    visualizer_config);
 
 class Config {
   public:

@@ -1,7 +1,7 @@
 #include "dataBase.hpp"
+#include "AiModel.hpp"
 #include <fstream>
 #include <iostream>
-#include <memory>
 
 namespace nn::training {
 DataBase::DataBase(model::TrainingConfig &config_) : config(config_) {
@@ -20,12 +20,12 @@ TrainSample DataBase::read_line(const std::string &line) {
 	std::string token;
 	iss >> token;
 	if (token == ("--")) {
-		return {{0, 0}, 0};
+		return TrainSample();
 	}
 
-	size_t best_next_move = std::stoi(token);
+	size_t bestNextMove = std::stoi(token);
 
-	TrainSample new_sample({best_next_move, 1.f}, samples->sInputSize);
+	TrainSample new_sample(Prediction(bestNextMove, 1.f), samples->sInputSize);
 
 	for (int i = 0; i < samples->sInputSize; ++i) {
 		iss >> token;

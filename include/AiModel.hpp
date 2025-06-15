@@ -5,16 +5,13 @@
 #include <string>
 
 namespace nn {
-
 struct Prediction {
 	const int index;
 	const global::ValueType value;
-	Prediction(const size_t index_, const global::ValueType value_)
+	Prediction() : index(0), value(0) {}
+	Prediction(const int index_, const global::ValueType value_)
 	    : index(index_),
 	      value(value_) {}
-	Prediction(const Prediction &other)
-	    : index(other.index),
-	      value(other.value) {}
 };
 
 class AiModel {

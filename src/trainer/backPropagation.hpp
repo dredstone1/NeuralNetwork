@@ -1,17 +1,16 @@
 #ifndef BACKPROPAGATION
 #define BACKPROPAGATION
 
+#include "Globals.hpp"
 #include "dataBase.hpp"
 #include "gradient.hpp"
 
 namespace nn::training {
-constexpr global::ValueType MIN_ABS_CLIPPING_VALUE = 0.0001;
-constexpr global::ValueType MAX_ABS_CLIPPING_VALUE = 10;
-
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
 struct learningRateParams {
 	global::ValueType currentLearningRate;
+    learningRateParams(const global::ValueType initLearningRate) : currentLearningRate(initLearningRate) {}
 };
 
 class BackPropagation {

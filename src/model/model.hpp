@@ -32,6 +32,7 @@ class Model {
 
 	Layer &getLayer(const int i) { return *network.layers.at(i); }
 	const global::ParamMetrix &getOutput() const;
+
 	size_t getOutputSize() const { return network.config.output_size; }
 	size_t getInputSize() const { return network.config.input_size; }
 	size_t getHiddenLayerCount() const { return network.config.hidden_layer_count(); }

@@ -35,6 +35,7 @@ void Trainer::train() {
 
 	model.model->visual.updateAlgoritemMode(visualizer::AlgorithmMode::Training);
 	model.model->visual.updateLearningRate(learningRate.currentLearningRate);
+
 	for (int loop_index = 0; loop_index < config.batch_count + 1; loop_index++) {
 		model.model->visual.updateBatchCounter(loop_index);
 

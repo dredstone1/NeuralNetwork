@@ -21,6 +21,7 @@ VisualManager::~VisualManager() { stop(); }
 
 void VisualManager::stop() {
 	running = false;
+
 	if (display_thread.joinable()) {
 		if (renderer) {
 			renderer->close();
@@ -105,8 +106,7 @@ void VisualManager::updateError(const global::ValueType error, const int index) 
 	renderer->updateBatchCounter(error, index);
 }
 
-void VisualManager::updateAlgoritemMode(
-    const AlgorithmMode algoritem_mode) {
+void VisualManager::updateAlgoritemMode(const AlgorithmMode algoritem_mode) {
 	if (!checkPointers()) {
 		return;
 	}
@@ -123,8 +123,7 @@ void VisualManager::updatePrediction(const int index) {
 	renderer->updatePrediction(index);
 }
 
-void VisualManager::updateLearningRate(
-    const global::ValueType newLerningRate) {
+void VisualManager::updateLearningRate(const global::ValueType newLerningRate) {
 	if (!checkPointers()) {
 		return;
 	}

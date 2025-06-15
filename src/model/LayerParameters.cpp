@@ -1,12 +1,15 @@
 #include "LayerParameters.hpp"
+#include "Globals.hpp"
 #include <random>
 
 namespace nn::model {
 LayerParameters::LayerParameters(const int size, const int prev_size, const global::ValueType init_value) {
-	weights.resize(size, std::vector<global::ValueType>(prev_size, init_value));
+	weights.resize(size, global::ParamMetrix(prev_size, init_value));
+	bias.resize(size, 0.1);
 
-	if (init_value < 0.0)
+	if (init_value < 0.0) {
 		initializeParamRandom(prev_size);
+	}
 }
 
 void LayerParameters::initializeParamRandom(const int prev_size) {
@@ -28,6 +31,8 @@ void LayerParameters::initializeParamRandom(const int prev_size) {
 
 void LayerParameters::reset() {
 	for (size_t i = 0; i < getSize(); i++) {
+		bias[i] = PARAM_RESET_VALUE;
+
 		for (size_t j = 0; j < getPrevSize(); j++) {
 			weights[i][j] = PARAM_RESET_VALUE;
 		}
@@ -36,6 +41,8 @@ void LayerParameters::reset() {
 
 void LayerParameters::add(const LayerParameters &new_gradient_layer) {
 	for (size_t i = 0; i < getSize(); i++) {
+		bias[i] += new_gradient_layer.bias[i];
+
 		for (size_t j = 0; j < getPrevSize(); j++) {
 			weights[i][j] += new_gradient_layer.weights[i][j];
 		}
@@ -52,6 +59,8 @@ void LayerParameters::set(const LayerParameters &new_gradient_layer) {
 
 void LayerParameters::multiply(const global::ValueType value) {
 	for (size_t i = 0; i < getSize(); i++) {
+		bias[i] *= value;
+
 		for (size_t j = 0; j < getPrevSize(); j++) {
 			weights[i][j] *= value;
 		}

@@ -15,7 +15,11 @@ global::ValueType BackPropagation::get_total_error(const model::NeuralNetwork &t
 	return get_cross_entropy_loss(temp_network.layers[temp_network.config.hidden_layer_count()]->getOut(), target);
 }
 
-void BackPropagation::calculate_gradient(const model::Layer &layer, const global::ParamMetrix &deltas, const global::ParamMetrix &prevLayer, model::LayerParameters &gradient_) {
+void BackPropagation::calculate_gradient(
+    const model::Layer &layer,
+    const global::ParamMetrix &deltas,
+    const global::ParamMetrix &prevLayer,
+    model::LayerParameters &gradient_) {
 	calculate_gradient_for_weights(layer, prevLayer, deltas, gradient_);
 }
 
@@ -38,7 +42,11 @@ global::ParamMetrix BackPropagation::calculateDeltaHidden(
 	return deltas;
 }
 
-void BackPropagation::calculate_gradient_for_weights(const model::Layer &layer, const global::ParamMetrix &prevLayer, const global::ParamMetrix &deltas, model::LayerParameters &gradients) {
+void BackPropagation::calculate_gradient_for_weights(
+    const model::Layer &layer,
+    const global::ParamMetrix &prevLayer,
+    const global::ParamMetrix &deltas,
+    model::LayerParameters &gradients) {
 	for (size_t i = 0; i < layer.getSize(); i++) {
 		for (size_t j = 0; j < layer.getPrevSize(); j++) {
 			gradients.weights[i][j] += deltas[i] * prevLayer[j];

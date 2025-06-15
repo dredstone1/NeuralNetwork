@@ -11,9 +11,9 @@ void AiModel::runModel(const global::ParamMetrix &input) {
 }
 
 Prediction AiModel::getPrediction() {
-	size_t max = 0;
+	int max = 0;
 
-	for (size_t i = 1; i < model->getOutputSize(); i++) {
+	for (int i = 1; i < (int)model->getOutputSize(); i++) {
 		if (model->getOutput()[i] > model->getOutput()[max]) {
 			max = i;
 		}
