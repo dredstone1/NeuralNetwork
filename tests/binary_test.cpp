@@ -66,6 +66,7 @@ void printVector(const nn::global::ParamMetrix &vec) {
 	for (const auto &elem : vec) {
 		std::cout << elem << ' ';
 	}
+
 	std::cout << '\n';
 }
 
@@ -100,9 +101,6 @@ int main(int argc, char *argv[]) {
 		std::cout << "binary: " << binary << std::endl;
 
 		nn::global::ParamMetrix input(input_size, 0.1);
-		for (int i = 0; i < input.size(); i++) {
-			input[i] += i;
-		}
 
 		std::cout << "Enter an integer 2: ";
 		std::getline(std::cin, str_num);
@@ -113,10 +111,10 @@ int main(int argc, char *argv[]) {
 		num2 = std::stoi(str_num);
 
 		for (size_t i = 4 + num2; i > num2; i--) {
-			input[i - 1] = bit_by_index(num1, 4 - i) - 0.1;
+			input[i - 1] = bit_by_index(num1, 4 - i+num2);
 			if (input[i - 1] == 0) {
-				input[i - 1] += 0.4;
-            }
+				input[i - 1] = 0.5;
+			}
 		}
 
 		printVector(input);

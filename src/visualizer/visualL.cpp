@@ -3,46 +3,46 @@
 #include <SFML/System/Angle.hpp>
 
 namespace nn::visualizer {
-visualL::visualL(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width)
+visualLayer::visualLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width)
     : Layer(_size, _prev_size, 0),
       Panel(state_),
       WIDTH(width),
       layerRender({width, NN_WIDTH}) {}
 
-void visualL::display() {
+void visualLayer::display() {
 	layerRender.display();
 }
 
-void visualL::clear() {
+void visualLayer::clear() {
 	layerRender.clear(sf::Color::Transparent);
 }
 
-void visualL::doRender() {
+void visualLayer::doRender() {
 	clear();
 	drawNeurons();
 	display();
 }
 
-sf::Sprite visualL::getSprite() {
+sf::Sprite visualLayer::getSprite() {
 	return sf::Sprite(layerRender.getTexture());
 }
 
-std::uint32_t visualL::calculateGap(const float size) {
+std::uint32_t visualLayer::calculateGap(const float size) {
 	if (size <= 0)
 		return 0;
 
 	return (NN_HEIGHT - (size * NEURON_WIDTH)) / (size + 1);
 }
 
-float visualL::calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2) {
+float visualLayer::calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2) {
 	return sqrt(pow(pos1.x - pos2.x, 2) + pow(pos1.y - pos2.y, 2));
 }
 
-sf::Angle visualL::calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2) {
+sf::Angle visualLayer::calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2) {
 	return sf::radians(atan2(pos2.y - pos1.y, pos2.x - pos1.x));
 }
 
-float visualL::getScaleFactor(std::size_t neuron_count) const {
+float visualLayer::getScaleFactor(std::size_t neuron_count) const {
 	float totalHeight = static_cast<float>(NN_HEIGHT);
 	float maxNeuronSpace = totalHeight - (neuron_count + 1) * MIN_GAP;
 
@@ -52,7 +52,7 @@ float visualL::getScaleFactor(std::size_t neuron_count) const {
 	return neuronWidth / MAX_NEURON_WIDTH;
 }
 
-void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap, float scale) {
+void visualParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const float prevGap, float scale) {
 	const float HORIZONTAL_SHIFT_PER_WEIGHT_TEXT = 4.0f * scale;
 
 	for (size_t neuronP = 0; neuronP < getPrevSize(); neuronP++) {
@@ -108,11 +108,11 @@ void VParamLayer::drawWeights(const int neuron_i, const sf::Vector2f pos, const 
 	}
 }
 
-sf::Color VParamLayer::getColorFromTextT(const textType text_type) {
+sf::Color visualParamLayer::getColorFromTextT(const textType text_type) {
 	return color_lookup[static_cast<size_t>(text_type)];
 }
 
-void visualL::drawNeurons() {
+void visualLayer::drawNeurons() {
 	float scale = getScaleFactor(getSize());
 	float neuron_width_scaled = NEURON_WIDTH * scale;
 
@@ -124,7 +124,7 @@ void visualL::drawNeurons() {
 	}
 }
 
-void VParamLayer::renderNeuron(const int index, const float gap, const float prevGap, const float scale) {
+void visualParamLayer::renderNeuron(const int index, const float gap, const float prevGap, const float scale) {
 	float neuron_width_scaled = NEURON_WIDTH * scale;
 	float x = WIDTH - neuron_width_scaled;
 	float y = gap + index * (gap + neuron_width_scaled);
@@ -133,7 +133,7 @@ void VParamLayer::renderNeuron(const int index, const float gap, const float pre
 	drawNeuron(dots.net[index], dots.out[index], {x, y}, scale);
 }
 
-void VEmptyLayer::renderNeuron(const int index, const float gap, const float, const float scale) {
+void visualEmptyLayer::renderNeuron(const int index, const float gap, const float, const float scale) {
 	float neuron_width_scaled = NEURON_WIDTH * scale;
 	float x = WIDTH - neuron_width_scaled;
 	float y = gap + index * (gap + neuron_width_scaled);
@@ -141,7 +141,7 @@ void VEmptyLayer::renderNeuron(const int index, const float gap, const float, co
 	drawNeuron(dots.net[index], dots.out[index], {x, y}, scale);
 }
 
-textType VParamLayer::getTextT(const int layer_i, const int layer_p) {
+textType visualParamLayer::getTextT(const int layer_i, const int layer_p) {
 	if (grad.weights[layer_i][layer_p] < 0)
 		return textType::DOWN;
 	if (grad.weights[layer_i][layer_p] > 0)
@@ -149,15 +149,15 @@ textType VParamLayer::getTextT(const int layer_i, const int layer_p) {
 	return textType::NORMAL;
 }
 
-textType VEmptyLayer::getTextT(const int, const int) {
+textType visualEmptyLayer::getTextT(const int, const int) {
 	return textType::NORMAL;
 }
 
-textType visualL::getTextT(const int, const int) {
+textType visualLayer::getTextT(const int, const int) {
 	return textType::NORMAL;
 }
 
-void visualL::drawNeuron(const double input, const double output, const sf::Vector2f pos, float scale) {
+void visualLayer::drawNeuron(const double input, const double output, const sf::Vector2f pos, float scale) {
 	float neuron_width_scaled = NEURON_WIDTH * scale;
 	sf::RectangleShape shape({neuron_width_scaled, neuron_width_scaled});
 	shape.setFillColor(sf::Color(0, 0, 100 * output));
@@ -182,20 +182,20 @@ void visualL::drawNeuron(const double input, const double output, const sf::Vect
 	layerRender.draw(text);
 }
 
-void visualL::setDots(const model::Neurons &newNeurons) {
+void visualLayer::setDots(const model::Neurons &newNeurons) {
 	dots.net = newNeurons.net;
 	dots.out = newNeurons.out;
 
 	setUpdate();
 }
 
-void visualL::set_weights(const model::LayerParameters &Param) {
+void visualLayer::set_weights(const model::LayerParameters &Param) {
 	parameters.set(Param);
 
 	setUpdate();
 }
 
-void VParamLayer::updateGrad(const model::LayerParameters &new_grad) {
+void visualParamLayer::updateGrad(const model::LayerParameters &new_grad) {
 	grad.set(new_grad);
 
 	setUpdate();

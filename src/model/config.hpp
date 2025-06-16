@@ -41,7 +41,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     TrainingConfig,
     batch_size,
     batch_count,
-    db_filename);
+    db_filename,
+    lr_init_value);
 
 struct VisualMode {
 	std::string state;

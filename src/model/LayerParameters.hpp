@@ -12,8 +12,8 @@ struct LayerParameters {
 	std::vector<global::ParamMetrix> weights;
 	global::ParamMetrix bias;
 
-	LayerParameters(const int size, const int prevSize, const global::ValueType initValue);
-	LayerParameters(const LayerParameters &other) : weights(other.weights) {}
+	LayerParameters(const int size, const int prevSize, const global::ValueType initValue=0);
+	LayerParameters(const LayerParameters &other) : weights(other.weights), bias(other.bias) {}
 	~LayerParameters() = default;
 
 	void initializeParamRandom(const int prevSize);

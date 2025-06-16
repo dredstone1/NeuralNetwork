@@ -10,7 +10,7 @@ constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
 struct learningRateParams {
 	global::ValueType currentLearningRate;
-    learningRateParams(const global::ValueType initLearningRate) : currentLearningRate(initLearningRate) {}
+	learningRateParams(const global::ValueType initLearningRate) : currentLearningRate(initLearningRate) {}
 };
 
 class BackPropagation {
@@ -26,7 +26,8 @@ class BackPropagation {
 	global::ValueType run_back_propagation(const TrainSample &sample);
 	global::ParamMetrix calculateDeltaHidden(const model::Hidden_Layer &current_layer, const model::Layer &next_layer, const global::ParamMetrix &next_deltas);
 	global::ParamMetrix calculateDeltaForOutput(const global::ParamMetrix &out, const int target);
-	void calculate_gradient_for_weights(const model::Layer &layer, const global::ParamMetrix &prevLayer, const global::ParamMetrix &deltas, model::LayerParameters &gradients);
+	void calculateGradientForWeights(const model::Layer &layer, const global::ParamMetrix &prevLayer, const global::ParamMetrix &deltas, model::LayerParameters &gradients);
+	void calculateGradientForBiases(const model::Layer &layer, const global::ParamMetrix &deltas, model::LayerParameters &gradients);
 
   public:
 	BackPropagation(AiModel &_model, learningRateParams &learningRate_);

@@ -7,17 +7,17 @@ NNPanel::NNPanel(const model::NeuralNetwork &network, std::shared_ptr<StateManag
 	layers.reserve(network.getLayerCount() + 2);
 	size_t layer = 0;
 
-	layers.emplace_back(std::make_unique<VEmptyLayer>(vstate->config.network_config.input_size, vstate));
+	layers.emplace_back(std::make_unique<visualEmptyLayer>(vstate->config.network_config.input_size, vstate));
 
 	for (; layer < network.getLayerCount() - 1; layer++) {
-		layers.emplace_back(std::make_unique<VParamLayer>(vstate->config.network_config.layers_config[layer].size, layers[layer]->getSize(), vstate));
+		layers.emplace_back(std::make_unique<visualParamLayer>(vstate->config.network_config.layers_config[layer].size, layers[layer]->getSize(), vstate));
 		layers[layers.size() - 1]->setParams(network.layers[layer]->getParms());
 	}
 
-	layers.emplace_back(std::make_unique<VParamLayer>(vstate->config.network_config.output_size, layers[layer]->getSize(), vstate));
+	layers.emplace_back(std::make_unique<visualParamLayer>(vstate->config.network_config.output_size, layers[layer]->getSize(), vstate));
 	layers[layers.size() - 1]->setParams(network.layers[layer]->getParms());
 
-	layers.emplace_back(std::make_unique<VEmptyLayer>(vstate->config.network_config.output_size, vstate));
+	layers.emplace_back(std::make_unique<visualEmptyLayer>(vstate->config.network_config.output_size, vstate));
 }
 
 void NNPanel::display() {
@@ -85,7 +85,7 @@ void NNPanel::update(const int layer, const model::LayerParameters &gradients) {
 
 void NNPanel::update(const training::gradient &new_grad) {
 	for (size_t i = 1; i < layers.size() - 1; i++) {
-		VParamLayer *test = dynamic_cast<VParamLayer *>(layers[i].get());
+		visualParamLayer *test = dynamic_cast<visualParamLayer *>(layers[i].get());
 		test->updateGrad(new_grad.gradients[i - 1]);
 	}
 

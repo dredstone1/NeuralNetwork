@@ -10,7 +10,7 @@ constexpr sf::Color NN_PANEL_BG = PANELS_BG;
 
 class NNPanel : public Panel {
   private:
-	std::vector<std::unique_ptr<visualL>> layers;
+	std::vector<std::unique_ptr<visualLayer>> layers;
 	sf::RenderTexture NNRender;
 	int current_rendred_layer;
 

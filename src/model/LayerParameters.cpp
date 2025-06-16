@@ -5,7 +5,7 @@
 namespace nn::model {
 LayerParameters::LayerParameters(const int size, const int prev_size, const global::ValueType init_value) {
 	weights.resize(size, global::ParamMetrix(prev_size, init_value));
-	bias.resize(size, 0.1);
+	bias.resize(size, 0.0001);
 
 	if (init_value < 0.0) {
 		initializeParamRandom(prev_size);
@@ -51,6 +51,7 @@ void LayerParameters::add(const LayerParameters &new_gradient_layer) {
 
 void LayerParameters::set(const LayerParameters &new_gradient_layer) {
 	for (size_t i = 0; i < getSize(); i++) {
+        bias[i] = new_gradient_layer.bias[i];
 		for (size_t j = 0; j < getPrevSize(); j++) {
 			weights[i][j] = new_gradient_layer.weights[i][j];
 		}

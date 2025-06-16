@@ -30,8 +30,6 @@ constexpr float MIN_GAP = 2.0f;
 
 constexpr float FRACTION_ALONG_LINE = 0.8f;
 
-
-
 enum class textType {
 	UP,
 	DOWN,
@@ -44,7 +42,7 @@ static const std::array<sf::Color, 3> color_lookup = {
     FONT_COLOR_DOWN,
 };
 
-class visualL : public model::Layer, public Panel {
+class visualLayer : public model::Layer, public Panel {
   private:
 	void clear();
 	void display();
@@ -65,8 +63,8 @@ class visualL : public model::Layer, public Panel {
 	void drawNeuron(const double input, const double output, const sf::Vector2f pos, float scale);
 
   public:
-	visualL(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width);
-	virtual ~visualL() = default;
+	visualLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width);
+	virtual ~visualLayer() = default;
 
 	model::LayerType getType() const override { return model::LayerType::NONE; }
 	sf::Sprite getSprite();
@@ -75,18 +73,18 @@ class visualL : public model::Layer, public Panel {
 	std::uint32_t getWidth() { return WIDTH; }
 };
 
-class VEmptyLayer : public visualL {
+class visualEmptyLayer : public visualLayer {
   private:
 	textType getTextT(const int, const int) override;
 	void renderNeuron(const int index, const float gap, const float, const float scale) override;
 
   public:
-	VEmptyLayer(const int _size, const std::shared_ptr<StateManager> state_)
-	    : visualL(_size, 0, state_, NEURON_WIDTH) {}
-	~VEmptyLayer() = default;
+	visualEmptyLayer(const int _size, const std::shared_ptr<StateManager> state_)
+	    : visualLayer(_size, 0, state_, NEURON_WIDTH) {}
+	~visualEmptyLayer() = default;
 };
 
-class VParamLayer : public visualL {
+class visualParamLayer : public visualLayer {
   private:
 	model::LayerParameters grad;
 
@@ -96,12 +94,12 @@ class VParamLayer : public visualL {
 	void renderNeuron(const int index, const float gap, const float prevGap, const float scale) override;
 
   public:
-	VParamLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_)
-	    : visualL(_size, _prev_size, state_, calculate_width(state_->config.network_config.hidden_layer_count() + 1)),
+	visualParamLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_)
+	    : visualLayer(_size, _prev_size, state_, calculate_width(state_->config.network_config.hidden_layer_count() + 1)),
 	      grad(_size, _prev_size, 0.5) {}
 
 	void updateGrad(const model::LayerParameters &new_grad);
-	~VParamLayer() = default;
+	~visualParamLayer() = default;
 };
 } // namespace nn::visualizer
 

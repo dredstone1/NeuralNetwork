@@ -38,7 +38,6 @@ class Layer {
 	const global::ParamMetrix &getNet() const { return dots.net; }
 	const global::ParamMetrix &getOut() const { return dots.out; }
 
-	void setWeight(const int i, const int j, const global::ValueType weight) { parameters.weights[i][j] = weight; }
 	void reset() { dots.reset(); }
 	void addParams(const LayerParameters &gradients) { parameters.add(gradients); }
 	void setParams(const LayerParameters &gradients) { parameters.set(gradients); }
@@ -64,6 +63,7 @@ class Output_Layer : public Layer {
   public:
 	Output_Layer(const int _size, const int _prev_size, const global::ValueType init_value)
 	    : Layer(_size, _prev_size, init_value) {}
+
 	void forward(const global::ParamMetrix &metrix) override;
 	LayerType getType() const override { return LayerType::OUTPUT; }
 };

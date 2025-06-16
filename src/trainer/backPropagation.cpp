@@ -20,7 +20,8 @@ void BackPropagation::calculate_gradient(
     const global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
     model::LayerParameters &gradient_) {
-	calculate_gradient_for_weights(layer, prevLayer, deltas, gradient_);
+	calculateGradientForWeights(layer, prevLayer, deltas, gradient_);
+	calculateGradientForBiases(layer, deltas, gradient_);
 }
 
 global::ParamMetrix BackPropagation::calculateDeltaHidden(
@@ -42,7 +43,7 @@ global::ParamMetrix BackPropagation::calculateDeltaHidden(
 	return deltas;
 }
 
-void BackPropagation::calculate_gradient_for_weights(
+void BackPropagation::calculateGradientForWeights(
     const model::Layer &layer,
     const global::ParamMetrix &prevLayer,
     const global::ParamMetrix &deltas,
@@ -51,6 +52,15 @@ void BackPropagation::calculate_gradient_for_weights(
 		for (size_t j = 0; j < layer.getPrevSize(); j++) {
 			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
+	}
+}
+
+void BackPropagation::calculateGradientForBiases(
+    const model::Layer &layer,
+    const global::ParamMetrix &deltas,
+    model::LayerParameters &gradients) {
+	for (size_t i = 0; i < layer.getSize(); i++) {
+		gradients.bias[i] += deltas[i];
 	}
 }
 
