@@ -1,4 +1,5 @@
 #include "backPropagation.hpp"
+#include "Globals.hpp"
 #include <cmath>
 
 namespace nn::training {
@@ -43,6 +44,10 @@ global::ParamMetrix BackPropagation::calculateDeltaHidden(
 	return deltas;
 }
 
+global::ValueType BackPropagation::L1Regularization(const global::ValueType weight) {
+	return ((weight > 0) - (weight < 0)) * 0.001;
+}
+
 void BackPropagation::calculateGradientForWeights(
     const model::Layer &layer,
     const global::ParamMetrix &prevLayer,
@@ -50,7 +55,7 @@ void BackPropagation::calculateGradientForWeights(
     model::LayerParameters &gradients) {
 	for (size_t i = 0; i < layer.getSize(); i++) {
 		for (size_t j = 0; j < layer.getPrevSize(); j++) {
-			gradients.weights[i][j] += deltas[i] * prevLayer[j];
+			gradients.weights[i][j] += deltas[i] * prevLayer[j] + L1Regularization(layer.getWeight(i, j));
 		}
 	}
 }
@@ -114,12 +119,12 @@ global::ValueType BackPropagation::run_back_propagation(const Batch &batch) {
 		error += run_back_propagation(*current_sample_ptr);
 	}
 
-	update_weights(batch.size(), learningRate.currentLearningRate);
+	update_weights(batch.size());
 	return error / batch.size();
 }
 
-void BackPropagation::update_weights(int batch_size, global::ValueType learning_rate) {
-	local_gradient.multiply(-learning_rate / batch_size);
+void BackPropagation::update_weights(int batch_size) {
+	local_gradient.multiply(-learningRate.currentLearningRate / batch_size);
 	model.model->updateWeights(local_gradient);
 }
 } // namespace nn::training

@@ -3,7 +3,7 @@
 		"input_size": 10,
 		"output_size": 16,
 		"output_init_value": -1,
-		"layers_config": [{ "size": 15, "weights_init_value": -1, "AT": 1 }]
+		"layers_config": [{ "size": 5, "weights_init_value": -1, "AT": 1 }]
 	},
 	"training_config": {
 		"lr_init_value": 0.01,
