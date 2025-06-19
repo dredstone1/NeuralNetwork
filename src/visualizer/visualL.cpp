@@ -8,7 +8,7 @@
 
 namespace nn::visualizer {
 visualLayer::visualLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width)
-    : Layer(_size, _prev_size, 0),
+    : ILayer(_size, _prev_size, 0),
       Panel(state_),
       WIDTH(width),
       layerRender({width, NN_WIDTH}),

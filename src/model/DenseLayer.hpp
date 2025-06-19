@@ -1,9 +1,8 @@
-#ifndef LAYER
-#define LAYER
+#ifndef DENSELAYER
+#define DENSELAYER
 
-#include "LayerParameters.hpp"
+#include "ILayer.hpp"
 #include "activations.hpp"
-#include "neuron.hpp"
 
 namespace nn::model {
 enum class LayerType {
@@ -12,21 +11,19 @@ enum class LayerType {
 	NONE,
 };
 
-class Layer {
+class DenseLayer : public ILayer {
   protected:
 	Neurons dots;
 	LayerParameters parameters;
 
-	friend class Model;
-
   public:
-	Layer(const int size, const int prevSize, const global::ValueType initValue)
+	DenseLayer(const int size, const int prevSize, const global::ValueType initValue)
 	    : dots(size),
 	      parameters(size, prevSize, initValue) {}
 
 	virtual LayerType getType() const { return LayerType::NONE; }
 	virtual void forward(const global::ParamMetrix &metrix);
-	virtual ~Layer() = default;
+	virtual ~ILayer() = default;
 
 	const Neurons &getDots() const { return dots; }
 	global::ValueType getWeight(const int i, const int j) const { return parameters.weights[i][j]; }
@@ -41,15 +38,17 @@ class Layer {
 	void reset() { dots.reset(); }
 	void addParams(const LayerParameters &gradients) { parameters.add(gradients); }
 	void setParams(const LayerParameters &gradients) { parameters.set(gradients); }
+
+
 };
 
-class Hidden_Layer : public Layer {
+class Hidden_Layer : public DenseLayer {
   private:
 	Activation activationFunction;
 
   public:
 	Hidden_Layer(const int _size, const int _prev_size, const ActivationType activation, const global::ValueType init_value)
-	    : Layer(_size, _prev_size, init_value),
+	    : ILayer(_size, _prev_size, init_value),
 	      activationFunction(activation) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
@@ -59,14 +58,14 @@ class Hidden_Layer : public Layer {
 	global::ValueType derivativeActivation(const global::ValueType x) const { return activationFunction.derivativeActivate(x); }
 };
 
-class Output_Layer : public Layer {
+class Output_Layer : public ILayer {
   public:
 	Output_Layer(const int _size, const int _prev_size, const global::ValueType init_value)
-	    : Layer(_size, _prev_size, init_value) {}
+	    : ILayer(_size, _prev_size, init_value) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
 	LayerType getType() const override { return LayerType::OUTPUT; }
 };
 } // namespace nn::model
 
-#endif // LAYER
+#endif // DENSELAYER

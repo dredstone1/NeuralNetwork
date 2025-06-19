@@ -51,7 +51,7 @@ static const std::array<sf::Color, 3> color_lookup = {
     FONT_COLOR_NORMAL,
 };
 
-class visualLayer : public model::Layer, public Panel {
+class visualLayer : public model::ILayer, public Panel {
   private:
 	void clear();
 	void display();

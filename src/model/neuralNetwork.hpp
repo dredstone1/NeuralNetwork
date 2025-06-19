@@ -6,7 +6,7 @@
 
 namespace nn::model {
 struct NeuralNetwork {
-	std::vector<std::unique_ptr<Layer>> layers;
+	std::vector<std::unique_ptr<ILayer>> layers;
 	const NetworkConfig &config;
 
 	NeuralNetwork(const NetworkConfig &networkConfig);

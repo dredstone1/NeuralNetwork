@@ -30,7 +30,7 @@ class Model {
 	void reset();
 	void updateWeights(const training::gradient &gradients);
 
-	Layer &getLayer(const int i) { return *network.layers.at(i); }
+	ILayer &getLayer(const int i) { return *network.layers.at(i); }
 	const global::ParamMetrix &getOutput() const;
 
 	size_t getOutputSize() const { return network.config.output_size; }

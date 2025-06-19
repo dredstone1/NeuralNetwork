@@ -17,7 +17,7 @@ global::ValueType BackPropagation::get_total_error(const model::NeuralNetwork &t
 }
 
 void BackPropagation::calculate_gradient(
-    const model::Layer &layer,
+    const model::ILayer &layer,
     const global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
     model::LayerParameters &gradient_) {
@@ -27,7 +27,7 @@ void BackPropagation::calculate_gradient(
 
 global::ParamMetrix BackPropagation::calculateDeltaHidden(
     const model::Hidden_Layer &current_layer,
-    const model::Layer &next_layer,
+    const model::ILayer &next_layer,
     const global::ParamMetrix &next_deltas) {
 	global::ParamMetrix deltas(current_layer.getSize(), 0.0);
 
@@ -49,7 +49,7 @@ global::ValueType BackPropagation::L1Regularization(const global::ValueType weig
 }
 
 void BackPropagation::calculateGradientForWeights(
-    const model::Layer &layer,
+    const model::ILayer &layer,
     const global::ParamMetrix &prevLayer,
     const global::ParamMetrix &deltas,
     model::LayerParameters &gradients) {
@@ -61,7 +61,7 @@ void BackPropagation::calculateGradientForWeights(
 }
 
 void BackPropagation::calculateGradientForBiases(
-    const model::Layer &layer,
+    const model::ILayer &layer,
     const global::ParamMetrix &deltas,
     model::LayerParameters &gradients) {
 	for (size_t i = 0; i < layer.getSize(); i++) {
@@ -81,7 +81,7 @@ void BackPropagation::calculate_pattern_gradients(const TrainSample &sample, con
 	global::ParamMetrix deltas;
 
 	for (int layer_index = local_gradient.gradients.size() - 1; layer_index >= 0; layer_index--) {
-		const model::Layer &layer = *temp_network.layers.at(layer_index);
+		const model::ILayer &layer = *temp_network.layers.at(layer_index);
 
 		if (layer.getType() == model::LayerType::OUTPUT) {
 			deltas = calculateDeltaForOutput(layer.getOut(), sample.prediction.index);

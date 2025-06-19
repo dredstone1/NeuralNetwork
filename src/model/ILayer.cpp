@@ -2,7 +2,7 @@
 #include "Globals.hpp"
 
 namespace nn::model {
-void Layer::forward(const global::ParamMetrix &metrix) {
+void ILayer::forward(const global::ParamMetrix &metrix) {
 	for (size_t i = 0; i < parameters.getSize(); ++i) {
 		dots.net[i] = parameters.bias[i];
 
