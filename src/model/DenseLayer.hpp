@@ -2,6 +2,7 @@
 #define DENSELAYER
 
 #include "ILayer.hpp"
+#include "LayerParameters.hpp"
 #include "activations.hpp"
 
 namespace nn::model {
@@ -23,7 +24,7 @@ class DenseLayer : public ILayer {
 
 	virtual LayerType getType() const { return LayerType::NONE; }
 	virtual void forward(const global::ParamMetrix &metrix);
-	virtual ~ILayer() = default;
+	virtual ~DenseLayer() = default;
 
 	const Neurons &getDots() const { return dots; }
 	global::ValueType getWeight(const int i, const int j) const { return parameters.weights[i][j]; }
@@ -38,8 +39,6 @@ class DenseLayer : public ILayer {
 	void reset() { dots.reset(); }
 	void addParams(const LayerParameters &gradients) { parameters.add(gradients); }
 	void setParams(const LayerParameters &gradients) { parameters.set(gradients); }
-
-
 };
 
 class Hidden_Layer : public DenseLayer {
@@ -48,7 +47,7 @@ class Hidden_Layer : public DenseLayer {
 
   public:
 	Hidden_Layer(const int _size, const int _prev_size, const ActivationType activation, const global::ValueType init_value)
-	    : ILayer(_size, _prev_size, init_value),
+	    : DenseLayer(_size, _prev_size, init_value),
 	      activationFunction(activation) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
@@ -58,10 +57,10 @@ class Hidden_Layer : public DenseLayer {
 	global::ValueType derivativeActivation(const global::ValueType x) const { return activationFunction.derivativeActivate(x); }
 };
 
-class Output_Layer : public ILayer {
+class Output_Layer : public DenseLayer {
   public:
 	Output_Layer(const int _size, const int _prev_size, const global::ValueType init_value)
-	    : ILayer(_size, _prev_size, init_value) {}
+	    : DenseLayer(_size, _prev_size, init_value) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
 	LayerType getType() const override { return LayerType::OUTPUT; }
