@@ -22,8 +22,8 @@ std::string StatusPanel::getText() {
 	   << TextLabels::RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << std::endl
 	   << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->algorithmMode.load()] << std::endl
 	   << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << std::endl
-	   << TextLabels::CURRENT_BATCH_TEXT << vstate->currentBatch << "/" << vstate->config.training_config.batch_count << "#" << batchPerSecond << std::endl
-	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.training_config.batch_size << std::endl
+	   << TextLabels::CURRENT_BATCH_TEXT << vstate->currentBatch << "/" << vstate->config.trainingConfig.batch_count << "#" << batchPerSecond << std::endl
+	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.batch_size << std::endl
 	   << TextLabels::LERNING_RATE_TEXT << learningRate << std::endl;
 	return ss.str();
 }

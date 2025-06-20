@@ -6,18 +6,16 @@
 #include "config.hpp"
 #include <Globals.hpp>
 #include <memory>
-#include <nlohmann/json_fwd.hpp>
-#include <vector>
 
 namespace nn::model {
-class DenseNetwork : public INetwork {
+class FNNetwork : public INetwork {
   private:
 	std::vector<std::unique_ptr<DenseLayer>> layers;
 	const FNNConfig &config;
 
   public:
-	DenseNetwork(const FNNConfig &_config) : config(_config) {}
-	virtual ~DenseNetwork() = default;
+	FNNetwork(const FNNConfig &_config);
+	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &input) override;
 	void backword(const global::ParamMetrix &output, global::ParamMetrix &deltas) override;

@@ -2,7 +2,6 @@
 #include "Globals.hpp"
 #include "LayerParameters.hpp"
 #include "activations.hpp"
-#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
 void Output_Layer::forward(const global::ParamMetrix &metrix) {
@@ -102,5 +101,15 @@ void Hidden_Layer::backword(
 			gradients.weights[i][j] += newDeltas[i] * prevLayer[j];
 		}
 	}
+}
+
+void Hidden_Layer::updateWeight(const global::ValueType learningRate) {
+	gradients.multiply(learningRate);
+	parameters.add(gradients);
+}
+
+void Output_Layer::updateWeight(const global::ValueType learningRate) {
+	gradients.multiply(learningRate);
+	parameters.add(gradients);
 }
 } // namespace nn::model

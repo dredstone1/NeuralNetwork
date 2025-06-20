@@ -123,11 +123,11 @@ float GraphUIPanel::data_gap_width() {
 }
 
 std::uint32_t GraphUIPanel::resolution() {
-	return std::min(GRAPH_RESOLUTION, (std::uint32_t)vstate->config.training_config.batch_count) - 1;
+	return std::min(GRAPH_RESOLUTION, (std::uint32_t)vstate->config.trainingConfig.batch_count) - 1;
 }
 
 int GraphUIPanel::data_gaps() {
-	return vstate->config.training_config.batch_count / resolution();
+	return vstate->config.trainingConfig.batch_count / resolution();
 }
 
 int GraphUIPanel::newDataPlace(const int index) {

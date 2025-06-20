@@ -1,6 +1,7 @@
 #include "config.hpp"
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <nlohmann/json_fwd.hpp>
 #include <vector>
 
@@ -36,7 +37,7 @@ void NetworkConfig::fromJson(const nlohmann::json &j) {
 	for (auto &subNetworkConfig : j) {
 		std::string type = subNetworkConfig.at("type");
 		if (type == "FNN") {
-			SubNetworksConfig.push_back(std::make_unique<FNNConfig>(subNetworkConfig));
+			SubNetworksConfig.push_back(std::make_shared<FNNConfig>(subNetworkConfig));
 		}
 	}
 }

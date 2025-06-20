@@ -5,7 +5,6 @@
 #include "LayerParameters.hpp"
 #include "activations.hpp"
 #include "config.hpp"
-#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
@@ -21,16 +20,16 @@ class DenseLayer {
 	    : dots(size),
 	      parameters(size, prevSize),
 	      gradients(size, prevSize) {}
-	virtual ~DenseLayer() = default;
+	virtual ~DenseLayer() = default; 
 
-	virtual void forward(const global::ParamMetrix &metrix);
-	virtual void updateWeight(const global::ParamMetrix &metrix);
+	virtual void forward(const global::ParamMetrix &metrix) = 0;
+	virtual void updateWeight(const global::ValueType learningRate) = 0;
 	virtual void backword(
 	    const global::ParamMetrix &deltas,
 	    global::ParamMetrix &newDeltas,
 	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters &nextLayer);
-	virtual global::ValueType getLost(const global::ParamMetrix &output);
+	    const LayerParameters &nextLayer) = 0;
+	virtual global::ValueType getLost(const global::ParamMetrix &output) = 0;
 
 	const Neurons &getDots() const { return dots; }
 	global::ValueType getWeight(const int i, const int j) const { return parameters.weights[i][j]; }
@@ -64,12 +63,14 @@ class Hidden_Layer : public DenseLayer {
 	Hidden_Layer(const DenseLayerConfig &_config, const int _prev_size)
 	    : DenseLayer(_config.size, _prev_size),
 	      activationFunction(_config.activationType) {}
+	~Hidden_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;
 	void backword(const global::ParamMetrix &deltas,
 	              global::ParamMetrix &newDeltas,
 	              const global::ParamMetrix &prevLayer,
 	              const LayerParameters &nextLayer) override;
+	void updateWeight(const global::ValueType learningRate) override;
 
 	global::ValueType getLost(const global::ParamMetrix &) override;
 
@@ -91,6 +92,7 @@ class Output_Layer : public DenseLayer {
 	    : DenseLayer(_size, _prev_size) {}
 	Output_Layer(const FNNConfig &_config, const int _prev_size)
 	    : DenseLayer(_config.outputSize, _prev_size) {}
+	~Output_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;
 	void backword(
@@ -98,6 +100,7 @@ class Output_Layer : public DenseLayer {
 	    global::ParamMetrix &newDeltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters &) override;
+	void updateWeight(const global::ValueType learningRate) override;
 	global::ValueType getLost(const global::ParamMetrix &output) override;
 };
 } // namespace nn::model

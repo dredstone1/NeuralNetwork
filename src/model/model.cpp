@@ -1,6 +1,9 @@
 #include "model.hpp"
+#include "FNNetwork.hpp"
+#include "config.hpp"
 #include "dataBase.hpp"
 #include <cmath>
+#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -9,7 +12,18 @@ namespace nn::model {
 Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       dataBase(config.trainingConfig) {
+	initModel();
 	visual->start();
+}
+
+void Model::initModel() {
+	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
+
+		if (config.networkConfig.SubNetworksConfig[i]->NNLable() == "FNN") {
+			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(config.networkConfig.SubNetworksConfig[i].get());
+			network.push_back(std::make_unique<FNNetwork>(sub_));
+		}
+	}
 }
 
 void Model::runModel(const global::ParamMetrix &input) {

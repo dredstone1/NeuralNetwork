@@ -1,7 +1,6 @@
 #ifndef INETWORK
 #define INETWORK
 
-#include "config.hpp"
 #include <Globals.hpp>
 
 namespace nn::model {

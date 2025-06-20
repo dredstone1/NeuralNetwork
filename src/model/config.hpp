@@ -11,16 +11,11 @@
 
 namespace nn::model {
 
-class ISerializable {
-  public:
-	virtual void fromJson(const nlohmann::json &j) = 0;
-	virtual ~ISerializable() = default;
-};
-
 class ISubNetworkConfig {
   public:
 	virtual void fromJson(const nlohmann::json &j) = 0;
 	virtual const std::string NNLable() const = 0;
+    virtual ~ISubNetworkConfig() = default;
 };
 
 struct DenseLayerConfig {
@@ -34,23 +29,24 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
 
 class FNNConfig : public ISubNetworkConfig {
   private:
-	void fromJson(const nlohmann::json &j) override;
 	friend class Config;
 
   public:
 	FNNConfig(const nlohmann::json &j);
+    ~FNNConfig() = default;
 
 	const std::string NNLable() const override { return "FNN"; }
+	void fromJson(const nlohmann::json &j) override;
 
 	std::vector<DenseLayerConfig> layersConfig;
 	int inputSize;
 	int outputSize;
 };
 
-class NetworkConfig : public ISerializable {
+class NetworkConfig {
   public:
-	std::vector<std::unique_ptr<ISubNetworkConfig>> SubNetworksConfig;
-	void fromJson(const nlohmann::json &j) override;
+	std::vector<std::shared_ptr<ISubNetworkConfig>> SubNetworksConfig;
+	void fromJson(const nlohmann::json &j);
 };
 
 struct TrainingConfig {
