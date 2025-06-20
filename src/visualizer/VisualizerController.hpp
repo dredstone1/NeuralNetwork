@@ -10,7 +10,7 @@ class VisualManager {
 	void update_display();
 	std::atomic<bool> running{false};
 	std::unique_ptr<VisualRender> renderer;
-	const model::ConfigData &config;
+	const model::Config &config;
 	std::shared_ptr<StateManager> Vstate;
 	std::thread display_thread;
 
@@ -21,7 +21,7 @@ class VisualManager {
 	void initState();
 
   public:
-	VisualManager(const model::ConfigData &config);
+	VisualManager(const model::Config &_config);
 	~VisualManager();
 
 	void start();

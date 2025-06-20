@@ -36,33 +36,21 @@ global::ValueType DenseNetwork::getLost(const global::ParamMetrix &output) const
 	return layers[layers.size() - 1]->getLost(output);
 }
 
-void DenseNetwork::fromJson(const nlohmann::json &j) {
-	int inputSize = j.at("input_size");
-	int pastLayerSize = inputSize;
-
-	const auto &layerConfigs = j.at("layers");
-	for (const auto &layerJson : layerConfigs) {
-		int size = layerJson.at("size");
-		global::ValueType weights_init_value = layerJson.at("weights_init_value");
-		ActivationType AT = layerJson.at("AT");
-
-		layers.push_back(std::make_unique<Hidden_Layer>(
-		    size,
-		    pastLayerSize,
-		    AT));
-		pastLayerSize = size;
-	}
-
-	int outputSize = j.at("output_size");
-	global::ValueType output_init_value = j.at("output_init_value");
-	layers.push_back(std::make_unique<Output_Layer>(
-	    outputSize,
-	    pastLayerSize));
-}
-
 void DenseNetwork::resetGradient() {
-
+	for (auto &layer : layers) {
+		layer->resetGradient();
+	}
 }
 
-int DenseNetwork::
+int DenseNetwork::inputSize() const {
+	return layers[0]->getPrevSize();
+}
+
+int DenseNetwork::outputSize() const {
+	return layers[layers.size() - 1]->getSize();
+}
+
+const global::ParamMetrix &DenseNetwork::getOutput() const {
+	return layers[layers.size() - 1]->getOut();
+}
 } // namespace nn::model

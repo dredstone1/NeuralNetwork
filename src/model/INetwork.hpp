@@ -1,11 +1,11 @@
 #ifndef INETWORK
 #define INETWORK
 
-#include <Globals.hpp>
 #include "config.hpp"
+#include <Globals.hpp>
 
 namespace nn::model {
-class INetwork : public ISerializable {
+class INetwork {
   public:
 	virtual ~INetwork() = default;
 
@@ -19,7 +19,7 @@ class INetwork : public ISerializable {
 
 	virtual global::ValueType getLost(const global::ParamMetrix &output) const = 0;
 
-	virtual const global::ParamMetrix getOutput() const = 0;
+	virtual const global::ParamMetrix &getOutput() const = 0;
 };
 } // namespace nn::model
 

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <nlohmann/json_fwd.hpp>
 
-namespace nn::training {
-DataBase::DataBase(const nlohmann::json &j) {
+namespace nn::model {
+DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
 	std::random_device rd;
 	rng = std::mt19937(rd());
 
@@ -110,4 +110,4 @@ Batch &DataBase::get_Batch() {
 
 	return batches.at(currentBatch++);
 }
-} // namespace nn::training
+} // namespace nn::model

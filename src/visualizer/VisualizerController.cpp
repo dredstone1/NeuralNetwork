@@ -1,7 +1,7 @@
 #include "VisualizerController.hpp"
 
 namespace nn::visualizer {
-VisualManager::VisualManager(const model::ConfigData &_config) : config(_config) {
+VisualManager::VisualManager(const model::Config &_config) : config(_config) {
 	printf("start Visualizer\n");
 }
 
@@ -10,7 +10,7 @@ void VisualManager::initState() {
 		return;
 	}
 
-	auto &modes = config.visualizer_config.modes;
+	auto &modes = config.visualConfig.modes;
 
 	for (size_t i = 0; i < modes.size(); i++) {
 		Vstate->setState(modes[i].state, modes[i].mode);

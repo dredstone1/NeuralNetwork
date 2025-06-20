@@ -10,7 +10,7 @@
 namespace nn::model {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
-class DenseLayer : public ISerializable {
+class DenseLayer {
   protected:
 	Neurons dots;
 	LayerParameters parameters;
@@ -43,6 +43,7 @@ class DenseLayer : public ISerializable {
 	const global::ParamMetrix &getOut() const { return dots.out; }
 
 	void reset() { dots.reset(); }
+	void resetGradient() { gradients.reset(); }
 	void addParams(const LayerParameters &gradients) { parameters.add(gradients); }
 	void setParams(const LayerParameters &gradients) { parameters.set(gradients); }
 };
@@ -53,9 +54,16 @@ class Hidden_Layer : public DenseLayer {
 	global::ParamMetrix getDelta(const global::ParamMetrix &output, const LayerParameters &nextLayer);
 
   public:
-	Hidden_Layer(const int _size, const int _prev_size, const ActivationType activation)
+	Hidden_Layer(
+	    const int _size,
+	    const int _prev_size,
+	    const ActivationType activation)
 	    : DenseLayer(_size, _prev_size),
 	      activationFunction(activation) {}
+
+	Hidden_Layer(const DenseLayerConfig &_config, const int _prev_size)
+	    : DenseLayer(_config.size, _prev_size),
+	      activationFunction(_config.activationType) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
 	void backword(const global::ParamMetrix &deltas,
@@ -71,8 +79,6 @@ class Hidden_Layer : public DenseLayer {
 	global::ValueType derivativeActivation(const global::ValueType x) const {
 		return activationFunction.derivativeActivate(x);
 	}
-
-	void fromJson(const nlohmann::json &j) override;
 };
 
 class Output_Layer : public DenseLayer {
@@ -83,8 +89,8 @@ class Output_Layer : public DenseLayer {
   public:
 	Output_Layer(const int _size, const int _prev_size)
 	    : DenseLayer(_size, _prev_size) {}
-
-	void fromJson(const nlohmann::json &j) override;
+	Output_Layer(const FNNConfig &_config, const int _prev_size)
+	    : DenseLayer(_config.outputSize, _prev_size) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
 	void backword(

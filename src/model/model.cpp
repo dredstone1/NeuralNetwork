@@ -1,15 +1,15 @@
 #include "model.hpp"
-#include "FNNetwork.hpp"
+#include "dataBase.hpp"
 #include <cmath>
-#include <fstream>
 #include <iostream>
 #include <memory>
 #include <vector>
 
 namespace nn::model {
-Model::Model(const std::string &config_filepath) {
-	loadConfig(config_filepath);
-	visual.start();
+Model::Model(const std::string &config_filepath)
+    : config(config_filepath),
+      dataBase(config.trainingConfig) {
+	visual->start();
 }
 
 void Model::runModel(const global::ParamMetrix &input) {
@@ -20,36 +20,6 @@ void Model::runModel(const global::ParamMetrix &input) {
 	}
 }
 
-void Model::loadConfig(const std::string &config_filepath) {
-	std::ifstream ifs(config_filepath);
-	if (!ifs.is_open()) {
-		std::cerr << "Error: Could not open config file: " << config_filepath << std::endl;
-		throw std::runtime_error("Failed to open config file: " + config_filepath);
-	}
-
-	nlohmann::json j;
-	try {
-		ifs >> j;
-		const auto &networkConifg = j.at("network");
-
-		for (auto &subNetworkConfig : networkConifg) {
-			std::string type = subNetworkConfig.at("type");
-            if (type == "dense"){
-                network.push_back(std::make_unique<DenseNetwork>(subNetworkConfig));
-            }
-		}
-	} catch (const nlohmann::json::parse_error &e) {
-		std::cerr << "JSON parse error in file '" << config_filepath << "':\n"
-		          << e.what() << "\n"
-		          << "at byte " << e.byte << std::endl;
-		throw;
-	} catch (const nlohmann::json::exception &e) {
-		std::cerr << "JSON processing error in file '" << config_filepath << "':\n"
-		          << e.what() << std::endl;
-		throw;
-	}
-}
-
 void Model::resetNetworkGradient() {
 	for (auto &subNet : network) {
 		subNet->resetGradient();
@@ -57,7 +27,7 @@ void Model::resetNetworkGradient() {
 }
 
 void Model::update_weights(const int batch_size) {
-	const global::ValueType CURRENT_LEARNING_RATE = -learningRate.currentLearningRate / batch_size;
+	const global::ValueType CURRENT_LEARNING_RATE = -learningRate / batch_size;
 	for (auto &subNet : network) {
 		subNet->updateWeights(CURRENT_LEARNING_RATE);
 	}
@@ -87,7 +57,7 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 	for (size_t i = 0; i < batch.size(); i++) {
 		const TrainSample *current_sample_ptr = batch.samples.at(i);
 
-		visual.updatePrediction(current_sample_ptr->prediction.index);
+		visual->updatePrediction(current_sample_ptr->prediction.index);
 		runModel(current_sample_ptr->input);
 		global::ParamMetrix output(inputSize(), 0);
 		output[current_sample_ptr->prediction.index] = 1;
@@ -105,21 +75,21 @@ void Model::train() {
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
 
-	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Training);
-	visual.updateLearningRate(learningRate.currentLearningRate);
+	visual->updateAlgoritemMode(visualizer::AlgorithmMode::Training);
+	visual->updateLearningRate(learningRate);
 
-	for (int loop_index = 0; loop_index < config.training_config.batch_count + 1; loop_index++) {
-		visual.updateBatchCounter(loop_index);
+	for (int loop_index = 0; loop_index < config.trainingConfig.batch_count + 1; loop_index++) {
+		visual->updateBatchCounter(loop_index);
 
 		Batch &batch = dataBase.get_Batch();
 		error = run_back_propagation(batch);
 
-		visual.updateError(error, loop_index);
+		visual->updateError(error, loop_index);
 
 		// print_progress_bar(loop_index + 1, config.training_config.batch_count);
 
-		visual.updateLearningRate(learningRate.currentLearningRate);
-		if (visual.exit_training() == true)
+		visual->updateLearningRate(learningRate);
+		if (visual->exit_training() == true)
 			break;
 	}
 
@@ -136,7 +106,7 @@ void Model::train() {
 	          << time_taken_milliseconds << " ms)" << std::endl
 	          << "final_score: " << error << std::endl;
 
-	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
+	visual->updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
 }
 
 void Model::reset() {
@@ -162,12 +132,12 @@ int Model::inputSize() {
 }
 
 void Model::updateWeights(const global::ValueType learningRate) {
-	visual.setNewPhaseMode(visualizer::NnMode::Backward);
+	visual->setNewPhaseMode(visualizer::NnMode::Backward);
 
 	for (int i = network.size() - 1; i >= 0; i--) {
 		network[i]->updateWeights(learningRate);
 	}
 
-	visual.setNewPhaseMode(visualizer::NnMode::Forword);
+	visual->setNewPhaseMode(visualizer::NnMode::Forword);
 }
 } // namespace nn::model

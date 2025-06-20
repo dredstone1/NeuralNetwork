@@ -1,6 +1,7 @@
 #ifndef DATABASE
 #define DATABASE
 
+#include "config.hpp"
 #include <Globals.hpp>
 #include <memory>
 #include <nlohmann/json_fwd.hpp>
@@ -52,13 +53,15 @@ class DataBase {
 	std::vector<int> shuffled_indices;
 	std::mt19937 rng;
 
+    const TrainingConfig &config;
+
 	void getDataBaseStatus(const std::string &line);
 	TrainSample read_line(const std::string &line);
 	int load();
 	void generete_batches();
 
   public:
-	DataBase(const nlohmann::json &j);
+	DataBase(const TrainingConfig &config);
 	~DataBase() = default;
 
 	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
