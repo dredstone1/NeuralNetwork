@@ -1,9 +1,10 @@
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
+#include <nlohmann/json_fwd.hpp>
 
 namespace nn::training {
-DataBase::DataBase(model::TrainingConfig &config_) : config(config_) {
+DataBase::DataBase(const nlohmann::json &j) {
 	std::random_device rd;
 	rng = std::mt19937(rd());
 

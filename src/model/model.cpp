@@ -1,15 +1,14 @@
 #include "model.hpp"
-#include "Globals.hpp"
+#include "FNNetwork.hpp"
 #include <cmath>
+#include <fstream>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace nn::model {
-Model::Model(Config &_config)
-    : visual(_config.config_data),
-      config(_config.config_data),
-      learningRate(_config.config_data.training_config.lr_init_value),
-      dataBase(_config.config_data.training_config) {
+Model::Model(const std::string &config_filepath) {
+	loadConfig(config_filepath);
 	visual.start();
 }
 
@@ -18,6 +17,36 @@ void Model::runModel(const global::ParamMetrix &input) {
 
 	for (size_t i = 1; i < network.size(); i++) {
 		network[i]->forward(network[i - 1]->getOutput());
+	}
+}
+
+void Model::loadConfig(const std::string &config_filepath) {
+	std::ifstream ifs(config_filepath);
+	if (!ifs.is_open()) {
+		std::cerr << "Error: Could not open config file: " << config_filepath << std::endl;
+		throw std::runtime_error("Failed to open config file: " + config_filepath);
+	}
+
+	nlohmann::json j;
+	try {
+		ifs >> j;
+		const auto &networkConifg = j.at("network");
+
+		for (auto &subNetworkConfig : networkConifg) {
+			std::string type = subNetworkConfig.at("type");
+            if (type == "dense"){
+                network.push_back(std::make_unique<DenseNetwork>(subNetworkConfig));
+            }
+		}
+	} catch (const nlohmann::json::parse_error &e) {
+		std::cerr << "JSON parse error in file '" << config_filepath << "':\n"
+		          << e.what() << "\n"
+		          << "at byte " << e.byte << std::endl;
+		throw;
+	} catch (const nlohmann::json::exception &e) {
+		std::cerr << "JSON processing error in file '" << config_filepath << "':\n"
+		          << e.what() << std::endl;
+		throw;
 	}
 }
 
@@ -47,7 +76,7 @@ void Model::Backward(const global::ParamMetrix &output) {
 	}
 }
 
-global::ValueType Model::run_back_propagation(const training::Batch &batch) {
+global::ValueType Model::run_back_propagation(const Batch &batch) {
 	global::ValueType error = 0.0;
 
 	if (batch.size() == 0) {
@@ -56,7 +85,7 @@ global::ValueType Model::run_back_propagation(const training::Batch &batch) {
 
 	resetNetworkGradient();
 	for (size_t i = 0; i < batch.size(); i++) {
-		const training::TrainSample *current_sample_ptr = batch.samples.at(i);
+		const TrainSample *current_sample_ptr = batch.samples.at(i);
 
 		visual.updatePrediction(current_sample_ptr->prediction.index);
 		runModel(current_sample_ptr->input);
@@ -82,7 +111,7 @@ void Model::train() {
 	for (int loop_index = 0; loop_index < config.training_config.batch_count + 1; loop_index++) {
 		visual.updateBatchCounter(loop_index);
 
-		training::Batch &batch = dataBase.get_Batch();
+		Batch &batch = dataBase.get_Batch();
 		error = run_back_propagation(batch);
 
 		visual.updateError(error, loop_index);

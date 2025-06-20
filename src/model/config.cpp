@@ -13,7 +13,7 @@ Config::Config(const std::string &config_filepath) {
 	nlohmann::json j;
 	try {
 		ifs >> j;
-		config_data = j.get<ConfigData>();
+		// config_data = j.get<ConfigData>();
 	} catch (const nlohmann::json::parse_error &e) {
 		std::cerr << "JSON parse error in file '" << config_filepath << "':\n"
 		          << e.what() << "\n"

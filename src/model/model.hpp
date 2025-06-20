@@ -1,11 +1,10 @@
 #ifndef MODEL
 #define MODEL
 
-#include "../trainer/dataBase.hpp"
+#include "dataBase.hpp"
 #include "../visualizer/VisualizerController.hpp"
 #include "Globals.hpp"
 #include "INetwork.hpp"
-#include "config.hpp"
 
 namespace nn::model {
 constexpr int BAR_WIDTH = 100;
@@ -20,20 +19,23 @@ class Model {
 	std::vector<std::unique_ptr<INetwork>> network;
 	visualizer::VisualManager visual;
 
-	const ConfigData &config;
+	// const ConfigData &config;
 	learningRateParams learningRate;
-	training::DataBase dataBase;
+	DataBase dataBase;
 
 	void Forword(const global::ParamMetrix &input, const int modelIndex);
 	void Backward(const global::ParamMetrix &output);
 	void update_weights(const int batch_size);
 	void resetNetworkGradient();
+	void initModel();
 	global::ValueType getLost(const global::ParamMetrix &output);
 
-	global::ValueType run_back_propagation(const training::Batch &batch);
+	global::ValueType run_back_propagation(const Batch &batch);
+
+	void loadConfig(const std::string &config_filepath);
 
   public:
-	Model(Config &_config);
+	Model(const std::string &config_filepath);
 	~Model() = default;
 
 	void runModel(const global::ParamMetrix &input);

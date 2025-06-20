@@ -2,6 +2,7 @@
 #include "Globals.hpp"
 #include "LayerParameters.hpp"
 #include "activations.hpp"
+#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
 void Output_Layer::forward(const global::ParamMetrix &metrix) {

@@ -4,11 +4,13 @@
 #include "Globals.hpp"
 #include "LayerParameters.hpp"
 #include "activations.hpp"
+#include "config.hpp"
+#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
-class DenseLayer {
+class DenseLayer : public ISerializable {
   protected:
 	Neurons dots;
 	LayerParameters parameters;
@@ -56,11 +58,11 @@ class Hidden_Layer : public DenseLayer {
 	      activationFunction(activation) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
-	void backword(
-	    const global::ParamMetrix &deltas,
-	    global::ParamMetrix &newDeltas,
-	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters &nextLayer) override;
+	void backword(const global::ParamMetrix &deltas,
+	              global::ParamMetrix &newDeltas,
+	              const global::ParamMetrix &prevLayer,
+	              const LayerParameters &nextLayer) override;
+
 	global::ValueType getLost(const global::ParamMetrix &) override;
 
 	global::ValueType activation(const global::ValueType x) const {
@@ -69,6 +71,8 @@ class Hidden_Layer : public DenseLayer {
 	global::ValueType derivativeActivation(const global::ValueType x) const {
 		return activationFunction.derivativeActivate(x);
 	}
+
+	void fromJson(const nlohmann::json &j) override;
 };
 
 class Output_Layer : public DenseLayer {
@@ -79,6 +83,8 @@ class Output_Layer : public DenseLayer {
   public:
 	Output_Layer(const int _size, const int _prev_size)
 	    : DenseLayer(_size, _prev_size) {}
+
+	void fromJson(const nlohmann::json &j) override;
 
 	void forward(const global::ParamMetrix &metrix) override;
 	void backword(

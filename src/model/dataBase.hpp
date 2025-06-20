@@ -1,14 +1,14 @@
 #ifndef DATABASE
 #define DATABASE
 
-#include <memory>
-#include <random>
 #include <Globals.hpp>
-#include "../model/config.hpp"
+#include <memory>
+#include <nlohmann/json_fwd.hpp>
+#include <random>
 
-namespace nn::training {
+namespace nn::model {
 struct TrainSample {
-    global::Prediction prediction;
+	global::Prediction prediction;
 	global::ParamMetrix input;
 
 	TrainSample(global::Prediction _pre, const int sampleInputSize)
@@ -48,7 +48,6 @@ class DataBase {
   private:
 	std::unique_ptr<Samples> samples;
 	std::vector<Batch> batches;
-	model::TrainingConfig &config;
 	size_t currentBatch;
 	std::vector<int> shuffled_indices;
 	std::mt19937 rng;
@@ -59,12 +58,12 @@ class DataBase {
 	void generete_batches();
 
   public:
-	DataBase(model::TrainingConfig &config_);
+	DataBase(const nlohmann::json &j);
 	~DataBase() = default;
 
 	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
 	Batch &get_Batch();
 };
-} // namespace nn::training
+} // namespace nn::model
 
 #endif // DATABASE

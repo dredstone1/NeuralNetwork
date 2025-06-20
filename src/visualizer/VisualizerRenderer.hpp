@@ -2,6 +2,7 @@
 #define VISUALIZERRENDERER
 
 #include "../model/LayerParameters.hpp"
+#include "../model/neuron.hpp"
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "graph.hpp"
