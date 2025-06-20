@@ -1,7 +1,7 @@
 #ifndef DENSENEWORK
 #define DENSENEWORK
 
-#include "ILayer.hpp"
+#include "DenseLayer.hpp"
 #include "INetwork.hpp"
 #include <Globals.hpp>
 #include <memory>
@@ -9,15 +9,15 @@
 namespace nn::model {
 class DenseNetwork : INetwork {
   private:
-	std::vector<std::unique_ptr<ILayer>> layers;
+	std::vector<std::unique_ptr<DenseLayer>> layers;
 
   public:
 	DenseNetwork() {}
 	virtual ~DenseNetwork() = default;
 
-	virtual void forward(const global::ParamMetrix &input);
-	virtual void backword(const global::ParamMetrix &output, global::ParamMetrix &input);
-	virtual void updateWeights(const global::ValueType learningRate);
+	void forward(const global::ParamMetrix &input) override;
+	void backword(const global::ParamMetrix &output) override;
+	void updateWeights(const global::ValueType learningRate) override;
 };
 } // namespace nn::model
 

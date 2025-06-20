@@ -1,11 +1,11 @@
 #include "model.hpp"
-#include "Globals.hpp"
 #include <cmath>
-#include <cstddef>
 
 namespace nn::model {
 Model::Model(Config &_config)
-    : visual(_config.config_data) {
+    : visual(_config.config_data),
+      config(_config.config_data),
+      learningRate(_config.config_data.training_config.lr_init_value) {
 	visual.start();
 }
 

@@ -1,21 +1,31 @@
 #ifndef DENSELAYER
 #define DENSELAYER
 
-#include "ILayer.hpp"
+#include "Globals.hpp"
 #include "LayerParameters.hpp"
 #include "activations.hpp"
 
 namespace nn::model {
-class DenseLayer : public ILayer {
+class DenseLayer {
   protected:
 	Neurons dots;
 	LayerParameters parameters;
+	LayerParameters gradients;
 
   public:
 	DenseLayer(const int size, const int prevSize)
 	    : dots(size),
-	      parameters(size, prevSize) {}
+	      parameters(size, prevSize),
+	      gradients(size, prevSize) {}
 	virtual ~DenseLayer() = default;
+
+	virtual void forward(const global::ParamMetrix &metrix);
+	virtual void updateWeight(const global::ParamMetrix &metrix);
+	virtual void backword(
+	    const global::ParamMetrix &deltas,
+	    global::ParamMetrix &newDeltas,
+	    const global::ParamMetrix &prevLayer,
+	    const LayerParameters &nextLayer);
 
 	const Neurons &getDots() const { return dots; }
 	global::ValueType getWeight(const int i, const int j) const { return parameters.weights[i][j]; }
@@ -35,6 +45,7 @@ class DenseLayer : public ILayer {
 class Hidden_Layer : public DenseLayer {
   private:
 	Activation activationFunction;
+	global::ParamMetrix getDelta(const global::ParamMetrix &output, const LayerParameters &nextLayer);
 
   public:
 	Hidden_Layer(const int _size, const int _prev_size, const ActivationType activation)
@@ -42,17 +53,34 @@ class Hidden_Layer : public DenseLayer {
 	      activationFunction(activation) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
+	void backword(
+	    const global::ParamMetrix &deltas,
+	    global::ParamMetrix &newDeltas,
+	    const global::ParamMetrix &prevLayer,
+	    const LayerParameters &nextLayer) override;
 
-	global::ValueType activation(const global::ValueType x) const { return activationFunction.activate(x); }
-	global::ValueType derivativeActivation(const global::ValueType x) const { return activationFunction.derivativeActivate(x); }
+	global::ValueType activation(const global::ValueType x) const {
+		return activationFunction.activate(x);
+	}
+	global::ValueType derivativeActivation(const global::ValueType x) const {
+		return activationFunction.derivativeActivate(x);
+	}
 };
 
 class Output_Layer : public DenseLayer {
+  private:
+	global::ParamMetrix getDelta(const global::ParamMetrix &output);
+
   public:
 	Output_Layer(const int _size, const int _prev_size)
 	    : DenseLayer(_size, _prev_size) {}
 
 	void forward(const global::ParamMetrix &metrix) override;
+	void backword(
+	    const global::ParamMetrix &deltas,
+	    global::ParamMetrix &newDeltas,
+	    const global::ParamMetrix &prevLayer,
+	    const LayerParameters &) override;
 };
 } // namespace nn::model
 

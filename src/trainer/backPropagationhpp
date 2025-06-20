@@ -8,10 +8,6 @@
 namespace nn::training {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
-struct learningRateParams {
-	global::ValueType currentLearningRate;
-	learningRateParams(const global::ValueType initLearningRate) : currentLearningRate(initLearningRate) {}
-};
 
 class BackPropagation {
   private:

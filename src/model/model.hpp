@@ -3,6 +3,7 @@
 
 #include "../visualizer/VisualizerController.hpp"
 #include "INetwork.hpp"
+#include "config.hpp"
 
 namespace nn {
 namespace training {
@@ -11,21 +12,28 @@ class Trainer;
 } // namespace training
 
 namespace model {
+struct learningRateParams {
+	global::ValueType currentLearningRate;
+	learningRateParams(const global::ValueType initLearningRate) : currentLearningRate(initLearningRate) {}
+};
+
 class Model {
   private:
 	std::vector<std::unique_ptr<INetwork>> network;
 	visualizer::VisualManager visual;
 
-	void runModel(const global::ParamMetrix &input, const int modelIndex);
+	const ConfigData &config;
+	learningRateParams learningRate;
 
-	friend class training::BackPropagation;
-	friend class training::Trainer;
+	void runModel(const global::ParamMetrix &input, const int modelIndex);
 
   public:
 	Model(Config &_config);
 	~Model() = default;
 
 	void runModel(const global::ParamMetrix &input);
+	void train();
+
 	void reset();
 	void updateWeights(const global::ValueType learningRate);
 
