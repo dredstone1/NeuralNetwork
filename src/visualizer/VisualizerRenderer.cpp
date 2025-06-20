@@ -131,7 +131,7 @@ void VisualRender::updateBatchCounter(const global::ValueType error, const int i
 	Vgraph.add_data(error, index);
 }
 
-void VisualRender::update(const training::gradient &new_grad) {
+void VisualRender::update(const model::LayerParameters &new_grad) {
 	// visualNetwork.update(new_grad);
 }
 

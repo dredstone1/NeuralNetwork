@@ -1,15 +1,17 @@
 #ifndef DATABASE
 #define DATABASE
 
-#include <AiModel.hpp>
+#include <memory>
 #include <random>
+#include <Globals.hpp>
+#include "../model/config.hpp"
 
 namespace nn::training {
 struct TrainSample {
-	Prediction prediction;
+    global::Prediction prediction;
 	global::ParamMetrix input;
 
-	TrainSample(Prediction _pre, const int sampleInputSize)
+	TrainSample(global::Prediction _pre, const int sampleInputSize)
 	    : prediction(_pre),
 	      input(sampleInputSize, 0) {}
 	TrainSample()

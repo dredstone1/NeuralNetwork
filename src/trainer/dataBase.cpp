@@ -1,5 +1,4 @@
 #include "dataBase.hpp"
-#include "AiModel.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -25,7 +24,7 @@ TrainSample DataBase::read_line(const std::string &line) {
 
 	size_t bestNextMove = std::stoi(token);
 
-	TrainSample new_sample(Prediction(bestNextMove, 1.f), samples->sInputSize);
+	TrainSample new_sample(global::Prediction(bestNextMove, 1.f), samples->sInputSize);
 
 	for (int i = 0; i < samples->sInputSize; ++i) {
 		iss >> token;

@@ -1,7 +1,6 @@
 #include "tests.hpp"
 #include <AiModel.hpp>
 #include <iostream>
-#include <trainer.hpp>
 
 int int_to_binaray(int num) {
 	int binary = 0;
@@ -78,9 +77,8 @@ int main(int argc, char *argv[]) {
 
 	nn::AiModel model(config_FN);
 
-	nn::training::Trainer trainer(model);
 
-	trainer.train();
+	// model.train();
 
 	int num1 = 0, num2 = 0;
 	std::string str_num;

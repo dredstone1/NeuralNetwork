@@ -82,7 +82,7 @@ void VisualManager::setNewPhaseMode(const NnMode nn_mode) {
 	renderer->setNewPhaseMode(nn_mode);
 }
 
-void VisualManager::update(const training::gradient &new_grad) {
+void VisualManager::update(const model::LayerParameters &new_grad) {
 	if (!checkPointers()) {
 		return;
 	}

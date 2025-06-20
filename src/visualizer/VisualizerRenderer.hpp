@@ -1,10 +1,10 @@
 #ifndef VISUALIZERRENDERER
 #define VISUALIZERRENDERER
 
+#include "../model/LayerParameters.hpp"
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "graph.hpp"
-#include "../trainer/gradient.hpp"
 // #include "visualNN.hpp"
 
 namespace nn::visualizer {
@@ -45,7 +45,7 @@ class VisualRender {
 
 	void updateDots(const int layer, const model::Neurons &newNeurons);
 	bool updateStatus();
-	void update(const training::gradient &new_grad);
+	void update(const model::LayerParameters &new_grad);
 	void update(const int layer, const model::LayerParameters &gradients);
 	void updateBatchCounter(const global::ValueType error, const int index);
 	void setNewPhaseMode(const NnMode nn_mode);

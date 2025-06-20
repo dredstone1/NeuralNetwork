@@ -28,7 +28,7 @@ class VisualManager {
 	void updateDots(const int layer, const model::Neurons &newNeurons);
 	void update(const int layer, const model::LayerParameters &gradient);
 	void setNewPhaseMode(const NnMode nn_mode);
-	void update(const training::gradient &new_grad);
+	void update(const model::LayerParameters &new_grad);
 	void updateBatchCounter(const int batch);
 	void updateError(const global::ValueType error, const int index);
 	void updateAlgoritemMode(const AlgorithmMode algoritem_mode);

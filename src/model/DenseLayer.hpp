@@ -6,6 +6,8 @@
 #include "activations.hpp"
 
 namespace nn::model {
+constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
+
 class DenseLayer {
   protected:
 	Neurons dots;
@@ -26,6 +28,7 @@ class DenseLayer {
 	    global::ParamMetrix &newDeltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters &nextLayer);
+	virtual global::ValueType getLost(const global::ParamMetrix &output);
 
 	const Neurons &getDots() const { return dots; }
 	global::ValueType getWeight(const int i, const int j) const { return parameters.weights[i][j]; }
@@ -58,6 +61,7 @@ class Hidden_Layer : public DenseLayer {
 	    global::ParamMetrix &newDeltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters &nextLayer) override;
+	global::ValueType getLost(const global::ParamMetrix &) override;
 
 	global::ValueType activation(const global::ValueType x) const {
 		return activationFunction.activate(x);
@@ -70,6 +74,7 @@ class Hidden_Layer : public DenseLayer {
 class Output_Layer : public DenseLayer {
   private:
 	global::ParamMetrix getDelta(const global::ParamMetrix &output);
+	static global::ValueType get_cross_entropy_loss(const global::ParamMetrix &prediction, const int target);
 
   public:
 	Output_Layer(const int _size, const int _prev_size)
@@ -81,6 +86,7 @@ class Output_Layer : public DenseLayer {
 	    global::ParamMetrix &newDeltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters &) override;
+	global::ValueType getLost(const global::ParamMetrix &output) override;
 };
 } // namespace nn::model
 

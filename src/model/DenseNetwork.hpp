@@ -16,7 +16,8 @@ class DenseNetwork : INetwork {
 	virtual ~DenseNetwork() = default;
 
 	void forward(const global::ParamMetrix &input) override;
-	void backword(const global::ParamMetrix &output) override;
+	void backword(const global::ParamMetrix &output, global::ParamMetrix &deltas) override;
+    global::ValueType getLost(const global::ParamMetrix &output) override;
 	void updateWeights(const global::ValueType learningRate) override;
 };
 } // namespace nn::model

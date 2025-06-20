@@ -10,7 +10,11 @@ void AiModel::runModel(const global::ParamMetrix &input) {
 	model->runModel(input);
 }
 
-Prediction AiModel::getPrediction() {
+void AiModel::train() {
+	model->train();
+}
+
+global::Prediction AiModel::getPrediction() {
 	int max = 0;
 
 	for (int i = 1; i < (int)model->outputSize(); i++) {

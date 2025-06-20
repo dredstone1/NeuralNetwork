@@ -6,7 +6,6 @@
 #include "gradient.hpp"
 
 namespace nn::training {
-constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
 
 class BackPropagation {

@@ -1,11 +1,15 @@
 #include "model.hpp"
+#include "Globals.hpp"
 #include <cmath>
+#include <iostream>
+#include <vector>
 
 namespace nn::model {
 Model::Model(Config &_config)
     : visual(_config.config_data),
       config(_config.config_data),
-      learningRate(_config.config_data.training_config.lr_init_value) {
+      learningRate(_config.config_data.training_config.lr_init_value),
+      dataBase(_config.config_data.training_config) {
 	visual.start();
 }
 
@@ -17,19 +21,94 @@ void Model::runModel(const global::ParamMetrix &input) {
 	}
 }
 
-// void Model::runModel(const global::ParamMetrix &input, const int modelIndex) {
-// 	auto &subNetwork = network[modelIndex];
-// 	visual.setNewPhaseMode(visualizer::NnMode::Forword);
-//
-// 	visual.updateDots(0, {input, input});
-// 	temp_network.layers[0]->forward(input);
-// 	visual.updateDots(1, {temp_network.layers[0]->getOut(), temp_network.layers[0]->getNet()});
-//
-// 	for (size_t i = 1; i < temp_network.getLayerCount(); i++) {
-// 		temp_network.layers[i]->forward(temp_network.layers[i - 1]->getOut());
-// 		visual.updateDots(i + 1, {temp_network.layers[i]->getOut(), temp_network.layers[i]->getNet()});
-// 	}
-// }
+void Model::resetNetworkGradient() {
+	for (auto &subNet : network) {
+		subNet->resetGradient();
+	}
+}
+
+void Model::update_weights(const int batch_size) {
+	const global::ValueType CURRENT_LEARNING_RATE = -learningRate.currentLearningRate / batch_size;
+	for (auto &subNet : network) {
+		subNet->updateWeights(CURRENT_LEARNING_RATE);
+	}
+}
+
+void Model::Backward(const global::ParamMetrix &output) {
+	global::ParamMetrix deltas = output;
+	global::ParamMetrix temp = output;
+
+	network[network.size() - 1]->backword(deltas, temp);
+	deltas = temp;
+
+	for (int i = network.size() - 2; i >= 0; i--) {
+		network[i]->backword(deltas, temp);
+		deltas = temp;
+	}
+}
+
+global::ValueType Model::run_back_propagation(const training::Batch &batch) {
+	global::ValueType error = 0.0;
+
+	if (batch.size() == 0) {
+		return error;
+	}
+
+	resetNetworkGradient();
+	for (size_t i = 0; i < batch.size(); i++) {
+		const training::TrainSample *current_sample_ptr = batch.samples.at(i);
+
+		visual.updatePrediction(current_sample_ptr->prediction.index);
+		runModel(current_sample_ptr->input);
+		global::ParamMetrix output(inputSize(), 0);
+		output[current_sample_ptr->prediction.index] = 1;
+		Backward(output);
+		error += getLost(output);
+
+		update_weights(batch.size());
+	}
+	return error / batch.size();
+}
+
+void Model::train() {
+	std::cout << "Training AI" << std::endl;
+
+	const auto start = std::chrono::high_resolution_clock::now();
+	global::ValueType error = 0.0;
+
+	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Training);
+	visual.updateLearningRate(learningRate.currentLearningRate);
+
+	for (int loop_index = 0; loop_index < config.training_config.batch_count + 1; loop_index++) {
+		visual.updateBatchCounter(loop_index);
+
+		training::Batch &batch = dataBase.get_Batch();
+		error = run_back_propagation(batch);
+
+		visual.updateError(error, loop_index);
+
+		// print_progress_bar(loop_index + 1, config.training_config.batch_count);
+
+		visual.updateLearningRate(learningRate.currentLearningRate);
+		if (visual.exit_training() == true)
+			break;
+	}
+
+	const auto end = std::chrono::high_resolution_clock::now();
+	const int time_taken = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+	const int minutes = time_taken / SECONDS_IN_MINUTE;
+	const int seconds = time_taken % SECONDS_IN_MINUTE;
+	const int time_taken_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	std::cout << std::endl
+	          << "Training Done!" << std::endl
+	          << "Training time: "
+	          << minutes << " minutes "
+	          << seconds << " seconds" << " ("
+	          << time_taken_milliseconds << " ms)" << std::endl
+	          << "final_score: " << error << std::endl;
+
+	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
+}
 
 void Model::reset() {
 	for (auto &subNetwork : network) {
@@ -41,8 +120,16 @@ const global::ParamMetrix &Model::getOutput() const {
 	return network[network.size() - 1]->getOutput();
 }
 
+global::ValueType Model::getLost(const global::ParamMetrix &output) {
+	return network[network.size() - 1]->getLost(output);
+}
+
 int Model::outputSize() {
 	return network[network.size() - 1]->outputSize();
+}
+
+int Model::inputSize() {
+	return network[0]->inputSize();
 }
 
 void Model::updateWeights(const global::ValueType learningRate) {
@@ -53,13 +140,5 @@ void Model::updateWeights(const global::ValueType learningRate) {
 	}
 
 	visual.setNewPhaseMode(visualizer::NnMode::Forword);
-
-	// visual.update(gradients);
-	//
-	// for (int i = network.config.hidden_layer_count(); i >= 0; i--) {
-	// 	getLayer(i).addParams(gradients.gradients[i]);
-	// 	visual.update(i + 1, getLayer(i).getParms());
-	// }
-	//
 }
 } // namespace nn::model
