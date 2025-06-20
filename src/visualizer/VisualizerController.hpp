@@ -15,7 +15,7 @@ class VisualManager {
 	std::thread display_thread;
 
 	void stop();
-	void start_visuals(const model::NeuralNetwork &network);
+	void start_visuals();
 
 	inline bool checkPointers() { return renderer && Vstate; }
 	void initState();
@@ -24,7 +24,7 @@ class VisualManager {
 	VisualManager(const model::ConfigData &config);
 	~VisualManager();
 
-	void start(const model::NeuralNetwork &network);
+	void start();
 	void updateDots(const int layer, const model::Neurons &newNeurons);
 	void update(const int layer, const model::LayerParameters &gradient);
 	void setNewPhaseMode(const NnMode nn_mode);

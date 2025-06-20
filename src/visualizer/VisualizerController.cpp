@@ -31,15 +31,15 @@ void VisualManager::stop() {
 	}
 }
 
-void VisualManager::start(const model::NeuralNetwork &network) {
+void VisualManager::start() {
 	if (renderer) {
 		return;
 	}
 
-	display_thread = std::thread(&VisualManager::start_visuals, this, std::cref(network));
+	display_thread = std::thread(&VisualManager::start_visuals, this);
 }
 
-void VisualManager::start_visuals(const model::NeuralNetwork &network) {
+void VisualManager::start_visuals() {
 	Vstate = std::make_shared<StateManager>(config);
 	if (!Vstate) {
 		return;
@@ -47,7 +47,7 @@ void VisualManager::start_visuals(const model::NeuralNetwork &network) {
 
 	initState();
 
-	renderer = std::make_unique<VisualRender>(network, Vstate);
+	renderer = std::make_unique<VisualRender>(Vstate);
 	if (!renderer) {
 		return;
 	}

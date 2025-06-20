@@ -1,14 +1,10 @@
 #ifndef VISUALL
 #define VISUALL
 
-#include "../model/layer.hpp"
-#include "Globals.hpp"
+#include "../model/LayerParameters.hpp"
 #include "panel.hpp"
+#include <Globals.hpp>
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <vector>
 
 namespace nn::visualizer {
@@ -51,7 +47,7 @@ static const std::array<sf::Color, 3> color_lookup = {
     FONT_COLOR_NORMAL,
 };
 
-class visualLayer : public model::ILayer, public Panel {
+class visualLayer : public Panel {
   private:
 	void clear();
 	void display();
@@ -65,6 +61,7 @@ class visualLayer : public model::ILayer, public Panel {
 	virtual void renderNeuron(const int index) = 0;
 
   protected:
+	model::Neurons dots;
 	const std::uint32_t WIDTH;
 	sf::RenderTexture layerRender;
 	std::vector<sf::FloatRect> cacheNeurons;
@@ -77,10 +74,12 @@ class visualLayer : public model::ILayer, public Panel {
 	void drawNeuron(const sf::FloatRect &rect, const double input, const double output);
 
   public:
-	visualLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width);
+	visualLayer(
+	    const int _size,
+	    const std::shared_ptr<StateManager> state_,
+	    const std::uint32_t width);
 	virtual ~visualLayer() = default;
 
-	model::LayerType getType() const override { return model::LayerType::NONE; }
 	sf::Sprite getSprite();
 	void set_weights(const model::LayerParameters &Param);
 	void setDots(const model::Neurons &newNeurons);
@@ -94,7 +93,7 @@ class visualEmptyLayer : public visualLayer {
 
   public:
 	visualEmptyLayer(const int _size, const std::shared_ptr<StateManager> state_)
-	    : visualLayer(_size, 0, state_, NEURON_WIDTH) {}
+	    : visualLayer(_size, state_, NEURON_WIDTH) {}
 	~visualEmptyLayer() = default;
 };
 
@@ -115,7 +114,9 @@ struct cacheParam {
 
 class visualParamLayer : public visualLayer {
   private:
+	model::LayerParameters parameters;
 	model::LayerParameters grad;
+
 	std::vector<sf::FloatRect> cachePrevNeurons;
 
 	static sf::Color getColorFromTextT(const textType text_type);
@@ -125,13 +126,16 @@ class visualParamLayer : public visualLayer {
 	void doCacheWeights();
 
   public:
-	visualParamLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_)
+	visualParamLayer(
+	    const int _size,
+	    const int _prev_size,
+	    const std::shared_ptr<StateManager> state_)
 	    : visualLayer(
 	          _size,
-	          _prev_size,
 	          state_,
 	          calculate_width(state_->config.network_config.hidden_layer_count() + 1)),
-	      grad(_size, _prev_size, 0.5),
+	      parameters(_size, _prev_size),
+	      grad(_size, _prev_size),
 	      cachePrevNeurons(_prev_size) {
 		doCacheWeights();
 	}

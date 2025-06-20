@@ -2,8 +2,7 @@
 #define MODEL
 
 #include "../visualizer/VisualizerController.hpp"
-#include "layer.hpp"
-#include "neuralNetwork.hpp"
+#include "INetwork.hpp"
 
 namespace nn {
 namespace training {
@@ -14,10 +13,10 @@ class Trainer;
 namespace model {
 class Model {
   private:
-	NeuralNetwork network;
+	std::vector<std::unique_ptr<INetwork>> network;
 	visualizer::VisualManager visual;
 
-	void runModel(const global::ParamMetrix &input, NeuralNetwork &temp_network);
+	void runModel(const global::ParamMetrix &input, const int modelIndex);
 
 	friend class training::BackPropagation;
 	friend class training::Trainer;
@@ -28,15 +27,10 @@ class Model {
 
 	void runModel(const global::ParamMetrix &input);
 	void reset();
-	void updateWeights(const training::gradient &gradients);
+	void updateWeights(const global::ValueType learningRate);
 
-	ILayer &getLayer(const int i) { return *network.layers.at(i); }
+	int outputSize();
 	const global::ParamMetrix &getOutput() const;
-
-	size_t getOutputSize() const { return network.config.output_size; }
-	size_t getInputSize() const { return network.config.input_size; }
-	size_t getHiddenLayerCount() const { return network.config.hidden_layer_count(); }
-	size_t getLayerCount() const { return network.config.hidden_layer_count() + 1; }
 };
 } // namespace model
 } // namespace nn

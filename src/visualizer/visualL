@@ -7,9 +7,9 @@
 #include <SFML/Window/Keyboard.hpp>
 
 namespace nn::visualizer {
-visualLayer::visualLayer(const int _size, const int _prev_size, const std::shared_ptr<StateManager> state_, const std::uint32_t width)
-    : ILayer(_size, _prev_size, 0),
-      Panel(state_),
+visualLayer::visualLayer(const int _size, const std::shared_ptr<StateManager> state_, const std::uint32_t width)
+    : Panel(state_),
+      dots(_size),
       WIDTH(width),
       layerRender({width, NN_WIDTH}),
       cacheNeurons(_size) {

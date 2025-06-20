@@ -15,7 +15,7 @@ class DenseNetwork : INetwork {
 	DenseNetwork() {}
 	virtual ~DenseNetwork() = default;
 
-	virtual void forward(const global::ParamMetrix &input, global::ParamMetrix &output);
+	virtual void forward(const global::ParamMetrix &input);
 	virtual void backword(const global::ParamMetrix &output, global::ParamMetrix &input);
 	virtual void updateWeights(const global::ValueType learningRate);
 };
