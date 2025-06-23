@@ -11,10 +11,11 @@ constexpr int SECONDS_IN_MINUTE = 60;
 
 class Model {
   private:
-	std::vector<std::unique_ptr<INetwork>> network;
-	std::unique_ptr<visualizer::VisualManager> visual;
-
 	const Config config;
+
+	std::vector<std::unique_ptr<INetwork>> network;
+	visualizer::VisualManager visual;
+
 	global::ValueType learningRate;
 	DataBase dataBase;
 

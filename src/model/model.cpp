@@ -6,9 +6,10 @@
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
     : config(config_filepath),
+    visual(config),
       dataBase(config.trainingConfig) {
 	initModel();
-	visual->start();
+	visual.start();
 }
 
 void Model::initModel() {
@@ -67,7 +68,7 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 	for (size_t i = 0; i < batch.size(); i++) {
 		const TrainSample *current_sample_ptr = batch.samples.at(i);
 
-		visual->updatePrediction(current_sample_ptr->prediction.index);
+		visual.updatePrediction(current_sample_ptr->prediction.index);
 		runModel(current_sample_ptr->input);
 		global::ParamMetrix output(inputSize(), 0);
 		output[current_sample_ptr->prediction.index] = 1;
@@ -126,27 +127,27 @@ void Model::train() {
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
 
-	visual->updateAlgoritemMode(visualizer::AlgorithmMode::Training);
-	visual->updateLearningRate(learningRate);
+	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Training);
+	visual.updateLearningRate(learningRate);
 
 	for (int loop_index = 0; loop_index < config.trainingConfig.batch_count + 1; loop_index++) {
-		visual->updateBatchCounter(loop_index);
+		visual.updateBatchCounter(loop_index);
 
 		Batch &batch = dataBase.get_Batch();
 		error = run_back_propagation(batch);
 
-		visual->updateError(error, loop_index);
+		visual.updateError(error, loop_index);
 
 		print_progress_bar(loop_index + 1, config.trainingConfig.batch_count);
 
-		visual->updateLearningRate(learningRate);
-		if (visual->exit_training() == true)
+		visual.updateLearningRate(learningRate);
+		if (visual.exit_training() == true)
 			break;
 	}
 
     printTrainingResult(start, error);
 
-	visual->updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
+	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
 }
 
 void Model::reset() {
@@ -172,12 +173,12 @@ int Model::inputSize() {
 }
 
 void Model::updateWeights(const global::ValueType learningRate) {
-	visual->setNewPhaseMode(visualizer::NnMode::Backward);
+	visual.setNewPhaseMode(visualizer::NnMode::Backward);
 
 	for (int i = network.size() - 1; i >= 0; i--) {
 		network[i]->updateWeights(learningRate);
 	}
 
-	visual->setNewPhaseMode(visualizer::NnMode::Forword);
+	visual.setNewPhaseMode(visualizer::NnMode::Forword);
 }
 } // namespace nn::model

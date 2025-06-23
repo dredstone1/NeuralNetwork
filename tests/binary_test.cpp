@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 	nn::AiModel model(config_FN);
 
 
-	// model.train();
+	model.train();
 
 	int num1 = 0, num2 = 0;
 	std::string str_num;
