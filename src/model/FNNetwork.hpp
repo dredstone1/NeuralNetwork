@@ -3,9 +3,6 @@
 
 #include "DenseLayer.hpp"
 #include "INetwork.hpp"
-#include "config.hpp"
-#include <Globals.hpp>
-#include <memory>
 
 namespace nn::model {
 class FNNetwork : public INetwork {

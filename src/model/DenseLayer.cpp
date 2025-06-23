@@ -1,7 +1,5 @@
 #include "DenseLayer.hpp"
-#include "Globals.hpp"
 #include "LayerParameters.hpp"
-#include "activations.hpp"
 
 namespace nn::model {
 void Output_Layer::forward(const global::ParamMetrix &metrix) {
@@ -41,7 +39,7 @@ void Output_Layer::backword(
 	}
 }
 
-global::ValueType Output_Layer::get_cross_entropy_loss(const global::ParamMetrix &prediction, const int target) {
+global::ValueType Output_Layer::getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target) {
 	return -std::log(std::max(prediction[target], MIN_LOSS_VALUE));
 }
 
@@ -53,7 +51,7 @@ global::ValueType Output_Layer::getLost(const global::ParamMetrix &output) {
 		}
 	}
 
-	return get_cross_entropy_loss(getOut(), max_value);
+	return getCrossEntropyLoss(getOut(), max_value);
 }
 
 global::ValueType Hidden_Layer::getLost(const global::ParamMetrix &) {

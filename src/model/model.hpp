@@ -1,7 +1,6 @@
 #ifndef MODEL
 #define MODEL
 
-#include <Globals.hpp>
 #include "../visualizer/VisualizerController.hpp"
 #include "INetwork.hpp"
 #include "dataBase.hpp"
@@ -19,6 +18,8 @@ class Model {
 	global::ValueType learningRate;
 	DataBase dataBase;
 
+	int lastProgress{-1};
+
 	void Forword(const global::ParamMetrix &input, const int modelIndex);
 	void Backward(const global::ParamMetrix &output);
 	void update_weights(const int batch_size);
@@ -27,6 +28,9 @@ class Model {
 	global::ValueType getLost(const global::ParamMetrix &output);
 
 	global::ValueType run_back_propagation(const Batch &batch);
+
+	void print_progress_bar(const int current, const int total);
+    void printTrainingResult(const std::chrono::high_resolution_clock::time_point& start, double error);
 
   public:
 	Model(const std::string &config_filepath);

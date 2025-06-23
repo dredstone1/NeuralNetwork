@@ -1,7 +1,6 @@
 #ifndef DENSELAYER
 #define DENSELAYER
 
-#include "Globals.hpp"
 #include "LayerParameters.hpp"
 #include "activations.hpp"
 #include "config.hpp"
@@ -85,7 +84,7 @@ class Hidden_Layer : public DenseLayer {
 class Output_Layer : public DenseLayer {
   private:
 	global::ParamMetrix getDelta(const global::ParamMetrix &output);
-	static global::ValueType get_cross_entropy_loss(const global::ParamMetrix &prediction, const int target);
+	static global::ValueType getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target);
 
   public:
 	Output_Layer(const int _size, const int _prev_size)

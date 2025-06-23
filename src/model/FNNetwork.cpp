@@ -1,15 +1,14 @@
 #include "FNNetwork.hpp"
-#include "DenseLayer.hpp"
-#include "Globals.hpp"
-#include "LayerParameters.hpp"
-#include "config.hpp"
-#include <memory>
 
 namespace nn::model {
 FNNetwork::FNNetwork(const FNNConfig &_config) : config(_config) {
 	int prevSize = _config.inputSize;
 	for (size_t i = 0; i < _config.layersConfig.size(); i++) {
-		layers.push_back(std::make_unique<Hidden_Layer>(_config.layersConfig[i].size, prevSize, _config.layersConfig[i].activationType));
+		layers.push_back(std::make_unique<Hidden_Layer>(
+		    _config.layersConfig[i].size,
+		    prevSize,
+		    _config.layersConfig[i].activationType));
+
 		prevSize = _config.layersConfig[i].size;
 	}
 
@@ -25,36 +24,22 @@ void FNNetwork::forward(const global::ParamMetrix &input) {
 }
 
 void FNNetwork::backword(const global::ParamMetrix &output, global::ParamMetrix &deltas) {
-	if (layers.size() > 1) {
-		layers[layers.size() - 1]->backword(
-		    output,
-		    deltas,
-		    layers[layers.size() - 2]->getOut(),
-		    LayerParameters(0, 0));
-	} else {
-		layers[layers.size() - 1]->backword(
-		    output,
-		    deltas,
-		    layers[layers.size() - 1]->getNet(),
-		    LayerParameters(0, 0));
-	}
+	int lastIndex = static_cast<int>(layers.size()) - 1;
 
-	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
+	const auto &prevOut = (layers.size() > 1)
+	                          ? layers[lastIndex - 1]->getOut()
+	                          : layers[lastIndex]->getNet();
+	layers[lastIndex]->backword(output, deltas, prevOut, LayerParameters(0, 0));
+
+	for (int i = lastIndex - 1; i >= 0; --i) {
 		global::ParamMetrix tempDeltas = deltas;
 
-		if (i > 0) {
-			layers[i]->backword(
-			    tempDeltas,
-			    deltas,
-			    layers[i - 1]->getOut(),
-			    layers[i + 1]->getParms());
-		} else {
-			layers[i]->backword(
-			    tempDeltas,
-			    deltas,
-			    layers[i]->getNet(),
-			    layers[i + 1]->getParms());
-		}
+		const auto &input = (i > 0)
+		                        ? layers[i - 1]->getOut()
+		                        : layers[i]->getNet();
+		const auto &nextParams = layers[i + 1]->getParms();
+
+		layers[i]->backword(tempDeltas, deltas, input, nextParams);
 	}
 }
 
@@ -85,5 +70,4 @@ void FNNetwork::updateWeights(const global::ValueType learningRate) {
 		layer->updateWeight(learningRate);
 	}
 }
-
 } // namespace nn::model

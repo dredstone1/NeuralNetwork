@@ -1,9 +1,6 @@
 #include "model.hpp"
 #include "FNNetwork.hpp"
-#include "config.hpp"
-#include "dataBase.hpp"
 #include <cmath>
-#include <cstddef>
 #include <iostream>
 
 namespace nn::model {
@@ -16,9 +13,10 @@ Model::Model(const std::string &config_filepath)
 
 void Model::initModel() {
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
+		auto _config = config.networkConfig.SubNetworksConfig[i];
 
-		if (config.networkConfig.SubNetworksConfig[i]->NNLable() == "FNN") {
-			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(config.networkConfig.SubNetworksConfig[i].get());
+		if (_config->NNLable() == "FNN") {
+			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
 			network.push_back(std::make_unique<FNNetwork>(sub_));
 		}
 	}
@@ -81,6 +79,47 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 	return error / batch.size();
 }
 
+void Model::print_progress_bar(const int current, const int total) {
+	float progress = (float)current / total;
+	int progress_percentage = int(progress * BAR_WIDTH);
+
+	if (progress_percentage != lastProgress) {
+		int pos = BAR_WIDTH * progress;
+		lastProgress = progress_percentage;
+
+		std::ostringstream oss;
+		oss << "[";
+		for (int i = 0; i < BAR_WIDTH; ++i) {
+			if (i < pos)
+				oss << "=";
+			else if (i == pos)
+				oss << ">";
+			else
+				oss << " ";
+		}
+		oss << "] " << progress_percentage << " %\r";
+
+		std::cout << oss.str();
+		std::cout.flush();
+	}
+}
+
+void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_point& start, double error) {
+	const auto end = std::chrono::high_resolution_clock::now();
+	const int time_taken = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+	const int minutes = time_taken / SECONDS_IN_MINUTE;
+	const int seconds = time_taken % SECONDS_IN_MINUTE;
+	const int time_taken_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+	std::cout << std::endl
+	          << "Training Done!" << std::endl
+	          << "Training time: "
+	          << minutes << " minutes "
+	          << seconds << " seconds" << " ("
+	          << time_taken_milliseconds << " ms)" << std::endl
+	          << "final_score: " << error << std::endl;
+}
+
 void Model::train() {
 	std::cout << "Training AI" << std::endl;
 
@@ -98,25 +137,14 @@ void Model::train() {
 
 		visual->updateError(error, loop_index);
 
-		// print_progress_bar(loop_index + 1, config.training_config.batch_count);
+		print_progress_bar(loop_index + 1, config.trainingConfig.batch_count);
 
 		visual->updateLearningRate(learningRate);
 		if (visual->exit_training() == true)
 			break;
 	}
 
-	const auto end = std::chrono::high_resolution_clock::now();
-	const int time_taken = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-	const int minutes = time_taken / SECONDS_IN_MINUTE;
-	const int seconds = time_taken % SECONDS_IN_MINUTE;
-	const int time_taken_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-	std::cout << std::endl
-	          << "Training Done!" << std::endl
-	          << "Training time: "
-	          << minutes << " minutes "
-	          << seconds << " seconds" << " ("
-	          << time_taken_milliseconds << " ms)" << std::endl
-	          << "final_score: " << error << std::endl;
+    printTrainingResult(start, error);
 
 	visual->updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
 }
