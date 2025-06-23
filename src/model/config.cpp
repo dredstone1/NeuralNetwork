@@ -1,7 +1,6 @@
 #include "config.hpp"
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json_fwd.hpp>
 #include <vector>
 
 namespace nn::model {

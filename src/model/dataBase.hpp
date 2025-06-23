@@ -4,7 +4,6 @@
 #include "config.hpp"
 #include <Globals.hpp>
 #include <memory>
-#include <nlohmann/json_fwd.hpp>
 #include <random>
 
 namespace nn::model {

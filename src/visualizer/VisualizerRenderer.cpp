@@ -119,11 +119,11 @@ void VisualRender::start() {
 	renderLoop();
 }
 
-void VisualRender::updateDots(const int layer, const model::Neurons &newNeurons) {
+void VisualRender::updateDots(const int, const model::Neurons &) {
 	// visualNetwork.updateDots(layer, newNeurons);
 }
 
-void VisualRender::update(const int layer, const model::LayerParameters &gradients) {
+void VisualRender::update(const int, const model::LayerParameters &) {
 	// visualNetwork.update(layer, gradients);
 }
 
@@ -131,7 +131,7 @@ void VisualRender::updateBatchCounter(const global::ValueType error, const int i
 	Vgraph.add_data(error, index);
 }
 
-void VisualRender::update(const model::LayerParameters &new_grad) {
+void VisualRender::update(const model::LayerParameters &) {
 	// visualNetwork.update(new_grad);
 }
 
@@ -144,7 +144,7 @@ void VisualRender::setNewPhaseMode(const NnMode nn_mode) {
 	Vstate->nnMode.store(nn_mode);
 }
 
-void VisualRender::updatePrediction(const int index) {
+void VisualRender::updatePrediction(const int) {
 	// visualNetwork.update_prediction(index);
 }
 

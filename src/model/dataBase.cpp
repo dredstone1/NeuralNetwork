@@ -1,7 +1,6 @@
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
 DataBase::DataBase(const TrainingConfig &_config) : config(_config) {

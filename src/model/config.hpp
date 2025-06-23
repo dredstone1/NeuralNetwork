@@ -5,7 +5,6 @@
 #include <Globals.hpp>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 namespace nn::model {
@@ -14,25 +13,20 @@ class ISubNetworkConfig {
   public:
 	virtual void fromJson(const nlohmann::json &j) = 0;
 	virtual const std::string NNLable() const = 0;
-    virtual ~ISubNetworkConfig() = default;
+
+	virtual ~ISubNetworkConfig() = default;
 };
 
 struct DenseLayerConfig {
 	int size;
-	ActivationType activationType;
+	ActivationType activationType = ActivationType::None;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    DenseLayerConfig,
-    size,
-    activationType)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig, size, activationType)
 
 class FNNConfig : public ISubNetworkConfig {
-  private:
-	friend class Config;
-
   public:
 	FNNConfig(const nlohmann::json &j);
-    ~FNNConfig() = default;
+	~FNNConfig() = default;
 
 	const std::string NNLable() const override { return "FNN"; }
 	void fromJson(const nlohmann::json &j) override;
@@ -65,17 +59,12 @@ struct VisualMode {
 	std::string state;
 	bool mode = true;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    VisualMode,
-    state,
-    mode);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
 
 struct VisualConfig {
 	std::vector<VisualMode> modes;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    VisualConfig,
-    modes);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualConfig, modes);
 
 class Config {
   public:
