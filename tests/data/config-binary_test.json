@@ -8,7 +8,7 @@
 	},
 	"training config": {
 		"batch_size": 8,
-		"batch_count": 1000,
+		"batch_count": 100000,
 		"db_filename": "../tests/data/database-binary_test",
 		"lr_init_value": 0.01
 	},
@@ -18,7 +18,6 @@
 			"input size": 10,
 			"output size": 16,
 			"layers": [
-				{ "size": 64, "activationType": 1 },
 				{ "size": 32, "activationType": 1 }
 			]
 		}

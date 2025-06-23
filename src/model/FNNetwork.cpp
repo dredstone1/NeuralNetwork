@@ -1,18 +1,20 @@
 #include "FNNetwork.hpp"
 
 namespace nn::model {
-FNNetwork::FNNetwork(const FNNConfig &_config) : config(_config) {
+FNNetwork::FNNetwork(const FNNConfig &_config, const bool randomInit)
+    : config(_config) {
 	int prevSize = _config.inputSize;
 	for (size_t i = 0; i < _config.layersConfig.size(); i++) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
 		    _config.layersConfig[i].size,
 		    prevSize,
-		    _config.layersConfig[i].activationType));
+		    _config.layersConfig[i].activationType,
+		    randomInit));
 
 		prevSize = _config.layersConfig[i].size;
 	}
 
-	layers.push_back(std::make_unique<Output_Layer>(_config, prevSize));
+	layers.push_back(std::make_unique<Output_Layer>(_config, prevSize, randomInit));
 }
 
 void FNNetwork::forward(const global::ParamMetrix &input) {

@@ -9,17 +9,23 @@ namespace nn::model {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
 class DenseLayer {
+  private:
+	void randomize();
+
   protected:
 	Neurons dots;
 	LayerParameters parameters;
 	LayerParameters gradients;
 
   public:
-	DenseLayer(const int size, const int prevSize)
+	DenseLayer(const int size, const int prevSize, const bool randomInit = false)
 	    : dots(size),
 	      parameters(size, prevSize),
-	      gradients(size, prevSize) {}
-	virtual ~DenseLayer() = default; 
+	      gradients(size, prevSize) {
+		if (randomInit)
+			randomize();
+	}
+	virtual ~DenseLayer() = default;
 
 	virtual void forward(const global::ParamMetrix &metrix) = 0;
 	virtual void updateWeight(const global::ValueType learningRate) = 0;
@@ -55,12 +61,12 @@ class Hidden_Layer : public DenseLayer {
 	Hidden_Layer(
 	    const int _size,
 	    const int _prev_size,
-	    const ActivationType activation)
-	    : DenseLayer(_size, _prev_size),
+	    const ActivationType activation, const bool randomInit = false)
+	    : DenseLayer(_size, _prev_size, randomInit),
 	      activationFunction(activation) {}
 
-	Hidden_Layer(const DenseLayerConfig &_config, const int _prev_size)
-	    : DenseLayer(_config.size, _prev_size),
+	Hidden_Layer(const DenseLayerConfig &_config, const int _prev_size, const bool randomInit = false)
+	    : DenseLayer(_config.size, _prev_size, randomInit),
 	      activationFunction(_config.activationType) {}
 	~Hidden_Layer() override = default;
 
@@ -87,10 +93,10 @@ class Output_Layer : public DenseLayer {
 	static global::ValueType getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target);
 
   public:
-	Output_Layer(const int _size, const int _prev_size)
-	    : DenseLayer(_size, _prev_size) {}
-	Output_Layer(const FNNConfig &_config, const int _prev_size)
-	    : DenseLayer(_config.outputSize, _prev_size) {}
+	Output_Layer(const int _size, const int _prev_size, const bool randomInit = false)
+	    : DenseLayer(_size, _prev_size, randomInit) {}
+	Output_Layer(const FNNConfig &_config, const int _prev_size, const bool randomInit = false)
+	    : DenseLayer(_config.outputSize, _prev_size, randomInit) {}
 	~Output_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;

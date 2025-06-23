@@ -19,7 +19,7 @@ void Model::initModel() {
 
 		if (_config->NNLable() == "FNN") {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
-			network.push_back(std::make_unique<FNNetwork>(sub_));
+			network.push_back(std::make_unique<FNNetwork>(sub_, true));
 		}
 	}
 }
@@ -142,8 +142,9 @@ void Model::train() {
 		print_progress_bar(loop_index + 1, config.trainingConfig.batch_count);
 
 		visual.updateLearningRate(learningRate);
-		if (visual.exit_training() == true)
+		if (visual.exit_training() == true) {
 			break;
+		}
 	}
 
 	printTrainingResult(start, error);

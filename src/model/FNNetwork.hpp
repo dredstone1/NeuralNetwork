@@ -11,7 +11,7 @@ class FNNetwork : public INetwork {
 	const FNNConfig &config;
 
   public:
-	FNNetwork(const FNNConfig &_config);
+	FNNetwork(const FNNConfig &_config, const bool randomInit = false);
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &input) override;
