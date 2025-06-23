@@ -6,7 +6,8 @@
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
     : config(config_filepath),
-    visual(config),
+      visual(config),
+      learningRate(config.trainingConfig.lr_init_value),
       dataBase(config.trainingConfig) {
 	initModel();
 	visual.start();
@@ -66,11 +67,11 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 
 	resetNetworkGradient();
 	for (size_t i = 0; i < batch.size(); i++) {
-		const TrainSample *current_sample_ptr = batch.samples.at(i);
+		auto current_sample_ptr = batch.samples.at(i);
 
 		visual.updatePrediction(current_sample_ptr->prediction.index);
 		runModel(current_sample_ptr->input);
-		global::ParamMetrix output(inputSize(), 0);
+		global::ParamMetrix output(outputSize(), 0);
 		output[current_sample_ptr->prediction.index] = 1;
 		Backward(output);
 		error += getLost(output);
@@ -105,7 +106,7 @@ void Model::print_progress_bar(const int current, const int total) {
 	}
 }
 
-void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_point& start, double error) {
+void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_point &start, double error) {
 	const auto end = std::chrono::high_resolution_clock::now();
 	const int time_taken = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
 	const int minutes = time_taken / SECONDS_IN_MINUTE;
@@ -145,7 +146,7 @@ void Model::train() {
 			break;
 	}
 
-    printTrainingResult(start, error);
+	printTrainingResult(start, error);
 
 	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
 }

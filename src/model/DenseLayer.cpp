@@ -73,13 +73,11 @@ void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 global::ParamMetrix Hidden_Layer::getDelta(const global::ParamMetrix &output, const LayerParameters &nextLayer) {
 	global::ParamMetrix deltas(getSize(), 0.0);
 	for (size_t i = 0; i < getSize(); i++) {
-		deltas[i] = 0.0;
-
 		for (size_t j = 0; j < nextLayer.getSize(); j++) {
-			deltas[i] += output[j] * nextLayer.weights[i][j];
+			deltas[i] += output[j] * nextLayer.weights[j][i];
 		}
 
-		deltas[i] *= derivativeActivation(getDots().net[i]);
+		deltas[i] *= derivativeActivation(dots.net[i]);
 	}
 
 	return deltas;

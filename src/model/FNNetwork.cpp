@@ -24,22 +24,28 @@ void FNNetwork::forward(const global::ParamMetrix &input) {
 }
 
 void FNNetwork::backword(const global::ParamMetrix &output, global::ParamMetrix &deltas) {
-	int lastIndex = static_cast<int>(layers.size()) - 1;
+	layers[layers.size() - 1]->backword(
+	    output,
+	    deltas,
+	    layers[layers.size() - 2]->getOut(),
+	    LayerParameters(0, 0));
 
-	const auto &prevOut = (layers.size() > 1)
-	                          ? layers[lastIndex - 1]->getOut()
-	                          : layers[lastIndex]->getNet();
-	layers[lastIndex]->backword(output, deltas, prevOut, LayerParameters(0, 0));
-
-	for (int i = lastIndex - 1; i >= 0; --i) {
+	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
 		global::ParamMetrix tempDeltas = deltas;
 
-		const auto &input = (i > 0)
-		                        ? layers[i - 1]->getOut()
-		                        : layers[i]->getNet();
-		const auto &nextParams = layers[i + 1]->getParms();
-
-		layers[i]->backword(tempDeltas, deltas, input, nextParams);
+		if (i == 0) {
+			layers[i]->backword(
+			    tempDeltas,
+			    deltas,
+			    layers[i]->getNet(),
+			    layers[i + 1]->getParms());
+		} else {
+			layers[i]->backword(
+			    tempDeltas,
+			    deltas,
+			    layers[i - 1]->getOut(),
+			    layers[i + 1]->getParms());
+		}
 	}
 }
 
