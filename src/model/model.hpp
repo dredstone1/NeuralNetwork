@@ -1,8 +1,8 @@
 #ifndef MODEL
 #define MODEL
 
+#include <Globals.hpp>
 #include "../visualizer/VisualizerController.hpp"
-#include "Globals.hpp"
 #include "INetwork.hpp"
 #include "dataBase.hpp"
 

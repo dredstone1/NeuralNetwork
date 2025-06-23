@@ -1,7 +1,6 @@
 #include "config.hpp"
 #include <fstream>
 #include <iostream>
-#include <memory>
 #include <nlohmann/json_fwd.hpp>
 #include <vector>
 
@@ -43,9 +42,12 @@ void NetworkConfig::fromJson(const nlohmann::json &j) {
 }
 
 FNNConfig::FNNConfig(const nlohmann::json &j) {
+	fromJson(j);
+}
+
+void FNNConfig::fromJson(const nlohmann::json &j) {
 	inputSize = j.at("input size");
 	outputSize = j.at("output size");
-
 	layersConfig = j.at("layers").get<std::vector<DenseLayerConfig>>();
 }
 } // namespace nn::model

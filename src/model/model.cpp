@@ -5,8 +5,6 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
-#include <memory>
-#include <vector>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)

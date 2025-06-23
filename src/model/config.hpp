@@ -7,7 +7,6 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
-#include <vector>
 
 namespace nn::model {
 
