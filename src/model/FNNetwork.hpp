@@ -19,7 +19,7 @@ class FNNetwork : public INetwork {
 	void updateWeights(const global::ValueType learningRate) override;
 	void resetGradient() override;
 
-	global::ValueType getLost(const global::ParamMetrix &output) const override;
+	global::ValueType getLost(const int index) const override;
 
 	int outputSize() const override;
 	int inputSize() const override;

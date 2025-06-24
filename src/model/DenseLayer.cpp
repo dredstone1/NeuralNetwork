@@ -20,10 +20,8 @@ void Output_Layer::forward(const global::ParamMetrix &metrix) {
 
 global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
 	global::ParamMetrix deltas(dots.out);
-	for (size_t i = 0; i < output.size(); i++) {
-		if (output[i] == 1) {
-			deltas[i] -= 1;
-		}
+	for (size_t i = 0; i < deltas.size(); i++) {
+		deltas[i] -= output[i];
 	}
 
 	return deltas;
@@ -49,18 +47,11 @@ global::ValueType Output_Layer::getCrossEntropyLoss(const global::ParamMetrix &p
 	return -std::log(std::max(prediction[target], MIN_LOSS_VALUE));
 }
 
-global::ValueType Output_Layer::getLost(const global::ParamMetrix &output) {
-	int max_value = 0;
-	for (size_t i = 0; i < output.size(); i++) {
-		if (output[i] > output[max_value]) {
-			max_value = i;
-		}
-	}
-
-	return getCrossEntropyLoss(getOut(), max_value);
+global::ValueType Output_Layer::getLost(const int index) {
+	return getCrossEntropyLoss(getOut(), index);
 }
 
-global::ValueType Hidden_Layer::getLost(const global::ParamMetrix &) {
+global::ValueType Hidden_Layer::getLost(const int) {
 	return 0;
 }
 
@@ -105,15 +96,8 @@ void Hidden_Layer::backword(
 	}
 }
 
-void Hidden_Layer::updateWeight(const global::ValueType learningRate) {
-	gradients.multiply(learningRate);
+void DenseLayer::updateWeight(const global::ValueType learningRate) {
+	gradients.multiply(-learningRate);
 	parameters.add(gradients);
-    gradients.reset();
-}
-
-void Output_Layer::updateWeight(const global::ValueType learningRate) {
-	gradients.multiply(learningRate);
-	parameters.add(gradients);
-    gradients.reset();
 }
 } // namespace nn::model

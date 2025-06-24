@@ -26,6 +26,7 @@ void FNNetwork::forward(const global::ParamMetrix &input) {
 }
 
 void FNNetwork::backword(const global::ParamMetrix &output, global::ParamMetrix &deltas) {
+	resetGradient();
 	layers[layers.size() - 1]->backword(
 	    output,
 	    deltas,
@@ -51,8 +52,8 @@ void FNNetwork::backword(const global::ParamMetrix &output, global::ParamMetrix 
 	}
 }
 
-global::ValueType FNNetwork::getLost(const global::ParamMetrix &output) const {
-	return layers[layers.size() - 1]->getLost(output);
+global::ValueType FNNetwork::getLost(const int index) const {
+	return layers[layers.size() - 1]->getLost(index);
 }
 
 void FNNetwork::resetGradient() {

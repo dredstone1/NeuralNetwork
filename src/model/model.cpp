@@ -39,7 +39,8 @@ void Model::resetNetworkGradient() {
 }
 
 void Model::update_weights(const int batch_size) {
-	const global::ValueType CURRENT_LEARNING_RATE = -learningRate / batch_size;
+	const global::ValueType CURRENT_LEARNING_RATE = learningRate / batch_size;
+
 	for (auto &subNet : network) {
 		subNet->updateWeights(CURRENT_LEARNING_RATE);
 	}
@@ -74,7 +75,7 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 		global::ParamMetrix output(outputSize(), 0);
 		output[current_sample_ptr->prediction.index] = 1;
 		Backward(output);
-		error += getLost(output);
+		error += getLost(current_sample_ptr->prediction.index);
 
 		update_weights(batch.size());
 	}
@@ -162,8 +163,8 @@ const global::ParamMetrix &Model::getOutput() const {
 	return network[network.size() - 1]->getOutput();
 }
 
-global::ValueType Model::getLost(const global::ParamMetrix &output) {
-	return network[network.size() - 1]->getLost(output);
+global::ValueType Model::getLost(const int index) {
+	return network[network.size() - 1]->getLost(index);
 }
 
 int Model::outputSize() {
