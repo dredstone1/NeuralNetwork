@@ -24,7 +24,7 @@ std::string StatusPanel::getText() {
 	   << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << "\n"
 	   << TextLabels::CURRENT_BATCH_TEXT << vstate->currentBatch << "/" << vstate->config.trainingConfig.batch_count << "#" << batchPerSecond << "\n"
 	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.batch_size << "\n"
-	   << TextLabels::LERNING_RATE_TEXT << learningRate << "\n";
+	   << TextLabels::LEARNING_RATE_TEXT << learningRate << "\n";
 	return ss.str();
 }
 
