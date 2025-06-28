@@ -50,7 +50,7 @@ void Model::Backward(const global::ParamMetrix &output) {
 	global::ParamMetrix deltas = output;
 
 	for (int i = network.size() - 1; i >= 0; i--) {
-		network[i]->backword(deltas);
+		network[i]->backward(deltas);
 	}
 }
 

@@ -27,15 +27,15 @@ void FNNetwork::forward(const global::ParamMetrix &newInput) {
 	}
 }
 
-void FNNetwork::backword(global::ParamMetrix &deltas) {
+void FNNetwork::backward(global::ParamMetrix &deltas) {
 	resetGradient();
 
-	layers[layers.size() - 1]->backword(deltas, layers[layers.size() - 2]->getOut());
+	layers[layers.size() - 1]->backward(deltas, layers[layers.size() - 2]->getOut());
 
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
 		auto &prevLayer = (i == 0) ? input : layers[i - 1]->getOut();
 
-		layers[i]->backword(deltas, prevLayer, &layers[i + 1]->getParms());
+		layers[i]->backward(deltas, prevLayer, &layers[i + 1]->getParms());
 	}
 }
 

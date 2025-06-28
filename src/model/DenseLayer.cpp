@@ -28,7 +28,7 @@ global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
 	return deltas;
 }
 
-void Output_Layer::backword(
+void Output_Layer::backward(
     global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
     const LayerParameters *) {
@@ -80,7 +80,7 @@ global::ParamMetrix Hidden_Layer::getDelta(const global::ParamMetrix &output, co
 	return deltas;
 }
 
-void Hidden_Layer::backword(
+void Hidden_Layer::backward(
     global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
     const LayerParameters *nextLayer) {

@@ -9,7 +9,7 @@ class INetwork {
 	virtual ~INetwork() = default;
 
 	virtual void forward(const global::ParamMetrix &input) = 0;
-	virtual void backword(global::ParamMetrix &deltas) = 0;
+	virtual void backward(global::ParamMetrix &deltas) = 0;
 
 	virtual void updateWeights(const global::ValueType learningRate) = 0;
 	virtual void resetGradient() = 0;

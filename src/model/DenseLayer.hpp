@@ -30,7 +30,7 @@ class DenseLayer {
 
 	virtual void forward(const global::ParamMetrix &metrix) = 0;
 	void updateWeight(const global::ValueType learningRate);
-	virtual void backword(
+	virtual void backward(
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *nextLayer = nullptr) = 0;
@@ -71,7 +71,7 @@ class Hidden_Layer : public DenseLayer {
 	~Hidden_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;
-	void backword(
+	void backward(
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *nextLayer) override;
@@ -99,7 +99,7 @@ class Output_Layer : public DenseLayer {
 	~Output_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;
-	void backword(
+	void backward(
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *) override;

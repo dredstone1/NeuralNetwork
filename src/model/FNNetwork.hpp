@@ -16,7 +16,7 @@ class FNNetwork : public INetwork {
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &newInput) override;
-	void backword(global::ParamMetrix &deltas) override;
+	void backward(global::ParamMetrix &deltas) override;
 	void updateWeights(const global::ValueType learningRate) override;
 	void resetGradient() override;
 
