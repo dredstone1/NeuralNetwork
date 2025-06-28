@@ -7,15 +7,15 @@
 namespace nn::visualizer {
 class VisualManager {
   private:
-	void update_display();
+	void updateDisplay();
 	std::atomic<bool> running{false};
 	std::unique_ptr<VisualRender> renderer;
 	const model::Config &config;
 	std::shared_ptr<StateManager> Vstate;
-	std::thread display_thread;
+	std::thread displayThread;
 
 	void stop();
-	void start_visuals();
+	void startVisuals();
 
 	inline bool checkPointers() { return renderer && Vstate; }
 	void initState();
@@ -25,17 +25,14 @@ class VisualManager {
 	~VisualManager();
 
 	void start();
-	void updateDots(const int layer, const model::Neurons &newNeurons);
-	void update(const int layer, const model::LayerParameters &gradient);
 	void setNewPhaseMode(const NnMode nn_mode);
-	void update(const model::LayerParameters &new_grad);
 	void updateBatchCounter(const int batch);
 	void updateError(const global::ValueType error, const int index);
 	void updateAlgoritemMode(const AlgorithmMode algoritem_mode);
 	void updatePrediction(const int index);
 	void updateLearningRate(const global::ValueType newLerningRate);
 
-	bool exit_training();
+	bool exitTraining();
 };
 } // namespace nn::visualizer
 

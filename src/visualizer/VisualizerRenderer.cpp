@@ -4,7 +4,7 @@ namespace nn::visualizer {
 constexpr std::uint32_t NN_WIDTH = 1055u;
 VisualRender::VisualRender(std::shared_ptr<StateManager> vstate)
     : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), WINDOW_TITLE.data()),
-      // visualNetwork(network, vstate),
+      visualModel(vstate),
       Vstate(vstate),
       interface(vstate),
       statusV(vstate),
@@ -33,10 +33,10 @@ void VisualRender::resetSize() {
 }
 
 void VisualRender::renderPanels() {
-	// visualNetwork.render();
-	// sf::Sprite visualNetworkSprite = visualNetwork.getSprite();
-	// visualNetworkSprite.setPosition({UI_GAP, UI_GAP});
-	// window.draw(visualNetworkSprite);
+	visualModel.render();
+	sf::Sprite visualNetworkSprite = visualModel.getSprite();
+	visualNetworkSprite.setPosition({UI_GAP, UI_GAP});
+	window.draw(visualNetworkSprite);
 
 	interface.render();
 	sf::Sprite interfaceSprite = interface.getSprite();
@@ -58,7 +58,7 @@ void VisualRender::fullUpdate() {
 	resetSize();
 	statusV.setUpdate();
 	interface.setUpdate();
-	// visualNetwork.setUpdate();
+	visualModel.setUpdate();
 	Vgraph.setUpdate();
 }
 
@@ -111,7 +111,7 @@ void VisualRender::close() {
 }
 
 bool VisualRender::updateStatus() {
-	return interface.updateStatus() || statusV.updateStatus()/*  || visualNetwork.updateStatus() */;
+	return interface.updateStatus() || statusV.updateStatus()  || visualModel.updateStatus();
 }
 
 void VisualRender::start() {
@@ -119,20 +119,8 @@ void VisualRender::start() {
 	renderLoop();
 }
 
-void VisualRender::updateDots(const int, const model::Neurons &) {
-	// visualNetwork.updateDots(layer, newNeurons);
-}
-
-void VisualRender::update(const int, const model::LayerParameters &) {
-	// visualNetwork.update(layer, gradients);
-}
-
 void VisualRender::updateBatchCounter(const global::ValueType error, const int index) {
 	Vgraph.add_data(error, index);
-}
-
-void VisualRender::update(const model::LayerParameters &) {
-	// visualNetwork.update(new_grad);
 }
 
 VisualRender::~VisualRender() {

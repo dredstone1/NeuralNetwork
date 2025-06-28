@@ -32,4 +32,5 @@ class IntefacePanel : public Panel {
 	void handleNoClick();
 };
 } // namespace nn::visualizer
+
 #endif // VINTERFACE

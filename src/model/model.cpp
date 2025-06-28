@@ -138,7 +138,7 @@ void Model::train() {
 		print_progress_bar(loop_index + 1, config.trainingConfig.batch_count);
 
 		visual.updateLearningRate(learningRate);
-		if (visual.exit_training() == true) {
+		if (visual.exitTraining() == true) {
 			break;
 		}
 	}

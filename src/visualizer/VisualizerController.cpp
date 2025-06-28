@@ -22,12 +22,12 @@ VisualManager::~VisualManager() { stop(); }
 void VisualManager::stop() {
 	running = false;
 
-	if (display_thread.joinable()) {
+	if (displayThread.joinable()) {
 		if (renderer) {
 			renderer->close();
 		}
 
-		display_thread.join();
+		displayThread.join();
 	}
 }
 
@@ -36,10 +36,10 @@ void VisualManager::start() {
 		return;
 	}
 
-	display_thread = std::thread(&VisualManager::start_visuals, this);
+	displayThread = std::thread(&VisualManager::startVisuals, this);
 }
 
-void VisualManager::start_visuals() {
+void VisualManager::startVisuals() {
 	Vstate = std::make_shared<StateManager>(config);
 	if (!Vstate) {
 		return;
@@ -58,36 +58,12 @@ void VisualManager::start_visuals() {
 	running.store(false);
 }
 
-void VisualManager::updateDots(const int layer, const model::Neurons &newNeurons) {
-	if (!checkPointers()) {
-		return;
-	}
-
-	renderer->updateDots(layer, newNeurons);
-}
-
-void VisualManager::update(const int layer, const model::LayerParameters &gradient_) {
-	if (!checkPointers()) {
-		return;
-	}
-
-	renderer->update(layer, gradient_);
-}
-
 void VisualManager::setNewPhaseMode(const NnMode nn_mode) {
 	if (!checkPointers()) {
 		return;
 	}
 
 	renderer->setNewPhaseMode(nn_mode);
-}
-
-void VisualManager::update(const model::LayerParameters &new_grad) {
-	if (!checkPointers()) {
-		return;
-	}
-
-	renderer->update(new_grad);
 }
 
 void VisualManager::updateBatchCounter(const int batch) {
@@ -131,7 +107,7 @@ void VisualManager::updateLearningRate(const global::ValueType newLerningRate) {
 	renderer->updateLearningRate(newLerningRate);
 }
 
-bool VisualManager::exit_training() {
+bool VisualManager::exitTraining() {
 	if (!checkPointers()) {
 		return false;
 	}
