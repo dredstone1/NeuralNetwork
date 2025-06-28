@@ -82,7 +82,7 @@ void VisualManager::updateError(const global::ValueType error, const int index) 
 	renderer->updateBatchCounter(error, index);
 }
 
-void VisualManager::updateAlgoritemMode(const AlgorithmMode algoritem_mode) {
+void VisualManager::updateAlgorithmMode(const AlgorithmMode algoritem_mode) {
 	if (!checkPointers()) {
 		return;
 	}

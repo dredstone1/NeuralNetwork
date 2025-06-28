@@ -124,7 +124,7 @@ void Model::train() {
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
 
-	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Training);
+	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
 	visual.updateLearningRate(learningRate);
 
 	for (int loop_index = 0; loop_index < config.trainingConfig.batch_count + 1; loop_index++) {
@@ -145,7 +145,7 @@ void Model::train() {
 
 	printTrainingResult(start, error);
 
-	visual.updateAlgoritemMode(visualizer::AlgorithmMode::Normal);
+	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
 }
 
 void Model::reset() {

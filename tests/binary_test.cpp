@@ -2,7 +2,7 @@
 #include <AiModel.hpp>
 #include <iostream>
 
-int int_to_binaray(int num) {
+int int_to_binary(int num) {
 	int binary = 0;
 	int place = 1;
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 		if (num1 == -1)
 			break;
 
-		int binary = int_to_binaray(num1);
+		int binary = int_to_binary(num1);
 
 		std::cout << "binary: " << binary << std::endl;
 
