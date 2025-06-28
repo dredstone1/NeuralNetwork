@@ -33,7 +33,7 @@ void GraphUIPanel::renderVerticalNumbers() {
 }
 
 void GraphUIPanel::renderHorizontalLine(const float value) {
-	float pos_y = get_height(value);
+	float pos_y = getHeight(value);
 	std::array line{
 	    sf::Vertex{sf::Vector2f(0, pos_y), GRAPH_HORIZONTAL_LINE_COLOR},
 	    sf::Vertex{sf::Vector2f(GRAPH_WIDTH, pos_y), GRAPH_HORIZONTAL_LINE_COLOR}};
@@ -77,7 +77,7 @@ void GraphUIPanel::clear() {
 	Vgraph.clear(GRAPH_BG);
 }
 
-int GraphUIPanel::get_highest() {
+int GraphUIPanel::getHighest() {
 	int max = 0;
 	for (size_t i = 0; i < resolution(); i++) {
 		if (data[i] > data[max]) {
@@ -88,18 +88,18 @@ int GraphUIPanel::get_highest() {
 	return max;
 }
 
-float GraphUIPanel::get_height(const float value) {
+float GraphUIPanel::getHeight(const float value) {
 	return GRAPH_HEIGHT - std::max(1.0, value * graphAlpha);
 }
 
-float GraphUIPanel::get_height(const int index) {
-	return get_height((float)data[index]);
+float GraphUIPanel::getHeight(const int index) {
+	return getHeight((float)data[index]);
 }
 
 sf::Vector2f GraphUIPanel::getPosition(const int index) {
 	return sf::Vector2f(
-	    index * data_gap_width(),
-	    get_height(index));
+	    index * dataGapWidth(),
+	    getHeight(index));
 }
 
 void GraphUIPanel::renderDot(const int index) {
@@ -118,7 +118,7 @@ void GraphUIPanel::renderDot(const int index) {
 	Vgraph.draw(line_);
 }
 
-float GraphUIPanel::data_gap_width() {
+float GraphUIPanel::dataGapWidth() {
 	return GRAPH_WIDTH / (float)resolution();
 }
 
@@ -138,7 +138,7 @@ int GraphUIPanel::newDataPlace(const int index) {
 	return std::floor((index - 1) / data_gaps());
 }
 
-void GraphUIPanel::add_data(const global::ValueType new_data, const int index) {
+void GraphUIPanel::addData(const global::ValueType new_data, const int index) {
 	data[newDataPlace(index)] += (new_data / data_gaps());
 	setUpdate();
 }

@@ -120,7 +120,7 @@ void VisualRender::start() {
 }
 
 void VisualRender::updateBatchCounter(const global::ValueType error, const int index) {
-	Vgraph.add_data(error, index);
+	Vgraph.addData(error, index);
 }
 
 VisualRender::~VisualRender() {

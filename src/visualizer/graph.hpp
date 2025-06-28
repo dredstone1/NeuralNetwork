@@ -32,16 +32,17 @@ class GraphUIPanel : public Panel {
 	void renderGraph();
 	void renderVerticalNumbers();
 	void doRender() override;
+
 	inline int data_gaps();
 	int newDataPlace(const int index);
 	void renderDot(const int index);
-	int get_highest();
+	int getHighest();
 	sf::Vector2f getPosition(const int index);
-	float get_height(const int index);
-	float get_height(const float index);
+	float getHeight(const int index);
+	float getHeight(const float index);
 	float getValueFromHeight(const float height);
 	inline std::uint32_t resolution();
-	inline float data_gap_width();
+	inline float dataGapWidth();
 	void renderHorizontalLine(const float value);
 
   public:
@@ -50,7 +51,7 @@ class GraphUIPanel : public Panel {
 
 	sf::Sprite getSprite();
 
-	void add_data(const global::ValueType new_data, const int index);
+	void addData(const global::ValueType new_data, const int index);
 };
 } // namespace nn::visualizer
 
