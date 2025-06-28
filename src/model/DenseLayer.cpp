@@ -31,7 +31,7 @@ global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
 void Output_Layer::backword(
     global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
-    const LayerParameters &) {
+    const LayerParameters *) {
 	deltas = getDelta(deltas);
 
 	for (size_t i = 0; i < getSize(); i++) {
@@ -83,8 +83,11 @@ global::ParamMetrix Hidden_Layer::getDelta(const global::ParamMetrix &output, co
 void Hidden_Layer::backword(
     global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
-    const LayerParameters &nextLayer) {
-	deltas = getDelta(deltas, nextLayer);
+    const LayerParameters *nextLayer) {
+	if (!nextLayer)
+		return;
+    
+	deltas = getDelta(deltas, *nextLayer);
 
 	for (size_t i = 0; i < getSize(); i++) {
 		gradients.bias[i] += deltas[i];

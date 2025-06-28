@@ -33,7 +33,7 @@ class DenseLayer {
 	virtual void backword(
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters &nextLayer) = 0;
+	    const LayerParameters *nextLayer = nullptr) = 0;
 	virtual global::ValueType getLost(const int index) = 0;
 
 	const Neurons &getDots() const { return dots; }
@@ -74,7 +74,7 @@ class Hidden_Layer : public DenseLayer {
 	void backword(
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters &nextLayer) override;
+	    const LayerParameters *nextLayer) override;
 
 	global::ValueType getLost(const int index) override;
 
@@ -102,7 +102,7 @@ class Output_Layer : public DenseLayer {
 	void backword(
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters &) override;
+	    const LayerParameters *) override;
 	global::ValueType getLost(const int index) override;
 };
 } // namespace nn::model
