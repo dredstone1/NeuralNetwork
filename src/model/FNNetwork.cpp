@@ -2,7 +2,8 @@
 
 namespace nn::model {
 FNNetwork::FNNetwork(const FNNConfig &_config, const bool randomInit)
-    : config(_config) {
+    : config(_config),
+      input(_config.inputSize, 0.0) {
 	int prevSize = _config.inputSize;
 	for (size_t i = 0; i < _config.layersConfig.size(); i++) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
@@ -17,7 +18,8 @@ FNNetwork::FNNetwork(const FNNConfig &_config, const bool randomInit)
 	layers.push_back(std::make_unique<Output_Layer>(_config, prevSize, randomInit));
 }
 
-void FNNetwork::forward(const global::ParamMetrix &input) {
+void FNNetwork::forward(const global::ParamMetrix &newInput) {
+	input = newInput;
 	layers[0]->forward(input);
 
 	for (size_t i = 1; i < layers.size(); i++) {
@@ -25,26 +27,22 @@ void FNNetwork::forward(const global::ParamMetrix &input) {
 	}
 }
 
-void FNNetwork::backword(const global::ParamMetrix &output, global::ParamMetrix &deltas) {
+void FNNetwork::backword(global::ParamMetrix &deltas) {
 	resetGradient();
+
 	layers[layers.size() - 1]->backword(
-	    output,
 	    deltas,
 	    layers[layers.size() - 2]->getOut(),
 	    LayerParameters(0, 0));
 
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
-		global::ParamMetrix tempDeltas = deltas;
-
 		if (i == 0) {
 			layers[i]->backword(
-			    tempDeltas,
 			    deltas,
-			    layers[i]->getNet(),
+			    input,
 			    layers[i + 1]->getParms());
 		} else {
 			layers[i]->backword(
-			    tempDeltas,
 			    deltas,
 			    layers[i - 1]->getOut(),
 			    layers[i + 1]->getParms());

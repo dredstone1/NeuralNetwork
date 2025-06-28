@@ -1,6 +1,7 @@
 #ifndef DENSELAYER
 #define DENSELAYER
 
+#include "Globals.hpp"
 #include "LayerParameters.hpp"
 #include "activations.hpp"
 #include "config.hpp"
@@ -30,10 +31,9 @@ class DenseLayer {
 	virtual void forward(const global::ParamMetrix &metrix) = 0;
 	void updateWeight(const global::ValueType learningRate);
 	virtual void backword(
-	    const global::ParamMetrix &deltas,
-	    global::ParamMetrix &newDeltas,
+	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters &nextLayr) = 0;
+	    const LayerParameters &nextLayer) = 0;
 	virtual global::ValueType getLost(const int index) = 0;
 
 	const Neurons &getDots() const { return dots; }
@@ -71,10 +71,10 @@ class Hidden_Layer : public DenseLayer {
 	~Hidden_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;
-	void backword(const global::ParamMetrix &deltas,
-	              global::ParamMetrix &newDeltas,
-	              const global::ParamMetrix &prevLayer,
-	              const LayerParameters &nextLayer) override;
+	void backword(
+	    global::ParamMetrix &deltas,
+	    const global::ParamMetrix &prevLayer,
+	    const LayerParameters &nextLayer) override;
 
 	global::ValueType getLost(const int index) override;
 
@@ -100,8 +100,7 @@ class Output_Layer : public DenseLayer {
 
 	void forward(const global::ParamMetrix &metrix) override;
 	void backword(
-	    const global::ParamMetrix &deltas,
-	    global::ParamMetrix &newDeltas,
+	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters &) override;
 	global::ValueType getLost(const int index) override;

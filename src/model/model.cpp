@@ -48,14 +48,9 @@ void Model::update_weights(const int batch_size) {
 
 void Model::Backward(const global::ParamMetrix &output) {
 	global::ParamMetrix deltas = output;
-	global::ParamMetrix temp = output;
 
-	network[network.size() - 1]->backword(deltas, temp);
-	deltas = temp;
-
-	for (int i = network.size() - 2; i >= 0; i--) {
-		network[i]->backword(deltas, temp);
-		deltas = temp;
+	for (int i = network.size() - 1; i >= 0; i--) {
+        network[i]->backword(deltas);
 	}
 }
 

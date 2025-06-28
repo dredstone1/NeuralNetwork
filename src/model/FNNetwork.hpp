@@ -7,15 +7,16 @@
 namespace nn::model {
 class FNNetwork : public INetwork {
   private:
-	std::vector<std::unique_ptr<DenseLayer>> layers;
 	const FNNConfig &config;
+	std::vector<std::unique_ptr<DenseLayer>> layers;
+	global::ParamMetrix input;
 
   public:
 	FNNetwork(const FNNConfig &_config, const bool randomInit = false);
 	~FNNetwork() override = default;
 
-	void forward(const global::ParamMetrix &input) override;
-	void backword(const global::ParamMetrix &output, global::ParamMetrix &deltas) override;
+	void forward(const global::ParamMetrix &newInput) override;
+	void backword(global::ParamMetrix &deltas) override;
 	void updateWeights(const global::ValueType learningRate) override;
 	void resetGradient() override;
 

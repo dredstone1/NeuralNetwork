@@ -1,4 +1,5 @@
 #include "DenseLayer.hpp"
+#include "Globals.hpp"
 #include "LayerParameters.hpp"
 
 namespace nn::model {
@@ -28,17 +29,16 @@ global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
 }
 
 void Output_Layer::backword(
-    const global::ParamMetrix &output,
-    global::ParamMetrix &newDeltas,
+    global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
     const LayerParameters &) {
-	newDeltas = getDelta(output);
+	deltas = getDelta(deltas);
 
 	for (size_t i = 0; i < getSize(); i++) {
-		gradients.bias[i] += newDeltas[i];
+		gradients.bias[i] += deltas[i];
 
 		for (size_t j = 0; j < getPrevSize(); j++) {
-			gradients.weights[i][j] += newDeltas[i] * prevLayer[j];
+			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
 	}
 }
@@ -81,17 +81,16 @@ global::ParamMetrix Hidden_Layer::getDelta(const global::ParamMetrix &output, co
 }
 
 void Hidden_Layer::backword(
-    const global::ParamMetrix &output,
-    global::ParamMetrix &newDeltas,
+    global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
     const LayerParameters &nextLayer) {
-	newDeltas = getDelta(output, nextLayer);
+	deltas = getDelta(deltas, nextLayer);
 
 	for (size_t i = 0; i < getSize(); i++) {
-		gradients.bias[i] += newDeltas[i];
+		gradients.bias[i] += deltas[i];
 
 		for (size_t j = 0; j < getPrevSize(); j++) {
-			gradients.weights[i][j] += newDeltas[i] * prevLayer[j];
+			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
 	}
 }
