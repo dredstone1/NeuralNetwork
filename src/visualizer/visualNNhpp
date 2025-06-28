@@ -1,7 +1,6 @@
 #ifndef VISUALNN
 #define VISUALNN
 
-#include "../model/neuralNetwork.hpp"
 #include "../trainer/gradient.hpp"
 #include "visualL.hpp"
 

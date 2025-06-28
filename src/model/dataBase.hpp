@@ -1,15 +1,17 @@
 #ifndef DATABASE
 #define DATABASE
 
-#include <AiModel.hpp>
+#include "config.hpp"
+#include <Globals.hpp>
+#include <memory>
 #include <random>
 
-namespace nn::training {
+namespace nn::model {
 struct TrainSample {
-	Prediction prediction;
+	global::Prediction prediction;
 	global::ParamMetrix input;
 
-	TrainSample(Prediction _pre, const int sampleInputSize)
+	TrainSample(global::Prediction _pre, const int sampleInputSize)
 	    : prediction(_pre),
 	      input(sampleInputSize, 0) {}
 	TrainSample()
@@ -46,23 +48,24 @@ class DataBase {
   private:
 	std::unique_ptr<Samples> samples;
 	std::vector<Batch> batches;
-	model::TrainingConfig &config;
 	size_t currentBatch;
 	std::vector<int> shuffled_indices;
 	std::mt19937 rng;
 
+	const TrainingConfig &config;
+
 	void getDataBaseStatus(const std::string &line);
-	TrainSample read_line(const std::string &line);
+	TrainSample readLine(const std::string &line);
 	int load();
-	void generete_batches();
+	void generateBatches();
 
   public:
-	DataBase(model::TrainingConfig &config_);
+	DataBase(const TrainingConfig &config);
 	~DataBase() = default;
 
 	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
-	Batch &get_Batch();
+	Batch &getBatch();
 };
-} // namespace nn::training
+} // namespace nn::model
 
 #endif // DATABASE

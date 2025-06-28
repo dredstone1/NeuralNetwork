@@ -2,34 +2,45 @@
 #define CONFIG
 
 #include "activations.hpp"
+#include <Globals.hpp>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
 
 namespace nn::model {
-struct LayerConfig {
-	int size;
-	global::ValueType weights_init_value = -1;
-	ActivationType AT = ActivationType::LeakyRelu;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    LayerConfig,
-    size,
-    AT,
-    weights_init_value);
 
-struct NetworkConfig {
-	int input_size;
-	int output_size;
-	global::ValueType output_init_value = -1;
-	std::vector<LayerConfig> layers_config;
-	size_t hidden_layer_count() const { return layers_config.size(); }
+class ISubNetworkConfig {
+  public:
+	virtual void fromJson(const nlohmann::json &j) = 0;
+	virtual const std::string NNLable() const = 0;
+
+	virtual ~ISubNetworkConfig() = default;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    NetworkConfig,
-    input_size,
-    output_size,
-    output_init_value,
-    layers_config);
+
+struct DenseLayerConfig {
+	int size;
+	ActivationType activationType = ActivationType::None;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig, size, activationType)
+
+class FNNConfig : public ISubNetworkConfig {
+  public:
+	FNNConfig(const nlohmann::json &j);
+	~FNNConfig() = default;
+
+	const std::string NNLable() const override { return "FNN"; }
+	void fromJson(const nlohmann::json &j) override;
+
+	std::vector<DenseLayerConfig> layersConfig;
+	int inputSize;
+	int outputSize;
+};
+
+class NetworkConfig {
+  public:
+	std::vector<std::shared_ptr<ISubNetworkConfig>> SubNetworksConfig;
+	void fromJson(const nlohmann::json &j);
+};
 
 struct TrainingConfig {
 	int batch_size;
@@ -48,33 +59,19 @@ struct VisualMode {
 	std::string state;
 	bool mode = true;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    VisualMode,
-    state,
-    mode);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
 
-struct VisualizerConfig {
+struct VisualConfig {
 	std::vector<VisualMode> modes;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    VisualizerConfig,
-    modes);
-
-struct ConfigData {
-	NetworkConfig network_config;
-	TrainingConfig training_config;
-	VisualizerConfig visualizer_config;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    ConfigData,
-    network_config,
-    training_config,
-    visualizer_config);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualConfig, modes);
 
 class Config {
   public:
 	Config(const std::string &config_filepath);
-	ConfigData config_data;
+	VisualConfig visualConfig;
+	TrainingConfig trainingConfig;
+	NetworkConfig networkConfig;
 };
 } // namespace nn::model
 

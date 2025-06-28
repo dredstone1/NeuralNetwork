@@ -18,13 +18,13 @@ void StatusPanel::doRender() {
 
 std::string StatusPanel::getText() {
 	std::ostringstream ss;
-	ss << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << std::endl
-	   << TextLabels::RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << std::endl
-	   << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->algorithmMode.load()] << std::endl
-	   << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << std::endl
-	   << TextLabels::CURRENT_BATCH_TEXT << vstate->currentBatch << "/" << vstate->config.training_config.batch_count << "#" << batchPerSecond << std::endl
-	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.training_config.batch_size << std::endl
-	   << TextLabels::LERNING_RATE_TEXT << learningRate << std::endl;
+	ss << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << "\n"
+	   << TextLabels::RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << "\n"
+	   << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->algorithmMode.load()] << "\n"
+	   << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << "\n"
+	   << TextLabels::CURRENT_BATCH_TEXT << vstate->currentBatch << "/" << vstate->config.trainingConfig.batch_count << "#" << batchPerSecond << "\n"
+	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.batch_size << "\n"
+	   << TextLabels::LEARNING_RATE_TEXT << learningRate << "\n";
 	return ss.str();
 }
 

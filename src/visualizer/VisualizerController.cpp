@@ -1,7 +1,7 @@
 #include "VisualizerController.hpp"
 
 namespace nn::visualizer {
-VisualManager::VisualManager(const model::ConfigData &_config) : config(_config) {
+VisualManager::VisualManager(const model::Config &_config) : config(_config) {
 	printf("start Visualizer\n");
 }
 
@@ -10,7 +10,7 @@ void VisualManager::initState() {
 		return;
 	}
 
-	auto &modes = config.visualizer_config.modes;
+	auto &modes = config.visualConfig.modes;
 
 	for (size_t i = 0; i < modes.size(); i++) {
 		Vstate->setState(modes[i].state, modes[i].mode);
@@ -22,24 +22,24 @@ VisualManager::~VisualManager() { stop(); }
 void VisualManager::stop() {
 	running = false;
 
-	if (display_thread.joinable()) {
+	if (displayThread.joinable()) {
 		if (renderer) {
 			renderer->close();
 		}
 
-		display_thread.join();
+		displayThread.join();
 	}
 }
 
-void VisualManager::start(const model::NeuralNetwork &network) {
+void VisualManager::start() {
 	if (renderer) {
 		return;
 	}
 
-	display_thread = std::thread(&VisualManager::start_visuals, this, std::cref(network));
+	displayThread = std::thread(&VisualManager::startVisuals, this);
 }
 
-void VisualManager::start_visuals(const model::NeuralNetwork &network) {
+void VisualManager::startVisuals() {
 	Vstate = std::make_shared<StateManager>(config);
 	if (!Vstate) {
 		return;
@@ -47,7 +47,7 @@ void VisualManager::start_visuals(const model::NeuralNetwork &network) {
 
 	initState();
 
-	renderer = std::make_unique<VisualRender>(network, Vstate);
+	renderer = std::make_unique<VisualRender>(Vstate);
 	if (!renderer) {
 		return;
 	}
@@ -58,36 +58,12 @@ void VisualManager::start_visuals(const model::NeuralNetwork &network) {
 	running.store(false);
 }
 
-void VisualManager::updateDots(const int layer, const model::Neurons &newNeurons) {
-	if (!checkPointers()) {
-		return;
-	}
-
-	renderer->updateDots(layer, newNeurons);
-}
-
-void VisualManager::update(const int layer, const model::LayerParameters &gradient_) {
-	if (!checkPointers()) {
-		return;
-	}
-
-	renderer->update(layer, gradient_);
-}
-
 void VisualManager::setNewPhaseMode(const NnMode nn_mode) {
 	if (!checkPointers()) {
 		return;
 	}
 
 	renderer->setNewPhaseMode(nn_mode);
-}
-
-void VisualManager::update(const training::gradient &new_grad) {
-	if (!checkPointers()) {
-		return;
-	}
-
-	renderer->update(new_grad);
 }
 
 void VisualManager::updateBatchCounter(const int batch) {
@@ -106,7 +82,7 @@ void VisualManager::updateError(const global::ValueType error, const int index) 
 	renderer->updateBatchCounter(error, index);
 }
 
-void VisualManager::updateAlgoritemMode(const AlgorithmMode algoritem_mode) {
+void VisualManager::updateAlgorithmMode(const AlgorithmMode algoritem_mode) {
 	if (!checkPointers()) {
 		return;
 	}
@@ -131,7 +107,7 @@ void VisualManager::updateLearningRate(const global::ValueType newLerningRate) {
 	renderer->updateLearningRate(newLerningRate);
 }
 
-bool VisualManager::exit_training() {
+bool VisualManager::exitTraining() {
 	if (!checkPointers()) {
 		return false;
 	}

@@ -1,8 +1,6 @@
-#include "Globals.hpp"
 #include "tests.hpp"
 #include <AiModel.hpp>
 #include <iostream>
-#include <trainer.hpp>
 
 enum mode {
 	load = 0,   // 0001
@@ -48,9 +46,7 @@ int main(int argc, char *argv[]) {
 		nn::AiModel model(config_FN);
 
 		if (mods & train) {
-			nn::training::Trainer trainer(model);
-
-			trainer.train();
+			model.train();
 		}
 
 		int num1 = 0, num2 = 0;

@@ -16,7 +16,7 @@ constexpr std::string_view RUNNING_MODE_TEXT = "running mode: ";
 constexpr std::string_view ALGORITHM_MODE_TEXT = "current algorithm mode: ";
 constexpr std::string_view CURRENT_BATCH_TEXT = "current batch: ";
 constexpr std::string_view BATCH_SIZE_TEXT = "batch size: ";
-constexpr std::string_view LERNING_RATE_TEXT = "learning rate: ";
+constexpr std::string_view LEARNING_RATE_TEXT = "learning rate: ";
 constexpr std::string_view FPS_TEXT = "fps: ";
 } // namespace TextLabels
 

@@ -12,7 +12,6 @@ class Trainer {
 	model::TrainingConfig &config;
 	DataBase dataBase;
 	AiModel &model;
-	learningRateParams learningRate;
 	BackPropagation backPropagation;
 	int last_progress;
 	void print_progress_bar(const int current, const int total);

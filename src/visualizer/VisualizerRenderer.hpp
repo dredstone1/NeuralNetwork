@@ -1,11 +1,10 @@
 #ifndef VISUALIZERRENDERER
 #define VISUALIZERRENDERER
 
-#include "../model/neuralNetwork.hpp"
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "graph.hpp"
-#include "visualNN.hpp"
+#include "visualModel.hpp"
 
 namespace nn::visualizer {
 constexpr sf::Color BG_COLOR(100, 100, 100);
@@ -18,7 +17,7 @@ constexpr std::string_view WINDOW_TITLE = "Visualizer";
 class VisualRender {
   private:
 	sf::RenderWindow window;
-	NNPanel visualNetwork;
+	ModelPanel visualModel;
 	std::shared_ptr<StateManager> Vstate;
 	IntefacePanel interface;
 	StatusPanel statusV;
@@ -37,20 +36,17 @@ class VisualRender {
 	void resetSize();
 
   public:
-	VisualRender(const model::NeuralNetwork &network, const std::shared_ptr<StateManager> vstate);
+	VisualRender(const std::shared_ptr<StateManager> vstate);
 	~VisualRender();
 
 	void close();
 	void start();
 
-	void updateDots(const int layer, const model::Neurons &newNeurons);
 	bool updateStatus();
-	void update(const training::gradient &new_grad);
-	void update(const int layer, const model::LayerParameters &gradients);
 	void updateBatchCounter(const global::ValueType error, const int index);
-	void setNewPhaseMode(const NnMode nn_mode);
 	void updatePrediction(const int index);
 	void updateLearningRate(const global::ValueType newLerningRate);
+	void setNewPhaseMode(const NnMode nn_mode);
 };
 } // namespace nn::visualizer
 

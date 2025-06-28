@@ -43,14 +43,14 @@ struct Settings {
 class StateManager {
   public:
 	Settings settings;
-	const model::ConfigData config;
+	const model::Config config;
 
 	int currentBatch{0};
 	std::atomic<bool> updateMode{false};
 	std::atomic<NnMode> nnMode{NnMode::Forword};
 	std::atomic<AlgorithmMode> algorithmMode{AlgorithmMode::Normal};
 
-	StateManager(const model::ConfigData config) : config(config) {}
+	StateManager(const model::Config _config) : config(_config) {}
 	~StateManager() = default;
 
 	void toggle(const SettingType state);

@@ -3,13 +3,9 @@
 #include <random>
 
 namespace nn::model {
-LayerParameters::LayerParameters(const int size, const int prev_size, const global::ValueType init_value) {
-	weights.resize(size, global::ParamMetrix(prev_size, init_value));
+LayerParameters::LayerParameters(const int size, const int prev_size) {
+	weights.resize(size, global::ParamMetrix(prev_size, 0.1));
 	bias.resize(size, 0.0001);
-
-	if (init_value < 0.0) {
-		initializeParamRandom(prev_size);
-	}
 }
 
 void LayerParameters::initializeParamRandom(const int prev_size) {
