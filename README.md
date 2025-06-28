@@ -5,8 +5,8 @@ A work-in-progress C++ neural network library designed for building, training, a
 ## ✨ Key Features
 
 - **🚀 Modern C++**: Built with C++17 for optimal performance and clean code
-- **🔧 Modular Architecture**: Easily extensible design for adding custom layers and functions
-- **⚡ Neural Network Components**: Complete support for layers, activation functions, and loss computations
+- **🔧 Modular Architecture**: Easily extensible design for adding custom Network Architectures as well as custom activations.
+- **⚡ Neural Network Components**: Complete support for sub networks, activation functions, and loss computations, and more...
 - **📦 CMake Ready**: Seamless build system integration
 - **🎯 Research Focused**: Designed with experimentation and learning in mind
 
