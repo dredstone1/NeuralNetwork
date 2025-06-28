@@ -10,10 +10,10 @@ DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
 	load();
 	shuffled_indices.resize(samples->size());
 	iota(shuffled_indices.begin(), shuffled_indices.end(), 0);
-	generete_batches();
+	generateBatches();
 }
 
-TrainSample DataBase::read_line(const std::string &line) {
+TrainSample DataBase::readLine(const std::string &line) {
 	std::istringstream iss(line);
 
 	std::string token;
@@ -61,7 +61,7 @@ int DataBase::load() {
 		if (line.empty() || line.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
 			continue;
 		}
-		TrainSample new_sample = read_line(line);
+		TrainSample new_sample = readLine(line);
 		if (new_sample.input.size() == 0)
 			continue;
 
@@ -78,7 +78,7 @@ int DataBase::load() {
 	return 0;
 }
 
-void DataBase::generete_batches() {
+void DataBase::generateBatches() {
 	shuffle(shuffled_indices.begin(), shuffled_indices.end(), rng);
 
 	batches.clear();
@@ -101,9 +101,9 @@ void DataBase::generete_batches() {
 	}
 }
 
-Batch &DataBase::get_Batch() {
+Batch &DataBase::getBatch() {
 	if (batches.empty() || currentBatch >= batches.size()) {
-		generete_batches();
+		generateBatches();
 		currentBatch = 0;
 	}
 

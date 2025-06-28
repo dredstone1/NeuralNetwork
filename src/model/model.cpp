@@ -130,7 +130,7 @@ void Model::train() {
 	for (int loop_index = 0; loop_index < config.trainingConfig.batch_count + 1; loop_index++) {
 		visual.updateBatchCounter(loop_index);
 
-		Batch &batch = dataBase.get_Batch();
+		Batch &batch = dataBase.getBatch();
 		error = run_back_propagation(batch);
 
 		visual.updateError(error, loop_index);

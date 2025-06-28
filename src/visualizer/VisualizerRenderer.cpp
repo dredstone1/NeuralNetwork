@@ -133,7 +133,6 @@ void VisualRender::setNewPhaseMode(const NnMode nn_mode) {
 }
 
 void VisualRender::updatePrediction(const int) {
-	// visualNetwork.update_prediction(index);
 }
 
 void VisualRender::updateLearningRate(const global::ValueType lr) {

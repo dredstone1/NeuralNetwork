@@ -52,19 +52,19 @@ class DataBase {
 	std::vector<int> shuffled_indices;
 	std::mt19937 rng;
 
-    const TrainingConfig &config;
+	const TrainingConfig &config;
 
 	void getDataBaseStatus(const std::string &line);
-	TrainSample read_line(const std::string &line);
+	TrainSample readLine(const std::string &line);
 	int load();
-	void generete_batches();
+	void generateBatches();
 
   public:
 	DataBase(const TrainingConfig &config);
 	~DataBase() = default;
 
 	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
-	Batch &get_Batch();
+	Batch &getBatch();
 };
 } // namespace nn::model
 
