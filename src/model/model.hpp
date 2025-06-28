@@ -26,7 +26,7 @@ class Model {
 	void update_weights(const int batch_size);
 	void resetNetworkGradient();
 	void initModel();
-	global::ValueType getLost(const int index);
+	global::ValueType getLoss(const int index);
 
 	global::ValueType run_back_propagation(const Batch &batch);
 
@@ -40,7 +40,6 @@ class Model {
 	void runModel(const global::ParamMetrix &input);
 	void train();
 
-	void reset();
 	void updateWeights(const global::ValueType learningRate);
 
 	int outputSize();

@@ -17,7 +17,7 @@ class INetwork {
 	virtual int outputSize() const = 0;
 	virtual int inputSize() const = 0;
 
-	virtual global::ValueType getLost(const int index) const = 0;
+	virtual global::ValueType getLoss(const int index) const = 0;
 	virtual const global::ParamMetrix &getOutput() const = 0;
 };
 } // namespace nn::model

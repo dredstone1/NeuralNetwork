@@ -39,8 +39,8 @@ void FNNetwork::backword(global::ParamMetrix &deltas) {
 	}
 }
 
-global::ValueType FNNetwork::getLost(const int index) const {
-	return layers[layers.size() - 1]->getLost(index);
+global::ValueType FNNetwork::getLoss(const int index) const {
+	return layers[layers.size() - 1]->getLoss(index);
 }
 
 void FNNetwork::resetGradient() {

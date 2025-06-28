@@ -34,7 +34,7 @@ class DenseLayer {
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *nextLayer = nullptr) = 0;
-	virtual global::ValueType getLost(const int index) = 0;
+	virtual global::ValueType getLoss(const int index) = 0;
 
 	const Neurons &getDots() const { return dots; }
 	global::ValueType getWeight(const int i, const int j) const { return parameters.weights[i][j]; }
@@ -46,7 +46,7 @@ class DenseLayer {
 	const global::ParamMetrix &getNet() const { return dots.net; }
 	const global::ParamMetrix &getOut() const { return dots.out; }
 
-	void reset() { dots.reset(); }
+	void resetDots() { dots.reset(); }
 	void resetGradient() { gradients.reset(); }
 	void addParams(const LayerParameters &gradients) { parameters.add(gradients); }
 	void setParams(const LayerParameters &gradients) { parameters.set(gradients); }
@@ -76,7 +76,7 @@ class Hidden_Layer : public DenseLayer {
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *nextLayer) override;
 
-	global::ValueType getLost(const int index) override;
+	global::ValueType getLoss(const int index) override;
 
 	global::ValueType activation(const global::ValueType x) const {
 		return activationFunction.activate(x);
@@ -103,7 +103,7 @@ class Output_Layer : public DenseLayer {
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *) override;
-	global::ValueType getLost(const int index) override;
+	global::ValueType getLoss(const int index) override;
 };
 } // namespace nn::model
 

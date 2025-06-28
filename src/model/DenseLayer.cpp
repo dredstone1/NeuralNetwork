@@ -47,11 +47,11 @@ global::ValueType Output_Layer::getCrossEntropyLoss(const global::ParamMetrix &p
 	return -std::log(std::max(prediction[target], MIN_LOSS_VALUE));
 }
 
-global::ValueType Output_Layer::getLost(const int index) {
+global::ValueType Output_Layer::getLoss(const int index) {
 	return getCrossEntropyLoss(getOut(), index);
 }
 
-global::ValueType Hidden_Layer::getLost(const int) {
+global::ValueType Hidden_Layer::getLoss(const int) {
 	return 0;
 }
 

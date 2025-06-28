@@ -50,7 +50,7 @@ void Model::Backward(const global::ParamMetrix &output) {
 	global::ParamMetrix deltas = output;
 
 	for (int i = network.size() - 1; i >= 0; i--) {
-        network[i]->backword(deltas);
+		network[i]->backword(deltas);
 	}
 }
 
@@ -70,7 +70,7 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 		global::ParamMetrix output(outputSize(), 0);
 		output[current_sample_ptr->prediction.index] = 1;
 		Backward(output);
-		error += getLost(current_sample_ptr->prediction.index);
+		error += getLoss(current_sample_ptr->prediction.index);
 
 		update_weights(batch.size());
 	}
@@ -148,18 +148,12 @@ void Model::train() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
 }
 
-void Model::reset() {
-	for (auto &subNetwork : network) {
-		subNetwork.reset();
-	}
-}
-
 const global::ParamMetrix &Model::getOutput() const {
 	return network[network.size() - 1]->getOutput();
 }
 
-global::ValueType Model::getLost(const int index) {
-	return network[network.size() - 1]->getLost(index);
+global::ValueType Model::getLoss(const int index) {
+	return network[network.size() - 1]->getLoss(index);
 }
 
 int Model::outputSize() {
