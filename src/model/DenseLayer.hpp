@@ -95,7 +95,7 @@ class Output_Layer : public DenseLayer {
 	Output_Layer(const int _size, const int _prev_size, const bool randomInit = false)
 	    : DenseLayer(_size, _prev_size, randomInit) {}
 	Output_Layer(const FNNConfig &_config, const int _prev_size, const bool randomInit = false)
-	    : DenseLayer(_config.outputSize, _prev_size, randomInit) {}
+	    : DenseLayer(_config.getOutputSize(), _prev_size, randomInit) {}
 	~Output_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;

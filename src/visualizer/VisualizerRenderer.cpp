@@ -1,4 +1,5 @@
 #include "VisualizerRenderer.hpp"
+#include "Globals.hpp"
 
 namespace nn::visualizer {
 constexpr std::uint32_t NN_WIDTH = 1055u;
@@ -132,7 +133,12 @@ void VisualRender::setNewPhaseMode(const NnMode nn_mode) {
 	Vstate->nnMode.store(nn_mode);
 }
 
-void VisualRender::updatePrediction(const int) {
+void VisualRender::updatePrediction(const int prediction) {
+    visualModel.setPrediction(prediction);
+}
+
+void VisualRender::updateInput(const global::ParamMetrix &input) {
+    visualModel.setInput(input);
 }
 
 void VisualRender::updateLearningRate(const global::ValueType lr) {

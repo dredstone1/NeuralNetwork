@@ -1,4 +1,5 @@
 #include "VisualizerController.hpp"
+#include "Globals.hpp"
 
 namespace nn::visualizer {
 VisualManager::VisualManager(const model::Config &_config) : config(_config) {
@@ -97,6 +98,14 @@ void VisualManager::updatePrediction(const int index) {
 	}
 
 	renderer->updatePrediction(index);
+}
+
+void VisualManager::updateInput(const global::ParamMetrix &input) {
+	if (!checkPointers()) {
+		return;
+	}
+
+	renderer->updateInput(input);
 }
 
 void VisualManager::updateLearningRate(const global::ValueType newLerningRate) {

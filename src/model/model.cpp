@@ -25,6 +25,7 @@ void Model::initModel() {
 }
 
 void Model::runModel(const global::ParamMetrix &input) {
+    visual.updateInput(input);
 	network[0]->forward(input);
 
 	for (size_t i = 1; i < network.size(); i++) {
@@ -64,7 +65,6 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 	resetNetworkGradient();
 	for (size_t i = 0; i < batch.size(); i++) {
 		auto current_sample_ptr = batch.samples.at(i);
-
 		visual.updatePrediction(current_sample_ptr->prediction.index);
 		runModel(current_sample_ptr->input);
 		global::ParamMetrix output(outputSize(), 0);

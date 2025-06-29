@@ -49,4 +49,12 @@ void FNNConfig::fromJson(const nlohmann::json &j) {
 	outputSize = j.at("output size");
 	layersConfig = j.at("layers").get<std::vector<DenseLayerConfig>>();
 }
+
+int NetworkConfig::inputSize() const {
+	return SubNetworksConfig[0]->getInputSize();
+}
+
+int NetworkConfig::outputSize() const {
+	return SubNetworksConfig[SubNetworksConfig.size() - 1]->getOutputSize();
+}
 } // namespace nn::model

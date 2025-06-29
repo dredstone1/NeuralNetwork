@@ -3,8 +3,8 @@
 namespace nn::model {
 FNNetwork::FNNetwork(const FNNConfig &_config, const bool randomInit)
     : config(_config),
-      input(_config.inputSize, 0.0) {
-	int prevSize = _config.inputSize;
+      input(_config.getInputSize(), 0.0) {
+	int prevSize = _config.getInputSize();
 	for (size_t i = 0; i < _config.layersConfig.size(); i++) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
 		    _config.layersConfig[i].size,

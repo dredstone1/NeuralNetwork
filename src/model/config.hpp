@@ -10,9 +10,16 @@
 namespace nn::model {
 
 class ISubNetworkConfig {
+  protected:
+	int inputSize{0};
+	int outputSize{0};
+
   public:
 	virtual void fromJson(const nlohmann::json &j) = 0;
 	virtual const std::string NNLable() const = 0;
+
+	int getInputSize() const { return inputSize; }
+	int getOutputSize() const { return outputSize; }
 
 	virtual ~ISubNetworkConfig() = default;
 };
@@ -32,12 +39,13 @@ class FNNConfig : public ISubNetworkConfig {
 	void fromJson(const nlohmann::json &j) override;
 
 	std::vector<DenseLayerConfig> layersConfig;
-	int inputSize;
-	int outputSize;
 };
 
 class NetworkConfig {
   public:
+	int inputSize() const;
+	int outputSize() const;
+
 	std::vector<std::shared_ptr<ISubNetworkConfig>> SubNetworksConfig;
 	void fromJson(const nlohmann::json &j);
 };

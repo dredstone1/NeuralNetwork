@@ -1,6 +1,7 @@
 #ifndef VISUALIZERRENDERER
 #define VISUALIZERRENDERER
 
+#include "Globals.hpp"
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "graph.hpp"
@@ -44,9 +45,11 @@ class VisualRender {
 
 	bool updateStatus();
 	void updateBatchCounter(const global::ValueType error, const int index);
-	void updatePrediction(const int index);
 	void updateLearningRate(const global::ValueType newLerningRate);
 	void setNewPhaseMode(const NnMode nn_mode);
+
+	void updatePrediction(const int index);
+	void updateInput(const global::ParamMetrix &input);
 };
 } // namespace nn::visualizer
 
