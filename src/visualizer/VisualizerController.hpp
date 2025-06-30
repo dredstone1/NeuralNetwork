@@ -1,8 +1,14 @@
 #ifndef VISUALIZERCONTROLLER
 #define VISUALIZERCONTROLLER
 
+#include "IvisualNetwork.hpp"
 #include "VisualizerRenderer.hpp"
+#include <memory>
 #include <thread>
+
+namespace nn::model {
+class Model;
+}
 
 namespace nn::visualizer {
 class VisualManager {
@@ -20,6 +26,8 @@ class VisualManager {
 	inline bool checkPointers() { return renderer && Vstate; }
 	void initState();
 
+	friend class model::Model;
+
   public:
 	VisualManager(const model::Config &_config);
 	~VisualManager();
@@ -35,6 +43,8 @@ class VisualManager {
 
 	void updatePrediction(const int index);
 	void updateInput(const global::ParamMetrix &input);
+
+	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 };
 } // namespace nn::visualizer
 

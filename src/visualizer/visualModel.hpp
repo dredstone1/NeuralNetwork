@@ -1,6 +1,7 @@
 #ifndef VISUALMODEL
 #define VISUALMODEL
 
+#include "IvisualNetwork.hpp"
 #include "panel.hpp"
 #include <Globals.hpp>
 #include <SFML/Graphics.hpp>
@@ -9,19 +10,15 @@
 #include <vector>
 
 namespace nn::visualizer {
-constexpr std::uint32_t MODEL_HEIGHT = 770u;
-constexpr std::uint32_t MODEL_WIDTH = 1055u;
 
-constexpr std::uint32_t NEURON_WIDTH = 40;
 
 constexpr float MIN_NEURON_WIDTH = 6.0f;
 constexpr float MAX_NEURON_WIDTH = NEURON_WIDTH;
 constexpr float MIN_GAP = 2.0f;
 
-constexpr sf::Color MODEL_BG = PANELS_BG;
-
 constexpr sf::Color NEURON_TEXT_COLOR(255, 255, 255);
 constexpr sf::Color NEURON_BG_COLOR(0, 0, 100);
+
 
 struct neuronValues {
 	global::ValueType net;
@@ -45,7 +42,7 @@ class DummyLayer : public Panel {
 
 	sf::RenderTexture layerRender;
 	std::vector<sf::FloatRect> cacheNeurons;
-    global::ParamMetrix values;
+	global::ParamMetrix values;
 
   public:
 	DummyLayer(const int size, std::shared_ptr<StateManager> state_);
@@ -67,9 +64,14 @@ class ModelPanel : public Panel {
 
 	DummyLayer predictionLayer;
 	DummyLayer inputLayer;
-
-  protected:
 	sf::RenderTexture modelRender;
+
+	float getSubNetworkOffset(const int index) const;
+
+	std::vector<std::shared_ptr<IVisualNetwork>> subNetworks;
+
+	void renderSubNetworks();
+	void renderSubNetwork(const int index);
 
   public:
 	ModelPanel(const std::shared_ptr<StateManager> state_);
@@ -78,6 +80,8 @@ class ModelPanel : public Panel {
 	void setPrediction(const int index);
 	void setInput(const global::ParamMetrix &input);
 	sf::Sprite getSprite();
+
+	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 };
 } // namespace nn::visualizer
 

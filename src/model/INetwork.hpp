@@ -2,6 +2,8 @@
 #define INETWORK
 
 #include <Globals.hpp>
+#include <memory>
+#include "../visualizer/IvisualNetwork.hpp"
 
 namespace nn::model {
 class INetwork {
@@ -19,6 +21,7 @@ class INetwork {
 
 	virtual global::ValueType getLoss(const int index) const = 0;
 	virtual const global::ParamMetrix &getOutput() const = 0;
+    virtual std::shared_ptr<visualizer::IVisualNetwork> getVisual() = 0;
 };
 } // namespace nn::model
 

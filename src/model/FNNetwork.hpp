@@ -1,8 +1,10 @@
 #ifndef FNNNETWORK
 #define FNNNETWORK
 
+#include "../visualizer/FnnVisualizer.hpp"
 #include "DenseLayer.hpp"
 #include "INetwork.hpp"
+#include <memory>
 
 namespace nn::model {
 class FNNetwork : public INetwork {
@@ -11,8 +13,13 @@ class FNNetwork : public INetwork {
 	std::vector<std::unique_ptr<DenseLayer>> layers;
 	global::ParamMetrix input;
 
+	const std::shared_ptr<visualizer::FnnVisualier> visual;
+
   public:
-	FNNetwork(const FNNConfig &_config, const bool randomInit = false);
+	FNNetwork(
+	    const FNNConfig &_config,
+	    const bool randomInit,
+	    const std::shared_ptr<visualizer::FnnVisualier>);
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &newInput) override;
@@ -26,6 +33,8 @@ class FNNetwork : public INetwork {
 	int inputSize() const override;
 
 	const global::ParamMetrix &getOutput() const override;
+
+	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
 };
 } // namespace nn::model
 

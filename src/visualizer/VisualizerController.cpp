@@ -38,6 +38,9 @@ void VisualManager::start() {
 	}
 
 	displayThread = std::thread(&VisualManager::startVisuals, this);
+	while (!checkPointers()) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
 }
 
 void VisualManager::startVisuals() {
@@ -122,5 +125,13 @@ bool VisualManager::exitTraining() {
 	}
 
 	return Vstate->getState(SettingType::ExitTraining);
+}
+
+void VisualManager::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
+	if (!checkPointers()) {
+		return;
+	}
+
+	renderer->addVisualSubNetwork(newVisual);
 }
 } // namespace nn::visualizer

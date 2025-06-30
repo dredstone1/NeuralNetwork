@@ -9,7 +9,7 @@ VisualRender::VisualRender(std::shared_ptr<StateManager> vstate)
       Vstate(vstate),
       interface(vstate),
       statusV(vstate),
-      Vgraph(vstate) {}
+      Vgraph(vstate){}
 
 void VisualRender::processEvents() {
 	while (const std::optional event = window.pollEvent()) {
@@ -143,5 +143,9 @@ void VisualRender::updateInput(const global::ParamMetrix &input) {
 
 void VisualRender::updateLearningRate(const global::ValueType lr) {
 	statusV.updateLerningRate(lr);
+}
+
+void VisualRender::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
+	visualModel.addVisualSubNetwork(newVisual);
 }
 } // namespace nn::visualizer

@@ -50,6 +50,8 @@ class VisualRender {
 
 	void updatePrediction(const int index);
 	void updateInput(const global::ParamMetrix &input);
+
+    void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 };
 } // namespace nn::visualizer
 

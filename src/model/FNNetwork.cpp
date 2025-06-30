@@ -1,9 +1,14 @@
 #include "FNNetwork.hpp"
+#include <memory>
 
 namespace nn::model {
-FNNetwork::FNNetwork(const FNNConfig &_config, const bool randomInit)
+FNNetwork::FNNetwork(
+    const FNNConfig &_config,
+    const bool randomInit,
+    const std::shared_ptr<visualizer::FnnVisualier> visual_)
     : config(_config),
-      input(_config.getInputSize(), 0.0) {
+      input(_config.getInputSize(), 0.0),
+      visual(visual_) {
 	int prevSize = _config.getInputSize();
 	for (size_t i = 0; i < _config.layersConfig.size(); i++) {
 		layers.push_back(std::make_unique<Hidden_Layer>(

@@ -2,6 +2,7 @@
 #include "FNNetwork.hpp"
 #include <cmath>
 #include <iostream>
+#include <memory>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
@@ -10,22 +11,34 @@ Model::Model(const std::string &config_filepath)
       learningRate(config.trainingConfig.lr_init_value),
       dataBase(config.trainingConfig) {
 	initModel();
-	visual.start();
+	visual.start();	
+    
+    for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
+		auto _config = config.networkConfig.SubNetworksConfig[i];
+
+		if (_config->NNLable() == "FNN") {
+			visual.addVisualSubNetwork(network[i]->getVisual());
+		}
+	}
 }
 
 void Model::initModel() {
+	const float width = visualizer::SUB_NETWORKS_WIDTH / config.networkConfig.SubNetworksConfig.size();
+
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
 		auto _config = config.networkConfig.SubNetworksConfig[i];
 
 		if (_config->NNLable() == "FNN") {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
-			network.push_back(std::make_unique<FNNetwork>(sub_, true));
+			std::shared_ptr<visualizer::FnnVisualier> visual_ = std::make_shared<visualizer::FnnVisualier>(visual.Vstate, width);
+
+			network.push_back(std::make_unique<FNNetwork>(sub_, true, visual_));
 		}
 	}
 }
 
 void Model::runModel(const global::ParamMetrix &input) {
-    visual.updateInput(input);
+	visual.updateInput(input);
 	network[0]->forward(input);
 
 	for (size_t i = 1; i < network.size(); i++) {

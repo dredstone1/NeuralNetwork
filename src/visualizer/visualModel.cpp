@@ -1,9 +1,11 @@
 #include "visualModel.hpp"
 #include "Globals.hpp"
+#include "IvisualNetwork.hpp"
 #include "fonts.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <cstddef>
 #include <iostream>
 
 namespace nn::visualizer {
@@ -136,7 +138,29 @@ void ModelPanel::doRender() {
 	prediction.setPosition({MODEL_WIDTH - NEURON_WIDTH, 0});
 	modelRender.draw(prediction);
 
+	renderSubNetworks();
+
 	display();
+}
+
+float ModelPanel::getSubNetworkOffset(const int index) const {
+	return SUB_NETWORKS_WIDTH * index / subNetworks.size();
+}
+
+void ModelPanel::renderSubNetworks() {
+    
+	for (size_t i = 0; i < subNetworks.size(); i++) {
+		renderSubNetwork(i);
+	}
+}
+
+void ModelPanel::renderSubNetwork(const int index) {
+	subNetworks[index]->render();
+
+	sf::Sprite sub = subNetworks[index]->getSprite();
+	sub.setPosition({NEURON_WIDTH + getSubNetworkOffset(index), 0});
+
+	modelRender.draw(sub);
 }
 
 void ModelPanel::setPrediction(const int index) {
@@ -151,5 +175,9 @@ void ModelPanel::setInput(const global::ParamMetrix &input) {
 	inputLayer.setValues(input);
 
 	setUpdate();
+}
+
+void ModelPanel::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
+    subNetworks.push_back(newVisual);
 }
 } // namespace nn::visualizer
