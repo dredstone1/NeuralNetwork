@@ -36,7 +36,7 @@ void Model::initModel() {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
 			std::shared_ptr<visualizer::FnnVisualier> visual_ = std::make_shared<visualizer::FnnVisualier>(visual.Vstate, width);
 
-			network.push_back(std::make_unique<FNNetwork>(sub_, true, visual_));
+			network.push_back(std::make_unique<FNNetwork>(sub_, true, visual_, (i==0)));
 		}
 	}
 }
@@ -67,8 +67,9 @@ void Model::update_weights(const int batch_size) {
 void Model::Backward(const global::ParamMetrix &output) {
 	global::ParamMetrix deltas = output;
 
-	for (int i = network.size() - 1; i >= 0; i--) {
+	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
 		network[i]->backward(deltas);
+        deltas = network[i]->getInput();
 	}
 }
 

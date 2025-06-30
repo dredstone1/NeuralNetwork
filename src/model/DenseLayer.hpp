@@ -91,11 +91,13 @@ class Output_Layer : public DenseLayer {
 	global::ParamMetrix getDelta(const global::ParamMetrix &output);
 	static global::ValueType getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target);
 
+	bool test;
+
   public:
 	Output_Layer(const int _size, const int _prev_size, const bool randomInit = false)
 	    : DenseLayer(_size, _prev_size, randomInit) {}
-	Output_Layer(const FNNConfig &_config, const int _prev_size, const bool randomInit = false)
-	    : DenseLayer(_config.getOutputSize(), _prev_size, randomInit) {}
+	Output_Layer(const FNNConfig &_config, const int _prev_size, bool test_, const bool randomInit = false)
+	    : DenseLayer(_config.getOutputSize(), _prev_size, randomInit), test(test_) {}
 	~Output_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;

@@ -1,26 +1,28 @@
 #include "FNNetwork.hpp"
+#include "Globals.hpp"
 #include <memory>
 
 namespace nn::model {
 FNNetwork::FNNetwork(
     const FNNConfig &_config,
     const bool randomInit,
-    const std::shared_ptr<visualizer::FnnVisualier> visual_)
+    const std::shared_ptr<visualizer::FnnVisualier> visual_,
+    bool test_)
     : config(_config),
       input(_config.getInputSize(), 0.0),
-      visual(visual_) {
-	int prevSize = _config.getInputSize();
+      visual(visual_),
+      test(test_) {
+	int prevSize_ = _config.getInputSize();
 	for (size_t i = 0; i < _config.layersConfig.size(); i++) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
 		    _config.layersConfig[i].size,
-		    prevSize,
+		    prevSize_,
 		    _config.layersConfig[i].activationType,
 		    randomInit));
 
-		prevSize = _config.layersConfig[i].size;
+		prevSize_ = _config.layersConfig[i].size;
 	}
-
-	layers.push_back(std::make_unique<Output_Layer>(_config, prevSize, randomInit));
+	layers.push_back(std::make_unique<Output_Layer>(_config, prevSize_, test_, randomInit));
 }
 
 void FNNetwork::forward(const global::ParamMetrix &newInput) {
@@ -32,16 +34,19 @@ void FNNetwork::forward(const global::ParamMetrix &newInput) {
 	}
 }
 
-void FNNetwork::backward(global::ParamMetrix &deltas) {
+void FNNetwork::backward(const global::ParamMetrix &outputDeltas) {
+	global::ParamMetrix deltas = outputDeltas;
+
 	resetGradient();
 
-	layers[layers.size() - 1]->backward(deltas, layers[layers.size() - 2]->getOut());
+	layers.back()->backward(deltas, layers[layers.size() - 2]->getOut());
 
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
-		auto &prevLayer = (i == 0) ? input : layers[i - 1]->getOut();
-
-		layers[i]->backward(deltas, prevLayer, &layers[i + 1]->getParms());
+		const global::ParamMetrix &prev = (i == 0) ? input : layers[i - 1]->getOut();
+		layers[i]->backward(deltas, prev, &layers[i + 1]->getParms());
 	}
+
+	calculateInputDelta(deltas);
 }
 
 global::ValueType FNNetwork::getLoss(const int index) const {
@@ -66,9 +71,25 @@ const global::ParamMetrix &FNNetwork::getOutput() const {
 	return layers[layers.size() - 1]->getOut();
 }
 
+const global::ParamMetrix &FNNetwork::getNet() const {
+	return layers[layers.size() - 1]->getNet();
+}
+
+const global::ParamMetrix &FNNetwork::getInput() const {
+	return input;
+}
+
 void FNNetwork::updateWeights(const global::ValueType learningRate) {
 	for (auto &layer : layers) {
 		layer->updateWeight(learningRate);
+	}
+}
+
+void FNNetwork::calculateInputDelta(const global::ParamMetrix &deltas) {
+	for (int i = 0; i < inputSize(); i++) {
+		for (size_t j = 0; j < layers[0]->getSize(); j++) {
+			input[i] += deltas[j] * layers[0]->getWeight(j, i);
+		}
 	}
 }
 } // namespace nn::model

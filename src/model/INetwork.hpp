@@ -1,9 +1,9 @@
 #ifndef INETWORK
 #define INETWORK
 
+#include "../visualizer/IvisualNetwork.hpp"
 #include <Globals.hpp>
 #include <memory>
-#include "../visualizer/IvisualNetwork.hpp"
 
 namespace nn::model {
 class INetwork {
@@ -11,8 +11,7 @@ class INetwork {
 	virtual ~INetwork() = default;
 
 	virtual void forward(const global::ParamMetrix &input) = 0;
-	virtual void backward(global::ParamMetrix &deltas) = 0;
-
+	virtual void backward(const global::ParamMetrix &outputDeltas) = 0;
 	virtual void updateWeights(const global::ValueType learningRate) = 0;
 	virtual void resetGradient() = 0;
 
@@ -21,7 +20,9 @@ class INetwork {
 
 	virtual global::ValueType getLoss(const int index) const = 0;
 	virtual const global::ParamMetrix &getOutput() const = 0;
-    virtual std::shared_ptr<visualizer::IVisualNetwork> getVisual() = 0;
+	virtual const global::ParamMetrix &getNet() const = 0;
+	virtual const global::ParamMetrix &getInput() const = 0;
+	virtual std::shared_ptr<visualizer::IVisualNetwork> getVisual() = 0;
 };
 } // namespace nn::model
 

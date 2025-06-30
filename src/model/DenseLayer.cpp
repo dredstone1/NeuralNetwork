@@ -15,16 +15,14 @@ void Output_Layer::forward(const global::ParamMetrix &metrix) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
 		}
 	}
-
-	Activation::softmax(dots);
+		Activation::softmax(dots);
 }
 
 global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
-	global::ParamMetrix deltas(dots.out);
+	global::ParamMetrix deltas = dots.out;
 	for (size_t i = 0; i < deltas.size(); i++) {
 		deltas[i] -= output[i];
 	}
-
 	return deltas;
 }
 
@@ -86,7 +84,7 @@ void Hidden_Layer::backward(
     const LayerParameters *nextLayer) {
 	if (!nextLayer)
 		return;
-    
+
 	deltas = getDelta(deltas, *nextLayer);
 
 	for (size_t i = 0; i < getSize(); i++) {

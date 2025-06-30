@@ -3,6 +3,7 @@
 
 #include "../visualizer/FnnVisualizer.hpp"
 #include "DenseLayer.hpp"
+#include "Globals.hpp"
 #include "INetwork.hpp"
 #include <memory>
 
@@ -13,17 +14,22 @@ class FNNetwork : public INetwork {
 	std::vector<std::unique_ptr<DenseLayer>> layers;
 	global::ParamMetrix input;
 
+    void calculateInputDelta(const global::ParamMetrix &deltas);
+
 	const std::shared_ptr<visualizer::FnnVisualier> visual;
+
+    bool test;
 
   public:
 	FNNetwork(
 	    const FNNConfig &_config,
 	    const bool randomInit,
-	    const std::shared_ptr<visualizer::FnnVisualier>);
+	    const std::shared_ptr<visualizer::FnnVisualier> visual_,
+        bool test_1);
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &newInput) override;
-	void backward(global::ParamMetrix &deltas) override;
+    void backward(const global::ParamMetrix &outputDeltas) override;
 	void updateWeights(const global::ValueType learningRate) override;
 	void resetGradient() override;
 
@@ -33,6 +39,8 @@ class FNNetwork : public INetwork {
 	int inputSize() const override;
 
 	const global::ParamMetrix &getOutput() const override;
+	const global::ParamMetrix &getNet() const override;
+	const global::ParamMetrix &getInput() const override;
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
 };
