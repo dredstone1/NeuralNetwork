@@ -22,16 +22,22 @@ class Model {
 	int lastProgress{-1};
 
 	void Forword(const global::ParamMetrix &input, const int modelIndex);
+
 	void Backward(const global::ParamMetrix &output);
 	void update_weights(const int batch_size);
+
 	void resetNetworkGradient();
-	void initModel();
 	global::ValueType getLoss(const int index);
 
 	global::ValueType run_back_propagation(const Batch &batch);
 
 	void print_progress_bar(const int current, const int total);
-    void printTrainingResult(const std::chrono::high_resolution_clock::time_point& start, double error);
+	void printTrainingResult(
+	    const std::chrono::high_resolution_clock::time_point &start,
+	    double error);
+
+	void initModel();
+	void initVisual();
 
   public:
 	Model(const std::string &config_filepath);
@@ -44,6 +50,7 @@ class Model {
 
 	int outputSize();
 	int inputSize();
+
 	const global::ParamMetrix &getOutput() const;
 };
 } // namespace nn::model

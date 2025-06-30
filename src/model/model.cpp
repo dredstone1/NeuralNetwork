@@ -11,9 +11,13 @@ Model::Model(const std::string &config_filepath)
       learningRate(config.trainingConfig.lr_init_value),
       dataBase(config.trainingConfig) {
 	initModel();
-	visual.start();	
-    
-    for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
+	initVisual();
+}
+
+void Model::initVisual() {
+	visual.start();
+
+	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
 		auto _config = config.networkConfig.SubNetworksConfig[i];
 
 		if (_config->NNLable() == "FNN") {
