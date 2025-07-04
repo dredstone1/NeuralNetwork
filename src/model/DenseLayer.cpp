@@ -3,6 +3,14 @@
 #include "LayerParameters.hpp"
 
 namespace nn::model {
+DenseLayer::DenseLayer(const int size, const int prevSize, const bool randomInit)
+    : dots(size),
+      parameters(size, prevSize),
+      gradients(size, prevSize) {
+	if (randomInit)
+		randomize();
+}
+
 void DenseLayer::randomize() {
 	parameters.initializeParamRandom(getPrevSize());
 }

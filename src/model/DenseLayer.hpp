@@ -19,13 +19,7 @@ class DenseLayer {
 	LayerParameters gradients;
 
   public:
-	DenseLayer(const int size, const int prevSize, const bool randomInit = false)
-	    : dots(size),
-	      parameters(size, prevSize),
-	      gradients(size, prevSize) {
-		if (randomInit)
-			randomize();
-	}
+	DenseLayer(const int size, const int prevSize, const bool randomInit = false);
 	virtual ~DenseLayer() = default;
 
 	virtual void forward(const global::ParamMetrix &metrix) = 0;
@@ -37,7 +31,9 @@ class DenseLayer {
 	virtual global::ValueType getLoss(const int index) = 0;
 
 	const Neurons &getDots() const { return dots; }
-	global::ValueType getWeight(const int i, const int j) const { return parameters.weights[i][j]; }
+	global::ValueType getWeight(const int i, const int j) const {
+		return parameters.weights[i][j];
+	}
 	const LayerParameters &getParms() { return parameters; }
 	const LayerParameters &getGrad() { return gradients; }
 
@@ -56,7 +52,9 @@ class DenseLayer {
 class Hidden_Layer : public DenseLayer {
   private:
 	Activation activationFunction;
-	global::ParamMetrix getDelta(const global::ParamMetrix &output, const LayerParameters &nextLayer);
+	global::ParamMetrix getDelta(
+	    const global::ParamMetrix &output,
+	    const LayerParameters &nextLayer);
 
   public:
 	Hidden_Layer(
@@ -66,7 +64,10 @@ class Hidden_Layer : public DenseLayer {
 	    : DenseLayer(_size, _prev_size, randomInit),
 	      activationFunction(activation) {}
 
-	Hidden_Layer(const DenseLayerConfig &_config, const int _prev_size, const bool randomInit = false)
+	Hidden_Layer(
+	    const DenseLayerConfig &_config,
+	    const int _prev_size,
+	    const bool randomInit = false)
 	    : DenseLayer(_config.size, _prev_size, randomInit),
 	      activationFunction(_config.activationType) {}
 	~Hidden_Layer() override = default;
@@ -90,7 +91,9 @@ class Hidden_Layer : public DenseLayer {
 class Output_Layer : public DenseLayer {
   private:
 	global::ParamMetrix getDelta(const global::ParamMetrix &output);
-	static global::ValueType getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target);
+	static global::ValueType getCrossEntropyLoss(
+	    const global::ParamMetrix &prediction,
+	    const int target);
 
   public:
 	Output_Layer(const int _size, const int _prev_size, const bool randomInit = false)

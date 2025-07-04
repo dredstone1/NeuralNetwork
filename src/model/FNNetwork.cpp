@@ -1,6 +1,4 @@
 #include "FNNetwork.hpp"
-#include "Globals.hpp"
-#include <memory>
 
 namespace nn::model {
 FNNetwork::FNNetwork(
