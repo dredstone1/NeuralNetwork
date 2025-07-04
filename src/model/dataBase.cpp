@@ -72,7 +72,7 @@ int DataBase::load() {
 		samples->samples.shrink_to_fit();
 	}
 
-	std::cout << "Loaded " << (samples ? samples->size() : 0) << " samples." << std::endl;
+	std::cout << "Loaded " << (samples ? samples->size() : 0) << " samples." << "\n";
 	file.close();
 
 	return 0;

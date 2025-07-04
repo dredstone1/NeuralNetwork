@@ -130,13 +130,13 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 	const int seconds = time_taken % SECONDS_IN_MINUTE;
 	const int time_taken_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-	std::cout << std::endl
-	          << "Training Done!" << std::endl
+	std::cout << "\n"
+	          << "Training Done!" << "\n"
 	          << "Training time: "
 	          << minutes << " minutes "
 	          << seconds << " seconds" << " ("
-	          << time_taken_milliseconds << " ms)" << std::endl
-	          << "final_score: " << error << std::endl;
+	          << time_taken_milliseconds << " ms)" << "\n"
+	          << "final_score: " << error << "\n";
 }
 
 void Model::train() {

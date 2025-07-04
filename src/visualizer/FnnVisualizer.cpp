@@ -127,7 +127,7 @@ void VisualDenseLayer::drawNeuron(const sf::FloatRect &rect, const double input,
 	shape.setPosition(rect.position);
 
 	std::ostringstream ss;
-	ss << std::fixed << std::setprecision(4) << input << std::endl
+	ss << std::fixed << std::setprecision(4) << input << "\n"
 	   << output;
 
 	sf::Text text(Fonts::getFont());
