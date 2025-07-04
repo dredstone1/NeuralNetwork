@@ -25,7 +25,6 @@ class IVisualNetwork : public Panel {
 	sf::RenderTexture networkRender;
 
 	virtual void renderNetwork() = 0;
-	virtual void createNetwork() = 0;
 
   public:
 	IVisualNetwork(

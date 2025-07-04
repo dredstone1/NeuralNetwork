@@ -77,12 +77,9 @@ class FnnVisualier : public IVisualNetwork {
   private:
 	const model::FNNConfig &config;
 
-	const sf::Vector2f pos;
-
 	std::vector<std::unique_ptr<VisualDenseLayer>> Layers;
-	void renderNetwork() override;
-	void createNetwork() override;
 
+	void renderNetwork() override;
 	void renderLayers();
 	void renderLayer(const int index);
 
@@ -90,8 +87,7 @@ class FnnVisualier : public IVisualNetwork {
 	FnnVisualier(
 	    const std::shared_ptr<StateManager> state_,
 	    const std::uint32_t width,
-	    const model::FNNConfig &_config,
-	    const sf::Vector2f pos);
+	    const model::FNNConfig &_config);
 	~FnnVisualier() = default;
 
 	void initLayer(

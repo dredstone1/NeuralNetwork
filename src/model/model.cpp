@@ -36,7 +36,7 @@ void Model::initModel() {
 
 		if (_config->NNLable() == "FNN") {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
-			std::shared_ptr<visualizer::FnnVisualier> visual_ = std::make_shared<visualizer::FnnVisualier>(visual.Vstate, width, sub_, sf::Vector2f(width * i, 0));
+			std::shared_ptr<visualizer::FnnVisualier> visual_ = std::make_shared<visualizer::FnnVisualier>(visual.Vstate, width, sub_);
 
 			network.push_back(std::make_unique<FNNetwork>(sub_, true, visual_));
 		}
@@ -94,6 +94,7 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 
 		update_weights(batch.size());
 	}
+
 	return error / batch.size();
 }
 

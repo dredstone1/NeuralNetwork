@@ -7,19 +7,14 @@ namespace nn::visualizer {
 FnnVisualier::FnnVisualier(
     const std::shared_ptr<StateManager> state_,
     const std::uint32_t width,
-    const model::FNNConfig &_config,
-    const sf::Vector2f _pos)
+    const model::FNNConfig &_config)
     : IVisualNetwork(state_, width),
       config(_config),
-      pos(_pos),
       Layers(config.layersConfig.size() + 1) {
 }
 
 void FnnVisualier::renderNetwork() {
 	renderLayers();
-}
-
-void FnnVisualier::createNetwork() {
 }
 
 void FnnVisualier::renderLayers() {
@@ -42,7 +37,7 @@ void FnnVisualier::initLayer(
     const model::LayerParameters &gradients) {
 	float _width = visualWidth / Layers.size();
 	float offset = _width * index;
-	Layers[index] = std::make_unique<VisualDenseLayer>(_width, dots, parameters, gradients, sf::Vector2f(offset, 0) + pos);
+	Layers[index] = std::make_unique<VisualDenseLayer>(_width, dots, parameters, gradients, sf::Vector2f(offset, 0));
 }
 
 VisualDenseLayer::VisualDenseLayer(

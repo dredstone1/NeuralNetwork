@@ -52,24 +52,19 @@ class DenseLayer {
 class Hidden_Layer : public DenseLayer {
   private:
 	Activation activationFunction;
+	const DenseLayerConfig &config;
 	global::ParamMetrix getDelta(
 	    const global::ParamMetrix &output,
 	    const LayerParameters &nextLayer);
 
   public:
 	Hidden_Layer(
-	    const int _size,
-	    const int _prev_size,
-	    const ActivationType activation, const bool randomInit = false)
-	    : DenseLayer(_size, _prev_size, randomInit),
-	      activationFunction(activation) {}
-
-	Hidden_Layer(
 	    const DenseLayerConfig &_config,
 	    const int _prev_size,
 	    const bool randomInit = false)
 	    : DenseLayer(_config.size, _prev_size, randomInit),
-	      activationFunction(_config.activationType) {}
+	      activationFunction(_config.activationType),
+	      config(_config) {}
 	~Hidden_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;
@@ -90,16 +85,17 @@ class Hidden_Layer : public DenseLayer {
 
 class Output_Layer : public DenseLayer {
   private:
+	const FNNConfig &config;
+
 	global::ParamMetrix getDelta(const global::ParamMetrix &output);
 	static global::ValueType getCrossEntropyLoss(
 	    const global::ParamMetrix &prediction,
 	    const int target);
 
   public:
-	Output_Layer(const int _size, const int _prev_size, const bool randomInit = false)
-	    : DenseLayer(_size, _prev_size, randomInit) {}
 	Output_Layer(const FNNConfig &_config, const int _prev_size, const bool randomInit = false)
-	    : DenseLayer(_config.getOutputSize(), _prev_size, randomInit) {}
+	    : DenseLayer(_config.getOutputSize(), _prev_size, randomInit),
+	      config(_config) {}
 	~Output_Layer() override = default;
 
 	void forward(const global::ParamMetrix &metrix) override;

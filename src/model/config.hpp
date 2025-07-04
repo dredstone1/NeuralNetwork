@@ -2,10 +2,7 @@
 #define CONFIG
 
 #include "activations.hpp"
-#include <Globals.hpp>
-#include <memory>
 #include <nlohmann/json.hpp>
-#include <string>
 
 namespace nn::model {
 

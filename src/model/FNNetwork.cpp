@@ -1,4 +1,5 @@
 #include "FNNetwork.hpp"
+#include "config.hpp"
 
 namespace nn::model {
 FNNetwork::FNNetwork(
@@ -13,9 +14,8 @@ FNNetwork::FNNetwork(
 
 	for (; i < _config.layersConfig.size(); i++) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
-		    _config.layersConfig[i].size,
+		    _config.layersConfig[i],
 		    prevSize_,
-		    _config.layersConfig[i].activationType,
 		    randomInit));
 		visual->initLayer(i, layers[i]->getDots(), layers[i]->getParms(), layers[i]->getGrad());
 
@@ -46,6 +46,7 @@ void FNNetwork::backward(const global::ParamMetrix &outputDeltas) {
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
 		const global::ParamMetrix &prev = (i == 0) ? input : layers[i - 1]->getOut();
 		layers[i]->backward(deltas, prev, &layers[i + 1]->getParms());
+
 		visual->setUpdate();
 	}
 

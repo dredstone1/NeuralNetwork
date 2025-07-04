@@ -32,6 +32,7 @@ global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
 	for (size_t i = 0; i < deltas.size(); i++) {
 		deltas[i] -= output[i];
 	}
+
 	return deltas;
 }
 
