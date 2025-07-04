@@ -6,12 +6,10 @@ namespace nn::model {
 FNNetwork::FNNetwork(
     const FNNConfig &_config,
     const bool randomInit,
-    const std::shared_ptr<visualizer::FnnVisualier> visual_,
-    bool test_)
+    const std::shared_ptr<visualizer::FnnVisualier> visual_)
     : config(_config),
       input(_config.getInputSize(), 0.0),
-      visual(visual_),
-      test(test_) {
+      visual(visual_) {
 	int prevSize_ = _config.getInputSize();
 	for (size_t i = 0; i < _config.layersConfig.size(); i++) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
@@ -22,7 +20,7 @@ FNNetwork::FNNetwork(
 
 		prevSize_ = _config.layersConfig[i].size;
 	}
-	layers.push_back(std::make_unique<Output_Layer>(_config, prevSize_, test_, randomInit));
+	layers.push_back(std::make_unique<Output_Layer>(_config, prevSize_, randomInit));
 }
 
 void FNNetwork::forward(const global::ParamMetrix &newInput) {

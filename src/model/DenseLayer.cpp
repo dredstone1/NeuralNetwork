@@ -15,7 +15,8 @@ void Output_Layer::forward(const global::ParamMetrix &metrix) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
 		}
 	}
-		Activation::softmax(dots);
+
+	Activation::softmax(dots);
 }
 
 global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {

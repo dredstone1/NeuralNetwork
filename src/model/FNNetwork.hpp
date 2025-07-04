@@ -18,14 +18,11 @@ class FNNetwork : public INetwork {
 
 	const std::shared_ptr<visualizer::FnnVisualier> visual;
 
-    bool test;
-
   public:
 	FNNetwork(
 	    const FNNConfig &_config,
 	    const bool randomInit,
-	    const std::shared_ptr<visualizer::FnnVisualier> visual_,
-        bool test_1);
+	    const std::shared_ptr<visualizer::FnnVisualier> visual_);
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &newInput) override;

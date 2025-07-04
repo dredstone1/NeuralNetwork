@@ -36,7 +36,7 @@ void Model::initModel() {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
 			std::shared_ptr<visualizer::FnnVisualier> visual_ = std::make_shared<visualizer::FnnVisualier>(visual.Vstate, width);
 
-			network.push_back(std::make_unique<FNNetwork>(sub_, true, visual_, (i==0)));
+			network.push_back(std::make_unique<FNNetwork>(sub_, true, visual_));
 		}
 	}
 }
