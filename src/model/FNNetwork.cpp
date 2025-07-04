@@ -11,16 +11,21 @@ FNNetwork::FNNetwork(
       input(_config.getInputSize(), 0.0),
       visual(visual_) {
 	int prevSize_ = _config.getInputSize();
-	for (size_t i = 0; i < _config.layersConfig.size(); i++) {
+	size_t i = 0;
+
+	for (; i < _config.layersConfig.size(); i++) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
 		    _config.layersConfig[i].size,
 		    prevSize_,
 		    _config.layersConfig[i].activationType,
 		    randomInit));
+		visual->initLayer(i, layers[i]->getDots(), layers[i]->getParms(), layers[i]->getGrad());
 
 		prevSize_ = _config.layersConfig[i].size;
 	}
+
 	layers.push_back(std::make_unique<Output_Layer>(_config, prevSize_, randomInit));
+	visual->initLayer(i, layers[i]->getDots(), layers[i]->getParms(), layers[i]->getGrad());
 }
 
 void FNNetwork::forward(const global::ParamMetrix &newInput) {
@@ -29,6 +34,7 @@ void FNNetwork::forward(const global::ParamMetrix &newInput) {
 
 	for (size_t i = 1; i < layers.size(); i++) {
 		layers[i]->forward(layers[i - 1]->getOut());
+		visual->setUpdate();
 	}
 }
 
@@ -42,6 +48,7 @@ void FNNetwork::backward(const global::ParamMetrix &outputDeltas) {
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
 		const global::ParamMetrix &prev = (i == 0) ? input : layers[i - 1]->getOut();
 		layers[i]->backward(deltas, prev, &layers[i + 1]->getParms());
+		visual->setUpdate();
 	}
 
 	calculateInputDelta(deltas);

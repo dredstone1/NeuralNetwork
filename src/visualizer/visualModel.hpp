@@ -3,22 +3,9 @@
 
 #include "IvisualNetwork.hpp"
 #include "panel.hpp"
-#include <Globals.hpp>
 #include <SFML/Graphics.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <memory>
-#include <vector>
 
 namespace nn::visualizer {
-
-
-constexpr float MIN_NEURON_WIDTH = 6.0f;
-constexpr float MAX_NEURON_WIDTH = NEURON_WIDTH;
-constexpr float MIN_GAP = 2.0f;
-
-constexpr sf::Color NEURON_TEXT_COLOR(255, 255, 255);
-constexpr sf::Color NEURON_BG_COLOR(0, 0, 100);
-
 
 struct neuronValues {
 	global::ValueType net;

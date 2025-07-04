@@ -1,19 +1,104 @@
 #ifndef FNNVISUALNETWORK
 #define FNNVISUALNETWORK
 
+#include "../model/LayerParameters.hpp"
 #include "IvisualNetwork.hpp"
+#include <SFML/System/Vector2.hpp>
 
 namespace nn::visualizer {
+
+constexpr float MIN_NEURON_WIDTH = 6.0f;
+constexpr float MAX_NEURON_WIDTH = NEURON_WIDTH;
+constexpr float MIN_GAP = 2.0f;
+
+constexpr sf::Color NEURON_TEXT_COLOR(255, 255, 255);
+constexpr sf::Color NEURON_BG_COLOR(0, 0, 100);
+
+enum class textType {
+	UP,
+	DOWN,
+	NORMAL,
+};
+
+constexpr sf::Color FONT_COLOR_DOWN(255, 0, 0);
+constexpr sf::Color FONT_COLOR_UP(0, 0, 255);
+constexpr sf::Color FONT_COLOR_NORMAL(50, 50, 50);
+
+constexpr sf::Color LINE_COLOR(0, 0, 0);
+
+static const std::array<sf::Color, 3> color_lookup = {
+    FONT_COLOR_UP,
+    FONT_COLOR_DOWN,
+    FONT_COLOR_NORMAL,
+};
+
+class VisualDenseLayer {
+  private:
+	const model::Neurons &dots;
+	const model::LayerParameters &parameters;
+	const model::LayerParameters &gradients;
+
+	const sf::Vector2f pos;
+
+	std::vector<sf::FloatRect> cacheNeurons;
+	std::vector<sf::FloatRect> cachePrevNeurons;
+
+	void drawWeights(const int neuron_i, sf::RenderTexture &target);
+	void drawNeurons(sf::RenderTexture &target);
+	void renderNeuron(const int index, sf::RenderTexture &target);
+	void drawNeuron(const sf::FloatRect &rect, const double input, const double output, sf::RenderTexture &target);
+
+	textType getTextT(const int layer_i, const int layer_p);
+	sf::Color getColorFromTextT(const textType text_type);
+	sf::Color getNeuronColor(const global::ValueType value);
+	float getScaleFactor(const std::size_t neuron_count);
+	float calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2);
+	sf::Angle calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2);
+	float calculateGap(const int size, const float scale);
+	sf::Vector2f getCenter(const sf::FloatRect &rect);
+
+	void doCacheWeights();
+	void doCacheNeurons();
+	const std::uint32_t width;
+
+  public:
+	VisualDenseLayer(
+	    const std::uint32_t width,
+	    const model::Neurons &dots,
+	    const model::LayerParameters &parameters,
+	    const model::LayerParameters &gradients,
+	    const sf::Vector2f pos);
+	~VisualDenseLayer() = default;
+
+	void draw(sf::RenderTexture &target);
+};
+
 class FnnVisualier : public IVisualNetwork {
   private:
+	const model::FNNConfig &config;
+
+	const sf::Vector2f pos;
+
+	std::vector<std::unique_ptr<VisualDenseLayer>> Layers;
 	void renderNetwork() override;
 	void createNetwork() override;
+
+	void renderLayers();
+	void renderLayer(const int index);
 
   public:
 	FnnVisualier(
 	    const std::shared_ptr<StateManager> state_,
-	    const std::uint32_t width);
+	    const std::uint32_t width,
+	    const model::FNNConfig &_config,
+	    const sf::Vector2f pos);
 	~FnnVisualier() = default;
+
+	void initLayer(
+	    const int index,
+	    const model::Neurons &dots,
+	    const model::LayerParameters &parameters,
+	    const model::LayerParameters &gradients);
 };
 } // namespace nn::visualizer
 

@@ -1,12 +1,6 @@
 #include "visualModel.hpp"
-#include "Globals.hpp"
-#include "IvisualNetwork.hpp"
+#include "FnnVisualizer.hpp"
 #include "fonts.hpp"
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <cstddef>
-#include <iostream>
 
 namespace nn::visualizer {
 DummyLayer::DummyLayer(const int size_, const std::shared_ptr<StateManager> state_)
@@ -148,7 +142,6 @@ float ModelPanel::getSubNetworkOffset(const int index) const {
 }
 
 void ModelPanel::renderSubNetworks() {
-    
 	for (size_t i = 0; i < subNetworks.size(); i++) {
 		renderSubNetwork(i);
 	}

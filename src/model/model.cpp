@@ -1,6 +1,8 @@
 #include "model.hpp"
 #include "FNNetwork.hpp"
+#include <SFML/System/Vector2.hpp>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <memory>
 
@@ -27,14 +29,14 @@ void Model::initVisual() {
 }
 
 void Model::initModel() {
-	const float width = visualizer::SUB_NETWORKS_WIDTH / config.networkConfig.SubNetworksConfig.size();
+	const std::uint32_t width = visualizer::SUB_NETWORKS_WIDTH / config.networkConfig.SubNetworksConfig.size();
 
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
 		auto _config = config.networkConfig.SubNetworksConfig[i];
 
 		if (_config->NNLable() == "FNN") {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
-			std::shared_ptr<visualizer::FnnVisualier> visual_ = std::make_shared<visualizer::FnnVisualier>(visual.Vstate, width);
+			std::shared_ptr<visualizer::FnnVisualier> visual_ = std::make_shared<visualizer::FnnVisualier>(visual.Vstate, width, sub_, sf::Vector2f(width * i, 0));
 
 			network.push_back(std::make_unique<FNNetwork>(sub_, true, visual_));
 		}
@@ -69,7 +71,7 @@ void Model::Backward(const global::ParamMetrix &output) {
 
 	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
 		network[i]->backward(deltas);
-        deltas = network[i]->getInput();
+		deltas = network[i]->getInput();
 	}
 }
 

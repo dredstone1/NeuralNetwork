@@ -39,6 +39,7 @@ class DenseLayer {
 	const Neurons &getDots() const { return dots; }
 	global::ValueType getWeight(const int i, const int j) const { return parameters.weights[i][j]; }
 	const LayerParameters &getParms() { return parameters; }
+	const LayerParameters &getGrad() { return gradients; }
 
 	size_t getSize() const { return dots.size(); }
 	size_t getPrevSize() const { return parameters.getPrevSize(); }

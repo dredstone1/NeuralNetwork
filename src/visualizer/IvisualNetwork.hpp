@@ -17,12 +17,13 @@ class IVisualNetwork : public Panel {
   private:
 	void clear();
 	void display();
-	const std::uint32_t visualWidth;
 
 	void doRender() override;
 
   protected:
+	const float visualWidth;
 	sf::RenderTexture networkRender;
+
 	virtual void renderNetwork() = 0;
 	virtual void createNetwork() = 0;
 

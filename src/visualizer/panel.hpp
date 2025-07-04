@@ -19,8 +19,9 @@ class Panel {
   public:
 	Panel(const std::shared_ptr<StateManager> vstate_)
 	    : vstate(vstate_) {}
-	int render();
 	virtual ~Panel() = default;
+
+	int render();
 	bool updateStatus() const { return need_update; }
 	void setUpdate() { need_update = true; }
 };
