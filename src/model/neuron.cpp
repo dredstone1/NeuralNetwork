@@ -2,7 +2,7 @@
 
 namespace nn::model {
 void Neurons::reset() {
-	for (size_t i = 0; i < out.size(); i++) {
+	for (size_t i = 0; i < out.size(); ++i) {
 		out[i] = 0.0;
 		net[i] = 0.0;
 	}

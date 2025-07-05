@@ -16,7 +16,7 @@ void GraphUIPanel::renderVerticalNumbers() {
 	text.setCharacterSize(10);
 	text.setFillColor(GRAPH_VERTICAL_NUMBER_COLOR);
 
-	for (int i = 0; i < VERTICAL_NUMBERS_COUNT; i++) {
+	for (int i = 0; i < VERTICAL_NUMBERS_COUNT; ++i) {
 		std::ostringstream number_str;
 
 		text.setOrigin({0, 0});
@@ -61,7 +61,7 @@ void GraphUIPanel::display() {
 void GraphUIPanel::renderGraph() {
 	renderVerticalNumbers();
 
-	for (size_t i = 0; i < resolution(); i++) {
+	for (size_t i = 0; i < resolution(); ++i) {
 		renderDot(i);
 	}
 }
@@ -79,7 +79,7 @@ void GraphUIPanel::clear() {
 
 int GraphUIPanel::getHighest() {
 	int max = 0;
-	for (size_t i = 0; i < resolution(); i++) {
+	for (size_t i = 0; i < resolution(); ++i) {
 		if (data[i] > data[max]) {
 			i = max;
 		}
@@ -139,6 +139,7 @@ int GraphUIPanel::newDataPlace(const int index) {
 }
 
 void GraphUIPanel::addData(const global::ValueType new_data, const int index) {
+
 	data[newDataPlace(index)] += (new_data / data_gaps());
 	setUpdate();
 }

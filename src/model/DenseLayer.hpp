@@ -1,7 +1,6 @@
 #ifndef DENSELAYER
 #define DENSELAYER
 
-#include "Globals.hpp"
 #include "LayerParameters.hpp"
 #include "activations.hpp"
 #include "config.hpp"
@@ -10,9 +9,6 @@ namespace nn::model {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
 class DenseLayer {
-  private:
-	void randomize();
-
   protected:
 	Neurons dots;
 	LayerParameters parameters;
@@ -31,9 +27,6 @@ class DenseLayer {
 	virtual global::ValueType getLoss(const int index) = 0;
 
 	const Neurons &getDots() const { return dots; }
-	global::ValueType getWeight(const int i, const int j) const {
-		return parameters.weights[i][j];
-	}
 	const LayerParameters &getParms() { return parameters; }
 	const LayerParameters &getGrad() { return gradients; }
 

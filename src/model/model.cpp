@@ -19,7 +19,7 @@ Model::Model(const std::string &config_filepath)
 void Model::initVisual() {
 	visual.start();
 
-	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
+	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		auto _config = config.networkConfig.SubNetworksConfig[i];
 
 		if (_config->NNLable() == "FNN") {
@@ -31,7 +31,7 @@ void Model::initVisual() {
 void Model::initModel() {
 	const std::uint32_t width = visualizer::SUB_NETWORKS_WIDTH / config.networkConfig.SubNetworksConfig.size();
 
-	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); i++) {
+	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		auto _config = config.networkConfig.SubNetworksConfig[i];
 
 		if (_config->NNLable() == "FNN") {
@@ -47,7 +47,7 @@ void Model::runModel(const global::ParamMetrix &input) {
 	visual.updateInput(input);
 	network[0]->forward(input);
 
-	for (size_t i = 1; i < network.size(); i++) {
+	for (size_t i = 1; i < network.size(); ++i) {
 		network[i]->forward(network[i - 1]->getOutput());
 	}
 }
@@ -83,7 +83,7 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 	}
 
 	resetNetworkGradient();
-	for (size_t i = 0; i < batch.size(); i++) {
+	for (size_t i = 0; i < batch.size(); ++i) {
 		auto current_sample_ptr = batch.samples.at(i);
 		visual.updatePrediction(current_sample_ptr->prediction.index);
 		runModel(current_sample_ptr->input);
@@ -148,7 +148,7 @@ void Model::train() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
 	visual.updateLearningRate(learningRate);
 
-	for (int loop_index = 0; loop_index < config.trainingConfig.batch_count + 1; loop_index++) {
+	for (int loop_index = 0; loop_index < config.trainingConfig.batch_count + 1; ++loop_index) {
 		visual.updateBatchCounter(loop_index);
 
 		Batch &batch = dataBase.getBatch();
@@ -188,7 +188,7 @@ int Model::inputSize() {
 void Model::updateWeights(const global::ValueType learningRate) {
 	visual.setNewPhaseMode(visualizer::NnMode::Backward);
 
-	for (int i = network.size() - 1; i >= 0; i--) {
+	for (int i = network.size() - 1; i >= 0; --i) {
 		network[i]->updateWeights(learningRate);
 	}
 

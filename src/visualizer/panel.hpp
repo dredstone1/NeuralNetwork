@@ -23,7 +23,7 @@ class Panel {
 
 	int render();
 	bool updateStatus() const { return need_update; }
-	void setUpdate() { need_update = true; }
+	void setUpdate(const bool wait = false);
 };
 } // namespace nn::visualizer
 

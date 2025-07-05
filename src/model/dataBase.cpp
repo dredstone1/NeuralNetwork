@@ -5,7 +5,7 @@
 namespace nn::model {
 DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
 	std::random_device rd;
-	rng = std::mt19937(rd());
+	rng = std::mt19937(std::random_device{}());
 
 	load();
 	shuffled_indices.resize(samples->size());
@@ -73,6 +73,10 @@ int DataBase::load() {
 	}
 
 	std::cout << "Loaded " << (samples ? samples->size() : 0) << " samples." << "\n";
+	if (config.batch_size > samples->size()) {
+		std::cout << "batch size too big" << "\n";
+		return 1;
+	}
 	file.close();
 
 	return 0;

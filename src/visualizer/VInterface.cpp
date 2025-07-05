@@ -11,7 +11,7 @@ void IntefacePanel::createVInterface() {
 	VRender.clear(INTERFACE_PANEL_COLOR);
 	buttons.reserve(STATES_COUNT);
 
-	for (int i = 0; i < STATES_COUNT; i++) {
+	for (int i = 0; i < STATES_COUNT; ++i) {
 		buttons.push_back(std::make_unique<Button>(vstate, vstate->getStateString((SettingType)i), (SettingType)i));
 	}
 }
@@ -42,7 +42,7 @@ void IntefacePanel::handleNoClick() {
 void IntefacePanel::doRender() {
 	int row = 0, column = -1;
 
-	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
+	for (size_t button_ = 0; button_ < buttons.size(); ++button_) {
 		if (button_ % BUTTON_PER_COLLUM == 0) {
 			row = 0;
 			column++;
@@ -64,7 +64,7 @@ void IntefacePanel::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vect
 	int row = 0, column = -1;
 	sf::Vector2f mousePos(static_cast<float>(mousePos_.x), static_cast<float>(mousePos_.y));
 
-	for (size_t button_ = 0; button_ < buttons.size(); button_++) {
+	for (size_t button_ = 0; button_ < buttons.size(); ++button_) {
 		if (button_ % BUTTON_PER_COLLUM == 0) {
 			row = 0;
 			column++;

@@ -1,5 +1,4 @@
 #include "DenseLayer.hpp"
-#include "Globals.hpp"
 #include "LayerParameters.hpp"
 
 namespace nn::model {
@@ -7,19 +6,16 @@ DenseLayer::DenseLayer(const int size, const int prevSize, const bool randomInit
     : dots(size),
       parameters(size, prevSize),
       gradients(size, prevSize) {
-	if (randomInit)
-		randomize();
-}
-
-void DenseLayer::randomize() {
-	parameters.initializeParamRandom(getPrevSize());
+	if (randomInit) {
+		parameters.initializeParamRandom(getPrevSize());
+	}
 }
 
 void Output_Layer::forward(const global::ParamMetrix &metrix) {
-	for (size_t i = 0; i < dots.size(); i++) {
+	for (size_t i = 0; i < dots.size(); ++i) {
 		dots.net[i] = parameters.bias[i];
 
-		for (size_t j = 0; j < metrix.size(); j++) {
+		for (size_t j = 0; j < metrix.size(); ++j) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
 		}
 	}
@@ -29,7 +25,7 @@ void Output_Layer::forward(const global::ParamMetrix &metrix) {
 
 global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
 	global::ParamMetrix deltas = dots.out;
-	for (size_t i = 0; i < deltas.size(); i++) {
+	for (size_t i = 0; i < deltas.size(); ++i) {
 		deltas[i] -= output[i];
 	}
 
@@ -42,16 +38,18 @@ void Output_Layer::backward(
     const LayerParameters *) {
 	deltas = getDelta(deltas);
 
-	for (size_t i = 0; i < getSize(); i++) {
+	for (size_t i = 0; i < getSize(); ++i) {
 		gradients.bias[i] += deltas[i];
 
-		for (size_t j = 0; j < getPrevSize(); j++) {
+		for (size_t j = 0; j < getPrevSize(); ++j) {
 			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
 	}
 }
 
-global::ValueType Output_Layer::getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target) {
+global::ValueType Output_Layer::getCrossEntropyLoss(
+    const global::ParamMetrix &prediction,
+    const int target) {
 	return -std::log(std::max(prediction[target], MIN_LOSS_VALUE));
 }
 
@@ -64,10 +62,10 @@ global::ValueType Hidden_Layer::getLoss(const int) {
 }
 
 void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
-	for (size_t i = 0; i < dots.size(); i++) {
+	for (size_t i = 0; i < dots.size(); ++i) {
 		dots.net[i] = parameters.bias[i];
 
-		for (size_t j = 0; j < metrix.size(); j++) {
+		for (size_t j = 0; j < metrix.size(); ++j) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
 		}
 
@@ -75,10 +73,12 @@ void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 	}
 }
 
-global::ParamMetrix Hidden_Layer::getDelta(const global::ParamMetrix &output, const LayerParameters &nextLayer) {
+global::ParamMetrix Hidden_Layer::getDelta(
+    const global::ParamMetrix &output,
+    const LayerParameters &nextLayer) {
 	global::ParamMetrix deltas(getSize(), 0.0);
 	for (size_t i = 0; i < getSize(); i++) {
-		for (size_t j = 0; j < nextLayer.getSize(); j++) {
+		for (size_t j = 0; j < nextLayer.getSize(); ++j) {
 			deltas[i] += output[j] * nextLayer.weights[j][i];
 		}
 
@@ -97,10 +97,10 @@ void Hidden_Layer::backward(
 
 	deltas = getDelta(deltas, *nextLayer);
 
-	for (size_t i = 0; i < getSize(); i++) {
+	for (size_t i = 0; i < getSize(); ++i) {
 		gradients.bias[i] += deltas[i];
 
-		for (size_t j = 0; j < getPrevSize(); j++) {
+		for (size_t j = 0; j < getPrevSize(); ++j) {
 			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
 	}

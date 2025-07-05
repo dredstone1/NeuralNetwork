@@ -17,7 +17,7 @@ void DummyLayer::createVLayer() {
 
 	float gap = calculateGap(size(), neuron_width_scaled);
 
-	for (int neuron = 0; neuron < size(); neuron++) {
+	for (int neuron = 0; neuron < size(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
 		cacheNeurons[neuron] = sf::FloatRect({0, y}, {neuron_width_scaled, neuron_width_scaled});
 	}
@@ -42,7 +42,7 @@ void DummyLayer::display() {
 }
 
 void DummyLayer::renderLayer() {
-	for (int i = 0; i < size(); i++) {
+	for (int i = 0; i < size(); ++i) {
 		renderNeuron(i);
 	}
 }
@@ -101,10 +101,6 @@ ModelPanel::ModelPanel(const std::shared_ptr<StateManager> state_)
       predictionLayer(state_->config.networkConfig.outputSize(), state_),
       inputLayer(state_->config.networkConfig.inputSize(), state_),
       modelRender({MODEL_WIDTH, MODEL_HEIGHT}) {
-	createVModel();
-}
-
-void ModelPanel::createVModel() {
 }
 
 sf::Sprite ModelPanel::getSprite() {
@@ -142,7 +138,7 @@ float ModelPanel::getSubNetworkOffset(const int index) const {
 }
 
 void ModelPanel::renderSubNetworks() {
-	for (size_t i = 0; i < subNetworks.size(); i++) {
+	for (size_t i = 0; i < subNetworks.size(); ++i) {
 		renderSubNetwork(i);
 	}
 }

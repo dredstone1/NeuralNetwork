@@ -48,7 +48,7 @@ class NetworkConfig {
 };
 
 struct TrainingConfig {
-	int batch_size;
+	size_t batch_size;
 	int batch_count;
 	std::string db_filename;
 	global::ValueType lr_init_value = 0.001;

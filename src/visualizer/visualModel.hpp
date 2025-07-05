@@ -45,7 +45,6 @@ class ModelPanel : public Panel {
   private:
 	void clear();
 	void display();
-	void createVModel();
 
 	void doRender() override;
 

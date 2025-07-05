@@ -18,6 +18,7 @@ void StatusPanel::doRender() {
 
 std::string StatusPanel::getText() {
 	std::ostringstream ss;
+
 	ss << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << "\n"
 	   << TextLabels::RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << "\n"
 	   << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->algorithmMode.load()] << "\n"
@@ -25,6 +26,7 @@ std::string StatusPanel::getText() {
 	   << TextLabels::CURRENT_BATCH_TEXT << vstate->currentBatch << "/" << vstate->config.trainingConfig.batch_count << "#" << batchPerSecond << "\n"
 	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.batch_size << "\n"
 	   << TextLabels::LEARNING_RATE_TEXT << learningRate << "\n";
+
 	return ss.str();
 }
 

@@ -5,7 +5,7 @@
 namespace nn::model {
 LayerParameters::LayerParameters(const int size, const int prev_size) {
 	weights.resize(size, global::ParamMetrix(prev_size, 0.1));
-	bias.resize(size, 0.0001);
+	bias.resize(size, 0);
 }
 
 void LayerParameters::initializeParamRandom(const int prev_size) {
@@ -26,39 +26,39 @@ void LayerParameters::initializeParamRandom(const int prev_size) {
 }
 
 void LayerParameters::reset() {
-	for (size_t i = 0; i < getSize(); i++) {
+	for (size_t i = 0; i < getSize(); ++i) {
 		bias[i] = PARAM_RESET_VALUE;
 
-		for (size_t j = 0; j < getPrevSize(); j++) {
+		for (size_t j = 0; j < getPrevSize(); ++j) {
 			weights[i][j] = PARAM_RESET_VALUE;
 		}
 	}
 }
 
 void LayerParameters::add(const LayerParameters &new_gradient_layer) {
-	for (size_t i = 0; i < getSize(); i++) {
+	for (size_t i = 0; i < getSize(); ++i) {
 		bias[i] += new_gradient_layer.bias[i];
 
-		for (size_t j = 0; j < getPrevSize(); j++) {
+		for (size_t j = 0; j < getPrevSize(); ++j) {
 			weights[i][j] += new_gradient_layer.weights[i][j];
 		}
 	}
 }
 
 void LayerParameters::set(const LayerParameters &new_gradient_layer) {
-	for (size_t i = 0; i < getSize(); i++) {
+	for (size_t i = 0; i < getSize(); ++i) {
         bias[i] = new_gradient_layer.bias[i];
-		for (size_t j = 0; j < getPrevSize(); j++) {
+		for (size_t j = 0; j < getPrevSize(); ++j) {
 			weights[i][j] = new_gradient_layer.weights[i][j];
 		}
 	}
 }
 
 void LayerParameters::multiply(const global::ValueType value) {
-	for (size_t i = 0; i < getSize(); i++) {
+	for (size_t i = 0; i < getSize(); ++i) {
 		bias[i] *= value;
 
-		for (size_t j = 0; j < getPrevSize(); j++) {
+		for (size_t j = 0; j < getPrevSize(); ++j) {
 			weights[i][j] *= value;
 		}
 	}

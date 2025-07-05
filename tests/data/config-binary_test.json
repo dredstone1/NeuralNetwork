@@ -16,14 +16,12 @@
 		{
 			"type": "FNN",
 			"input size": 10,
-			"output size": 5,
-			"layers": [{ "size": 9, "activationType": 1 }]
-		},
-		{
-			"type": "FNN",
-			"input size": 5,
 			"output size": 16,
-			"layers": [{ "size": 9, "activationType": 1 }]
+			"layers": [
+				{ "size": 15, "activationType": 1 },
+				{ "size": 4, "activationType": 2 },
+				{ "size": 20, "activationType": 1 }
+			]
 		}
 	]
 }

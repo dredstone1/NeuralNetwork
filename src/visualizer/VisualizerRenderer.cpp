@@ -9,7 +9,7 @@ VisualRender::VisualRender(std::shared_ptr<StateManager> vstate)
       Vstate(vstate),
       interface(vstate),
       statusV(vstate),
-      Vgraph(vstate){}
+      Vgraph(vstate) {}
 
 void VisualRender::processEvents() {
 	while (const std::optional event = window.pollEvent()) {
@@ -57,6 +57,7 @@ void VisualRender::renderPanels() {
 
 void VisualRender::fullUpdate() {
 	resetSize();
+
 	statusV.setUpdate();
 	interface.setUpdate();
 	visualModel.setUpdate();
@@ -112,7 +113,7 @@ void VisualRender::close() {
 }
 
 bool VisualRender::updateStatus() {
-	return interface.updateStatus() || statusV.updateStatus()  || visualModel.updateStatus();
+	return interface.updateStatus() || statusV.updateStatus() || visualModel.updateStatus();
 }
 
 void VisualRender::start() {
@@ -134,11 +135,11 @@ void VisualRender::setNewPhaseMode(const NnMode nn_mode) {
 }
 
 void VisualRender::updatePrediction(const int prediction) {
-    visualModel.setPrediction(prediction);
+	visualModel.setPrediction(prediction);
 }
 
 void VisualRender::updateInput(const global::ParamMetrix &input) {
-    visualModel.setInput(input);
+	visualModel.setInput(input);
 }
 
 void VisualRender::updateLearningRate(const global::ValueType lr) {

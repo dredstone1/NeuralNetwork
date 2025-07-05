@@ -25,7 +25,7 @@ std::string_view StateManager::getStateString(SettingType state_) {
 }
 
 SettingType StateManager::getStatefromString(const std::string &state_) {
-	for (int i = 0; i < STATES_COUNT; i++) {
+	for (int i = 0; i < STATES_COUNT; ++i) {
 		if (!statesName[i].compare(state_)) {
 			return (SettingType)i;
 		}

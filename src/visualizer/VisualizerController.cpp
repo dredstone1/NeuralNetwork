@@ -13,7 +13,7 @@ void VisualManager::initState() {
 
 	auto &modes = config.visualConfig.modes;
 
-	for (size_t i = 0; i < modes.size(); i++) {
+	for (size_t i = 0; i < modes.size(); ++i) {
 		Vstate->setState(modes[i].state, modes[i].mode);
 	}
 }

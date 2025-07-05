@@ -18,7 +18,7 @@ void FnnVisualier::renderNetwork() {
 }
 
 void FnnVisualier::renderLayers() {
-	for (size_t i = 0; i < Layers.size(); i++) {
+	for (size_t i = 0; i < Layers.size(); ++i) {
 		renderLayer(i);
 	}
 }
@@ -64,7 +64,7 @@ void VisualDenseLayer::doCacheWeights() {
 	float gap = calculateGap(parameters.getPrevSize(), neuron_width_scaled);
 	float x = pos.x;
 
-	for (size_t neuron = 0; neuron < parameters.getPrevSize(); neuron++) {
+	for (size_t neuron = 0; neuron < parameters.getPrevSize(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
 		cachePrevNeurons[neuron] = sf::FloatRect(sf::Vector2f(x, y), {neuron_width_scaled, neuron_width_scaled});
 	}
@@ -77,7 +77,7 @@ void VisualDenseLayer::doCacheNeurons() {
 	float gap = calculateGap(dots.size(), neuron_width_scaled);
 	float x = pos.x + width - neuron_width_scaled;
 
-	for (size_t neuron = 0; neuron < dots.size(); neuron++) {
+	for (size_t neuron = 0; neuron < dots.size(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
 		cacheNeurons[neuron] = sf::FloatRect(sf::Vector2f(x, y), {neuron_width_scaled, neuron_width_scaled});
 	}
@@ -121,6 +121,7 @@ sf::Color VisualDenseLayer::getNeuronColor(const global::ValueType value) {
 	newColor.b *= value;
 	return newColor;
 }
+
 void VisualDenseLayer::drawNeuron(const sf::FloatRect &rect, const double input, const double output, sf::RenderTexture &target) {
 	sf::RectangleShape shape(rect.size);
 	shape.setFillColor(getNeuronColor(output));
@@ -151,7 +152,7 @@ void VisualDenseLayer::renderNeuron(const int index, sf::RenderTexture &target) 
 }
 
 void VisualDenseLayer::drawNeurons(sf::RenderTexture &target) {
-	for (size_t neuron = 0; neuron < dots.size(); neuron++) {
+	for (size_t neuron = 0; neuron < dots.size(); ++neuron) {
 		renderNeuron(neuron, target);
 	}
 }
@@ -172,18 +173,19 @@ sf::Color VisualDenseLayer::getColorFromTextT(const textType text_type) {
 }
 
 float VisualDenseLayer::calculateGap(const int size, const float scale) {
-	// return (MODEL_HEIGHT - (size * scale)) / (size - 1);
 	if (size <= 1)
 		return 0.f;
+
 	return (MODEL_HEIGHT - (size * scale)) / (size - 1);
 }
 
 textType VisualDenseLayer::getTextT(const int layer_i, const int layer_p) {
 	if (gradients.weights[layer_i][layer_p] < 0)
 		return textType::DOWN;
+
 	if (gradients.weights[layer_i][layer_p] > 0)
 		return textType::UP;
+
 	return textType::NORMAL;
 }
-
 } // namespace nn::visualizer

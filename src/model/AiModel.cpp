@@ -16,7 +16,7 @@ void AiModel::train() {
 global::Prediction AiModel::getPrediction() {
 	int max = 0;
 
-	for (int i = 1; i < (int)model->outputSize(); i++) {
+	for (int i = 1; i < (int)model->outputSize(); ++i) {
 		if (model->getOutput()[i] > model->getOutput()[max]) {
 			max = i;
 		}
