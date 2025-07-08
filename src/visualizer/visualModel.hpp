@@ -1,6 +1,7 @@
 #ifndef VISUALMODEL
 #define VISUALMODEL
 
+#include "Globals.hpp"
 #include "IvisualNetwork.hpp"
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
@@ -63,7 +64,7 @@ class ModelPanel : public Panel {
 	ModelPanel(const std::shared_ptr<StateManager> state_);
 	~ModelPanel() = default;
 
-	void setPrediction(const int index);
+	void setPrediction(const global::Predictions &index);
 	void setInput(const global::ParamMetrix &input);
 	sf::Sprite getSprite() const;
 

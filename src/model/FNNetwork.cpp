@@ -1,4 +1,5 @@
 #include "FNNetwork.hpp"
+#include "Globals.hpp"
 #include "config.hpp"
 
 namespace nn::model {
@@ -64,8 +65,8 @@ void FNNetwork::backward(const global::ParamMetrix &outputDeltas) {
 	calculateInputDelta(deltas);
 }
 
-global::ValueType FNNetwork::getLoss(const int index) const {
-	return layers[layers.size() - 1]->getLoss(index);
+global::ValueType FNNetwork::getLoss(const global::ParamMetrix &pre) const {
+	return layers[layers.size() - 1]->getLoss(pre);
 }
 
 void FNNetwork::resetGradient() {

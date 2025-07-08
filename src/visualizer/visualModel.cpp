@@ -1,5 +1,6 @@
 #include "visualModel.hpp"
 #include "FnnVisualizer.hpp"
+#include "Globals.hpp"
 #include "fonts.hpp"
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -133,10 +134,8 @@ void ModelPanel::renderSubNetwork(const int index) {
 	modelRender.draw(sub);
 }
 
-void ModelPanel::setPrediction(const int index) {
-	global::ParamMetrix prediction(predictionLayer.size(), 0);
-	prediction[index] = 1;
-	predictionLayer.setValues(prediction);
+void ModelPanel::setPrediction(const global::Predictions &pre) {
+	predictionLayer.setValues(pre);
 
 	setUpdate();
 }

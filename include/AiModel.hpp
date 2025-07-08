@@ -16,7 +16,7 @@ class AiModel {
 	void runModel(const global::ParamMetrix &input);
 	void train();
 
-	global::Prediction getPrediction();
+	global::FinalPrediction getPrediction();
 };
 } // namespace nn
 

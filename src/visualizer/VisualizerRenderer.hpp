@@ -48,7 +48,7 @@ class VisualRender {
 	void updateLearningRate(const global::ValueType newLerningRate);
 	void setNewPhaseMode(const NnMode nn_mode);
 
-	void updatePrediction(const int index);
+	void updatePrediction(const global::Predictions &pre);
 	void updateInput(const global::ParamMetrix &input);
 
     void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);

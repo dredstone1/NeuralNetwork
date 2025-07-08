@@ -1,6 +1,7 @@
 #ifndef DENSELAYER
 #define DENSELAYER
 
+#include "Globals.hpp"
 #include "LayerParameters.hpp"
 #include "activations.hpp"
 #include "config.hpp"
@@ -24,7 +25,7 @@ class DenseLayer {
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *nextLayer = nullptr) = 0;
-	virtual global::ValueType getLoss(const int index) = 0;
+	virtual global::ValueType getLoss(const global::Predictions &pre) = 0;
 
 	const Neurons &getDots() const { return dots; }
 	const LayerParameters &getParms() { return parameters; }
@@ -66,7 +67,7 @@ class Hidden_Layer : public DenseLayer {
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *nextLayer) override;
 
-	global::ValueType getLoss(const int index) override;
+	global::ValueType getLoss(const global::Predictions &index) override;
 
 	global::ValueType activation(const global::ValueType x) const {
 		return activationFunction.activate(x);
@@ -83,7 +84,7 @@ class Output_Layer : public DenseLayer {
 	global::ParamMetrix getDelta(const global::ParamMetrix &output);
 	static global::ValueType getCrossEntropyLoss(
 	    const global::ParamMetrix &prediction,
-	    const int target);
+	    const global::Predictions &targets);
 
   public:
 	Output_Layer(const FNNConfig &_config, const int _prev_size, const bool randomInit = false)
@@ -96,7 +97,7 @@ class Output_Layer : public DenseLayer {
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *) override;
-	global::ValueType getLoss(const int index) override;
+	global::ValueType getLoss(const global::Predictions &index) override;
 };
 } // namespace nn::model
 

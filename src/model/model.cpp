@@ -1,7 +1,6 @@
 #include "model.hpp"
 #include "FNNetwork.hpp"
 #include "Globals.hpp"
-#include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <cstdint>
 #include <iostream>
@@ -86,12 +85,12 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 	resetNetworkGradient();
 	for (size_t i = 0; i < batch.size(); ++i) {
 		auto current_sample_ptr = batch.samples.at(i);
-		visual.updatePrediction(current_sample_ptr->prediction.index);
+		visual.updatePrediction(current_sample_ptr->output);
 		runModel(current_sample_ptr->input);
-		global::ParamMetrix output(outputSize(), 0);
-		output[current_sample_ptr->prediction.index] = 1;
+		global::ParamMetrix output = current_sample_ptr->output;
+
 		Backward(output);
-		error += getLoss(current_sample_ptr->prediction.index);
+		error += getLoss(output);
 
 		update_weights(batch.size());
 	}
@@ -174,8 +173,8 @@ const global::ParamMetrix &Model::getOutput() const {
 	return network[network.size() - 1]->getOutput();
 }
 
-global::ValueType Model::getLoss(const int index) {
-	return network[network.size() - 1]->getLoss(index);
+global::ValueType Model::getLoss(const global::Predictions &pre) {
+	return network[network.size() - 1]->getLoss(pre);
 }
 
 int Model::outputSize() {

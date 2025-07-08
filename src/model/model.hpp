@@ -27,7 +27,7 @@ class Model {
 	void update_weights(const int batch_size);
 
 	void resetNetworkGradient();
-	global::ValueType getLoss(const int index);
+	global::ValueType getLoss(const global::Predictions &pre);
 
 	global::ValueType run_back_propagation(const Batch &batch);
 

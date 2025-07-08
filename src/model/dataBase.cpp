@@ -22,9 +22,20 @@ TrainSample DataBase::readLine(const std::string &line) {
 		return TrainSample();
 	}
 
-	size_t bestNextMove = std::stoi(token);
+	TrainSample new_sample(samples->sOutputSize, samples->sInputSize);
 
-	TrainSample new_sample(global::Prediction(bestNextMove, 1.f), samples->sInputSize);
+	if (samples->sMode == SamplesMode::classification) {
+		int class_index = static_cast<int>(std::stod(token));
+		new_sample.output[class_index] = 1.0;
+	} else {
+		for (int i = 0; i < samples->sOutputSize; ++i) {
+			if (i > 0) {
+				iss >> token;
+			}
+
+			new_sample.output[i] = std::stod(token);
+		}
+	}
 
 	for (int i = 0; i < samples->sInputSize; ++i) {
 		iss >> token;
@@ -38,12 +49,18 @@ TrainSample DataBase::readLine(const std::string &line) {
 void DataBase::getDataBaseStatus(const std::string &line) {
 	std::istringstream iss(line);
 
-	int dataBaseSize = 0, sampleSize = 0;
+	int dataBaseSize = 0, sampleInputSize = 0, sampleOutputSize = 0, sampleMode = 0;
 
 	iss >> dataBaseSize;
-	iss >> sampleSize;
+	iss >> sampleInputSize;
+	iss >> sampleOutputSize;
+	iss >> sampleMode;
 
-	samples = std::make_unique<Samples>(sampleSize, dataBaseSize);
+	samples = std::make_unique<Samples>(
+	    sampleInputSize,
+	    sampleOutputSize,
+	    (SamplesMode)sampleMode,
+	    dataBaseSize);
 }
 
 int DataBase::load() {

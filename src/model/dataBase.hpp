@@ -8,23 +8,38 @@
 
 namespace nn::model {
 struct TrainSample {
-	global::Prediction prediction;
+	global::Predictions output;
 	global::ParamMetrix input;
 
-	TrainSample(global::Prediction _pre, const int sampleInputSize)
-	    : prediction(_pre),
+	TrainSample(const int sampleOutputSize, const int sampleInputSize)
+	    : output(sampleOutputSize, 0),
 	      input(sampleInputSize, 0) {}
 	TrainSample()
-	    : prediction(0, 0),
+	    : output(0, 0),
 	      input(0) {}
+};
+
+enum class SamplesMode {
+	classification,
+	full,
 };
 
 struct Samples {
 	const int sInputSize;
+	const int sOutputSize;
+
+	const SamplesMode sMode;
+
 	std::vector<TrainSample> samples;
 
-	Samples(const int sampleInputSize, const int _size)
-	    : sInputSize(sampleInputSize) {
+	Samples(
+	    const int sampleInputSize,
+	    const int sampleOutputSize,
+	    const SamplesMode sampleMode,
+	    const int _size)
+	    : sInputSize(sampleInputSize),
+	      sOutputSize(sampleOutputSize),
+	      sMode(sampleMode) {
 		samples.reserve(_size);
 	}
 	~Samples() = default;

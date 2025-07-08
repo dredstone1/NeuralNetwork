@@ -1,6 +1,7 @@
 #ifndef VISUALIZERCONTROLLER
 #define VISUALIZERCONTROLLER
 
+#include "Globals.hpp"
 #include "IvisualNetwork.hpp"
 #include "VisualizerRenderer.hpp"
 #include <memory>
@@ -41,7 +42,7 @@ class VisualManager {
 
 	bool exitTraining();
 
-	void updatePrediction(const int index);
+	void updatePrediction(const global::Predictions &pre);
 	void updateInput(const global::ParamMetrix &input);
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);

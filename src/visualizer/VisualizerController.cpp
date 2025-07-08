@@ -95,12 +95,12 @@ void VisualManager::updateAlgorithmMode(const AlgorithmMode algoritem_mode) {
 	Vstate->settings.exitTraining = algoritem_mode == AlgorithmMode::Normal;
 }
 
-void VisualManager::updatePrediction(const int index) {
+void VisualManager::updatePrediction(const global::Predictions &pre) {
 	if (!checkPointers()) {
 		return;
 	}
 
-	renderer->updatePrediction(index);
+	renderer->updatePrediction(pre);
 }
 
 void VisualManager::updateInput(const global::ParamMetrix &input) {

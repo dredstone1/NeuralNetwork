@@ -1,0 +1,25 @@
+{
+	"visual config": {
+		"modes": [
+			{ "state": "pause", "mode": true },
+			{ "state": "precise mode", "mode": true },
+			{ "state": "auto pause", "mode": true }
+		]
+	},
+	"training config": {
+		"batch_size": 2,
+		"batch_count": 100,
+		"db_filename": "../tests/data/database-statics_test",
+		"lr_init_value": 0.1
+	},
+	"network config": [
+		{
+			"type": "FNN",
+			"input size": 2,
+			"output size": 2,
+			"layers": [
+				{ "size": 8, "activationType": 2 }
+			]
+		}
+	]
+}

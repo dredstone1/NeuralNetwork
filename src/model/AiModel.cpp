@@ -13,7 +13,7 @@ void AiModel::train() {
 	model->train();
 }
 
-global::Prediction AiModel::getPrediction() {
+global::FinalPrediction AiModel::getPrediction() {
 	int max = 0;
 
 	for (int i = 1; i < (int)model->outputSize(); ++i) {
