@@ -4,6 +4,7 @@
 #include "IvisualNetwork.hpp"
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace nn::visualizer {
 
@@ -12,33 +13,32 @@ struct neuronValues {
 	global::ValueType out;
 };
 
-class DummyLayer : public Panel {
+class DummyLayer {
   private:
 	void clear();
 	void display();
 	void createVLayer();
 
+	const sf::Vector2f pos;
+
 	static float getScaleFactor(const std::size_t neuron_count);
 	static float calculateGap(const int size, const float scale);
 	static sf::Color getNeuronColor(const global::ValueType value);
 
-	void doRender() override;
-
-	void renderNeuron(const int index);
-	void renderLayer();
+	void renderNeuron(sf::RenderTexture &target, const int index);
 
 	sf::RenderTexture layerRender;
 	std::vector<sf::FloatRect> cacheNeurons;
 	global::ParamMetrix values;
 
   public:
-	DummyLayer(const int size, std::shared_ptr<StateManager> state_);
+	DummyLayer(const int size, const sf::Vector2f pos = {0, 0});
 	~DummyLayer() = default;
 
 	int size() const { return values.size(); }
 	void setValues(const global::ParamMetrix &newValues);
 
-	sf::Sprite getSprite();
+	void draw(sf::RenderTexture &target);
 };
 
 class ModelPanel : public Panel {
@@ -65,7 +65,7 @@ class ModelPanel : public Panel {
 
 	void setPrediction(const int index);
 	void setInput(const global::ParamMetrix &input);
-	sf::Sprite getSprite();
+	sf::Sprite getSprite() const;
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 };

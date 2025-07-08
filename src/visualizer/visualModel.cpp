@@ -1,10 +1,12 @@
 #include "visualModel.hpp"
 #include "FnnVisualizer.hpp"
 #include "fonts.hpp"
+#include <SFML/Graphics/RenderTexture.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace nn::visualizer {
-DummyLayer::DummyLayer(const int size_, const std::shared_ptr<StateManager> state_)
-    : Panel(state_),
+DummyLayer::DummyLayer(const int size_, const sf::Vector2f pos_)
+    : pos(pos_),
       layerRender({NEURON_WIDTH, MODEL_HEIGHT}),
       cacheNeurons(size_),
       values(size_, 0) {
@@ -23,36 +25,22 @@ void DummyLayer::createVLayer() {
 	}
 }
 
-sf::Sprite DummyLayer::getSprite() {
-	return sf::Sprite(layerRender.getTexture());
-}
-
 void DummyLayer::clear() {
 	layerRender.clear(MODEL_BG);
 }
 
 void DummyLayer::setValues(const global::ParamMetrix &newValues) {
 	values = newValues;
-
-	setUpdate();
 }
 
 void DummyLayer::display() {
 	layerRender.display();
 }
 
-void DummyLayer::renderLayer() {
+void DummyLayer::draw(sf::RenderTexture &target) {
 	for (int i = 0; i < size(); ++i) {
-		renderNeuron(i);
+		renderNeuron(target, i);
 	}
-}
-
-void DummyLayer::doRender() {
-	clear();
-
-	renderLayer();
-
-	display();
 }
 
 float DummyLayer::getScaleFactor(std::size_t neuron_count) {
@@ -74,10 +62,10 @@ sf::Color DummyLayer::getNeuronColor(const global::ValueType value) {
 	return newColor;
 }
 
-void DummyLayer::renderNeuron(const int index) {
+void DummyLayer::renderNeuron(sf::RenderTexture &target, const int index) {
 	sf::RectangleShape shape({NEURON_WIDTH, NEURON_WIDTH});
 	shape.setFillColor(getNeuronColor(values[index]));
-	shape.setPosition(cacheNeurons[index].position);
+	shape.setPosition(cacheNeurons[index].position + pos);
 
 	std::ostringstream ss;
 	ss << std::fixed << std::setprecision(4) << values[index];
@@ -90,20 +78,20 @@ void DummyLayer::renderNeuron(const int index) {
 	sf::FloatRect textBounds = text.getLocalBounds();
 	text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
 	                textBounds.position.y + textBounds.size.y / 2.0f});
-	text.setPosition({cacheNeurons[index].position.x + cacheNeurons[index].size.x / 2.0f, cacheNeurons[index].position.y + cacheNeurons[index].size.y / 2.0f});
+	text.setPosition(sf::Vector2f(cacheNeurons[index].position.x + cacheNeurons[index].size.x / 2.0f, cacheNeurons[index].position.y + cacheNeurons[index].size.y / 2.0f) + pos);
 
-	layerRender.draw(shape);
-	layerRender.draw(text);
+	target.draw(shape);
+	target.draw(text);
 }
 
 ModelPanel::ModelPanel(const std::shared_ptr<StateManager> state_)
     : Panel(state_),
-      predictionLayer(state_->config.networkConfig.outputSize(), state_),
-      inputLayer(state_->config.networkConfig.inputSize(), state_),
+      predictionLayer(state_->config.networkConfig.outputSize(), {MODEL_WIDTH - NEURON_WIDTH, 0}),
+      inputLayer(state_->config.networkConfig.inputSize()),
       modelRender({MODEL_WIDTH, MODEL_HEIGHT}) {
 }
 
-sf::Sprite ModelPanel::getSprite() {
+sf::Sprite ModelPanel::getSprite() const {
 	return sf::Sprite(modelRender.getTexture());
 }
 
@@ -118,15 +106,8 @@ void ModelPanel::display() {
 void ModelPanel::doRender() {
 	clear();
 
-	inputLayer.render();
-	sf::Sprite input = inputLayer.getSprite();
-	input.setPosition({0, 0});
-	modelRender.draw(input);
-
-	predictionLayer.render();
-	sf::Sprite prediction = predictionLayer.getSprite();
-	prediction.setPosition({MODEL_WIDTH - NEURON_WIDTH, 0});
-	modelRender.draw(prediction);
+	inputLayer.draw(modelRender);
+	predictionLayer.draw(modelRender);
 
 	renderSubNetworks();
 
@@ -167,6 +148,6 @@ void ModelPanel::setInput(const global::ParamMetrix &input) {
 }
 
 void ModelPanel::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
-    subNetworks.push_back(newVisual);
+	subNetworks.push_back(newVisual);
 }
 } // namespace nn::visualizer
