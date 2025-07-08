@@ -8,9 +8,9 @@
 	},
 	"training config": {
 		"batch_size": 8,
-		"batch_count": 100000,
+		"batch_count": 10000,
 		"db_filename": "../tests/data/database-binary_test",
-		"lr_init_value": 0.01
+		"lr_init_value": 0.1
 	},
 	"network config": [
 		{

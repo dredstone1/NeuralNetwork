@@ -1,5 +1,6 @@
 #include "model.hpp"
 #include "FNNetwork.hpp"
+#include "Globals.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <cstdint>
@@ -148,15 +149,15 @@ void Model::train() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
 	visual.updateLearningRate(learningRate);
 
-	for (int loop_index = 0; loop_index < config.trainingConfig.batch_count + 1; ++loop_index) {
-		visual.updateBatchCounter(loop_index);
+	for (int i = 0; i < config.trainingConfig.batch_count + 1; ++i) {
+		visual.updateBatchCounter(i);
 
 		Batch &batch = dataBase.getBatch();
 		error = run_back_propagation(batch);
 
-		visual.updateError(error, loop_index);
+		visual.updateError(error, i);
 
-		print_progress_bar(loop_index + 1, config.trainingConfig.batch_count);
+		print_progress_bar(i + 1, config.trainingConfig.batch_count);
 
 		visual.updateLearningRate(learningRate);
 		if (visual.exitTraining() == true) {

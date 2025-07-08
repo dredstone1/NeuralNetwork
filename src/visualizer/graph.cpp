@@ -1,7 +1,5 @@
 #include "graph.hpp"
 #include "fonts.hpp"
-#include <SFML/Window/Keyboard.hpp>
-#include <algorithm>
 
 namespace nn::visualizer {
 GraphUIPanel::GraphUIPanel(const std::shared_ptr<StateManager> vstate_)
@@ -77,17 +75,6 @@ void GraphUIPanel::clear() {
 	Vgraph.clear(GRAPH_BG);
 }
 
-int GraphUIPanel::getHighest() {
-	int max = 0;
-	for (size_t i = 0; i < resolution(); ++i) {
-		if (data[i] > data[max]) {
-			i = max;
-		}
-	}
-
-	return max;
-}
-
 float GraphUIPanel::getHeight(const float value) {
 	return GRAPH_HEIGHT - std::max(1.0, value * graphAlpha);
 }
@@ -97,9 +84,7 @@ float GraphUIPanel::getHeight(const int index) {
 }
 
 sf::Vector2f GraphUIPanel::getPosition(const int index) {
-	return sf::Vector2f(
-	    index * dataGapWidth(),
-	    getHeight(index));
+	return sf::Vector2f(index * dataGapWidth(), getHeight(index));
 }
 
 void GraphUIPanel::renderDot(const int index) {
@@ -126,21 +111,21 @@ std::uint32_t GraphUIPanel::resolution() {
 	return std::min(GRAPH_RESOLUTION, (std::uint32_t)vstate->config.trainingConfig.batch_count) - 1;
 }
 
-int GraphUIPanel::data_gaps() {
+int GraphUIPanel::dataGaps() {
 	return vstate->config.trainingConfig.batch_count / resolution();
 }
 
 int GraphUIPanel::newDataPlace(const int index) {
-	if (data_gaps() == 0) {
+	if (dataGaps() == 0) {
 		return 0;
 	}
 
-	return std::floor((index - 1) / data_gaps());
+	return std::floor((index - 1) / dataGaps());
 }
 
 void GraphUIPanel::addData(const global::ValueType new_data, const int index) {
-
-	data[newDataPlace(index)] += (new_data / data_gaps());
+	data[newDataPlace(index)] += new_data / dataGaps();
 	setUpdate();
 }
+
 } // namespace nn::visualizer

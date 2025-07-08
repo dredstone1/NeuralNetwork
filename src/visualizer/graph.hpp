@@ -22,22 +22,22 @@ constexpr sf::Color GRAPH_BG = PANELS_BG;
 
 class GraphUIPanel : public Panel {
   private:
-	std::array<global::ValueType, GRAPH_RESOLUTION> data;
+	std::array<global::ValueType, GRAPH_RESOLUTION> data{0};
 	sf::RenderTexture VRender;
 	sf::RenderTexture Vgraph;
 	double graphAlpha;
 
+	float getMaxValue();
 	void display();
 	void clear();
 	void renderGraph();
 	void renderVerticalNumbers();
 	void doRender() override;
 
-	inline int data_gaps();
+	inline int dataGaps();
 	int newDataPlace(const int index);
 	void renderDot(const int index);
-	int getHighest();
-	sf::Vector2f getPosition(const int index);
+	inline sf::Vector2f getPosition(const int index);
 	float getHeight(const int index);
 	float getHeight(const float index);
 	float getValueFromHeight(const float height);
