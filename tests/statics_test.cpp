@@ -65,13 +65,10 @@ int main(int argc, char *argv[]) {
 
 		std::cout << "binary: " << binary << std::endl;
 
-		nn::global::ParamMetrix input(2, 0.1);
+		nn::global::ParamMetrix input(2, 0);
 
 		for (size_t i = 2; i > 0; i--) {
 			input[i - 1] = bit_by_index(num1, 2 - i);
-			if (input[i - 1] == 0) {
-				input[i - 1] = 0.5;
-			}
 		}
 
 		printVector(input);
