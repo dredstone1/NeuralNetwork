@@ -7,8 +7,6 @@
 #include "config.hpp"
 
 namespace nn::model {
-constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
-
 class DenseLayer {
   protected:
 	Neurons dots;
@@ -82,9 +80,6 @@ class Output_Layer : public DenseLayer {
 	const FNNConfig &config;
 
 	global::ParamMetrix getDelta(const global::ParamMetrix &output);
-	static global::ValueType getCrossEntropyLoss(
-	    const global::ParamMetrix &prediction,
-	    const global::Predictions &targets);
 
   public:
 	Output_Layer(const FNNConfig &_config, const int _prev_size, const bool randomInit = false)

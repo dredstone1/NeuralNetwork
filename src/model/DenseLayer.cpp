@@ -1,6 +1,7 @@
 #include "DenseLayer.hpp"
 #include "Globals.hpp"
 #include "LayerParameters.hpp"
+#include "activations.hpp"
 
 namespace nn::model {
 DenseLayer::DenseLayer(const int size, const int prevSize, const bool randomInit)
@@ -48,20 +49,8 @@ void Output_Layer::backward(
 	}
 }
 
-global::ValueType Output_Layer::getCrossEntropyLoss(
-    const global::ParamMetrix &prediction,
-    const global::Predictions &targets) {
-	global::ValueType totalLoss = 0.0;
-
-	for (size_t i = 0; i < prediction.size(); ++i) {
-		totalLoss -= targets[i] * std::log(std::max(prediction[i], MIN_LOSS_VALUE));
-	}
-
-	return totalLoss / prediction.size();
-}
-
 global::ValueType Output_Layer::getLoss(const global::Predictions &targets) {
-	return getCrossEntropyLoss(getOut(), targets);
+    return loss::rootMeanSquaredError(getOut(), targets);
 }
 
 global::ValueType Hidden_Layer::getLoss(const global::Predictions &) { return 0; }

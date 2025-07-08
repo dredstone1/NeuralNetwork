@@ -92,4 +92,52 @@ global::ValueType Activation::derivativeTanh(const global::ValueType z) {
 	global::ValueType t = std::tanh(z);
 	return 1.0 - t * t;
 }
+
+namespace loss {
+global::ValueType meanSquaredError(
+    const global::ParamMetrix &prediction,
+    const global::Predictions &target) {
+
+	global::ValueType total = 0.0;
+	for (size_t i = 0; i < prediction.size(); ++i) {
+		const global::ValueType diff = prediction[i] - target[i];
+		total += diff * diff;
+	}
+
+	return total / prediction.size();
+}
+
+global::ValueType rootMeanSquaredError(
+    const global::ParamMetrix &prediction,
+    const global::Predictions &target) {
+
+	return std::sqrt(meanSquaredError(prediction, target));
+}
+
+global::ValueType sumSquaredError(
+    const global::ParamMetrix &prediction,
+    const global::Predictions &target) {
+
+	global::ValueType total = 0.0;
+	for (size_t i = 0; i < prediction.size(); ++i) {
+		const global::ValueType diff = prediction[i] - target[i];
+		total += diff * diff;
+	}
+
+	return total;
+}
+
+global::ValueType meanAbsoluteError(
+    const global::ParamMetrix &prediction,
+    const global::Predictions &target) {
+
+	global::ValueType total = 0.0;
+	for (size_t i = 0; i < prediction.size(); ++i) {
+		total += std::abs(prediction[i] - target[i]);
+	}
+
+	return total / prediction.size();
+}
+} // namespace loss
+
 } // namespace nn::model
