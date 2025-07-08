@@ -18,7 +18,7 @@
 			"input size": 2,
 			"output size": 2,
 			"layers": [
-				{ "size": 8, "activationType": 2 }
+				{ "size": 8, "activationType": 1 }
 			]
 		}
 	]

@@ -33,7 +33,7 @@ TrainSample DataBase::readLine(const std::string &line) {
 				iss >> token;
 			}
 
-			new_sample.output[i] = std::stod(token);
+			new_sample.output[i] = std::stof(token);
 		}
 	}
 

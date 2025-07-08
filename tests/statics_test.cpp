@@ -67,16 +67,8 @@ int main(int argc, char *argv[]) {
 
 		nn::global::ParamMetrix input(2, 0.1);
 
-		std::cout << "Enter an integer 2: ";
-		std::getline(std::cin, str_num);
-		if (!isNumber(str_num)) {
-			std::cout << str_num << " is not a number, please enter a valid integer" << std::endl;
-			continue;
-		}
-		num2 = std::stoi(str_num);
-
-		for (size_t i = 4 + num2; i > num2; i--) {
-			input[i - 1] = bit_by_index(num1, 4 - i + num2);
+		for (size_t i = 2; i > 0; i--) {
+			input[i - 1] = bit_by_index(num1, 2 - i);
 			if (input[i - 1] == 0) {
 				input[i - 1] = 0.5;
 			}
