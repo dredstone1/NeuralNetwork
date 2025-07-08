@@ -136,7 +136,7 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 	          << minutes << " minutes "
 	          << seconds << " seconds" << " ("
 	          << time_taken_milliseconds << " ms)" << "\n"
-	          << "final_score: " << error << "\n";
+	          << "final score: " << error << "\n";
 }
 
 void Model::train() {
