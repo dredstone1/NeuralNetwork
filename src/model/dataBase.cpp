@@ -70,6 +70,8 @@ int DataBase::load() {
 		return 1;
 	}
 
+	std::cout << "Start loading data base" << std::endl;
+
 	std::string line;
 	getline(file, line);
 	getDataBaseStatus(line);
