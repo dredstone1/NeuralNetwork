@@ -7,6 +7,8 @@
 #include <random>
 
 namespace nn::model {
+const std::string DATABASE_FILE_EXETENTION = ".nndb";
+
 struct TrainSample {
 	global::Predictions output;
 	global::ParamMetrix input;

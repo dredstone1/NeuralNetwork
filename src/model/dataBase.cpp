@@ -64,7 +64,7 @@ void DataBase::getDataBaseStatus(const std::string &line) {
 }
 
 int DataBase::load() {
-	std::ifstream file(config.db_filename + ".txt");
+	std::ifstream file(config.db_filename + DATABASE_FILE_EXETENTION);
 	if (!file.is_open()) {
 		std::cout << "File not found: " << config.db_filename << std::endl;
 		return 1;
