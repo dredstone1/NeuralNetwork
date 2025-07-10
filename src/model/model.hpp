@@ -51,6 +51,9 @@ class Model {
 	int outputSize();
 	int inputSize();
 
+    void save(const std::string &file);
+    void load(const std::string &file);
+
 	const global::ParamMetrix &getOutput() const;
 };
 } // namespace nn::model

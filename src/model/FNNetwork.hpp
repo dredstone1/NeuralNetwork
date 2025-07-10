@@ -40,6 +40,9 @@ class FNNetwork : public INetwork {
 	const global::ParamMetrix &getInput() const override;
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
+
+    global::ParamMetrix getParams() const override;
+    void setParams(const global::ParamMetrix params) override;
 };
 } // namespace nn::model
 

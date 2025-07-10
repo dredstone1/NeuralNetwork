@@ -50,7 +50,7 @@ void Output_Layer::backward(
 }
 
 global::ValueType Output_Layer::getLoss(const global::Predictions &targets) {
-    return loss::rootMeanSquaredError(getOut(), targets);
+	return loss::rootMeanSquaredError(getOut(), targets);
 }
 
 global::ValueType Hidden_Layer::getLoss(const global::Predictions &) { return 0; }
@@ -103,5 +103,43 @@ void Hidden_Layer::backward(
 void DenseLayer::updateWeight(const global::ValueType learningRate) {
 	gradients.multiply(-learningRate);
 	parameters.add(gradients);
+}
+
+const global::ParamMetrix DenseLayer::getData() const {
+	global::ParamMetrix matrix(getSize() * getPrevSize() + getSize(), 0);
+
+	int currentI = 0;
+	for (size_t i = 0; i < getSize(); ++i) {
+		for (size_t j = 0; j < getPrevSize(); ++j) {
+			matrix[currentI] = parameters.weights[i][j];
+
+			currentI++;
+		}
+	}
+
+	for (size_t i = 0; i < getSize(); ++i) {
+		matrix[currentI] = parameters.bias[i];
+
+		currentI++;
+	}
+
+	return matrix;
+}
+
+void DenseLayer::setData(const global::ParamMetrix newParam) {
+	int currentI = 0;
+	for (size_t i = 0; i < getSize(); ++i) {
+		for (size_t j = 0; j < getPrevSize(); ++j) {
+			parameters.weights[i][j] = newParam[currentI];
+
+			currentI++;
+		}
+	}
+
+	for (size_t i = 0; i < getSize(); ++i) {
+		parameters.bias[i] = newParam[currentI];
+
+		currentI++;
+	}
 }
 } // namespace nn::model

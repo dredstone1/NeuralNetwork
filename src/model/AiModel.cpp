@@ -24,4 +24,12 @@ global::FinalPrediction AiModel::getPrediction() {
 
 	return {max, model->getOutput()[max]};
 }
+
+void AiModel::save(const std::string &file) {
+	model->save(file);
+}
+
+void AiModel::load(const std::string &file) {
+	model->load(file);
+}
 } // namespace nn

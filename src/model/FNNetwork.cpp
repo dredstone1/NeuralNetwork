@@ -108,4 +108,33 @@ void FNNetwork::calculateInputDelta(const global::ParamMetrix &deltas) {
 		}
 	}
 }
+
+global::ParamMetrix FNNetwork::getParams() const {
+	global::ParamMetrix matrix;
+
+	for (size_t i = 0; i < layers.size(); ++i) {
+		global::ParamMetrix params = layers[i]->getData();
+
+		matrix.insert(matrix.end(), params.begin(), params.end());
+	}
+
+	return matrix;
+}
+
+void FNNetwork::setParams(const global::ParamMetrix params) {
+	global::ParamMetrix matrix;
+
+	int j = 0;
+	for (size_t i = 0; i < layers.size(); ++i) {
+		global::ParamMetrix newParam(layers[i]->getSize() * layers[i]->getPrevSize() + layers[i]->getSize());
+
+		for (size_t k = 0; k < newParam.size(); ++k) {
+			newParam[k] = params[j];
+
+			j++;
+		}
+
+		layers[i]->setData(newParam);
+	}
+}
 } // namespace nn::model

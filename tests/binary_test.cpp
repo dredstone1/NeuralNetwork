@@ -71,22 +71,28 @@ void printVector(const nn::global::ParamMetrix &vec) {
 
 int main(int argc, char *argv[]) {
 	int input_size = 10;
-	// print_database(4, input_size, 1000);
 
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
-
 	nn::AiModel model(config_FN);
 
-
-	model.train();
+	if (argc > 1 && std::string(argv[1]) == "l") {
+		std::cout << "Loading model from file...\n";
+		model.load("test.txt");
+	} else {
+		std::cout << "Training model...\n";
+		model.train();
+		std::cout << "Saving model to file...\n";
+		model.save("test.txt");
+	}
 
 	int num1 = 0, num2 = 0;
 	std::string str_num;
+
 	while (num1 != -1) {
 		std::cout << "Enter an integer 1: ";
 		std::getline(std::cin, str_num);
 		if (!isNumber(str_num)) {
-			std::cout << str_num << " is not a number, please enter a valid integer" << std::endl;
+			std::cout << str_num << " is not a number, please enter a valid integer\n";
 			continue;
 		}
 		num1 = std::stoi(str_num);
@@ -95,7 +101,6 @@ int main(int argc, char *argv[]) {
 			break;
 
 		int binary = int_to_binary(num1);
-
 		std::cout << "binary: " << binary << std::endl;
 
 		nn::global::ParamMetrix input(input_size, 0.1);
@@ -103,13 +108,13 @@ int main(int argc, char *argv[]) {
 		std::cout << "Enter an integer 2: ";
 		std::getline(std::cin, str_num);
 		if (!isNumber(str_num)) {
-			std::cout << str_num << " is not a number, please enter a valid integer" << std::endl;
+			std::cout << str_num << " is not a number, please enter a valid integer\n";
 			continue;
 		}
 		num2 = std::stoi(str_num);
 
 		for (size_t i = 4 + num2; i > num2; i--) {
-			input[i - 1] = bit_by_index(num1, 4 - i+num2);
+			input[i - 1] = bit_by_index(num1, 4 - i + num2);
 			if (input[i - 1] == 0) {
 				input[i - 1] = 0.5;
 			}

@@ -3,8 +3,10 @@
 #include "Globals.hpp"
 #include <cmath>
 #include <cstdint>
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <string>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
@@ -193,5 +195,43 @@ void Model::updateWeights(const global::ValueType learningRate) {
 	}
 
 	visual.setNewPhaseMode(visualizer::NnMode::Forword);
+}
+
+void Model::save(const std::string &file) {
+	std::ofstream outFile(file);
+
+	for (size_t i = 0; i < network.size(); ++i) {
+		global::ParamMetrix params = network[i]->getParams();
+
+		for (size_t j = 0; j < params.size(); ++j) {
+			outFile << params[j] << " ";
+		}
+
+		outFile << std::endl;
+	}
+
+	outFile.close();
+}
+
+void Model::load(const std::string &file) {
+	std::ifstream inFile(file);
+
+	std::string line;
+	int networkI = 0;
+	while (std::getline(inFile, line)) {
+		std::istringstream iss(line);
+		global::ParamMetrix numbers;
+		float num;
+
+		while (iss >> num) {
+			numbers.push_back(num);
+		}
+
+		network[networkI]->setParams(numbers);
+
+		networkI++;
+	}
+
+	inFile.close();
 }
 } // namespace nn::model

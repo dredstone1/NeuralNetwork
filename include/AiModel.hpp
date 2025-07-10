@@ -10,11 +10,14 @@ class AiModel {
 	std::unique_ptr<model::Model> model;
 
   public:
-	AiModel(const std::string &config_file);
+	AiModel(const std::string &configNile);
 	~AiModel() = default;
 
 	void runModel(const global::ParamMetrix &input);
 	void train();
+
+    void save(const std::string &file);
+    void load(const std::string &file);
 
 	global::FinalPrediction getPrediction();
 };

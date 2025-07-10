@@ -39,6 +39,9 @@ class DenseLayer {
 	void resetGradient() { gradients.reset(); }
 	void addParams(const LayerParameters &gradients) { parameters.add(gradients); }
 	void setParams(const LayerParameters &gradients) { parameters.set(gradients); }
+
+	const global::ParamMetrix getData() const;
+	void setData(const global::ParamMetrix newParam);
 };
 
 class Hidden_Layer : public DenseLayer {
