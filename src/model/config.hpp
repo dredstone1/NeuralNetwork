@@ -3,6 +3,7 @@
 
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
+#include <string>
 
 namespace nn::model {
 
@@ -51,6 +52,8 @@ struct TrainingConfig {
 	size_t batch_size;
 	int batch_count;
 	std::string db_filename;
+    int save_every = 0;
+    std::string data_filename_autoSave = "model.txt";
 	global::ValueType lr_init_value = 0.001;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -58,6 +61,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     batch_size,
     batch_count,
     db_filename,
+    save_every,
     lr_init_value);
 
 struct VisualMode {

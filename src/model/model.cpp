@@ -3,6 +3,7 @@
 #include "Globals.hpp"
 #include <cmath>
 #include <cstdint>
+#include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -156,6 +157,10 @@ void Model::train() {
 		Batch &batch = dataBase.getBatch();
 		error = run_back_propagation(batch);
 
+		if (config.trainingConfig.save_every > 0 && i % config.trainingConfig.save_every == 0) {
+			save(config.trainingConfig.data_filename_autoSave);
+		}
+
 		visual.updateError(error, i);
 
 		print_progress_bar(i + 1, config.trainingConfig.batch_count);
@@ -198,6 +203,8 @@ void Model::updateWeights(const global::ValueType learningRate) {
 }
 
 void Model::save(const std::string &file) {
+	std::cout << "saving into: " << file << std::endl;
+
 	std::ofstream outFile(file);
 
 	for (size_t i = 0; i < network.size(); ++i) {
@@ -214,6 +221,8 @@ void Model::save(const std::string &file) {
 }
 
 void Model::load(const std::string &file) {
+	std::cout << "loading from: " << file << std::endl;
+
 	std::ifstream inFile(file);
 
 	std::string line;
