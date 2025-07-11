@@ -1,10 +1,6 @@
 #include "visualModel.hpp"
 #include "FnnVisualizer.hpp"
-#include "Globals.hpp"
-#include "IvisualNetwork.hpp"
 #include "fonts.hpp"
-#include <SFML/Graphics/RenderTexture.hpp>
-#include <SFML/System/Vector2.hpp>
 
 namespace nn::visualizer {
 DummyLayer::DummyLayer(const int size_, const sf::Vector2f pos_)

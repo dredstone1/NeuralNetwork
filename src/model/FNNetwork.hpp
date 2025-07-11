@@ -3,9 +3,7 @@
 
 #include "../visualizer/FnnVisualizer.hpp"
 #include "DenseLayer.hpp"
-#include "Globals.hpp"
 #include "INetwork.hpp"
-#include <memory>
 
 namespace nn::model {
 class FNNetwork : public INetwork {

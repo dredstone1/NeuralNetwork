@@ -1,5 +1,4 @@
 #include "LayerParameters.hpp"
-#include "Globals.hpp"
 #include <random>
 
 namespace nn::model {

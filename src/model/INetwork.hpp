@@ -2,8 +2,6 @@
 #define INETWORK
 
 #include "../visualizer/IvisualNetwork.hpp"
-#include <Globals.hpp>
-#include <memory>
 
 namespace nn::model {
 class INetwork {

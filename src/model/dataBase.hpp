@@ -2,8 +2,6 @@
 #define DATABASE
 
 #include "config.hpp"
-#include <Globals.hpp>
-#include <memory>
 #include <random>
 
 namespace nn::model {

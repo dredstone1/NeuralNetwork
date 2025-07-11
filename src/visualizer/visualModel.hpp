@@ -1,11 +1,8 @@
 #ifndef VISUALMODEL
 #define VISUALMODEL
 
-#include "Globals.hpp"
 #include "IvisualNetwork.hpp"
-#include "panel.hpp"
 #include <SFML/Graphics.hpp>
-#include <SFML/System/Vector2.hpp>
 
 namespace nn::visualizer {
 
@@ -16,7 +13,7 @@ struct neuronValues {
 
 class DummyLayer {
   private:
-	 sf::Vector2f pos;
+	sf::Vector2f pos;
 
 	void clear();
 	void display();
@@ -28,7 +25,7 @@ class DummyLayer {
 
 	void renderNeuron(sf::RenderTexture &target, const int index);
 
-    void doCacheNeurons();
+	void doCacheNeurons();
 
 	sf::RenderTexture layerRender;
 	std::vector<sf::FloatRect> cacheNeurons;

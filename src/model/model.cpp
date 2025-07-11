@@ -1,13 +1,7 @@
 #include "model.hpp"
 #include "FNNetwork.hpp"
-#include "Globals.hpp"
-#include <cmath>
-#include <cstdint>
-#include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
-#include <memory>
-#include <string>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)

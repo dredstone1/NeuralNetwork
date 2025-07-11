@@ -1,7 +1,5 @@
 #include "DenseLayer.hpp"
-#include "Globals.hpp"
 #include "LayerParameters.hpp"
-#include "activations.hpp"
 
 namespace nn::model {
 DenseLayer::DenseLayer(const int size, const int prevSize, const bool randomInit)

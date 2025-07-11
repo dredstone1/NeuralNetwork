@@ -1,7 +1,6 @@
 #include "config.hpp"
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 namespace nn::model {
 Config::Config(const std::string &config_filepath) {
