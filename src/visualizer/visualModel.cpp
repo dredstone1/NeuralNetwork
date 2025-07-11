@@ -1,6 +1,7 @@
 #include "visualModel.hpp"
 #include "FnnVisualizer.hpp"
 #include "Globals.hpp"
+#include "IvisualNetwork.hpp"
 #include "fonts.hpp"
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -19,11 +20,14 @@ void DummyLayer::createVLayer() {
 	float neuron_width_scaled = NEURON_WIDTH * scale;
 
 	float gap = calculateGap(size(), neuron_width_scaled);
+	float x = pos.x + NEURON_WIDTH - neuron_width_scaled;
 
 	for (int neuron = 0; neuron < size(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
-		cacheNeurons[neuron] = sf::FloatRect({0, y}, {neuron_width_scaled, neuron_width_scaled});
+		cacheNeurons[neuron] = sf::FloatRect(sf::Vector2f(x, y), {neuron_width_scaled, neuron_width_scaled});
 	}
+
+	pos.x = pos.x - x;
 }
 
 void DummyLayer::clear() {
@@ -64,7 +68,7 @@ sf::Color DummyLayer::getNeuronColor(const global::ValueType value) {
 }
 
 void DummyLayer::renderNeuron(sf::RenderTexture &target, const int index) {
-	sf::RectangleShape shape({NEURON_WIDTH, NEURON_WIDTH});
+	sf::RectangleShape shape(cacheNeurons[index].size);
 	shape.setFillColor(getNeuronColor(values[index]));
 	shape.setPosition(cacheNeurons[index].position + pos);
 

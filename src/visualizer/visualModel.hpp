@@ -16,17 +16,19 @@ struct neuronValues {
 
 class DummyLayer {
   private:
+	 sf::Vector2f pos;
+
 	void clear();
 	void display();
 	void createVLayer();
-
-	const sf::Vector2f pos;
 
 	static float getScaleFactor(const std::size_t neuron_count);
 	static float calculateGap(const int size, const float scale);
 	static sf::Color getNeuronColor(const global::ValueType value);
 
 	void renderNeuron(sf::RenderTexture &target, const int index);
+
+    void doCacheNeurons();
 
 	sf::RenderTexture layerRender;
 	std::vector<sf::FloatRect> cacheNeurons;
