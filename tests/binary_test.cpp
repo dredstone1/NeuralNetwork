@@ -56,7 +56,7 @@ void print_database(int actual_size, int input_size, int database_size) {
 
 					std::cout << (bit ? 1 : 0.5) << " ";
 				}
-			}
+		}
 			std::cout << std::endl;
 			++count;
 		}
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
 
 		printVector(input);
 		model.runModel(input);
-		printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
+		printf("prediction: %zu, %f\n", model.getPrediction().index, model.getPrediction().value);
 	}
 
 	return 0;

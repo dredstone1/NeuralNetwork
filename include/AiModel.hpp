@@ -20,7 +20,7 @@ class AiModel {
 	void save(const std::string &file);
 	void load(const std::string &file);
 
-	global::FinalPrediction getPrediction();
+	global::Prediction getPrediction();
 };
 } // namespace nn
 

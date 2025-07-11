@@ -16,7 +16,7 @@ class INetwork {
 	virtual int outputSize() const = 0;
 	virtual int inputSize() const = 0;
 
-	virtual global::ValueType getLoss(const global::Predictions &index) const = 0;
+	virtual global::ValueType getLoss(const global::Prediction &index) const = 0;
 	virtual const global::ParamMetrix &getOutput() const = 0;
 	virtual const global::ParamMetrix &getNet() const = 0;
 	virtual const global::ParamMetrix &getInput() const = 0;

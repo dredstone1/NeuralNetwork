@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 			input[0] = num1;
 			input[1] = num2;
 			model.runModel(input);
-			printf("prediction: %d, %f\n", model.getPrediction().index, model.getPrediction().value);
+			printf("prediction: %zu, %f\n", model.getPrediction().index, model.getPrediction().value);
 		}
 
 		return 0;

@@ -43,25 +43,6 @@ class Activation {
 	static void softmax(Neurons &metrix);
 };
 
-namespace loss {
-constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
-
-global::ValueType meanSquaredError(
-    const global::ParamMetrix &prediction,
-    const global::Predictions &target);
-
-global::ValueType rootMeanSquaredError(
-    const global::ParamMetrix &prediction,
-    const global::Predictions &target);
-
-global::ValueType sumSquaredError(
-    const global::ParamMetrix &prediction,
-    const global::Predictions &target);
-
-global::ValueType meanAbsoluteError(
-    const global::ParamMetrix &prediction,
-    const global::Predictions &target);
-} // namespace loss
 } // namespace nn::model
 
 #endif // ACTIVATIONS

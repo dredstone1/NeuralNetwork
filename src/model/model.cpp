@@ -82,16 +82,17 @@ global::ValueType Model::run_back_propagation(const Batch &batch, const bool doB
 	resetNetworkGradient();
 	for (size_t i = 0; i < batch.size(); ++i) {
 		auto current_sample_ptr = batch.samples.at(i);
-		visual.updatePrediction(current_sample_ptr->output);
+		visual.updatePrediction(current_sample_ptr->pre);
 		runModel(current_sample_ptr->input);
-		global::ParamMetrix output = current_sample_ptr->output;
+		global::ParamMetrix output(outputSize());
+		output[current_sample_ptr->pre.index] = 1;
 
 		if (doBackward) {
 			Backward(output);
 			update_weights(batch.size());
 		}
 
-		error += getLoss(output);
+		error += getLoss(current_sample_ptr->pre);
 	}
 
 	return error / batch.size();
@@ -175,17 +176,6 @@ void Model::train(const std::string &db_filename) {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
 }
 
-bool Model::isPredictionEqual(const global::ParamMetrix &pre1, const global::ParamMetrix &pre2) {
-	if (pre1.empty() || pre2.empty() || pre1.size() != pre2.size())
-		return false;
-
-	auto argmax = [](const global::ParamMetrix &v) {
-		return std::distance(v.begin(), std::max_element(v.begin(), v.end()));
-	};
-
-	return argmax(pre1) == argmax(pre2);
-}
-
 modelResult Model::evaluateModel(const std::string &db_filename) {
 	modelResult result;
 	DataBase dataBase(config.trainingConfig);
@@ -195,17 +185,21 @@ modelResult Model::evaluateModel(const std::string &db_filename) {
 	dataBase.load(db_filename);
 	result.dbSize = dataBase.DataBaseLength();
 
-	for (size_t i = 0; i < dataBase.DataBaseLength(); ++i) {
+	for (int i = 0; i < result.dbSize; ++i) {
 		TrainSample &sample = dataBase.getSample(i);
 		runModel(sample.input);
 
-		print_progress_bar(i + 1, dataBase.DataBaseLength());
-		if (isPredictionEqual(sample.output, getOutput())) {
+		size_t predicted_index = std::distance(
+			getOutput().begin(), 
+			std::max_element(getOutput().begin(), getOutput().end())
+		);
+
+		if (predicted_index == sample.pre.index) {
 			result.currectPreSize++;
 		}
 	}
 
-	result.percentage = (result.dbSize / 100.f) * result.currectPreSize;
+	result.percentage = (static_cast<float>(result.currectPreSize) / result.dbSize) * 100.f;
 
 	return result;
 }
@@ -214,7 +208,7 @@ const global::ParamMetrix &Model::getOutput() const {
 	return network[network.size() - 1]->getOutput();
 }
 
-global::ValueType Model::getLoss(const global::Predictions &pre) {
+global::ValueType Model::getLoss(const global::Prediction &pre) {
 	return network[network.size() - 1]->getLoss(pre);
 }
 

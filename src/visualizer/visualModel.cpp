@@ -1,6 +1,8 @@
 #include "visualModel.hpp"
 #include "FnnVisualizer.hpp"
+#include "Globals.hpp"
 #include "fonts.hpp"
+#include <vector>
 
 namespace nn::visualizer {
 DummyLayer::DummyLayer(const int size_, const sf::Vector2f pos_)
@@ -134,8 +136,10 @@ void ModelPanel::renderSubNetwork(const int index) {
 	modelRender.draw(sub);
 }
 
-void ModelPanel::setPrediction(const global::Predictions &pre) {
-	predictionLayer.setValues(pre);
+void ModelPanel::setPrediction(const global::Prediction &pre) {
+	global::ParamMetrix output(predictionLayer.size(), 0);
+    output[pre.index] = 1;
+	predictionLayer.setValues(output);
 
 	setUpdate();
 }

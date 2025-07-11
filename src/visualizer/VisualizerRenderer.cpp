@@ -134,7 +134,7 @@ void VisualRender::setNewPhaseMode(const NnMode nn_mode) {
 	Vstate->nnMode.store(nn_mode);
 }
 
-void VisualRender::updatePrediction(const global::Predictions &pre) {
+void VisualRender::updatePrediction(const global::Prediction &pre) {
 	visualModel.setPrediction(pre);
 }
 

@@ -32,10 +32,8 @@ class Model {
 	void Backward(const global::ParamMetrix &output);
 	void update_weights(const int batch_size);
 
-	bool isPredictionEqual(const global::ParamMetrix &pre1, const global::ParamMetrix &pre2);
-
 	void resetNetworkGradient();
-	global::ValueType getLoss(const global::Predictions &pre);
+	global::ValueType getLoss(const global::Prediction &pre);
 
 	global::ValueType run_back_propagation(const Batch &batch, const bool updateWeights);
 

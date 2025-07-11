@@ -65,7 +65,7 @@ void FNNetwork::backward(const global::ParamMetrix &outputDeltas) {
 	calculateInputDelta(deltas);
 }
 
-global::ValueType FNNetwork::getLoss(const global::ParamMetrix &pre) const {
+global::ValueType FNNetwork::getLoss(const global::Prediction &pre) const {
 	return layers[layers.size() - 1]->getLoss(pre);
 }
 

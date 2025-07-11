@@ -42,7 +42,7 @@ class VisualManager {
 
 	bool exitTraining();
 
-	void updatePrediction(const global::Predictions &pre);
+	void updatePrediction(const global::Prediction &pre);
 	void updateInput(const global::ParamMetrix &input);
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);

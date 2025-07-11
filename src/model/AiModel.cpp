@@ -14,7 +14,7 @@ void AiModel::train(const std::string &db_filename) {
 	model->train(db_filename);
 }
 
-global::FinalPrediction AiModel::getPrediction() {
+global::Prediction AiModel::getPrediction() {
 	int max = 0;
 
 	for (int i = 1; i < (int)model->outputSize(); ++i) {

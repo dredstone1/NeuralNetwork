@@ -1,6 +1,7 @@
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
+#include <string>
 
 namespace nn::model {
 DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
@@ -19,18 +20,8 @@ TrainSample DataBase::readLine(const std::string &line) {
 
 	TrainSample new_sample(samples->sOutputSize, samples->sInputSize);
 
-	if (samples->sMode == SamplesMode::classification) {
-		int class_index = static_cast<int>(std::stod(token));
-		new_sample.output[class_index] = 1.0;
-	} else {
-		for (int i = 0; i < samples->sOutputSize; ++i) {
-			if (i > 0) {
-				iss >> token;
-			}
 
-			new_sample.output[i] = std::stof(token);
-		}
-	}
+	new_sample.pre.index = std::stoull(token);
 
 	for (int i = 0; i < samples->sInputSize; ++i) {
 		iss >> token;

@@ -47,11 +47,15 @@ void Output_Layer::backward(
 	}
 }
 
-global::ValueType Output_Layer::getLoss(const global::Predictions &targets) {
-	return loss::rootMeanSquaredError(getOut(), targets);
+global::ValueType Output_Layer::getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target) {
+	return -std::log(std::max(prediction[target], MIN_LOSS_VALUE));
 }
 
-global::ValueType Hidden_Layer::getLoss(const global::Predictions &) { return 0; }
+global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
+	return getCrossEntropyLoss(getOut(), targets.index);
+}
+
+global::ValueType Hidden_Layer::getLoss(const global::Prediction &) { return 0; }
 
 void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 	for (size_t i = 0; i < dots.size(); ++i) {

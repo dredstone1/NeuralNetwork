@@ -7,7 +7,6 @@
 namespace tests {
 constexpr std::string_view DATA_PATH = "../tests/data/";
 
-// This is the correct, idiomatic, and high-performance way.
 inline std::string appendToBase(std::string_view suffix) {
 	std::string result;
 	result.reserve(DATA_PATH.size() + suffix.size());

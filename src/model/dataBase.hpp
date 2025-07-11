@@ -8,14 +8,14 @@ namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";
 
 struct TrainSample {
-	global::Predictions output;
+	global::Prediction pre;
 	global::ParamMetrix input;
 
 	TrainSample(const int sampleOutputSize, const int sampleInputSize)
-	    : output(sampleOutputSize, 0),
+	    : pre(sampleOutputSize, 0),
 	      input(sampleInputSize, 0) {}
 	TrainSample()
-	    : output(0, 0),
+	    : pre(0, 0),
 	      input(0) {}
 };
 
