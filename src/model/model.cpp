@@ -71,7 +71,7 @@ void Model::Backward(const global::ParamMetrix &output) {
 	}
 }
 
-global::ValueType Model::run_back_propagation(const Batch &batch) {
+global::ValueType Model::run_back_propagation(const Batch &batch, const bool doBackward) {
 	global::ValueType error = 0.0;
 
 	if (batch.size() == 0) {
@@ -85,10 +85,12 @@ global::ValueType Model::run_back_propagation(const Batch &batch) {
 		runModel(current_sample_ptr->input);
 		global::ParamMetrix output = current_sample_ptr->output;
 
-		Backward(output);
-		error += getLoss(output);
+		if (doBackward) {
+			Backward(output);
+			update_weights(batch.size());
+		}
 
-		update_weights(batch.size());
+		error += getLoss(output);
 	}
 
 	return error / batch.size();
@@ -135,7 +137,7 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 	          << "final score: " << error << "\n";
 }
 
-void Model::train(const std::string &db_filename) {
+void Model::train(const std::string &db_filename, const bool doBackward) {
 	std::cout << "Training AI" << std::endl;
 
 	DataBase dataBase(config.trainingConfig);
@@ -151,7 +153,7 @@ void Model::train(const std::string &db_filename) {
 		visual.updateBatchCounter(i);
 
 		Batch &batch = dataBase.getBatch();
-		error = run_back_propagation(batch);
+		error = run_back_propagation(batch, doBackward);
 
 		if (config.trainingConfig.save_every > 0 && i % config.trainingConfig.save_every == 0) {
 			save(config.trainingConfig.data_filename_autoSave);

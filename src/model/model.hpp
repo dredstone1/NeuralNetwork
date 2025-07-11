@@ -28,7 +28,7 @@ class Model {
 	void resetNetworkGradient();
 	global::ValueType getLoss(const global::Predictions &pre);
 
-	global::ValueType run_back_propagation(const Batch &batch);
+	global::ValueType run_back_propagation(const Batch &batch, const bool updateWeights);
 
 	void print_progress_bar(const int current, const int total);
 	void printTrainingResult(
@@ -43,7 +43,9 @@ class Model {
 	~Model() = default;
 
 	void runModel(const global::ParamMetrix &input);
-	void train(const std::string &db_filename);
+	void train(
+            const std::string &db_filename,
+            const bool doBackward = true);
 
 	void updateWeights(const global::ValueType learningRate);
 
