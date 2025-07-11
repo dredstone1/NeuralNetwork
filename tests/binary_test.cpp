@@ -21,12 +21,14 @@ int bit_by_index(int binary, int index) {
 }
 
 bool isNumber(const std::string &s) {
-	if (s.empty())
+	if (s.empty()) {
 		return false;
+	}
 
 	for (char c : s) {
-		if (!std::isdigit(c))
+		if (!std::isdigit(c)) {
 			return false;
+		}
 	}
 
 	return true;
@@ -97,8 +99,9 @@ int main(int argc, char *argv[]) {
 		}
 		num1 = std::stoi(str_num);
 
-		if (num1 == -1)
+		if (num1 == -1) {
 			break;
+        }
 
 		int binary = int_to_binary(num1);
 		std::cout << "binary: " << binary << std::endl;
