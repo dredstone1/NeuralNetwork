@@ -1,4 +1,5 @@
 #include "AiModel.hpp"
+#include "model.hpp"
 
 namespace nn {
 AiModel::AiModel(const std::string &config_file) {
@@ -27,6 +28,10 @@ global::FinalPrediction AiModel::getPrediction() {
 
 void AiModel::save(const std::string &file) {
 	model->save(file);
+}
+
+model::modelResult AiModel::evaluateModel(const std::string &db_filename) {
+	return model->evaluateModel(db_filename);
 }
 
 void AiModel::load(const std::string &file) {

@@ -83,6 +83,8 @@ int main(int argc, char *argv[]) {
 	} else {
 		std::cout << "Training model...\n";
 		model.train("../tests/data/database-binary_test");
+		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");
+		std::cout << "training result: " << result.percentage << "%\n"; 
 		std::cout << "Saving model to file...\n";
 		model.save("test.txt");
 	}

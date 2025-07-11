@@ -1,5 +1,6 @@
 #include "model.hpp"
 #include "FNNetwork.hpp"
+#include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -137,7 +138,7 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 	          << "final score: " << error << "\n";
 }
 
-void Model::train(const std::string &db_filename, const bool doBackward) {
+void Model::train(const std::string &db_filename) {
 	std::cout << "Training AI" << std::endl;
 
 	DataBase dataBase(config.trainingConfig);
@@ -153,7 +154,7 @@ void Model::train(const std::string &db_filename, const bool doBackward) {
 		visual.updateBatchCounter(i);
 
 		Batch &batch = dataBase.getBatch();
-		error = run_back_propagation(batch, doBackward);
+		error = run_back_propagation(batch, true);
 
 		if (config.trainingConfig.save_every > 0 && i % config.trainingConfig.save_every == 0) {
 			save(config.trainingConfig.data_filename_autoSave);
@@ -172,6 +173,41 @@ void Model::train(const std::string &db_filename, const bool doBackward) {
 	printTrainingResult(start, error);
 
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
+}
+
+bool Model::isPredictionEqual(const global::ParamMetrix &pre1, const global::ParamMetrix &pre2) {
+	if (pre1.empty() || pre2.empty() || pre1.size() != pre2.size())
+		return false;
+
+	auto argmax = [](const global::ParamMetrix &v) {
+		return std::distance(v.begin(), std::max_element(v.begin(), v.end()));
+	};
+
+	return argmax(pre1) == argmax(pre2);
+}
+
+modelResult Model::evaluateModel(const std::string &db_filename) {
+	modelResult result;
+	DataBase dataBase(config.trainingConfig);
+
+	std::cout << "Evaluating AI" << std::endl;
+
+	dataBase.load(db_filename);
+	result.dbSize = dataBase.DataBaseLength();
+
+	for (size_t i = 0; i < dataBase.DataBaseLength(); ++i) {
+		TrainSample &sample = dataBase.getSample(i);
+		runModel(sample.input);
+
+		print_progress_bar(i + 1, dataBase.DataBaseLength());
+		if (isPredictionEqual(sample.output, getOutput())) {
+			result.currectPreSize++;
+		}
+	}
+
+	result.percentage = (result.dbSize / 100.f) * result.currectPreSize;
+
+	return result;
 }
 
 const global::ParamMetrix &Model::getOutput() const {

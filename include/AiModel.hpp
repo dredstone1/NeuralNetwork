@@ -15,9 +15,10 @@ class AiModel {
 
 	void runModel(const global::ParamMetrix &input);
 	void train(const std::string &db_filename);
+    model::modelResult evaluateModel(const std::string &db_filename);
 
-    void save(const std::string &file);
-    void load(const std::string &file);
+	void save(const std::string &file);
+	void load(const std::string &file);
 
 	global::FinalPrediction getPrediction();
 };

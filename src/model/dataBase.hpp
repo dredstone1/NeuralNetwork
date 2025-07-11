@@ -78,6 +78,7 @@ class DataBase {
 	~DataBase() = default;
 
 	int load(const std::string &db_filename);
+	TrainSample &getSample(const int i) { return samples->samples[i]; }
 
 	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
 	Batch &getBatch();
