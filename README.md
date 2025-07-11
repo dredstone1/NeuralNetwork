@@ -10,6 +10,7 @@ A work-in-progress C++ neural network library designed for building, training, a
 - **📦 CMake Ready**: Seamless build system integration  
 - **🎯 Research Focused**: Designed with experimentation and learning in mind  
 - **🧠 Integrated Visualizer**: Real-time graphical display of layers, neurons, and activations. ideal for debugging, teaching, or showcasing model behavior
+- **💾 Parameter Persistence**: Save and load trained model parameters for reuse, testing, or deployment
 
 ## 🏗️ Quick Start
 
