@@ -190,16 +190,15 @@ modelResult Model::evaluateModel(const std::string &db_filename) {
 		runModel(sample.input);
 
 		size_t predicted_index = std::distance(
-			getOutput().begin(), 
-			std::max_element(getOutput().begin(), getOutput().end())
-		);
+		    getOutput().begin(),
+		    std::max_element(getOutput().begin(), getOutput().end()));
 
 		if (predicted_index == sample.pre.index) {
 			result.currectPreSize++;
 		}
 	}
 
-	result.percentage = (static_cast<float>(result.currectPreSize) / result.dbSize) * 100.f;
+	result.percentage = 100.f * ((float)result.currectPreSize / result.dbSize);
 
 	return result;
 }
