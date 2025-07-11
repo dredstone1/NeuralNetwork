@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 		model.load("test.txt");
 	} else {
 		std::cout << "Training model...\n";
-		model.train();
+		model.train("../tests/data/database-binary_test");
 		std::cout << "Saving model to file...\n";
 		model.save("test.txt");
 	}

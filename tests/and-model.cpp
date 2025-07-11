@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 		nn::AiModel model(config_FN);
 
 		if (mods & train) {
-			model.train();
+			model.train("database1");
 		}
 
 		int num1 = 0, num2 = 0;

@@ -15,7 +15,6 @@
 		},
 		"batch_size": 8,
 		"batch_count": 100000,
-		"db_filename": "database1",
 		"noise_level": 0.1,
 		"drop_out_rate": 0
 	},

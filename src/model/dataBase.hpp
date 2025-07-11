@@ -71,12 +71,13 @@ class DataBase {
 
 	void getDataBaseStatus(const std::string &line);
 	TrainSample readLine(const std::string &line);
-	int load();
 	void generateBatches();
 
   public:
 	DataBase(const TrainingConfig &config);
 	~DataBase() = default;
+
+	int load(const std::string &db_filename);
 
 	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
 	Batch &getBatch();

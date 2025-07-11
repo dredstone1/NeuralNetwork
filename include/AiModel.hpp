@@ -14,7 +14,7 @@ class AiModel {
 	~AiModel() = default;
 
 	void runModel(const global::ParamMetrix &input);
-	void train();
+	void train(const std::string &db_filename);
 
     void save(const std::string &file);
     void load(const std::string &file);

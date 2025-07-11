@@ -9,8 +9,8 @@ void AiModel::runModel(const global::ParamMetrix &input) {
 	model->runModel(input);
 }
 
-void AiModel::train() {
-	model->train();
+void AiModel::train(const std::string &db_filename) {
+	model->train(db_filename);
 }
 
 global::FinalPrediction AiModel::getPrediction() {

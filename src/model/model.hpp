@@ -17,7 +17,6 @@ class Model {
 	visualizer::VisualManager visual;
 
 	global::ValueType learningRate;
-	DataBase dataBase;
 
 	int lastProgress{-1};
 
@@ -44,7 +43,7 @@ class Model {
 	~Model() = default;
 
 	void runModel(const global::ParamMetrix &input);
-	void train();
+	void train(const std::string &db_filename);
 
 	void updateWeights(const global::ValueType learningRate);
 

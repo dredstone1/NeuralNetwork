@@ -7,8 +7,7 @@ namespace nn::model {
 Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       visual(config),
-      learningRate(config.trainingConfig.lr_init_value),
-      dataBase(config.trainingConfig) {
+      learningRate(config.trainingConfig.lr_init_value) {
 	initModel();
 	initVisual();
 }
@@ -136,8 +135,11 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 	          << "final score: " << error << "\n";
 }
 
-void Model::train() {
+void Model::train(const std::string &db_filename) {
 	std::cout << "Training AI" << std::endl;
+
+	DataBase dataBase(config.trainingConfig);
+	dataBase.load(db_filename);
 
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
@@ -197,8 +199,6 @@ void Model::updateWeights(const global::ValueType learningRate) {
 }
 
 void Model::save(const std::string &file) {
-	std::cout << "saving into: " << file << std::endl;
-
 	std::ofstream outFile(file);
 
 	for (size_t i = 0; i < network.size(); ++i) {
@@ -215,8 +215,6 @@ void Model::save(const std::string &file) {
 }
 
 void Model::load(const std::string &file) {
-	std::cout << "loading from: " << file << std::endl;
-
 	std::ifstream inFile(file);
 
 	std::string line;

@@ -6,11 +6,6 @@ namespace nn::model {
 DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
 	std::random_device rd;
 	rng = std::mt19937(std::random_device{}());
-
-	load();
-	shuffled_indices.resize(samples->size());
-	iota(shuffled_indices.begin(), shuffled_indices.end(), 0);
-	generateBatches();
 }
 
 TrainSample DataBase::readLine(const std::string &line) {
@@ -63,8 +58,8 @@ void DataBase::getDataBaseStatus(const std::string &line) {
 	    dataBaseSize);
 }
 
-int DataBase::load() {
-	std::ifstream file(config.db_filename + DATABASE_FILE_EXETENTION);
+int DataBase::load(const std::string &db_filename) {
+	std::ifstream file(db_filename + DATABASE_FILE_EXETENTION);
 	if (!file.is_open()) {
 		std::cout << "File not found: " << config.db_filename << std::endl;
 		return 1;
@@ -98,6 +93,9 @@ int DataBase::load() {
 	}
 	file.close();
 
+	shuffled_indices.resize(samples->size());
+	iota(shuffled_indices.begin(), shuffled_indices.end(), 0);
+	generateBatches();
 	return 0;
 }
 
