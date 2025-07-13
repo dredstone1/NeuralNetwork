@@ -1,6 +1,6 @@
 #include "DenseLayer.hpp"
 
-namespace nn::model {
+namespace nn::model::fnn {
 DenseLayer::DenseLayer(const int size, const int prevSize, const bool randomInit)
     : dots(size),
       parameters(size, prevSize),
@@ -155,4 +155,4 @@ Neurons::Neurons(const int size) {
 	out.resize(size, 0.0);
 	net.resize(size, 0.0);
 }
-} // namespace nn::model
+} // namespace nn::model::fnn

@@ -3,9 +3,9 @@
 
 #include "FnnVisualizer.hpp"
 #include "DenseLayer.hpp"
-#include "../INetwork.hpp"
+#include <network/INetwork.hpp>
 
-namespace nn::model {
+namespace nn::model::fnn {
 class FNNetwork : public INetwork {
   private:
 	const FNNConfig &config;
@@ -14,13 +14,13 @@ class FNNetwork : public INetwork {
 
     void calculateInputDelta(const global::ParamMetrix &deltas);
 
-	const std::shared_ptr<visualizer::FnnVisualier> visual;
+	const std::shared_ptr<visualizer::fnn::FnnVisualier> visual;
 
   public:
 	FNNetwork(
 	    const FNNConfig &_config,
 	    const bool randomInit,
-	    const std::shared_ptr<visualizer::FnnVisualier> visual_);
+	    const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_);
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &newInput) override;

@@ -2,7 +2,7 @@
 #define VISUALIZERCONTROLLER
 
 #include "Globals.hpp"
-#include "../networks/IvisualNetwork.hpp"
+#include <network/IvisualNetwork.hpp>
 #include "VisualizerRenderer.hpp"
 #include <memory>
 #include <thread>

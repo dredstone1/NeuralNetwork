@@ -1,24 +1,28 @@
 #ifndef IVISUALNETWORK
 #define IVISUALNETWORK
 
-#include "../visualizer/panel.hpp"
+#include "../src/visualizer/panel.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace nn::visualizer {
 constexpr std::uint32_t MODEL_HEIGHT = 770u;
 constexpr std::uint32_t MODEL_WIDTH = 1055u;
-constexpr std::uint32_t NEURON_WIDTH = 40;
-constexpr float SUB_NETWORKS_WIDTH = MODEL_WIDTH - NEURON_WIDTH * 2;
-
+constexpr float SUB_NETWORKS_WIDTH = MODEL_WIDTH - global::NEURON_WIDTH * 2;
 
 constexpr sf::Color MODEL_BG = PANELS_BG;
 
 class IVisualNetwork : public Panel {
   private:
-	void clear();
-	void display();
+	void clear() { networkRender.clear(MODEL_BG); }
+	void display() { networkRender.display(); }
 
-	void doRender() override;
+	void doRender() override {
+		clear();
+
+		renderNetwork();
+
+		display();
+	}
 
   protected:
 	const float visualWidth;
@@ -29,7 +33,10 @@ class IVisualNetwork : public Panel {
   public:
 	IVisualNetwork(
 	    const std::shared_ptr<StateManager> state_,
-	    const std::uint32_t width);
+	    const std::uint32_t width)
+	    : Panel(state_),
+	      visualWidth(width),
+	      networkRender({width, MODEL_HEIGHT}) {}
 	virtual ~IVisualNetwork() = default;
 
 	sf::Sprite getSprite() { return sf::Sprite(networkRender.getTexture()); }

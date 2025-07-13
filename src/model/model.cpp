@@ -33,9 +33,9 @@ void Model::initModel() {
 
 		if (_config->NNLable() == "FNN") {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
-			std::shared_ptr<visualizer::FnnVisualier> visual_ = std::make_shared<visualizer::FnnVisualier>(visual.Vstate, width, sub_);
+			std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = std::make_shared<visualizer::fnn::FnnVisualier>(visual.Vstate, width, sub_);
 
-			network.push_back(std::make_unique<FNNetwork>(sub_, true, visual_));
+			network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
 		}
 	}
 }
@@ -162,9 +162,10 @@ void Model::train(const std::string &db_filename) {
 	DataBase trainedDataBase(config.trainingConfig);
 	DataBase evaluateDataBase(config.trainingConfig);
 
+	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
+
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
-	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 
 	if (config.trainingConfig.isAutoEvaluating()) {
 		evaluateDataBase.load(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
@@ -309,5 +310,13 @@ void Model::load(const std::string &file) {
 	}
 
 	inFile.close();
+}
+
+ProgressBar ProgressBar::operator++(int) {
+	ProgressBar temp = *this;
+	++current;
+	if (current > total)
+		current = total;
+	return temp;
 }
 } // namespace nn::model

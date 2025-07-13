@@ -4,7 +4,7 @@
 #include "../../model/LayerParameters.hpp"
 #include "../../model/config.hpp"
 
-namespace nn::model {
+namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
 struct Neurons {

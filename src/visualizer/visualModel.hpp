@@ -1,7 +1,7 @@
 #ifndef VISUALMODEL
 #define VISUALMODEL
 
-#include "../networks/IvisualNetwork.hpp"
+#include <network/IvisualNetwork.hpp>
 
 namespace nn::visualizer {
 

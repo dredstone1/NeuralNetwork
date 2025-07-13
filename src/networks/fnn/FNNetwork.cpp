@@ -1,10 +1,10 @@
 #include "FNNetwork.hpp"
 
-namespace nn::model {
+namespace nn::model::fnn {
 FNNetwork::FNNetwork(
     const FNNConfig &_config,
     const bool randomInit,
-    const std::shared_ptr<visualizer::FnnVisualier> visual_)
+    const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_)
     : config(_config),
       input(_config.getInputSize(), 0.0),
       visual(visual_) {

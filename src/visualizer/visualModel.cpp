@@ -6,7 +6,7 @@
 namespace nn::visualizer {
 DummyLayer::DummyLayer(const int size_, const sf::Vector2f pos_)
     : pos(pos_),
-      layerRender({NEURON_WIDTH, MODEL_HEIGHT}),
+      layerRender({global::NEURON_WIDTH, MODEL_HEIGHT}),
       cacheNeurons(size_),
       values(size_, 0) {
 	createVLayer();
@@ -14,10 +14,10 @@ DummyLayer::DummyLayer(const int size_, const sf::Vector2f pos_)
 
 void DummyLayer::createVLayer() {
 	float scale = getScaleFactor(size());
-	float neuron_width_scaled = NEURON_WIDTH * scale;
+	float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
 	float gap = calculateGap(size(), neuron_width_scaled);
-	float x = pos.x + NEURON_WIDTH - neuron_width_scaled;
+	float x = pos.x + global::NEURON_WIDTH - neuron_width_scaled;
 
 	for (int neuron = 0; neuron < size(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
@@ -46,12 +46,12 @@ void DummyLayer::draw(sf::RenderTexture &target) {
 }
 
 float DummyLayer::getScaleFactor(std::size_t neuron_count) {
-	float maxNeuronSpace = MODEL_HEIGHT - (neuron_count)*MIN_GAP;
+	float maxNeuronSpace = MODEL_HEIGHT - (neuron_count)*global::MIN_GAP;
 
 	float neuronWidth = maxNeuronSpace / std::max<float>(neuron_count, 1);
-	neuronWidth = std::clamp(neuronWidth, MIN_NEURON_WIDTH, MAX_NEURON_WIDTH);
+	neuronWidth = std::clamp(neuronWidth, global::MIN_NEURON_WIDTH, global::MAX_NEURON_WIDTH);
 
-	return neuronWidth / MAX_NEURON_WIDTH;
+	return neuronWidth / global::MAX_NEURON_WIDTH;
 }
 
 float DummyLayer::calculateGap(const int size, const float scale) {
@@ -59,7 +59,7 @@ float DummyLayer::calculateGap(const int size, const float scale) {
 }
 
 sf::Color DummyLayer::getNeuronColor(const global::ValueType value) {
-	sf::Color newColor = NEURON_BG_COLOR;
+	sf::Color newColor = fnn::NEURON_BG_COLOR;
 	newColor.b *= value;
 	return newColor;
 }
@@ -73,9 +73,9 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const int index) {
 	ss << std::fixed << std::setprecision(4) << values[index];
 
 	sf::Text text(Fonts::getFont());
-	text.setCharacterSize(10 * cacheNeurons[index].size.y / NEURON_WIDTH);
+	text.setCharacterSize(10 * cacheNeurons[index].size.y / global::NEURON_WIDTH);
 	text.setString(ss.str());
-	text.setFillColor(NEURON_TEXT_COLOR);
+	text.setFillColor(fnn::NEURON_TEXT_COLOR);
 
 	sf::FloatRect textBounds = text.getLocalBounds();
 	text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
@@ -88,7 +88,7 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const int index) {
 
 ModelPanel::ModelPanel(const std::shared_ptr<StateManager> state_)
     : Panel(state_),
-      predictionLayer(state_->config.networkConfig.outputSize(), {MODEL_WIDTH - NEURON_WIDTH, 0}),
+      predictionLayer(state_->config.networkConfig.outputSize(), {MODEL_WIDTH - global::NEURON_WIDTH, 0}),
       inputLayer(state_->config.networkConfig.inputSize()),
       modelRender({MODEL_WIDTH, MODEL_HEIGHT}) {
 }
@@ -130,7 +130,7 @@ void ModelPanel::renderSubNetwork(const int index) {
 	subNetworks[index]->render();
 
 	sf::Sprite sub = subNetworks[index]->getSprite();
-	sub.setPosition({NEURON_WIDTH + getSubNetworkOffset(index), 0});
+	sub.setPosition({global::NEURON_WIDTH + getSubNetworkOffset(index), 0});
 
 	modelRender.draw(sub);
 }

@@ -1,8 +1,8 @@
 #ifndef MODEL
 #define MODEL
 
+#include <network/INetwork.hpp>
 #include "../visualizer/VisualizerController.hpp"
-#include "../networks/INetwork.hpp"
 #include "dataBase.hpp"
 
 namespace nn::model {
@@ -20,9 +20,10 @@ struct modelResult {
 
 class ProgressBar {
 	const int total;
+	const std::string header;
+
 	int current;
 	int last_percentage{-1};
-	const std::string header;
 
   public:
 	ProgressBar(const int total_, const std::string header_)
@@ -31,16 +32,8 @@ class ProgressBar {
 	~ProgressBar() = default;
 
 	void printBar();
-	int getCurrent() const { return current; }
-	int getTotal() const { return total; }
 
-	ProgressBar operator++(int) {
-		ProgressBar temp = *this;
-		++current;
-		if (current > total)
-			current = total;
-		return temp;
-	}
+	ProgressBar operator++(int);
 };
 
 class Model {
@@ -74,7 +67,7 @@ class Model {
 	modelResult evaluateModel(
 	    DataBase &dataBase,
 	    const bool cancleOnError = false,
-        const bool showProgressbar = true);
+	    const bool showProgressbar = true);
 
   public:
 	Model(const std::string &config_filepath);

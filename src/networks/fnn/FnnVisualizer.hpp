@@ -2,14 +2,9 @@
 #define FNNVISUALNETWORK
 
 #include "DenseLayer.hpp"
-#include "../IvisualNetwork.hpp"
+#include <network/IvisualNetwork.hpp>
 
-namespace nn::visualizer {
-
-constexpr float MIN_NEURON_WIDTH = 6.0f;
-constexpr float MAX_NEURON_WIDTH = NEURON_WIDTH;
-constexpr float MIN_GAP = 2.0f;
-
+namespace nn::visualizer::fnn {
 constexpr sf::Color NEURON_TEXT_COLOR(255, 255, 255);
 constexpr sf::Color NEURON_BG_COLOR(0, 0, 100);
 
@@ -33,7 +28,7 @@ static const std::array<sf::Color, 3> color_lookup = {
 
 class VisualDenseLayer {
   private:
-	const model::Neurons &dots;
+	const model::fnn::Neurons &dots;
 	const model::LayerParameters &parameters;
 	const model::LayerParameters &gradients;
 
@@ -63,7 +58,7 @@ class VisualDenseLayer {
   public:
 	VisualDenseLayer(
 	    const std::uint32_t width,
-	    const model::Neurons &dots,
+	    const model::fnn::Neurons &dots,
 	    const model::LayerParameters &parameters,
 	    const model::LayerParameters &gradients,
 	    const sf::Vector2f pos);
@@ -91,7 +86,7 @@ class FnnVisualier : public IVisualNetwork {
 
 	void initLayer(
 	    const int index,
-	    const model::Neurons &dots,
+	    const model::fnn::Neurons &dots,
 	    const model::LayerParameters &parameters,
 	    const model::LayerParameters &gradients);
 };

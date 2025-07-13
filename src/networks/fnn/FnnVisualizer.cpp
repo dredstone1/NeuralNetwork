@@ -1,7 +1,7 @@
 #include "FnnVisualizer.hpp"
 #include "../../visualizer/fonts.hpp"
 
-namespace nn::visualizer {
+namespace nn::visualizer::fnn {
 FnnVisualier::FnnVisualier(
     const std::shared_ptr<StateManager> state_,
     const std::uint32_t width,
@@ -30,7 +30,7 @@ void FnnVisualier::renderLayer(const int index) {
 
 void FnnVisualier::initLayer(
     const int index,
-    const model::Neurons &dots,
+    const model::fnn::Neurons &dots,
     const model::LayerParameters &parameters,
     const model::LayerParameters &gradients) {
 	float _width = visualWidth / Layers.size();
@@ -40,7 +40,7 @@ void FnnVisualier::initLayer(
 
 VisualDenseLayer::VisualDenseLayer(
     const std::uint32_t _width,
-    const model::Neurons &_dots,
+    const model::fnn::Neurons &_dots,
     const model::LayerParameters &_parameters,
     const model::LayerParameters &_gradients,
     const sf::Vector2f _pos)
@@ -57,7 +57,7 @@ VisualDenseLayer::VisualDenseLayer(
 
 void VisualDenseLayer::doCacheWeights() {
 	float scale = getScaleFactor(parameters.getPrevSize());
-	float neuron_width_scaled = NEURON_WIDTH * scale;
+	float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
 	float gap = calculateGap(parameters.getPrevSize(), neuron_width_scaled);
 	float x = pos.x;
@@ -70,7 +70,7 @@ void VisualDenseLayer::doCacheWeights() {
 
 void VisualDenseLayer::doCacheNeurons() {
 	float scale = getScaleFactor(dots.size());
-	float neuron_width_scaled = NEURON_WIDTH * scale;
+	float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
 	float gap = calculateGap(dots.size(), neuron_width_scaled);
 	float x = pos.x + width - neuron_width_scaled;
@@ -82,12 +82,12 @@ void VisualDenseLayer::doCacheNeurons() {
 }
 
 float VisualDenseLayer::getScaleFactor(std::size_t neuron_count) {
-	float maxNeuronSpace = MODEL_HEIGHT - (neuron_count)*MIN_GAP;
+	float maxNeuronSpace = MODEL_HEIGHT - (neuron_count)*global::MIN_GAP;
 
 	float neuronWidth = maxNeuronSpace / std::max<float>(neuron_count, 1);
-	neuronWidth = std::clamp(neuronWidth, MIN_NEURON_WIDTH, MAX_NEURON_WIDTH);
+	neuronWidth = std::clamp(neuronWidth, global::MIN_NEURON_WIDTH, global::MAX_NEURON_WIDTH);
 
-	return neuronWidth / MAX_NEURON_WIDTH;
+	return neuronWidth / global::MAX_NEURON_WIDTH;
 }
 
 sf::Vector2f VisualDenseLayer::getCenter(const sf::FloatRect &rect) {
@@ -130,7 +130,7 @@ void VisualDenseLayer::drawNeuron(const sf::FloatRect &rect, const double input,
 	   << output;
 
 	sf::Text text(Fonts::getFont());
-	text.setCharacterSize(10 * rect.size.y / NEURON_WIDTH);
+	text.setCharacterSize(10 * rect.size.y / global::NEURON_WIDTH);
 	text.setString(ss.str());
 	text.setFillColor(NEURON_TEXT_COLOR);
 
@@ -186,4 +186,4 @@ textType VisualDenseLayer::getTextT(const int layer_i, const int layer_p) {
 
 	return textType::NORMAL;
 }
-} // namespace nn::visualizer
+} // namespace nn::visualizer::fnn
