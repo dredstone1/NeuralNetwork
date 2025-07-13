@@ -8,7 +8,7 @@ namespace nn::model {
 Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       visual(config),
-      learningRate(config.trainingConfig.lr_init_value) {
+      learningRate(config.trainingConfig.getLearningRate()) {
 	initModel();
 	initVisual();
 }
@@ -99,7 +99,8 @@ global::ValueType Model::runBackPropagation(const Batch &batch, const bool doBac
 }
 
 void ProgressBar::printBar() {
-    if (total == 0) return;
+	if (total == 0)
+		return;
 
 	const int percentage = 100 * current / total;
 	if (percentage == last_percentage)
@@ -161,7 +162,7 @@ void Model::train(const std::string &db_filename) {
 	DataBase dataBase(config.trainingConfig);
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
-	ProgressBar bar(config.trainingConfig.batch_count, TRAINING_HEADER);
+	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 
 	std::cout << "Training AI" << std::endl;
 
@@ -170,14 +171,14 @@ void Model::train(const std::string &db_filename) {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
 	visual.updateLearningRate(learningRate);
 
-	for (int i = 0; i < config.trainingConfig.batch_count + 1; ++i) {
+	for (int i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
 		visual.updateBatchCounter(i);
 
 		Batch &batch = dataBase.getBatch();
 		error = runBackPropagation(batch, true);
 
-		if (config.trainingConfig.save_every > 0 && i % config.trainingConfig.save_every == 0) {
-			save(config.trainingConfig.data_filename_autoSave);
+		if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
+			save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
 		}
 
 		visual.updateError(error, i);

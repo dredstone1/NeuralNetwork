@@ -2,6 +2,7 @@
 #define CONFIG
 
 #include "activations.hpp"
+#include <memory>
 #include <nlohmann/json.hpp>
 
 namespace nn::model {
@@ -47,20 +48,45 @@ class NetworkConfig {
 	void fromJson(const nlohmann::json &j);
 };
 
-struct TrainingConfig {
-	size_t batch_size;
-	int batch_count;
-	std::string db_filename;
-    int save_every = 0;
-    std::string data_filename_autoSave = "model.txt";
-	global::ValueType lr_init_value = 0.001;
+struct AutoSave {
+	int saveEvery{-1};
+	std::string dataFilenameAutoSave{"model.txt"};
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    TrainingConfig,
-    batch_size,
-    batch_count,
-    save_every,
-    lr_init_value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoSave, saveEvery, dataFilenameAutoSave);
+
+struct AutoEvaluating {
+	int evaluateEvery{-1};
+	std::string dataBaseFilename{"dataBase"};
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoEvaluating, evaluateEvery, dataBaseFilename);
+
+class TrainingConfig {
+  private:
+	AutoSave autoSave;
+	AutoEvaluating autoEvaluating;
+
+	size_t batchSize;
+	int batchCount;
+
+	global::ValueType learningRate = 0.001;
+
+  public:
+	TrainingConfig() {}
+	~TrainingConfig() = default;
+
+	void fromJson(const nlohmann::json &j);
+
+	bool isAutoSave() const { return (autoSave.saveEvery > 0); }
+	 const AutoSave &getAutoSave() const { return autoSave; }
+
+	bool isAutoEvaluating() const { return (autoEvaluating.evaluateEvery > 0); }
+	const AutoEvaluating &getAutoEvaluating() const { return autoEvaluating; }
+
+	int getBatchCount() const { return batchCount; }
+	size_t getBatchSize() const { return batchSize; }
+
+	global::ValueType getLearningRate() const { return learningRate; }
+};
 
 struct VisualMode {
 	std::string state;

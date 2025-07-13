@@ -52,7 +52,7 @@ void DataBase::getDataBaseStatus(const std::string &line) {
 int DataBase::load(const std::string &db_filename) {
 	std::ifstream file(db_filename + DATABASE_FILE_EXETENTION);
 	if (!file.is_open()) {
-		std::cout << "File not found: " << config.db_filename << std::endl;
+		std::cout << "File not found: " << db_filename << std::endl;
 		return 1;
 	}
 
@@ -78,7 +78,7 @@ int DataBase::load(const std::string &db_filename) {
 	}
 
 	std::cout << "Loaded " << (samples ? samples->size() : 0) << " samples." << "\n";
-	if (config.batch_size > samples->size()) {
+	if (config.getBatchSize() > samples->size()) {
 		std::cout << "batch size too big" << "\n";
 		return 1;
 	}
@@ -94,11 +94,11 @@ void DataBase::generateBatches() {
 	shuffle(shuffled_indices.begin(), shuffled_indices.end(), rng);
 
 	batches.clear();
-	size_t num_batches_expected = (samples->size() + config.batch_size - 1) / config.batch_size;
+	size_t num_batches_expected = (samples->size() + config.getBatchSize() - 1) / config.getBatchSize();
 	batches.reserve(num_batches_expected);
 
-	for (size_t i = 0; i < samples->size(); i += config.batch_size) {
-		size_t current_batch_actual_size = std::min((size_t)config.batch_size, samples->size() - i);
+	for (size_t i = 0; i < samples->size(); i += config.getBatchSize()) {
+		size_t current_batch_actual_size = std::min((size_t)config.getBatchSize(), samples->size() - i);
 
 		if (current_batch_actual_size == 0)
 			break;

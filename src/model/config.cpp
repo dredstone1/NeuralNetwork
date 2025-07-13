@@ -14,8 +14,9 @@ Config::Config(const std::string &config_filepath) {
 	try {
 		ifs >> j;
 
+		trainingConfig.fromJson(j.at("training config"));
+
 		visualConfig = j.at("visual config").get<VisualConfig>();
-		trainingConfig = j.at("training config").get<TrainingConfig>();
 
 		networkConfig.fromJson(j.at("network config"));
 	} catch (const nlohmann::json::parse_error &e) {
@@ -55,5 +56,18 @@ int NetworkConfig::inputSize() const {
 
 int NetworkConfig::outputSize() const {
 	return SubNetworksConfig[SubNetworksConfig.size() - 1]->getOutputSize();
+}
+
+void TrainingConfig::fromJson(const nlohmann::json &j) {
+	batchCount = j.at("batch count");
+	batchSize = j.at("batch size");
+	learningRate = j.at("learning rate");
+
+	if (j.contains("auto save")) {
+		autoSave = j.at("auto save").get<AutoSave>();
+	}
+	if (j.contains("auto evaluating")) {
+		autoEvaluating = j.at("auto evaluating").get<AutoEvaluating>();
+	}
 }
 } // namespace nn::model
