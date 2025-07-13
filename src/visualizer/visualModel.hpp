@@ -2,7 +2,6 @@
 #define VISUALMODEL
 
 #include "IvisualNetwork.hpp"
-#include <SFML/Graphics.hpp>
 
 namespace nn::visualizer {
 

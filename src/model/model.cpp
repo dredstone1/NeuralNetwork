@@ -140,13 +140,13 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 }
 
 void Model::train(const std::string &db_filename) {
-	std::cout << "Training AI" << std::endl;
-
 	DataBase dataBase(config.trainingConfig);
-	dataBase.load(db_filename);
-
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
+
+	std::cout << "Training AI" << std::endl;
+
+	dataBase.load(db_filename);
 
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
 	visual.updateLearningRate(learningRate);
@@ -198,7 +198,7 @@ modelResult Model::evaluateModel(const std::string &db_filename) {
 		}
 	}
 
-	result.percentage = 100.f * ((float)result.currectPreSize / result.dbSize);
+	result.percentage = 100.f * result.currectPreSize / result.dbSize;
 
 	return result;
 }
