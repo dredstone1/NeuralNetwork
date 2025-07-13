@@ -2,9 +2,8 @@
 #define MODEL
 
 #include "../visualizer/VisualizerController.hpp"
-#include "INetwork.hpp"
+#include "../networks/INetwork.hpp"
 #include "dataBase.hpp"
-#include <SFML/Window/Keyboard.hpp>
 
 namespace nn::model {
 constexpr int BAR_WIDTH = 100;
@@ -56,7 +55,7 @@ class Model {
 	void Forword(const global::ParamMetrix &input, const int modelIndex);
 
 	void Backward(const global::ParamMetrix &output);
-	void update_weights(const int batch_size);
+	void updateWeights(const int batch_size);
 
 	void resetNetworkGradient();
 	global::ValueType getLoss(const global::Prediction &pre);
@@ -85,8 +84,6 @@ class Model {
 	modelResult evaluateModel(
 	    const std::string &db_filename,
 	    const bool cancleOnError = false);
-
-	void updateWeights(const global::ValueType learningRate);
 
 	int outputSize();
 	int inputSize();

@@ -42,24 +42,24 @@ global::ValueType Activation::maxVector(const global::ParamMetrix &metrix) {
 	return max;
 }
 
-void Activation::softmax(Neurons &metrix) {
-	global::ValueType max = maxVector(metrix.net);
+void Activation::softmax(const global::ParamMetrix &net, global::ParamMetrix &out) {
+	global::ValueType max = maxVector(net);
 	global::ValueType sum = 0.0;
 
-	for (size_t i = 0; i < metrix.size(); ++i) {
-		global::ValueType x = metrix.net[i] - max;
+	for (size_t i = 0; i < net.size(); ++i) {
+		global::ValueType x = net[i] - max;
 		if (x < -700.0)
 			x = -700.0;
 		if (x > 700.0)
 			x = 700.0;
-		metrix.out[i] = std::exp(x);
-		sum += metrix.out[i];
+		out[i] = std::exp(x);
+		sum += out[i];
 	}
 
 	sum = maxValue(sum, 1e-10);
 
-	for (size_t i = 0; i < metrix.size(); ++i) {
-		metrix.out[i] /= sum;
+	for (size_t i = 0; i < out.size(); ++i) {
+		out[i] /= sum;
 	}
 }
 

@@ -1,7 +1,7 @@
 #ifndef ACTIVATIONSP
 #define ACTIVATIONSP
 
-#include "neuron.hpp"
+#include "Globals.hpp"
 #include <cmath>
 
 namespace nn::model {
@@ -40,7 +40,7 @@ class Activation {
 
 	global::ValueType activate(const global::ValueType x) const;
 	global::ValueType derivativeActivate(const global::ValueType x) const;
-	static void softmax(Neurons &metrix);
+	static void softmax(const global::ParamMetrix &net,  global::ParamMetrix &out);
 };
 
 } // namespace nn::model

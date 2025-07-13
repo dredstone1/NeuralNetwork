@@ -1,5 +1,4 @@
 #include "DenseLayer.hpp"
-#include "LayerParameters.hpp"
 
 namespace nn::model {
 DenseLayer::DenseLayer(const int size, const int prevSize, const bool randomInit)
@@ -20,7 +19,7 @@ void Output_Layer::forward(const global::ParamMetrix &metrix) {
 		}
 	}
 
-	Activation::softmax(dots);
+	Activation::softmax(dots.net, dots.out);
 }
 
 global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
@@ -143,5 +142,17 @@ void DenseLayer::setData(const global::ParamMetrix newParam) {
 
 		currentI++;
 	}
+}
+
+void Neurons::reset() {
+	for (size_t i = 0; i < out.size(); ++i) {
+		out[i] = 0.0;
+		net[i] = 0.0;
+	}
+}
+
+Neurons::Neurons(const int size) {
+	out.resize(size, 0.0);
+	net.resize(size, 0.0);
 }
 } // namespace nn::model

@@ -1,7 +1,7 @@
 #ifndef INETWORK
 #define INETWORK
 
-#include "../visualizer/IvisualNetwork.hpp"
+#include "IvisualNetwork.hpp"
 
 namespace nn::model {
 class INetwork {

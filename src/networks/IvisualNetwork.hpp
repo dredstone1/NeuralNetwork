@@ -1,7 +1,7 @@
 #ifndef IVISUALNETWORK
 #define IVISUALNETWORK
 
-#include "panel.hpp"
+#include "../visualizer/panel.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace nn::visualizer {

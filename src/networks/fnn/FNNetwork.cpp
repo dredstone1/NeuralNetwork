@@ -1,6 +1,4 @@
 #include "FNNetwork.hpp"
-#include "Globals.hpp"
-#include "config.hpp"
 
 namespace nn::model {
 FNNetwork::FNNetwork(

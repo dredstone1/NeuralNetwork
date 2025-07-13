@@ -1,9 +1,9 @@
 #ifndef FNNNETWORK
 #define FNNNETWORK
 
-#include "../visualizer/FnnVisualizer.hpp"
+#include "FnnVisualizer.hpp"
 #include "DenseLayer.hpp"
-#include "INetwork.hpp"
+#include "../INetwork.hpp"
 
 namespace nn::model {
 class FNNetwork : public INetwork {

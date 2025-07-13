@@ -1,9 +1,8 @@
 #include "model.hpp"
-#include "FNNetwork.hpp"
+#include "../networks/fnn/FNNetwork.hpp"
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
-#include <iterator>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
@@ -56,8 +55,8 @@ void Model::resetNetworkGradient() {
 	}
 }
 
-void Model::update_weights(const int batch_size) {
-	const global::ValueType CURRENT_LEARNING_RATE = learningRate / batch_size;
+void Model::updateWeights(const int batchSize) {
+	const global::ValueType CURRENT_LEARNING_RATE = learningRate / batchSize;
 
 	for (auto &subNet : network) {
 		subNet->updateWeights(CURRENT_LEARNING_RATE);
@@ -90,7 +89,7 @@ global::ValueType Model::runBackPropagation(const Batch &batch, const bool doBac
 
 		if (doBackward) {
 			Backward(output);
-			update_weights(batch.size());
+			updateWeights(batch.size());
 		}
 
 		error += getLoss(current_sample_ptr->pre);
@@ -268,16 +267,6 @@ int Model::outputSize() {
 
 int Model::inputSize() {
 	return network[0]->inputSize();
-}
-
-void Model::updateWeights(const global::ValueType learningRate) {
-	visual.setNewPhaseMode(visualizer::NnMode::Backward);
-
-	for (int i = network.size() - 1; i >= 0; --i) {
-		network[i]->updateWeights(learningRate);
-	}
-
-	visual.setNewPhaseMode(visualizer::NnMode::Forword);
 }
 
 void Model::save(const std::string &file) {

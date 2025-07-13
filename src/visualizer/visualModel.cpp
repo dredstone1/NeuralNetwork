@@ -1,6 +1,5 @@
 #include "visualModel.hpp"
-#include "FnnVisualizer.hpp"
-#include "Globals.hpp"
+#include "../networks/fnn/FnnVisualizer.hpp"
 #include "fonts.hpp"
 #include <vector>
 

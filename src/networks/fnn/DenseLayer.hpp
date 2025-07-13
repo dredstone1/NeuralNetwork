@@ -1,13 +1,27 @@
 #ifndef DENSELAYER
 #define DENSELAYER
 
-#include "Globals.hpp"
-#include "LayerParameters.hpp"
-#include "activations.hpp"
-#include "config.hpp"
+#include "../../model/LayerParameters.hpp"
+#include "../../model/config.hpp"
 
 namespace nn::model {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
+
+struct Neurons {
+	global::ParamMetrix out;
+	global::ParamMetrix net;
+
+	Neurons(const int size);
+	Neurons(const global::ParamMetrix &net_, const global::ParamMetrix &out_)
+	    : out(out_),
+	      net(net_) {}
+	~Neurons() = default;
+
+	Neurons(const Neurons &other) : out(other.out), net(other.net) {}
+	size_t size() const { return out.size(); }
+	void reset();
+};
+
 
 class DenseLayer {
   protected:

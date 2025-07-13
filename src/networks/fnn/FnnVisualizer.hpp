@@ -1,9 +1,8 @@
 #ifndef FNNVISUALNETWORK
 #define FNNVISUALNETWORK
 
-#include "../model/LayerParameters.hpp"
-#include "IvisualNetwork.hpp"
-#include <SFML/System/Vector2.hpp>
+#include "DenseLayer.hpp"
+#include "../IvisualNetwork.hpp"
 
 namespace nn::visualizer {
 
