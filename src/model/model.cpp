@@ -103,9 +103,6 @@ void ProgressBar::printBar() {
 	if (total == 0)
 		return;
 
-	if (current > total)
-		current = total;
-
 	const int percentage = 100 * current / total;
 	if (percentage == last_percentage)
 		return;
@@ -119,12 +116,27 @@ void ProgressBar::printBar() {
 
 	bar[index++] = '[';
 	for (int i = 0; i < BAR_WIDTH; ++i)
-		bar[index++] = (i < pos) ? '=' : (i == pos) ? '>' : ' ';
+		bar[index++] = (i < pos) ? '=' : (i == pos) ? '>'
+		                                            : ' ';
 	bar[index++] = ']';
 	bar[index++] = ' ';
 
-	// Use snprintf for safe percentage formatting
-	index += std::snprintf(bar + index, sizeof(bar) - index, "%3d %%", percentage);
+	if (percentage < 10) {
+		bar[index++] = ' ';
+		bar[index++] = ' ';
+		bar[index++] = percentage + '0';
+	} else if (percentage < 100) {
+		bar[index++] = ' ';
+		bar[index++] = (percentage / 10) + '0';
+		bar[index++] = (percentage % 10) + '0';
+	} else {
+		bar[index++] = '1';
+		bar[index++] = '0';
+		bar[index++] = '0';
+	}
+
+	bar[index++] = ' ';
+	bar[index++] = '%';
 
 	bar[index++] = (percentage == 100) ? '\n' : '\r';
 	bar[index] = '\0';
@@ -178,7 +190,7 @@ void Model::train(const std::string &db_filename) {
 		}
 
 		if (config.trainingConfig.isAutoEvaluating() && i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-			modelResult result = evaluateModel(evaluateDataBase, true, false);
+			modelResult result = evaluateModel(evaluateDataBase, false, false);
 
 			if (result.percentage == 100) {
 				break;

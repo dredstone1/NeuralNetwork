@@ -9,13 +9,13 @@
 	"training config": {
 		"batch size": 8,
 		"batch count": 100000,
-		"learning rate": 0.1,
+		"learning rate": 0.001,
 		"auto save": {
 			"saveEvery": 2000,
 			"dataFilenameAutoSave": "mode.txt"
 		},
 		"auto evaluating": {
-			"evaluateEvery": 10000,
+			"evaluateEvery": 1000,
 			"dataBaseFilename": "../tests/data/database-binary_test"
 		}
 	},
