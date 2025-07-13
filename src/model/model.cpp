@@ -160,14 +160,20 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 }
 
 void Model::train(const std::string &db_filename) {
-	DataBase dataBase(config.trainingConfig);
+	DataBase trainedDataBase(config.trainingConfig);
+	DataBase evaluateDataBase(config.trainingConfig);
+
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
 	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 
+	if (config.trainingConfig.isAutoEvaluating()) {
+		evaluateDataBase.load(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
+	}
+
 	std::cout << "Training AI" << std::endl;
 
-	dataBase.load(db_filename);
+	trainedDataBase.load(db_filename);
 
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
 	visual.updateLearningRate(learningRate);
@@ -175,18 +181,21 @@ void Model::train(const std::string &db_filename) {
 	for (int i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
 		visual.updateBatchCounter(i);
 
-		Batch &batch = dataBase.getBatch();
+		Batch &batch = trainedDataBase.getBatch();
 		error = runBackPropagation(batch, true);
 
 		if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
 			save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
 		}
+
 		if (config.trainingConfig.isAutoEvaluating() && i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-			modelResult result = evaluateModel(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
-            if (result.percentage == 100){
-                break;
-            }
+			modelResult result = evaluateModel(evaluateDataBase, true);
+
+			if (result.percentage == 100) {
+				break;
+			}
 		}
+
 		visual.updateError(error, i);
 
 		bar++;
@@ -209,13 +218,11 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
 }
 
-modelResult Model::evaluateModel(const std::string &db_filename, const bool cancleOnError) {
+modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError) {
 	modelResult result;
-	DataBase dataBase(config.trainingConfig);
 
 	std::cout << "Evaluating AI" << std::endl;
 
-	dataBase.load(db_filename);
 	result.dbSize = dataBase.DataBaseLength();
 	ProgressBar bar(result.dbSize, EVALUATING_HEADER);
 
@@ -226,19 +233,25 @@ modelResult Model::evaluateModel(const std::string &db_filename, const bool canc
 		size_t predicted_index = std::distance(
 		    getOutput().begin(),
 		    std::max_element(getOutput().begin(), getOutput().end()));
+
 		bar++;
 		bar.printBar();
 
 		if (predicted_index == sample.pre.index) {
 			result.currectPreSize++;
-		} else if (cancleOnError){
-            break;
-        }
+		} else if (cancleOnError) {
+			break;
+		}
 	}
 
 	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);
-
 	return result;
+}
+
+modelResult Model::evaluateModel(const std::string &db_filename, const bool cancleOnError) {
+	DataBase dataBase(config.trainingConfig);
+	dataBase.load(db_filename);
+	return evaluateModel(dataBase, cancleOnError);
 }
 
 const global::ParamMetrix &Model::getOutput() const {

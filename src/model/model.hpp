@@ -2,10 +2,9 @@
 #define MODEL
 
 #include "../visualizer/VisualizerController.hpp"
-#include "Globals.hpp"
 #include "INetwork.hpp"
 #include "dataBase.hpp"
-#include <string>
+#include <SFML/Window/Keyboard.hpp>
 
 namespace nn::model {
 constexpr int BAR_WIDTH = 100;
@@ -73,13 +72,19 @@ class Model {
 
 	float calculatePercentage(size_t currentSize, size_t totalSize);
 
+	modelResult evaluateModel(
+	    DataBase &dataBase,
+	    const bool cancleOnError = false);
+
   public:
 	Model(const std::string &config_filepath);
 	~Model() = default;
 
 	void runModel(const global::ParamMetrix &input);
 	void train(const std::string &db_filename);
-	modelResult evaluateModel(const std::string &db_filename, const bool cancleOnError = false);
+	modelResult evaluateModel(
+	    const std::string &db_filename,
+	    const bool cancleOnError = false);
 
 	void updateWeights(const global::ValueType learningRate);
 
