@@ -188,7 +188,7 @@ void Model::train(const std::string &db_filename) {
 		}
 
 		if (config.trainingConfig.isAutoEvaluating() && i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-			modelResult result = evaluateModel(evaluateDataBase, true);
+			modelResult result = evaluateModel(evaluateDataBase, true, false);
 
 			if (result.percentage == 100) {
 				break;
@@ -217,10 +217,12 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
 }
 
-modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError) {
+modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, const bool showProgressbar) {
 	modelResult result;
 
-	std::cout << "Evaluating AI" << std::endl;
+	if (showProgressbar) {
+		std::cout << "Evaluating AI" << std::endl;
+	}
 
 	result.dbSize = dataBase.DataBaseLength();
 	ProgressBar bar(result.dbSize, EVALUATING_HEADER);
@@ -233,8 +235,10 @@ modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError) {
 		    getOutput().begin(),
 		    std::max_element(getOutput().begin(), getOutput().end()));
 
-		bar++;
-		bar.printBar();
+		if (showProgressbar) {
+			bar++;
+			bar.printBar();
+		}
 
 		if (predicted_index == sample.pre.index) {
 			result.currectPreSize++;

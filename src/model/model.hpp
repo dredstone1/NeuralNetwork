@@ -73,7 +73,8 @@ class Model {
 
 	modelResult evaluateModel(
 	    DataBase &dataBase,
-	    const bool cancleOnError = false);
+	    const bool cancleOnError = false,
+        const bool showProgressbar = true);
 
   public:
 	Model(const std::string &config_filepath);
