@@ -78,13 +78,13 @@ int main(int argc, char *argv[]) {
 	nn::AiModel model(config_FN);
 
 	if (argc > 1 && std::string(argv[1]) == "l") {
-		std::cout << "Loading model from file...\n";
 		model.load("test.txt");
 	} else {
 		model.train("../tests/data/database-binary_test");
+
 		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");
 		std::cout << "training result: " << result.percentage << "%\n";
-		std::cout << "Saving model to file...\n";
+
 		model.save("test.txt");
 	}
 
@@ -98,8 +98,8 @@ int main(int argc, char *argv[]) {
 			std::cout << str_num << " is not a number, please enter a valid integer\n";
 			continue;
 		}
-		num1 = std::stoi(str_num);
 
+		num1 = std::stoi(str_num);
 		if (num1 == -1) {
 			break;
 		}
@@ -115,7 +115,12 @@ int main(int argc, char *argv[]) {
 			std::cout << str_num << " is not a number, please enter a valid integer\n";
 			continue;
 		}
+
 		num2 = std::stoi(str_num);
+		if (num2 > input_size - 4) {
+			std::cout << str_num << " is too big\n";
+			continue;
+		}
 
 		for (size_t i = 4 + num2; i > num2; i--) {
 			input[i - 1] = bit_by_index(num1, 4 - i + num2);
