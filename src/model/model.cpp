@@ -72,7 +72,7 @@ void Model::Backward(const global::ParamMetrix &output) {
 	}
 }
 
-global::ValueType Model::run_back_propagation(const Batch &batch, const bool doBackward) {
+global::ValueType Model::runBackPropagation(const Batch &batch, const bool doBackward) {
 	global::ValueType error = 0.0;
 
 	if (batch.size() == 0) {
@@ -98,26 +98,27 @@ global::ValueType Model::run_back_propagation(const Batch &batch, const bool doB
 	return error / batch.size();
 }
 
-void Model::print_progress_bar(const int current, const int total) {
-	static int last_percentage = -1;
+void ProgressBar::printBar() {
+    if (total == 0) return;
 
-	const int percentage = (100 * current) / total;
+	const int percentage = 100 * current / total;
 	if (percentage == last_percentage)
 		return;
+
 	last_percentage = percentage;
 
-	const int pos = (BAR_WIDTH * current) / total;
+	const int pos = BAR_WIDTH * current / total;
 
 	char bar[BAR_WIDTH + 64];
 	int index = 0;
 
 	bar[index++] = '[';
 	for (int i = 0; i < BAR_WIDTH; ++i)
-		bar[index++] = (i < pos) ? '=' : (i == pos) ? '>' : ' ';
+		bar[index++] = (i < pos) ? '=' : (i == pos) ? '>'
+		                                            : ' ';
 	bar[index++] = ']';
 	bar[index++] = ' ';
 
-	// Print percentage with padding
 	if (percentage < 10) {
 		bar[index++] = ' ';
 		bar[index++] = ' ';
@@ -134,11 +135,11 @@ void Model::print_progress_bar(const int current, const int total) {
 
 	bar[index++] = ' ';
 	bar[index++] = '%';
-	bar[index++] = '\r';
+
+	bar[index++] = (percentage == 100) ? '\n' : '\r';
 	bar[index] = '\0';
 
-	std::cout << bar;
-	std::cout.flush();
+	std::cout << header << bar << std::flush;
 }
 
 void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_point &start, double error) {
@@ -148,8 +149,7 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 	const int seconds = time_taken % SECONDS_IN_MINUTE;
 	const int time_taken_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-	std::cout << "\n"
-	          << "Training Done!" << "\n"
+	std::cout << "Training Done!" << "\n"
 	          << "Training time: "
 	          << minutes << " minutes "
 	          << seconds << " seconds" << " ("
@@ -161,6 +161,7 @@ void Model::train(const std::string &db_filename) {
 	DataBase dataBase(config.trainingConfig);
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
+	ProgressBar bar(config.trainingConfig.batch_count, TRAINING_HEADER);
 
 	std::cout << "Training AI" << std::endl;
 
@@ -173,7 +174,7 @@ void Model::train(const std::string &db_filename) {
 		visual.updateBatchCounter(i);
 
 		Batch &batch = dataBase.getBatch();
-		error = run_back_propagation(batch, true);
+		error = runBackPropagation(batch, true);
 
 		if (config.trainingConfig.save_every > 0 && i % config.trainingConfig.save_every == 0) {
 			save(config.trainingConfig.data_filename_autoSave);
@@ -181,7 +182,8 @@ void Model::train(const std::string &db_filename) {
 
 		visual.updateError(error, i);
 
-		print_progress_bar(i + 1, config.trainingConfig.batch_count);
+		bar++;
+		bar.printBar();
 
 		visual.updateLearningRate(learningRate);
 		if (visual.exitTraining() == true) {
@@ -208,6 +210,7 @@ modelResult Model::evaluateModel(const std::string &db_filename) {
 
 	dataBase.load(db_filename);
 	result.dbSize = dataBase.DataBaseLength();
+	ProgressBar bar(result.dbSize, EVALUATING_HEADER);
 
 	for (int i = 0; i < result.dbSize; ++i) {
 		TrainSample &sample = dataBase.getSample(i);
@@ -216,6 +219,8 @@ modelResult Model::evaluateModel(const std::string &db_filename) {
 		size_t predicted_index = std::distance(
 		    getOutput().begin(),
 		    std::max_element(getOutput().begin(), getOutput().end()));
+		bar++;
+		bar.printBar();
 
 		if (predicted_index == sample.pre.index) {
 			result.currectPreSize++;

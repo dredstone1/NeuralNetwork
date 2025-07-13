@@ -56,7 +56,7 @@ void print_database(int actual_size, int input_size, int database_size) {
 
 					std::cout << (bit ? 1 : 0.5) << " ";
 				}
-		}
+			}
 			std::cout << std::endl;
 			++count;
 		}
@@ -81,10 +81,9 @@ int main(int argc, char *argv[]) {
 		std::cout << "Loading model from file...\n";
 		model.load("test.txt");
 	} else {
-		std::cout << "Training model...\n";
 		model.train("../tests/data/database-binary_test");
 		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");
-		std::cout << "training result: " << result.percentage << "%\n"; 
+		std::cout << "training result: " << result.percentage << "%\n";
 		std::cout << "Saving model to file...\n";
 		model.save("test.txt");
 	}
@@ -103,7 +102,7 @@ int main(int argc, char *argv[]) {
 
 		if (num1 == -1) {
 			break;
-        }
+		}
 
 		int binary = int_to_binary(num1);
 		std::cout << "binary: " << binary << std::endl;

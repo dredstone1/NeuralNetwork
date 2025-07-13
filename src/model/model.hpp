@@ -5,10 +5,14 @@
 #include "Globals.hpp"
 #include "INetwork.hpp"
 #include "dataBase.hpp"
+#include <string>
 
 namespace nn::model {
 constexpr int BAR_WIDTH = 100;
 constexpr int SECONDS_IN_MINUTE = 60;
+
+const std::string TRAINING_HEADER = "Training";
+const std::string EVALUATING_HEADER = "Evaluating";
 
 struct modelResult {
 	int dbSize;
@@ -17,6 +21,28 @@ struct modelResult {
 };
 
 class ProgressBar {
+	const int total;
+	int current;
+	int last_percentage{-1};
+	const std::string header;
+
+  public:
+	ProgressBar(const int total_, const std::string header_)
+	    : total(total_),
+	      header(header_ + ": ") {}
+	~ProgressBar() = default;
+
+	void printBar();
+	int getCurrent() const { return current; }
+	int getTotal() const { return total; }
+
+	ProgressBar operator++(int) {
+		ProgressBar temp = *this;
+		++current;
+		if (current > total)
+			current = total;
+		return temp;
+	}
 };
 
 class Model {
@@ -36,9 +62,8 @@ class Model {
 	void resetNetworkGradient();
 	global::ValueType getLoss(const global::Prediction &pre);
 
-	global::ValueType run_back_propagation(const Batch &batch, const bool updateWeights);
+	global::ValueType runBackPropagation(const Batch &batch, const bool updateWeights);
 
-	void print_progress_bar(const int current, const int total);
 	void printTrainingResult(
 	    const std::chrono::high_resolution_clock::time_point &start,
 	    double error);
