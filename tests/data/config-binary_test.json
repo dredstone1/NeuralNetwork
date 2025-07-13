@@ -9,13 +9,13 @@
 	"training config": {
 		"batch size": 8,
 		"batch count": 100000,
-		"learning rate": 0.0001,
+		"learning rate": 0.1,
 		"auto save": {
 			"saveEvery": 2000,
 			"dataFilenameAutoSave": "mode.txt"
 		},
 		"auto evaluating": {
-			"evaluateEvery": 2000,
+			"evaluateEvery": 10000,
 			"dataBaseFilename": "../tests/data/database-binary_test"
 		}
 	},
@@ -26,7 +26,7 @@
 			"output size": 16,
 			"layers": [
 				{ "size": 15, "activationType": 1 },
-				{ "size": 1, "activationType": 2 },
+				{ "size": 4, "activationType": 2 },
 				{ "size": 20, "activationType": 1 }
 			]
 		}

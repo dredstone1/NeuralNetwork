@@ -3,6 +3,7 @@
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
+#include <iterator>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
@@ -180,7 +181,12 @@ void Model::train(const std::string &db_filename) {
 		if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
 			save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
 		}
-
+		if (config.trainingConfig.isAutoEvaluating() && i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
+			modelResult result = evaluateModel(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
+            if (result.percentage == 100){
+                break;
+            }
+		}
 		visual.updateError(error, i);
 
 		bar++;
@@ -203,7 +209,7 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
 }
 
-modelResult Model::evaluateModel(const std::string &db_filename) {
+modelResult Model::evaluateModel(const std::string &db_filename, const bool cancleOnError) {
 	modelResult result;
 	DataBase dataBase(config.trainingConfig);
 
@@ -225,7 +231,9 @@ modelResult Model::evaluateModel(const std::string &db_filename) {
 
 		if (predicted_index == sample.pre.index) {
 			result.currectPreSize++;
-		}
+		} else if (cancleOnError){
+            break;
+        }
 	}
 
 	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);

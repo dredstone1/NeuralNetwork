@@ -79,7 +79,7 @@ class Model {
 
 	void runModel(const global::ParamMetrix &input);
 	void train(const std::string &db_filename);
-	modelResult evaluateModel(const std::string &db_filename);
+	modelResult evaluateModel(const std::string &db_filename, const bool cancleOnError = false);
 
 	void updateWeights(const global::ValueType learningRate);
 
