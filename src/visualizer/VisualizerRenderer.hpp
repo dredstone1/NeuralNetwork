@@ -1,7 +1,6 @@
 #ifndef VISUALIZERRENDERER
 #define VISUALIZERRENDERER
 
-#include "Globals.hpp"
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "graph.hpp"
@@ -51,7 +50,7 @@ class VisualRender {
 	void updatePrediction(const global::Prediction &pre);
 	void updateInput(const global::ParamMetrix &input);
 
-    void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
+	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 };
 } // namespace nn::visualizer
 

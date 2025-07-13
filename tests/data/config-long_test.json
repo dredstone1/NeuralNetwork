@@ -7,11 +7,9 @@
 		]
 	},
 	"training config": {
-		"batch_size": 2,
-		"batch_count": 1000,
-		"db_filename": "../tests/data/database-statics_test",
-        "save_every": 1,
-		"lr_init_value": 1
+		"batch size": 2,
+		"batch count": 1000,
+		"learning rate": 1.0
 	},
 	"network config": [
 		{
