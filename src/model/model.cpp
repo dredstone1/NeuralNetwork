@@ -99,28 +99,46 @@ global::ValueType Model::run_back_propagation(const Batch &batch, const bool doB
 }
 
 void Model::print_progress_bar(const int current, const int total) {
-	float progress = (float)current / total;
-	int progress_percentage = int(progress * BAR_WIDTH);
+	static int last_percentage = -1;
 
-	if (progress_percentage != lastProgress) {
-		int pos = BAR_WIDTH * progress;
-		lastProgress = progress_percentage;
+	const int percentage = (100 * current) / total;
+	if (percentage == last_percentage)
+		return;
+	last_percentage = percentage;
 
-		std::ostringstream oss;
-		oss << "[";
-		for (int i = 0; i < BAR_WIDTH; ++i) {
-			if (i < pos)
-				oss << "=";
-			else if (i == pos)
-				oss << ">";
-			else
-				oss << " ";
-		}
-		oss << "] " << progress_percentage << " %\r";
+	const int pos = (BAR_WIDTH * current) / total;
 
-		std::cout << oss.str();
-		std::cout.flush();
+	char bar[BAR_WIDTH + 64];
+	int index = 0;
+
+	bar[index++] = '[';
+	for (int i = 0; i < BAR_WIDTH; ++i)
+		bar[index++] = (i < pos) ? '=' : (i == pos) ? '>' : ' ';
+	bar[index++] = ']';
+	bar[index++] = ' ';
+
+	// Print percentage with padding
+	if (percentage < 10) {
+		bar[index++] = ' ';
+		bar[index++] = ' ';
+		bar[index++] = percentage + '0';
+	} else if (percentage < 100) {
+		bar[index++] = ' ';
+		bar[index++] = (percentage / 10) + '0';
+		bar[index++] = (percentage % 10) + '0';
+	} else {
+		bar[index++] = '1';
+		bar[index++] = '0';
+		bar[index++] = '0';
 	}
+
+	bar[index++] = ' ';
+	bar[index++] = '%';
+	bar[index++] = '\r';
+	bar[index] = '\0';
+
+	std::cout << bar;
+	std::cout.flush();
 }
 
 void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_point &start, double error) {
@@ -176,6 +194,12 @@ void Model::train(const std::string &db_filename) {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
 }
 
+float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
+	if (totalSize == 0)
+		return 0.0f;
+	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
+}
+
 modelResult Model::evaluateModel(const std::string &db_filename) {
 	modelResult result;
 	DataBase dataBase(config.trainingConfig);
@@ -198,7 +222,7 @@ modelResult Model::evaluateModel(const std::string &db_filename) {
 		}
 	}
 
-	result.percentage = 100.f * result.currectPreSize / result.dbSize;
+	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);
 
 	return result;
 }

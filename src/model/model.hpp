@@ -11,9 +11,12 @@ constexpr int BAR_WIDTH = 100;
 constexpr int SECONDS_IN_MINUTE = 60;
 
 struct modelResult {
-    int dbSize;
-    int currectPreSize;
-    float percentage;
+	int dbSize;
+	int currectPreSize;
+	float percentage;
+};
+
+class ProgressBar {
 };
 
 class Model {
@@ -24,8 +27,6 @@ class Model {
 	visualizer::VisualManager visual;
 
 	global::ValueType learningRate;
-
-	int lastProgress{-1};
 
 	void Forword(const global::ParamMetrix &input, const int modelIndex);
 
@@ -44,6 +45,8 @@ class Model {
 
 	void initModel();
 	void initVisual();
+
+	float calculatePercentage(size_t currentSize, size_t totalSize);
 
   public:
 	Model(const std::string &config_filepath);
