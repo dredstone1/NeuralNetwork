@@ -42,7 +42,9 @@ void FNNetwork::forward(const global::ParamMetrix &newInput) {
 
 	for (size_t i = 1; i < layers.size(); ++i) {
 		layers[i]->forward(layers[i - 1]->getOut());
+        
 		visual->setUpdate();
+        visual->attempPause();
 	}
 }
 
@@ -58,6 +60,7 @@ void FNNetwork::backward(const global::ParamMetrix &outputDeltas) {
 		layers[i]->backward(deltas, prev, &layers[i + 1]->getParms());
 
 		visual->setUpdate();
+        visual->attempPause();
 	}
 
 	calculateInputDelta(deltas);
@@ -135,4 +138,4 @@ void FNNetwork::setParams(const global::ParamMetrix params) {
 		layers[i]->setData(newParam);
 	}
 }
-} // namespace nn::model
+} // namespace nn::model::fnn

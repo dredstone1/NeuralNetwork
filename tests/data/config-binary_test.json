@@ -1,9 +1,9 @@
 {
 	"visual config": {
 		"modes": [
-			{ "state": "pause", "mode": true },
-			{ "state": "precise mode", "mode": true },
-			{ "state": "auto pause", "mode": true }
+			{ "state": "pause", "mode": false },
+			{ "state": "precise mode", "mode": false },
+			{ "state": "auto pause", "mode": false }
 		]
 	},
 	"training config": {

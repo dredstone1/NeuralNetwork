@@ -3,6 +3,7 @@
 
 #include "../src/visualizer/panel.hpp"
 #include <SFML/Graphics.hpp>
+#include <thread>
 
 namespace nn::visualizer {
 constexpr std::uint32_t MODEL_HEIGHT = 770u;
@@ -40,6 +41,27 @@ class IVisualNetwork : public Panel {
 	virtual ~IVisualNetwork() = default;
 
 	sf::Sprite getSprite() { return sf::Sprite(networkRender.getTexture()); }
+
+    void setVstate(std::shared_ptr<StateManager> state_) {
+        vstate = state_;
+    }
+
+	void attempPause() {
+        if (!vstate) {
+            return;
+        }
+
+		if (vstate->settings.autoPause.load()) {
+			vstate->settings.pause = true;
+		}
+
+		while (vstate->settings.pause) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
+		while (vstate->settings.preciseMode && updateStatus()) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+	}
 };
 } // namespace nn::visualizer
 

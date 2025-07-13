@@ -21,6 +21,7 @@ void Model::initVisual() {
 
 		if (_config->NNLable() == "FNN") {
 			visual.addVisualSubNetwork(network[i]->getVisual());
+            network[i]->getVisual()->setVstate(visual.Vstate);
 		}
 	}
 }

@@ -1,7 +1,6 @@
 #include "visualModel.hpp"
 #include "../networks/fnn/FnnVisualizer.hpp"
 #include "fonts.hpp"
-#include <vector>
 
 namespace nn::visualizer {
 DummyLayer::DummyLayer(const int size_, const sf::Vector2f pos_)
