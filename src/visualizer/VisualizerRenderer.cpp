@@ -1,5 +1,6 @@
 #include "VisualizerRenderer.hpp"
 #include "Globals.hpp"
+#include "state.hpp"
 
 namespace nn::visualizer {
 constexpr std::uint32_t NN_WIDTH = 1055u;
@@ -21,6 +22,11 @@ void VisualRender::processEvents() {
 			interface.handleClick(sf::Mouse::getPosition(window), {NN_WIDTH + UI_GAP * 2, UI_GAP});
 		} else if (event->is<sf::Event::Resized>()) {
 			need_resize = true;
+		} else if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+			if (keyPressed->scancode == sf::Keyboard::Scancode::Space) {
+                Vstate->toggle(SettingType::Pause);
+                interface.setUpdate();
+			}
 		}
 	}
 }
