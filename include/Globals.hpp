@@ -8,7 +8,7 @@ namespace nn::global {
 using ValueType = float;
 using ParamMetrix = std::vector<ValueType>;
 
-using Transformation = global::ParamMetrix(const global::ParamMetrix &sample);
+using Transformation = global::ParamMetrix(*)(const global::ParamMetrix &);
 
 struct Prediction {
 	size_t index;
