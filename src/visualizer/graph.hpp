@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 
 namespace nn::visualizer {
-constexpr std::uint32_t GRAPH_WIDTH = 447;
+constexpr std::uint32_t GRAPH_WIDTH = 445;
 constexpr std::uint32_t GRAPH_HEIGHT = 315;
 constexpr std::uint32_t GRAPH_RESOLUTION = 100;
 constexpr int VERTICAL_NUMBERS_COUNT = 10;
