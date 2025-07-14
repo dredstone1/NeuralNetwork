@@ -1,5 +1,6 @@
 #include "model.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
+#include "Globals.hpp"
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
@@ -73,7 +74,7 @@ void Model::Backward(const global::ParamMetrix &output) {
 	}
 }
 
-global::ValueType Model::runBackPropagation(const Batch &batch, const bool doBackward) {
+global::ValueType Model::runBackPropagation(const Batch &batch, const bool doBackward, global::Transformation transformation) {
 	global::ValueType error = 0.0;
 
 	if (batch.size() == 0) {
@@ -84,7 +85,13 @@ global::ValueType Model::runBackPropagation(const Batch &batch, const bool doBac
 	for (size_t i = 0; i < batch.size(); ++i) {
 		auto current_sample_ptr = batch.samples.at(i);
 		visual.updatePrediction(current_sample_ptr->pre);
-		runModel(current_sample_ptr->input);
+		if (transformation == nullptr) {
+			runModel(current_sample_ptr->input);
+		} else {
+			global::ParamMetrix newSample = transformation(current_sample_ptr->input);
+			runModel(newSample);
+		}
+
 		global::ParamMetrix output(outputSize());
 		output[current_sample_ptr->pre.index] = 1;
 
@@ -159,7 +166,7 @@ void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_p
 	          << "final score: " << error << "\n";
 }
 
-void Model::train(const std::string &db_filename) {
+void Model::train(const std::string &db_filename, global::Transformation transformation) {
 	DataBase trainedDataBase(config.trainingConfig);
 	DataBase evaluateDataBase(config.trainingConfig);
 
@@ -184,7 +191,7 @@ void Model::train(const std::string &db_filename) {
 		visual.updateBatchCounter(i);
 
 		Batch &batch = trainedDataBase.getBatch();
-		error = runBackPropagation(batch, true);
+		error = runBackPropagation(batch, true, transformation);
 
 		if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
 			save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);

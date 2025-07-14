@@ -2,7 +2,6 @@
 #define AIMODEL
 
 #include "../src/model/model.hpp"
-#include <string>
 
 namespace nn {
 class AiModel {
@@ -14,8 +13,8 @@ class AiModel {
 	~AiModel() = default;
 
 	void runModel(const global::ParamMetrix &input);
-	void train(const std::string &db_filename);
-    model::modelResult evaluateModel(const std::string &db_filename);
+	void train(const std::string &db_filename, global::Transformation transformation = nullptr);
+	model::modelResult evaluateModel(const std::string &db_filename);
 
 	void save(const std::string &file);
 	void load(const std::string &file);

@@ -1,9 +1,9 @@
 #ifndef MODEL
 #define MODEL
 
-#include <network/INetwork.hpp>
 #include "../visualizer/VisualizerController.hpp"
 #include "dataBase.hpp"
+#include <network/INetwork.hpp>
 
 namespace nn::model {
 constexpr int BAR_WIDTH = 100;
@@ -53,7 +53,7 @@ class Model {
 	void resetNetworkGradient();
 	global::ValueType getLoss(const global::Prediction &pre);
 
-	global::ValueType runBackPropagation(const Batch &batch, const bool updateWeights);
+	global::ValueType runBackPropagation(const Batch &batch, const bool updateWeights, global::Transformation transformation = nullptr);
 
 	void printTrainingResult(
 	    const std::chrono::high_resolution_clock::time_point &start,
@@ -74,7 +74,7 @@ class Model {
 	~Model() = default;
 
 	void runModel(const global::ParamMetrix &input);
-	void train(const std::string &db_filename);
+	void train(const std::string &db_filename, global::Transformation transformation = nullptr);
 	modelResult evaluateModel(
 	    const std::string &db_filename,
 	    const bool cancleOnError = false);

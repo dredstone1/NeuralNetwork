@@ -1,5 +1,4 @@
 #include "AiModel.hpp"
-#include "model.hpp"
 
 namespace nn {
 AiModel::AiModel(const std::string &config_file) {
@@ -10,8 +9,8 @@ void AiModel::runModel(const global::ParamMetrix &input) {
 	model->runModel(input);
 }
 
-void AiModel::train(const std::string &db_filename) {
-	model->train(db_filename);
+void AiModel::train(const std::string &db_filename, global::Transformation transformation) {
+	model->train(db_filename, transformation);
 }
 
 global::Prediction AiModel::getPrediction() {
