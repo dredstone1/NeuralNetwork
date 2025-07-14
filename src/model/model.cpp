@@ -251,7 +251,7 @@ modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, c
 	}
 
 	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);
-	printf("test: %f\n", result.percentage);
+
 	return result;
 }
 
