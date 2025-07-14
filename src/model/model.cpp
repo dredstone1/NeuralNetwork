@@ -21,7 +21,7 @@ void Model::initVisual() {
 
 		if (_config->NNLable() == "FNN") {
 			visual.addVisualSubNetwork(network[i]->getVisual());
-            network[i]->getVisual()->setVstate(visual.Vstate);
+			network[i]->getVisual()->setVstate(visual.Vstate);
 		}
 	}
 }
@@ -167,6 +167,7 @@ void Model::train(const std::string &db_filename) {
 
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
+	modelResult result;
 
 	if (config.trainingConfig.isAutoEvaluating()) {
 		evaluateDataBase.load(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
@@ -190,14 +191,14 @@ void Model::train(const std::string &db_filename) {
 		}
 
 		if (config.trainingConfig.isAutoEvaluating() && i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-			modelResult result = evaluateModel(evaluateDataBase, false, false);
+			result = evaluateModel(evaluateDataBase, false, false);
 
 			if (result.percentage == 100) {
 				break;
 			}
 		}
 
-		visual.updateError(error, i);
+		visual.updateError(result.percentage, error, i);
 
 		bar++;
 		bar.printBar();
@@ -250,7 +251,7 @@ modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, c
 	}
 
 	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);
-    printf("test: %f\n", result.percentage);
+	printf("test: %f\n", result.percentage);
 	return result;
 }
 

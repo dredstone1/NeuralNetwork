@@ -43,7 +43,11 @@ class VisualRender {
 	void start();
 
 	bool updateStatus();
-	void updateBatchCounter(const global::ValueType error, const int index);
+	void updateBatchCounter(
+	    const global::ValueType newDataEvaluate,
+	    const global::ValueType newDataLost,
+	    int index);
+
 	void updateLearningRate(const global::ValueType newLerningRate);
 	void setNewPhaseMode(const NnMode nn_mode);
 

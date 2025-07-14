@@ -2,130 +2,156 @@
 #include "fonts.hpp"
 
 namespace nn::visualizer {
-GraphUIPanel::GraphUIPanel(const std::shared_ptr<StateManager> vstate_)
-    : Panel(vstate_),
-      VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
-      Vgraph({GRAPH_WIDTH, GRAPH_HEIGHT}),
-      graphAlpha(GRAPH_HEIGHT_ALPHA_DEFAULT) {
+Graph::Graph(std::uint32_t res, float alpha)
+    : graphAlpha(alpha),
+      resolution(std::min(GRAPH_RESOLUTION, res) - 1) {
 }
 
-void GraphUIPanel::renderVerticalNumbers() {
-	sf::Text text(Fonts::getFont());
-	text.setCharacterSize(10);
-	text.setFillColor(GRAPH_VERTICAL_NUMBER_COLOR);
+float Graph::getHeight(const float value) const {
+	return GRAPH_HEIGHT - std::max(1.0, value * graphAlpha);
+}
 
-	for (int i = 0; i < VERTICAL_NUMBERS_COUNT; ++i) {
-		std::ostringstream number_str;
+sf::Vector2f Graph::getPosition(int index) const {
+	return {index * dataGapWidth(), getHeight(data[index])};
+}
 
-		text.setOrigin({0, 0});
-		text.setPosition({5.f, i * ((float)GRAPH_HEIGHT / VERTICAL_NUMBERS_COUNT) + 15 + 4});
-		float value = getValueFromHeight(text.getPosition().y - text.getOrigin().y);
-		number_str << std::fixed << std::setprecision(2) << value;
+float Graph::dataGapWidth() const {
+	return GRAPH_WIDTH / static_cast<float>(resolution);
+}
 
-		text.setString(number_str.str());
-		text.setOrigin({0, text.getLocalBounds().getCenter().y});
+void Graph::renderDot(
+    int index,
+    sf::RenderTarget &target,
+    sf::Vector2f position,
+    const sf::Color &color) {
 
-		VRender.draw(text);
-		renderHorizontalLine(value);
+	if (GRAPH_HEIGHT < data[index] * graphAlpha) {
+		graphAlpha = GRAPH_HEIGHT / data[index];
+	}
+
+	sf::VertexArray line(sf::PrimitiveType::Lines, 2);
+	line[0].position = getPosition(index) + position;
+	line[1].position = getPosition(index + 1) + position;
+	line[0].color = color;
+	line[1].color = color;
+
+	target.draw(line);
+}
+
+void Graph::drawTo(sf::RenderTarget &target, sf::Vector2f position, const sf::Color &color) {
+	for (int i = 0; i < static_cast<int>(resolution); ++i) {
+		renderDot(i, target, position, color);
 	}
 }
 
-void GraphUIPanel::renderHorizontalLine(const float value) {
-	float pos_y = getHeight(value);
-	std::array line{
-	    sf::Vertex{sf::Vector2f(0, pos_y), GRAPH_HORIZONTAL_LINE_COLOR},
-	    sf::Vertex{sf::Vector2f(GRAPH_WIDTH, pos_y), GRAPH_HORIZONTAL_LINE_COLOR}};
+void Graph::addData(global::ValueType new_data, int index, int batchCount) {
+	int dataGaps = batchCount / resolution;
+	if (dataGaps == 0)
+		return;
 
-	Vgraph.draw(line.data(), line.size(), sf::PrimitiveType::Lines);
+	int place = std::floor((index - 1) / dataGaps);
+	if (place < 0 || place >= static_cast<int>(resolution))
+		return;
+
+	data[place] += new_data / dataGaps;
 }
 
-float GraphUIPanel::getValueFromHeight(const float height) {
-	return (GRAPH_HEIGHT - height) / graphAlpha;
+void Graph::setAlpha(float alpha) {
+	graphAlpha = alpha;
+}
+
+float Graph::getAlpha() const {
+	return graphAlpha;
+}
+
+GraphUIPanel::GraphUIPanel(std::shared_ptr<StateManager> vstate_)
+    : Panel(vstate_),
+      VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
+      graphLost(GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT),
+      graphEvaluate(GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT) {
+}
+
+void GraphUIPanel::clear() {
+	VRender.clear(GRAPH_BG);
+}
+
+void GraphUIPanel::renderVerticalNumbers() {
+	sf::Text textE(Fonts::getFont());
+	sf::Text textL(Fonts::getFont());
+	textE.setCharacterSize(10);
+	textL.setCharacterSize(10);
+	textE.setFillColor(GRAPH_LINE_COLOR_EVALUATE);
+	textL.setFillColor(GRAPH_LINE_COLOR_LOST);
+
+	for (int i = 0; i < VERTICAL_NUMBERS_COUNT; ++i) {
+		float y = i * (GRAPH_HEIGHT / (float)VERTICAL_NUMBERS_COUNT) + 15 + 4;
+
+		float valueE = getValueFromHeightE(y);
+		float valueL = getValueFromHeightL(y);
+
+		std::ostringstream ssE, ssL;
+		ssE << std::fixed << std::setprecision(2) << valueE;
+		ssL << std::fixed << std::setprecision(2) << valueL;
+
+		textE.setString(ssE.str());
+		textL.setString(ssL.str());
+
+		sf::FloatRect boundsE = textE.getLocalBounds();
+
+		textE.setPosition({5.f, y});
+		textL.setPosition({5.f + boundsE.size.x + 5.f, y});
+
+		textE.setOrigin({0, textE.getLocalBounds().getCenter().y});
+		textL.setOrigin({0, textL.getLocalBounds().getCenter().y});
+
+		VRender.draw(textE);
+		VRender.draw(textL);
+
+		renderHorizontalLine(valueL);
+	}
+}
+
+void GraphUIPanel::renderHorizontalLine(float value) {
+	float pos_y = GRAPH_HEIGHT - value * graphLost.getAlpha();
+	std::array line{
+	    sf::Vertex{sf::Vector2f(GRAPH_UI_WIDTH - GRAPH_WIDTH, pos_y), GRAPH_HORIZONTAL_LINE_COLOR},
+	    sf::Vertex{sf::Vector2f(GRAPH_UI_WIDTH, pos_y), GRAPH_HORIZONTAL_LINE_COLOR}};
+
+	VRender.draw(line.data(), line.size(), sf::PrimitiveType::Lines);
+}
+
+float GraphUIPanel::getValueFromHeightL(float height) {
+	return (GRAPH_HEIGHT - height) / graphLost.getAlpha();
+}
+float GraphUIPanel::getValueFromHeightE(float height) {
+	return (GRAPH_HEIGHT - height) / graphEvaluate.getAlpha();
+}
+
+void GraphUIPanel::display() {
+	VRender.display();
+}
+
+void GraphUIPanel::doRender() {
+	clear();
+
+	graphLost.drawTo(VRender, {GRAPH_UI_WIDTH - GRAPH_WIDTH, 0}, GRAPH_LINE_COLOR_LOST);
+
+	graphEvaluate.drawTo(VRender, {GRAPH_UI_WIDTH - GRAPH_WIDTH, 0}, GRAPH_LINE_COLOR_EVALUATE);
+
+	renderVerticalNumbers();
+	display();
 }
 
 sf::Sprite GraphUIPanel::getSprite() {
 	return sf::Sprite(VRender.getTexture());
 }
 
-void GraphUIPanel::display() {
-	Vgraph.display();
-
-	sf::Sprite graph_sprite = sf::Sprite(Vgraph.getTexture());
-	graph_sprite.setPosition({GRAPH_UI_WIDTH - GRAPH_WIDTH, 0});
-	VRender.draw(graph_sprite);
-	VRender.display();
-}
-
-void GraphUIPanel::renderGraph() {
-	renderVerticalNumbers();
-
-	for (size_t i = 0; i < resolution(); ++i) {
-		renderDot(i);
-	}
-}
-
-void GraphUIPanel::doRender() {
-	clear();
-	renderGraph();
-	display();
-}
-
-void GraphUIPanel::clear() {
-	VRender.clear(GRAPH_BG);
-	Vgraph.clear(GRAPH_BG);
-}
-
-float GraphUIPanel::getHeight(const float value) {
-	return GRAPH_HEIGHT - std::max(1.0, value * graphAlpha);
-}
-
-float GraphUIPanel::getHeight(const int index) {
-	return getHeight((float)data[index]);
-}
-
-sf::Vector2f GraphUIPanel::getPosition(const int index) {
-	return sf::Vector2f(index * dataGapWidth(), getHeight(index));
-}
-
-void GraphUIPanel::renderDot(const int index) {
-	sf::VertexArray line_(sf::PrimitiveType::Lines, 2);
-
-	line_[0].position = getPosition(index);
-	line_[1].position = getPosition(index + 1);
-
-	if (GRAPH_HEIGHT < data[index] * graphAlpha) {
-		graphAlpha = GRAPH_HEIGHT / data[index];
-	}
-
-	line_[0].color = GRAPH_LINE_COLOR;
-	line_[1].color = GRAPH_LINE_COLOR;
-
-	Vgraph.draw(line_);
-}
-
-float GraphUIPanel::dataGapWidth() {
-	return GRAPH_WIDTH / (float)resolution();
-}
-
-std::uint32_t GraphUIPanel::resolution() {
-	return std::min(GRAPH_RESOLUTION, (std::uint32_t)vstate->config.trainingConfig.getBatchCount()) - 1;
-}
-
-int GraphUIPanel::dataGaps() {
-	return vstate->config.trainingConfig.getBatchCount() / resolution();
-}
-
-int GraphUIPanel::newDataPlace(const int index) {
-	if (dataGaps() == 0) {
-		return 0;
-	}
-
-	return std::floor((index - 1) / dataGaps());
-}
-
-void GraphUIPanel::addData(const global::ValueType new_data, const int index) {
-	data[newDataPlace(index)] += new_data / dataGaps();
+void GraphUIPanel::addData(
+    const global::ValueType newDataEvaluate,
+    const global::ValueType newDataLost,
+    int index) {
+	graphLost.addData(newDataLost, index, vstate->config.trainingConfig.getBatchCount());
+	graphEvaluate.addData(newDataEvaluate, index, vstate->config.trainingConfig.getBatchCount());
 	setUpdate();
 }
-
 } // namespace nn::visualizer

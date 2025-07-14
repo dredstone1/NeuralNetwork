@@ -9,7 +9,7 @@
 	"training config": {
 		"batch size": 8,
 		"batch count": 100000,
-		"learning rate": 0.001,
+		"learning rate": 0.01,
 		"auto save": {
 			"saveEvery": 2000,
 			"dataFilenameAutoSave": "mode.txt"

@@ -24,8 +24,8 @@ void VisualRender::processEvents() {
 			need_resize = true;
 		} else if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()) {
 			if (keyPressed->scancode == sf::Keyboard::Scancode::Space) {
-                Vstate->toggle(SettingType::Pause);
-                interface.setUpdate();
+				Vstate->toggle(SettingType::Pause);
+				interface.setUpdate();
 			}
 		}
 	}
@@ -127,8 +127,11 @@ void VisualRender::start() {
 	renderLoop();
 }
 
-void VisualRender::updateBatchCounter(const global::ValueType error, const int index) {
-	Vgraph.addData(error, index);
+void VisualRender::updateBatchCounter(
+    const global::ValueType newDataEvaluate,
+    const global::ValueType newDataLost,
+    int index) {
+	Vgraph.addData(newDataEvaluate, newDataLost, index);
 }
 
 VisualRender::~VisualRender() {
