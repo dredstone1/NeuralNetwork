@@ -22,7 +22,7 @@ struct Prediction {
 constexpr std::uint32_t NEURON_WIDTH = 40;
 constexpr float MIN_NEURON_WIDTH = 6.0f;
 constexpr float MAX_NEURON_WIDTH = NEURON_WIDTH;
-constexpr float MIN_GAP = 2.0f;
+constexpr float MIN_GAP = 1.0f;
 } // namespace nn::global
 
 #endif // GLOBAL
