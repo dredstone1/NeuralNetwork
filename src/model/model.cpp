@@ -134,7 +134,6 @@ void ProgressBar::printBar() {
 	bar[index++] = ']';
 	bar[index++] = ' ';
 
-	// Format percentage with padding
 	int written = std::snprintf(bar + index, sizeof(bar) - index, "%3d %%", percentage);
 	if (written > 0)
 		index += written;
