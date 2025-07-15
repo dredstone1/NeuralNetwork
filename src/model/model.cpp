@@ -109,7 +109,7 @@ void ProgressBar::printBar() {
 	if (total == 0)
 		return;
 
-	int percentage = static_cast<int>(100.0 * current / total + 0.5);
+	int percentage = 100.0 * current / total;
 
 	if (percentage == last_percentage)
 		return;

@@ -22,7 +22,7 @@ class ProgressBar {
 	const int total;
 	const std::string header;
 
-	int current;
+	int current{0};
 	int last_percentage{-1};
 
   public:
