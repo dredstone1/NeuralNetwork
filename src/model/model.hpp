@@ -67,7 +67,7 @@ class Model {
 	modelResult evaluateModel(
 	    DataBase &dataBase,
 	    const bool cancleOnError = false,
-	    const bool showProgressbar = true);
+	    const bool showProgressbar = true, global::Transformation transformation = nullptr);
 
   public:
 	Model(const std::string &config_filepath);
@@ -77,7 +77,7 @@ class Model {
 	void train(const std::string &db_filename, global::Transformation transformation = nullptr);
 	modelResult evaluateModel(
 	    const std::string &db_filename,
-	    const bool cancleOnError = false);
+	    const bool cancleOnError = false, global::Transformation transformation = nullptr);
 
 	int outputSize();
 	int inputSize();

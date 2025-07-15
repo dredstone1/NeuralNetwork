@@ -198,7 +198,7 @@ void Model::train(const std::string &db_filename, global::Transformation transfo
 		}
 
 		if (config.trainingConfig.isAutoEvaluating() && i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-			result = evaluateModel(evaluateDataBase, false, false);
+			result = evaluateModel(evaluateDataBase, false, false, transformation);
 
 			if (result.percentage == 100) {
 				break;
@@ -227,7 +227,7 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
 }
 
-modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, const bool showProgressbar) {
+modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, const bool showProgressbar, global::Transformation transformation) {
 	modelResult result;
 
 	if (showProgressbar) {
@@ -239,7 +239,12 @@ modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, c
 
 	for (int i = 0; i < result.dbSize; ++i) {
 		TrainSample &sample = dataBase.getSample(i);
-		runModel(sample.input);
+
+		if (transformation == nullptr) {
+			runModel(sample.input);
+		} else {
+            runModel(transformation(sample.input));
+        }
 
 		size_t predicted_index = std::distance(
 		    getOutput().begin(),
@@ -263,10 +268,10 @@ modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, c
 	return result;
 }
 
-modelResult Model::evaluateModel(const std::string &db_filename, const bool cancleOnError) {
+modelResult Model::evaluateModel(const std::string &db_filename, const bool cancleOnError, global::Transformation transformation) {
 	DataBase dataBase(config.trainingConfig);
 	dataBase.load(db_filename);
-	return evaluateModel(dataBase, cancleOnError);
+	return evaluateModel(dataBase, cancleOnError, transformation);
 }
 
 const global::ParamMetrix &Model::getOutput() const {
