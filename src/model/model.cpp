@@ -189,7 +189,9 @@ void Model::train(const std::string &db_filename, global::Transformation transfo
 			save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
 		}
 
-		if (config.trainingConfig.isAutoEvaluating() && i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
+		if (i >= config.trainingConfig.getAutoEvaluating().evaluateEvery &&
+		    config.trainingConfig.isAutoEvaluating() &&
+		    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
 			result = evaluateModel(evaluateDataBase, false, false, transformation);
 
 			if (result.percentage == 100) {
