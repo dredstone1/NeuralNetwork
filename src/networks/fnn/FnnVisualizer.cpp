@@ -125,23 +125,26 @@ void VisualDenseLayer::drawNeuron(const sf::FloatRect &rect, const double input,
 	shape.setFillColor(getNeuronColor(output));
 	shape.setPosition(rect.position);
 
-	std::ostringstream ss;
-	ss << std::fixed << std::setprecision(4) << input << "\n"
-	   << output;
-
-	sf::Text text(Fonts::getFont());
-	text.setCharacterSize(10 * rect.size.y / global::NEURON_WIDTH);
-	text.setString(ss.str());
-	text.setFillColor(NEURON_TEXT_COLOR);
-
-	sf::FloatRect textBounds = text.getLocalBounds();
-	text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
-	                textBounds.position.y + textBounds.size.y / 2.0f});
-
-	text.setPosition({rect.position.x + rect.size.x / 2.0f, rect.position.y + rect.size.y / 2.0f});
-
 	target.draw(shape);
-	target.draw(text);
+
+	if (10 * rect.size.y / global::NEURON_WIDTH > global::MIN_FONT_SIZE) {
+		std::ostringstream ss;
+		ss << std::fixed << std::setprecision(4) << input << "\n"
+		   << output;
+
+		sf::Text text(Fonts::getFont());
+		text.setCharacterSize(10 * rect.size.y / global::NEURON_WIDTH);
+		text.setString(ss.str());
+		text.setFillColor(NEURON_TEXT_COLOR);
+
+		sf::FloatRect textBounds = text.getLocalBounds();
+		text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
+		                textBounds.position.y + textBounds.size.y / 2.0f});
+
+		text.setPosition({rect.position.x + rect.size.x / 2.0f, rect.position.y + rect.size.y / 2.0f});
+
+		target.draw(text);
+	}
 }
 
 void VisualDenseLayer::renderNeuron(const int index, sf::RenderTexture &target) {

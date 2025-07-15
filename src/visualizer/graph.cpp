@@ -20,11 +20,10 @@ float Graph::dataGapWidth() const {
 }
 
 void Graph::renderDot(
-    int index,
+    const  int index,
     sf::RenderTarget &target,
-    sf::Vector2f position,
+    const sf::Vector2f &position,
     const sf::Color &color) {
-
 	if (GRAPH_HEIGHT < data[index] * graphAlpha) {
 		graphAlpha = GRAPH_HEIGHT / data[index];
 	}
@@ -68,7 +67,7 @@ GraphUIPanel::GraphUIPanel(std::shared_ptr<StateManager> vstate_)
     : Panel(vstate_),
       VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
       graphLost(GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT),
-      graphEvaluate(GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT) {
+      graphEvaluate(GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT / 100) {
 }
 
 void GraphUIPanel::clear() {

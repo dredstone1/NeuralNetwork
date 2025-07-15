@@ -4,7 +4,6 @@
 #include <network/IvisualNetwork.hpp>
 
 namespace nn::visualizer {
-
 struct neuronValues {
 	global::ValueType net;
 	global::ValueType out;

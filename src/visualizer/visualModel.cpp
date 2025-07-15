@@ -68,21 +68,23 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const int index) {
 	shape.setFillColor(getNeuronColor(values[index]));
 	shape.setPosition(cacheNeurons[index].position + pos);
 
-	std::ostringstream ss;
-	ss << std::fixed << std::setprecision(4) << values[index];
-
-	sf::Text text(Fonts::getFont());
-	text.setCharacterSize(10 * cacheNeurons[index].size.y / global::NEURON_WIDTH);
-	text.setString(ss.str());
-	text.setFillColor(fnn::NEURON_TEXT_COLOR);
-
-	sf::FloatRect textBounds = text.getLocalBounds();
-	text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
-	                textBounds.position.y + textBounds.size.y / 2.0f});
-	text.setPosition(sf::Vector2f(cacheNeurons[index].position.x + cacheNeurons[index].size.x / 2.0f, cacheNeurons[index].position.y + cacheNeurons[index].size.y / 2.0f) + pos);
-
 	target.draw(shape);
-	target.draw(text);
+
+	if (10 * cacheNeurons[index].size.y / global::NEURON_WIDTH > global::MIN_FONT_SIZE) {
+		std::ostringstream ss;
+		ss << std::fixed << std::setprecision(4) << values[index];
+
+		sf::Text text(Fonts::getFont());
+		text.setCharacterSize(10 * cacheNeurons[index].size.y / global::NEURON_WIDTH);
+		text.setString(ss.str());
+		text.setFillColor(fnn::NEURON_TEXT_COLOR);
+
+		sf::FloatRect textBounds = text.getLocalBounds();
+		text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
+		                textBounds.position.y + textBounds.size.y / 2.0f});
+		text.setPosition(sf::Vector2f(cacheNeurons[index].position.x + cacheNeurons[index].size.x / 2.0f, cacheNeurons[index].position.y + cacheNeurons[index].size.y / 2.0f) + pos);
+		target.draw(text);
+	}
 }
 
 ModelPanel::ModelPanel(const std::shared_ptr<StateManager> state_)

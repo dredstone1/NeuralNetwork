@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 
 namespace nn::visualizer {
-constexpr std::uint32_t GRAPH_WIDTH = 445;
+constexpr std::uint32_t GRAPH_WIDTH = 440;
 constexpr std::uint32_t GRAPH_HEIGHT = 315;
 constexpr std::uint32_t GRAPH_RESOLUTION = 100;
 constexpr int VERTICAL_NUMBERS_COUNT = 10;
@@ -28,20 +28,21 @@ class Graph {
 	std::uint32_t resolution;
 
 	float getHeight(const float value) const;
-	sf::Vector2f getPosition(int index) const;
+	sf::Vector2f getPosition(const int index) const;
 	void renderDot(
-	    int index,
+	    const int index,
 	    sf::RenderTarget &target,
-	    sf::Vector2f position, const sf::Color &color);
+	    const sf::Vector2f &position,
+	    const sf::Color &color);
 	float dataGapWidth() const;
 
   public:
 	Graph(std::uint32_t resolution = GRAPH_RESOLUTION, float alpha = GRAPH_HEIGHT);
 	~Graph() = default;
 
-	void drawTo(sf::RenderTarget &target, sf::Vector2f position = {0.f, 0.f}, const sf::Color &color = sf::Color::Black);
-	void addData(global::ValueType new_data, int index, int batchCount);
-	void setAlpha(float alpha);
+	void drawTo(sf::RenderTarget &rarget, const sf::Vector2f position = {0.f, 0.f}, const sf::Color &color = sf::Color::Black);
+	void addData(const global::ValueType new_data, const int index, const int batchCount);
+	void setAlpha(const float alpha);
 	float getAlpha() const;
 };
 
