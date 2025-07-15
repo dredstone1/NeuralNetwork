@@ -110,7 +110,8 @@ void ProgressBar::printBar() {
 	if (total == 0)
 		return;
 
-	const int percentage = 100 * current / total;
+	int percentage = static_cast<int>(100.0 * current / total + 0.5);
+
 	if (percentage == last_percentage)
 		return;
 
@@ -122,28 +123,21 @@ void ProgressBar::printBar() {
 	int index = 0;
 
 	bar[index++] = '[';
-	for (int i = 0; i < BAR_WIDTH; ++i)
-		bar[index++] = (i < pos) ? '=' : (i == pos) ? '>'
-		                                            : ' ';
+	for (int i = 0; i < BAR_WIDTH; ++i) {
+		if (i < pos)
+			bar[index++] = '=';
+		else if (i == pos)
+			bar[index++] = '>';
+		else
+			bar[index++] = ' ';
+	}
 	bar[index++] = ']';
 	bar[index++] = ' ';
 
-	if (percentage < 10) {
-		bar[index++] = ' ';
-		bar[index++] = ' ';
-		bar[index++] = percentage + '0';
-	} else if (percentage < 100) {
-		bar[index++] = ' ';
-		bar[index++] = (percentage / 10) + '0';
-		bar[index++] = (percentage % 10) + '0';
-	} else {
-		bar[index++] = '1';
-		bar[index++] = '0';
-		bar[index++] = '0';
-	}
-
-	bar[index++] = ' ';
-	bar[index++] = '%';
+	// Format percentage with padding
+	int written = std::snprintf(bar + index, sizeof(bar) - index, "%3d %%", percentage);
+	if (written > 0)
+		index += written;
 
 	bar[index++] = (percentage == 100) ? '\n' : '\r';
 	bar[index] = '\0';
@@ -243,8 +237,8 @@ modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, c
 		if (transformation == nullptr) {
 			runModel(sample.input);
 		} else {
-            runModel(transformation(sample.input));
-        }
+			runModel(transformation(sample.input));
+		}
 
 		size_t predicted_index = std::distance(
 		    getOutput().begin(),
