@@ -136,7 +136,7 @@ void ModelPanel::renderSubNetwork(const int index) {
 
 void ModelPanel::setPrediction(const global::Prediction &pre) {
 	global::ParamMetrix output(predictionLayer.size(), 0);
-    output[pre.index] = 1;
+	output[pre.index] = 1;
 	predictionLayer.setValues(output);
 
 	setUpdate();

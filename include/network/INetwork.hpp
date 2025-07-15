@@ -22,8 +22,8 @@ class INetwork {
 	virtual const global::ParamMetrix &getInput() const = 0;
 	virtual std::shared_ptr<visualizer::IVisualNetwork> getVisual() = 0;
 
-    virtual global::ParamMetrix getParams() const = 0;
-    virtual void setParams(const global::ParamMetrix params) = 0;
+	virtual global::ParamMetrix getParams() const = 0;
+	virtual void setParams(const global::ParamMetrix params) = 0;
 };
 } // namespace nn::model
 

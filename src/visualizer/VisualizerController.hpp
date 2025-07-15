@@ -1,11 +1,8 @@
 #ifndef VISUALIZERCONTROLLER
 #define VISUALIZERCONTROLLER
 
-#include "Globals.hpp"
-#include <network/IvisualNetwork.hpp>
 #include "VisualizerRenderer.hpp"
-#include <memory>
-#include <thread>
+#include <network/IvisualNetwork.hpp>
 
 namespace nn::model {
 class Model;

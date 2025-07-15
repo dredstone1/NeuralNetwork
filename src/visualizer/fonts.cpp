@@ -1,5 +1,4 @@
 #include "fonts.hpp"
-#include <string>
 
 namespace nn::visualizer {
 sf::Font &Fonts::getFont() {

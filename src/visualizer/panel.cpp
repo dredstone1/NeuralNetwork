@@ -13,6 +13,6 @@ int Panel::render() {
 }
 
 void Panel::setUpdate(const bool) {
-    need_update = true;    
+	need_update = true;
 }
 } // namespace nn::visualizer

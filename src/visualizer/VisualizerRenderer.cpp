@@ -1,6 +1,4 @@
 #include "VisualizerRenderer.hpp"
-#include "Globals.hpp"
-#include "state.hpp"
 
 namespace nn::visualizer {
 constexpr std::uint32_t NN_WIDTH = 1055u;

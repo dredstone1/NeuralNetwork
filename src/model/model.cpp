@@ -1,6 +1,5 @@
 #include "model.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
-#include "Globals.hpp"
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>

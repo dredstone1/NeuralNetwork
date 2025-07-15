@@ -42,14 +42,14 @@ class IVisualNetwork : public Panel {
 
 	sf::Sprite getSprite() { return sf::Sprite(networkRender.getTexture()); }
 
-    void setVstate(std::shared_ptr<StateManager> state_) {
-        vstate = state_;
-    }
+	void setVstate(std::shared_ptr<StateManager> state_) {
+		vstate = state_;
+	}
 
 	void attempPause() {
-        if (!vstate) {
-            return;
-        }
+		if (!vstate) {
+			return;
+		}
 
 		if (vstate->settings.autoPause.load()) {
 			vstate->settings.pause = true;

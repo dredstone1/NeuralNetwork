@@ -77,7 +77,7 @@ class TrainingConfig {
 	void fromJson(const nlohmann::json &j);
 
 	bool isAutoSave() const { return (autoSave.saveEvery > 0); }
-	 const AutoSave &getAutoSave() const { return autoSave; }
+	const AutoSave &getAutoSave() const { return autoSave; }
 
 	bool isAutoEvaluating() const { return (autoEvaluating.evaluateEvery > 0); }
 	const AutoEvaluating &getAutoEvaluating() const { return autoEvaluating; }

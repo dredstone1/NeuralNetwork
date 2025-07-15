@@ -1,5 +1,4 @@
 #include "VisualizerController.hpp"
-#include "Globals.hpp"
 
 namespace nn::visualizer {
 VisualManager::VisualManager(const model::Config &_config) : config(_config) {
@@ -79,9 +78,9 @@ void VisualManager::updateBatchCounter(const int batch) {
 }
 
 void VisualManager::updateError(
-	    const global::ValueType newDataEvaluate,
-	    const global::ValueType newDataLost,
-	    int index) {
+    const global::ValueType newDataEvaluate,
+    const global::ValueType newDataLost,
+    int index) {
 	if (!checkPointers()) {
 		return;
 	}

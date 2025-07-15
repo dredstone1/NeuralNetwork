@@ -46,7 +46,7 @@ void LayerParameters::add(const LayerParameters &new_gradient_layer) {
 
 void LayerParameters::set(const LayerParameters &new_gradient_layer) {
 	for (size_t i = 0; i < getSize(); ++i) {
-        bias[i] = new_gradient_layer.bias[i];
+		bias[i] = new_gradient_layer.bias[i];
 		for (size_t j = 0; j < getPrevSize(); ++j) {
 			weights[i][j] = new_gradient_layer.weights[i][j];
 		}
