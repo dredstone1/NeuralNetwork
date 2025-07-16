@@ -115,6 +115,7 @@ class Output_Layer : public DenseLayer {
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *) override;
+
 	global::ValueType getLoss(const global::Prediction &index) override;
 };
 

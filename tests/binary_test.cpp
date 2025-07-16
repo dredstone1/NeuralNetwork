@@ -1,5 +1,5 @@
 #include "tests.hpp"
-#include <AiModel.hpp>
+#include <model.hpp>
 #include <iostream>
 
 int int_to_binary(int num) {
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 	int input_size = 10;
 
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
-	nn::AiModel model(config_FN);
+	nn::model::Model model(config_FN);
 
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");

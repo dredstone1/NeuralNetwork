@@ -1,22 +1,12 @@
 #ifndef MODEL
 #define MODEL
 
-#include "../visualizer/VisualizerController.hpp"
-#include "dataBase.hpp"
+#include "../src/visualizer/VisualizerController.hpp"
+#include "../src/model/dataBase.hpp"
 #include <network/INetwork.hpp>
 
-namespace nn::model {
+namespace nn::visualizer {
 constexpr int BAR_WIDTH = 100;
-constexpr int SECONDS_IN_MINUTE = 60;
-
-const std::string TRAINING_HEADER = "Training";
-const std::string EVALUATING_HEADER = "Evaluating";
-
-struct modelResult {
-	int dbSize;
-	int currectPreSize;
-	float percentage;
-};
 
 class ProgressBar {
 	const int total;
@@ -34,6 +24,19 @@ class ProgressBar {
 	void printBar();
 
 	ProgressBar operator++(int);
+};
+} // namespace nn::visualizer
+
+namespace nn::model {
+constexpr int SECONDS_IN_MINUTE = 60;
+
+const std::string TRAINING_HEADER = "Training";
+const std::string EVALUATING_HEADER = "Evaluating";
+
+struct modelResult {
+	int dbSize;
+	int currectPreSize;
+	float percentage;
 };
 
 class Model {
@@ -86,6 +89,7 @@ class Model {
 	void load(const std::string &file);
 
 	const global::ParamMetrix &getOutput() const;
+	global::Prediction getPrediction();
 };
 } // namespace nn::model
 
