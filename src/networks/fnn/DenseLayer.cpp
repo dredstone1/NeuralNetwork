@@ -65,10 +65,6 @@ global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
 	return getCrossEntropyLoss(getOut(), targets.index);
 }
 
-global::ValueType Hidden_Layer::getLoss(const global::Prediction &) {
-	return 0;
-}
-
 void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 	for (size_t i = 0; i < dots.size(); ++i) {
 		dots.net[i] = parameters.bias[i];
@@ -76,9 +72,9 @@ void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 		for (size_t j = 0; j < metrix.size(); ++j) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
 		}
-
-		dots.out[i] = activation(dots.net[i]);
 	}
+
+	activationFunction.activate(dots.net, dots.out);
 }
 
 global::ParamMetrix Hidden_Layer::getDelta(
@@ -89,9 +85,9 @@ global::ParamMetrix Hidden_Layer::getDelta(
 		for (size_t j = 0; j < nextLayer.getSize(); ++j) {
 			deltas[i] += output[j] * nextLayer.weights[j][i];
 		}
-
-		deltas[i] *= derivativeActivation(dots.net[i]);
 	}
+
+	activationFunction.derivativeActivate(dots.out, deltas);
 
 	return deltas;
 }

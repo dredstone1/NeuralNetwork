@@ -44,7 +44,7 @@ class DenseLayer {
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *nextLayer = nullptr) = 0;
-	virtual global::ValueType getLoss(const global::Prediction &pre) = 0;
+	virtual global::ValueType getLoss(const global::Prediction &) { return 0; };
 
 	const Neurons &getDots() const { return dots; }
 	const LayerParameters &getParms() { return parameters; }
@@ -86,15 +86,6 @@ class Hidden_Layer : public DenseLayer {
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,
 	    const LayerParameters *nextLayer) override;
-
-	global::ValueType getLoss(const global::Prediction &index) override;
-
-	global::ValueType activation(const global::ValueType x) const {
-		return activationFunction.activate(x);
-	}
-	global::ValueType derivativeActivation(const global::ValueType x) const {
-		return activationFunction.derivativeActivate(x);
-	}
 };
 
 class Output_Layer : public DenseLayer {
