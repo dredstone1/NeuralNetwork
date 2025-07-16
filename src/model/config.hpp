@@ -37,6 +37,7 @@ class FNNConfig : public ISubNetworkConfig {
 	void fromJson(const nlohmann::json &j) override;
 
 	std::vector<DenseLayerConfig> layersConfig;
+	ActivationType outputActivation;
 };
 
 class NetworkConfig {

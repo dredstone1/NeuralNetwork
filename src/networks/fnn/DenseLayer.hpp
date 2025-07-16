@@ -22,15 +22,20 @@ struct Neurons {
 	void reset();
 };
 
-
 class DenseLayer {
   protected:
 	Neurons dots;
 	LayerParameters parameters;
 	LayerParameters gradients;
 
+	Activation activationFunction;
+
   public:
-	DenseLayer(const int size, const int prevSize, const bool randomInit = false);
+	DenseLayer(
+	    const int size,
+	    const int prevSize,
+	    const ActivationType activation,
+	    const bool randomInit = false);
 	virtual ~DenseLayer() = default;
 
 	virtual void forward(const global::ParamMetrix &metrix) = 0;
@@ -62,7 +67,6 @@ class DenseLayer {
 
 class Hidden_Layer : public DenseLayer {
   private:
-	Activation activationFunction;
 	const DenseLayerConfig &config;
 	global::ParamMetrix getDelta(
 	    const global::ParamMetrix &output,
@@ -73,8 +77,7 @@ class Hidden_Layer : public DenseLayer {
 	    const DenseLayerConfig &_config,
 	    const int _prev_size,
 	    const bool randomInit = false)
-	    : DenseLayer(_config.size, _prev_size, randomInit),
-	      activationFunction(_config.activationType),
+	    : DenseLayer(_config.size, _prev_size, _config.activationType, randomInit),
 	      config(_config) {}
 	~Hidden_Layer() override = default;
 
@@ -99,11 +102,20 @@ class Output_Layer : public DenseLayer {
 	const FNNConfig &config;
 
 	global::ParamMetrix getDelta(const global::ParamMetrix &output);
-	static global::ValueType getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target);
+	static global::ValueType getCrossEntropyLoss(
+	    const global::ParamMetrix &prediction,
+	    const int target);
 
   public:
-	Output_Layer(const FNNConfig &_config, const int _prev_size, const bool randomInit = false)
-	    : DenseLayer(_config.getOutputSize(), _prev_size, randomInit),
+	Output_Layer(
+	    const FNNConfig &_config,
+	    const int _prev_size,
+	    const bool randomInit = false)
+	    : DenseLayer(
+	          _config.getOutputSize(),
+	          _prev_size,
+	          _config.outputActivation,
+	          randomInit),
 	      config(_config) {}
 	~Output_Layer() override = default;
 
@@ -115,6 +127,6 @@ class Output_Layer : public DenseLayer {
 	global::ValueType getLoss(const global::Prediction &index) override;
 };
 
-} // namespace nn::model
+} // namespace nn::model::fnn
 
 #endif // DENSELAYER

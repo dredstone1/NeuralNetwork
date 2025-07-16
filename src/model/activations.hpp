@@ -16,6 +16,7 @@ enum class ActivationType {
 	LeakyRelu,
 	Sigmoid,
 	Tanh,
+	Softmax,
 	None,
 };
 
@@ -25,12 +26,30 @@ class Activation {
 
 	static global::ValueType relu(const global::ValueType x);
 	static global::ValueType derivativeRelu(const global::ValueType x);
+
 	static global::ValueType leakyRelu(const global::ValueType x);
 	static global::ValueType derivativeLeakyRelu(const global::ValueType x);
+
 	static global::ValueType sigmoid(const global::ValueType z);
 	static global::ValueType derivativeSigmoid(const global::ValueType z);
+
 	static global::ValueType tanh(const global::ValueType z);
 	static global::ValueType derivativeTanh(const global::ValueType z);
+
+	static void relu(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void derivativeRelu(const global::ParamMetrix &net, global::ParamMetrix &out);
+
+	static void leakyRelu(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void derivativeLeakyRelu(const global::ParamMetrix &net, global::ParamMetrix &out);
+
+	static void sigmoid(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void derivativeSigmoid(const global::ParamMetrix &net, global::ParamMetrix &out);
+
+	static void tanh(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void derivativeTanh(const global::ParamMetrix &net, global::ParamMetrix &out);
+
+	static void softmax(const global::ParamMetrix &net, global::ParamMetrix &out);
+
 	static global::ValueType maxVector(const global::ParamMetrix &metrix);
 
   public:
@@ -40,7 +59,11 @@ class Activation {
 
 	global::ValueType activate(const global::ValueType x) const;
 	global::ValueType derivativeActivate(const global::ValueType x) const;
-	static void softmax(const global::ParamMetrix &net, global::ParamMetrix &out);
+
+	void activate(const global::ParamMetrix &net, global::ParamMetrix &out) const;
+	void derivativeActivate(const global::ParamMetrix &net, global::ParamMetrix &out) const;
+
+	ActivationType getType() { return activationType; }
 };
 
 } // namespace nn::model

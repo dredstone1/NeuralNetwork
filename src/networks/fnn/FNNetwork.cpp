@@ -42,9 +42,9 @@ void FNNetwork::forward(const global::ParamMetrix &newInput) {
 
 	for (size_t i = 1; i < layers.size(); ++i) {
 		layers[i]->forward(layers[i - 1]->getOut());
-        
+
 		visual->setUpdate();
-        visual->attempPause();
+		visual->attempPause();
 	}
 }
 
@@ -60,7 +60,7 @@ void FNNetwork::backward(const global::ParamMetrix &outputDeltas) {
 		layers[i]->backward(deltas, prev, &layers[i + 1]->getParms());
 
 		visual->setUpdate();
-        visual->attempPause();
+		visual->attempPause();
 	}
 
 	calculateInputDelta(deltas);
@@ -104,6 +104,7 @@ void FNNetwork::updateWeights(const global::ValueType learningRate) {
 
 void FNNetwork::calculateInputDelta(const global::ParamMetrix &deltas) {
 	for (int i = 0; i < inputSize(); ++i) {
+        input[i] = 0;
 		for (size_t j = 0; j < layers[0]->getSize(); ++j) {
 			input[i] += deltas[j] * layers[0]->getParms().weights[j][i];
 		}

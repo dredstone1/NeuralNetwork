@@ -1,10 +1,15 @@
 #include "DenseLayer.hpp"
 
 namespace nn::model::fnn {
-DenseLayer::DenseLayer(const int size, const int prevSize, const bool randomInit)
+DenseLayer::DenseLayer(
+    const int size,
+    const int prevSize,
+    const ActivationType activation,
+    const bool randomInit)
     : dots(size),
       parameters(size, prevSize),
-      gradients(size, prevSize) {
+      gradients(size, prevSize),
+      activationFunction(activation) {
 	if (randomInit) {
 		parameters.initializeParamRandom(getPrevSize());
 	}
@@ -19,7 +24,7 @@ void Output_Layer::forward(const global::ParamMetrix &metrix) {
 		}
 	}
 
-	Activation::softmax(dots.net, dots.out);
+	activationFunction.activate(dots.net, dots.out);
 }
 
 global::ParamMetrix Output_Layer::getDelta(const global::ParamMetrix &output) {
@@ -35,7 +40,11 @@ void Output_Layer::backward(
     global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
     const LayerParameters *) {
-	deltas = getDelta(deltas);
+	if (activationFunction.getType() == ActivationType::Softmax) {
+		deltas = getDelta(deltas);
+	} else {
+		activationFunction.derivativeActivate(dots.out, deltas);
+	}
 
 	for (size_t i = 0; i < getSize(); ++i) {
 		gradients.bias[i] += deltas[i];
@@ -46,7 +55,9 @@ void Output_Layer::backward(
 	}
 }
 
-global::ValueType Output_Layer::getCrossEntropyLoss(const global::ParamMetrix &prediction, const int target) {
+global::ValueType Output_Layer::getCrossEntropyLoss(
+    const global::ParamMetrix &prediction,
+    const int target) {
 	return -std::log(std::max(prediction[target], MIN_LOSS_VALUE));
 }
 
@@ -54,7 +65,9 @@ global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
 	return getCrossEntropyLoss(getOut(), targets.index);
 }
 
-global::ValueType Hidden_Layer::getLoss(const global::Prediction &) { return 0; }
+global::ValueType Hidden_Layer::getLoss(const global::Prediction &) {
+	return 0;
+}
 
 void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 	for (size_t i = 0; i < dots.size(); ++i) {

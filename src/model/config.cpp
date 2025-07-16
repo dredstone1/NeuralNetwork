@@ -1,4 +1,5 @@
 #include "config.hpp"
+#include "activations.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -48,6 +49,7 @@ void FNNConfig::fromJson(const nlohmann::json &j) {
 	inputSize = j.at("input size");
 	outputSize = j.at("output size");
 	layersConfig = j.at("layers").get<std::vector<DenseLayerConfig>>();
+	outputActivation = (ActivationType)j.at("output activation");
 }
 
 int NetworkConfig::inputSize() const {

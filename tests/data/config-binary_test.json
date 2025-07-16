@@ -8,8 +8,8 @@
 	},
 	"training config": {
 		"batch size": 8,
-		"batch count": 1000000,
-		"learning rate": 0.01,
+		"batch count": 100000,
+		"learning rate": 0.1,
 		"auto save": {
 			"saveEvery": 2000,
 			"dataFilenameAutoSave": "mode.txt"
@@ -24,11 +24,15 @@
 			"type": "FNN",
 			"input size": 10,
 			"output size": 16,
-			"layers": [
-				{ "size": 15, "activationType": 1 },
-				{ "size": 4, "activationType": 2 },
-				{ "size": 20, "activationType": 1 }
-			]
+			"output activation": 1,
+			"layers": [{ "size": 15, "activationType": 1 }]
+		},
+		{
+			"type": "FNN",
+			"input size": 16,
+			"output size": 16,
+			"output activation": 4,
+			"layers": [{ "size": 15, "activationType": 1 }]
 		}
 	]
 }
