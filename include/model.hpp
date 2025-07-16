@@ -1,8 +1,8 @@
 #ifndef MODEL
 #define MODEL
 
-#include "../src/visualizer/VisualizerController.hpp"
 #include "../src/model/dataBase.hpp"
+#include "../src/visualizer/VisualizerController.hpp"
 #include <network/INetwork.hpp>
 
 namespace nn::visualizer {
@@ -72,6 +72,10 @@ class Model {
 	    const bool cancleOnError = false,
 	    const bool showProgressbar = true, global::Transformation transformation = nullptr);
 
+	int outputSize();
+	int inputSize();
+	const global::ParamMetrix &getOutput() const;
+
   public:
 	Model(const std::string &config_filepath);
 	~Model() = default;
@@ -82,13 +86,9 @@ class Model {
 	    const std::string &db_filename,
 	    const bool cancleOnError = false, global::Transformation transformation = nullptr);
 
-	int outputSize();
-	int inputSize();
-
 	void save(const std::string &file);
 	void load(const std::string &file);
 
-	const global::ParamMetrix &getOutput() const;
 	global::Prediction getPrediction();
 };
 } // namespace nn::model
