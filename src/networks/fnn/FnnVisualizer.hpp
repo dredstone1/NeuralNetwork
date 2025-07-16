@@ -29,8 +29,8 @@ static const std::array<sf::Color, 3> color_lookup = {
 class VisualDenseLayer {
   private:
 	const model::fnn::Neurons &dots;
-	const model::LayerParameters &parameters;
-	const model::LayerParameters &gradients;
+	const model::fnn::LayerParameters &parameters;
+	const model::fnn::LayerParameters &gradients;
 
 	const sf::Vector2f pos;
 
@@ -59,8 +59,8 @@ class VisualDenseLayer {
 	VisualDenseLayer(
 	    const std::uint32_t width,
 	    const model::fnn::Neurons &dots,
-	    const model::LayerParameters &parameters,
-	    const model::LayerParameters &gradients,
+	    const model::fnn::LayerParameters &parameters,
+	    const model::fnn::LayerParameters &gradients,
 	    const sf::Vector2f pos);
 	~VisualDenseLayer() = default;
 
@@ -87,9 +87,9 @@ class FnnVisualier : public IVisualNetwork {
 	void initLayer(
 	    const int index,
 	    const model::fnn::Neurons &dots,
-	    const model::LayerParameters &parameters,
-	    const model::LayerParameters &gradients);
+	    const model::fnn::LayerParameters &parameters,
+	    const model::fnn::LayerParameters &gradients);
 };
-} // namespace nn::visualizer
+} // namespace nn::visualizer::fnn
 
 #endif // FNNVISUALNETWORK

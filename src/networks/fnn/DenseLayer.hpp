@@ -1,8 +1,8 @@
 #ifndef DENSELAYER
 #define DENSELAYER
 
-#include "../../model/LayerParameters.hpp"
 #include "../../model/config.hpp"
+#include "LayerParameters.hpp"
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;

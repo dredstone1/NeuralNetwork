@@ -31,8 +31,8 @@ void FnnVisualier::renderLayer(const int index) {
 void FnnVisualier::initLayer(
     const int index,
     const model::fnn::Neurons &dots,
-    const model::LayerParameters &parameters,
-    const model::LayerParameters &gradients) {
+    const model::fnn::LayerParameters &parameters,
+    const model::fnn::LayerParameters &gradients) {
 	float _width = visualWidth / Layers.size();
 	float offset = _width * index;
 	Layers[index] = std::make_unique<VisualDenseLayer>(_width, dots, parameters, gradients, sf::Vector2f(offset, 0));
@@ -41,8 +41,8 @@ void FnnVisualier::initLayer(
 VisualDenseLayer::VisualDenseLayer(
     const std::uint32_t _width,
     const model::fnn::Neurons &_dots,
-    const model::LayerParameters &_parameters,
-    const model::LayerParameters &_gradients,
+    const model::fnn::LayerParameters &_parameters,
+    const model::fnn::LayerParameters &_gradients,
     const sf::Vector2f _pos)
     : dots(_dots),
       parameters(_parameters),

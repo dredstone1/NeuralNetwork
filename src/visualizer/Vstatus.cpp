@@ -29,9 +29,13 @@ std::string StatusPanel::getText() {
 	const int currentBatch = vstate->currentBatch;
 	const int remainingBatches = totalBatches - currentBatch;
 
-	float minutesLeft = 0.0f;
+	int hours = 0, minutes = 0, seconds = 0;
 	if (avgBatchPerSecond > 0.01f) {
-		minutesLeft = remainingBatches / avgBatchPerSecond / 60.0f;
+		float totalSeconds = remainingBatches / avgBatchPerSecond;
+		int totalSec = static_cast<int>(totalSeconds);
+		hours = totalSec / 3600;
+		minutes = (totalSec % 3600) / 60;
+		seconds = totalSec % 60;
 	}
 
 	ss << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << "\n"
@@ -41,8 +45,10 @@ std::string StatusPanel::getText() {
 	   << TextLabels::CURRENT_BATCH_TEXT << currentBatch << "/" << totalBatches << " #" << batchPerSecond << "\n"
 	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.getBatchSize() << "\n"
 	   << TextLabels::LEARNING_RATE_TEXT << learningRate << "\n"
-	   << "Time Left: " << std::fixed << std::setprecision(2) << minutesLeft << " min\n"
-	   << "Time Left: " << std::fixed << std::setprecision(2) << minutesLeft / 60 << " hours";
+	   << "Time Left: "
+	   << std::setw(2) << std::setfill('0') << hours << ":"
+	   << std::setw(2) << std::setfill('0') << minutes << ":"
+	   << std::setw(2) << std::setfill('0') << seconds;
 
 	return ss.str();
 }

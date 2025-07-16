@@ -3,7 +3,7 @@
 
 #include <Globals.hpp>
 
-namespace nn::model {
+namespace nn::model::fnn {
 constexpr global::ValueType PARAM_RESET_VALUE = 0;
 constexpr int RN_ROUND_VALUE = 10000;
 
@@ -27,5 +27,5 @@ struct LayerParameters {
 	void set(const LayerParameters &newGradient);
 	void reset();
 };
-} // namespace nn::model
+} // namespace nn::model::fnn
 #endif // LAYER_PARAMETERS
