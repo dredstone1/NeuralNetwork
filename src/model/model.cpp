@@ -1,7 +1,7 @@
-#include <model.hpp>
 #include "../networks/fnn/FNNetwork.hpp"
 #include <fstream>
 #include <iostream>
+#include <model.hpp>
 
 namespace nn::visualizer {
 void ProgressBar::printBar() {
@@ -231,7 +231,7 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 }
 
 modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, const bool showProgressbar, global::Transformation transformation) {
-	modelResult result;
+	modelResult result{0, 0, 0};
 
 	if (showProgressbar) {
 		std::cout << "Evaluating AI" << std::endl;
