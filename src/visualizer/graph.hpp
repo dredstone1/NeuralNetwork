@@ -1,6 +1,7 @@
 #ifndef GRAPH_CORE_HPP
 #define GRAPH_CORE_HPP
 
+#include "Globals.hpp"
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
 
@@ -27,6 +28,12 @@ class Graph {
 	double graphAlpha;
 	std::uint32_t resolution;
 
+	int IndexCount{0};
+	int Index{0};
+	const int dataGaps;
+
+	global::ValueType getValue(const int index) const;
+
 	float getHeight(const float value) const;
 	sf::Vector2f getPosition(const int index) const;
 	void renderDot(
@@ -37,11 +44,11 @@ class Graph {
 	float dataGapWidth() const;
 
   public:
-	Graph(std::uint32_t resolution = GRAPH_RESOLUTION, float alpha = GRAPH_HEIGHT);
+	Graph(const int batchCount, std::uint32_t resolution = GRAPH_RESOLUTION, float alpha = GRAPH_HEIGHT);
 	~Graph() = default;
 
 	void drawTo(sf::RenderTarget &rarget, const sf::Vector2f position = {0.f, 0.f}, const sf::Color &color = sf::Color::Black);
-	void addData(const global::ValueType new_data, const int index, const int batchCount);
+	void addData(const global::ValueType new_data, const int index);
 	void setAlpha(const float alpha);
 	float getAlpha() const;
 };

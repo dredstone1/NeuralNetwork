@@ -2,9 +2,10 @@
 #include "fonts.hpp"
 
 namespace nn::visualizer {
-Graph::Graph(std::uint32_t res, float alpha)
+Graph::Graph(const int batchCount, std::uint32_t res, float alpha)
     : graphAlpha(alpha),
-      resolution(std::min(GRAPH_RESOLUTION, res) - 1) {
+      resolution(std::min(GRAPH_RESOLUTION, res) - 1),
+      dataGaps(batchCount / resolution) {
 }
 
 float Graph::getHeight(const float value) const {
@@ -12,20 +13,27 @@ float Graph::getHeight(const float value) const {
 }
 
 sf::Vector2f Graph::getPosition(int index) const {
-	return {index * dataGapWidth(), getHeight(data[index])};
+	return {index * dataGapWidth(), getHeight(getValue(index))};
 }
 
 float Graph::dataGapWidth() const {
 	return GRAPH_WIDTH / static_cast<float>(resolution);
 }
 
+global::ValueType Graph::getValue(const int index) const {
+	if (Index == index) {
+		return data[index] / IndexCount;
+	}
+	return data[index] / dataGaps;
+}
+
 void Graph::renderDot(
-    const  int index,
+    const int index,
     sf::RenderTarget &target,
     const sf::Vector2f &position,
     const sf::Color &color) {
-	if (GRAPH_HEIGHT < data[index] * graphAlpha) {
-		graphAlpha = GRAPH_HEIGHT / data[index];
+	if (GRAPH_HEIGHT < getValue(index) * graphAlpha) {
+		graphAlpha = GRAPH_HEIGHT / getValue(index);
 	}
 
 	sf::VertexArray line(sf::PrimitiveType::Lines, 2);
@@ -43,8 +51,8 @@ void Graph::drawTo(sf::RenderTarget &target, sf::Vector2f position, const sf::Co
 	}
 }
 
-void Graph::addData(global::ValueType new_data, int index, int batchCount) {
-	int dataGaps = batchCount / resolution;
+void Graph::addData(global::ValueType new_data, int index) {
+
 	if (dataGaps == 0)
 		return;
 
@@ -52,7 +60,14 @@ void Graph::addData(global::ValueType new_data, int index, int batchCount) {
 	if (place < 0 || place >= static_cast<int>(resolution))
 		return;
 
-	data[place] += new_data / dataGaps;
+	if (Index != place) {
+		IndexCount = 0;
+	}
+
+	Index = place;
+
+	data[place] += new_data;
+	IndexCount++;
 }
 
 void Graph::setAlpha(float alpha) {
@@ -66,8 +81,8 @@ float Graph::getAlpha() const {
 GraphUIPanel::GraphUIPanel(std::shared_ptr<StateManager> vstate_)
     : Panel(vstate_),
       VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
-      graphLost(GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT),
-      graphEvaluate(GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT / 100) {
+      graphLost(vstate->config.trainingConfig.getBatchCount(), GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT),
+      graphEvaluate(vstate->config.trainingConfig.getBatchCount(), GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT / 100) {
 }
 
 void GraphUIPanel::clear() {
@@ -149,8 +164,8 @@ void GraphUIPanel::addData(
     const global::ValueType newDataEvaluate,
     const global::ValueType newDataLost,
     int index) {
-	graphLost.addData(newDataLost, index, vstate->config.trainingConfig.getBatchCount());
-	graphEvaluate.addData(newDataEvaluate, index, vstate->config.trainingConfig.getBatchCount());
+	graphLost.addData(newDataLost, index);
+	graphEvaluate.addData(newDataEvaluate, index);
 	setUpdate();
 }
 } // namespace nn::visualizer
