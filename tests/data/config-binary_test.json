@@ -1,7 +1,7 @@
 {
 	"visual config": {
 		"modes": [
-			{ "state": "pause", "mode": false },
+			{ "state": "pause", "mode": true },
 			{ "state": "precise mode", "mode": false },
 			{ "state": "auto pause", "mode": false }
 		]
@@ -18,8 +18,11 @@
 			"dataBaseFilename": "../tests/data/database-binary_test"
 		},
 		"optimizer": {
-			"type": "const",
-			"learning rate": 0.1
+			"type": "adam",
+			"lr": 0.000001,
+			"beta1": 0.9,
+			"beta2": 0.999,
+			"epsilon": 1e-8
 		}
 	},
 	"network config": [

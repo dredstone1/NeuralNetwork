@@ -80,6 +80,8 @@ void TrainingConfig::fromJson(const nlohmann::json &j) {
 
 		if (optimizerType == "const") {
 			optimizer = std::make_unique<ConstantOptimizerConfig>(optimizerJ);
+		} else if (optimizerType == "adam") {
+			optimizer = std::make_unique<AdamOptimizerConfig>(optimizerJ);
 		}
 	}
 }
