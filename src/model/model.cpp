@@ -66,7 +66,7 @@ Model::Model(const std::string &config_filepath)
 void Model::initOptimizer() {
 	const std::string &type = config.trainingConfig.getOptimizerType();
 
-	if (type == "Const") {
+	if (type == "const") {
 		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(config.trainingConfig.getOptimizer().get());
 		optimizer = std::make_shared<ConstantOptimizer>(*optConfig);
 	}

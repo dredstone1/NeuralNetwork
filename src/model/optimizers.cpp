@@ -1,7 +1,11 @@
 #include "optimizers.hpp"
 
 namespace nn::model {
-global::ValueType ConstantOptimizer::calculate(const global::ValueType, const global::ValueType grad) {
-	return config.getLearningRate() * grad / batchSize;
+void ConstantOptimizer::step(float *weight, const float *grad, std::size_t size) {
+	const float lr = config.getLearningRate() / static_cast<float>(batchSize);
+
+	for (std::size_t i = 0; i < size; ++i) {
+		weight[i] -= lr * grad[i];
+	}
 }
 } // namespace nn::model

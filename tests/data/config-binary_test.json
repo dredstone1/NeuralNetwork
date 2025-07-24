@@ -18,8 +18,8 @@
 			"dataBaseFilename": "../tests/data/database-binary_test"
 		},
 		"optimizer": {
-			"type": "Const",
-			"learning rate": 0.4
+			"type": "const",
+			"learning rate": 0.1
 		}
 	},
 	"network config": [

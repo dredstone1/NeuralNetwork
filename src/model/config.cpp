@@ -78,7 +78,7 @@ void TrainingConfig::fromJson(const nlohmann::json &j) {
 		nlohmann::json optimizerJ = j.at("optimizer");
 		optimizerType = optimizerJ.at("type");
 
-		if (optimizerType == "Const") {
+		if (optimizerType == "const") {
 			optimizer = std::make_unique<ConstantOptimizerConfig>(optimizerJ);
 		}
 	}
