@@ -13,13 +13,9 @@ void LayerParameters::initializeParamRandom(const int prev_size) {
 	global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prev_size));
 	std::normal_distribution<> dist(0.0, std_dev);
 
-	global::ValueType limit = 3.0 * std_dev;
-
 	for (auto &row : weights) {
 		for (auto &w : row) {
-			global::ValueType random_value = dist(gen);
-			w = std::min(std::max(random_value, -limit), limit);
-			w = std::round(w * RN_ROUND_VALUE) / RN_ROUND_VALUE;
+			w = dist(gen);
 		}
 	}
 }
@@ -53,13 +49,4 @@ void LayerParameters::set(const LayerParameters &new_gradient_layer) {
 	}
 }
 
-void LayerParameters::multiply(const global::ValueType value) {
-	for (size_t i = 0; i < getSize(); ++i) {
-		bias[i] *= value;
-
-		for (size_t j = 0; j < getPrevSize(); ++j) {
-			weights[i][j] *= value;
-		}
-	}
-}
 } // namespace nn::model::fnn

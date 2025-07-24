@@ -23,7 +23,6 @@ struct LayerParameters {
 	size_t getPrevSize() const { return (weights.empty()) ? 0 : weights[0].size(); }
 
 	void add(const LayerParameters &newGradient);
-	void multiply(const global::ValueType value);
 	void set(const LayerParameters &newGradient);
 	void reset();
 };

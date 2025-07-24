@@ -1,5 +1,6 @@
 #include "FnnVisualizer.hpp"
 #include "../../visualizer/fonts.hpp"
+#include <SFML/System/Vector2.hpp>
 
 namespace nn::visualizer::fnn {
 FnnVisualier::FnnVisualier(
@@ -35,7 +36,12 @@ void FnnVisualier::initLayer(
     const model::fnn::LayerParameters &gradients) {
 	float _width = visualWidth / Layers.size();
 	float offset = _width * index;
-	Layers[index] = std::make_unique<VisualDenseLayer>(_width, dots, parameters, gradients, sf::Vector2f(offset, 0));
+	Layers[index] = std::make_unique<VisualDenseLayer>(
+	    _width,
+	    dots,
+	    parameters,
+	    gradients,
+	    sf::Vector2f(offset, 0));
 }
 
 VisualDenseLayer::VisualDenseLayer(
@@ -64,7 +70,9 @@ void VisualDenseLayer::doCacheWeights() {
 
 	for (size_t neuron = 0; neuron < parameters.getPrevSize(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
-		cachePrevNeurons[neuron] = sf::FloatRect(sf::Vector2f(x, y), {neuron_width_scaled, neuron_width_scaled});
+		cachePrevNeurons[neuron] = sf::FloatRect(
+		    sf::Vector2f(x, y),
+		    sf::Vector2f(neuron_width_scaled, neuron_width_scaled));
 	}
 }
 
@@ -77,7 +85,9 @@ void VisualDenseLayer::doCacheNeurons() {
 
 	for (size_t neuron = 0; neuron < dots.size(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
-		cacheNeurons[neuron] = sf::FloatRect(sf::Vector2f(x, y), {neuron_width_scaled, neuron_width_scaled});
+		cacheNeurons[neuron] = sf::FloatRect(
+		    sf::Vector2f(x, y),
+		    sf::Vector2f(neuron_width_scaled, neuron_width_scaled));
 	}
 }
 
@@ -120,7 +130,11 @@ sf::Color VisualDenseLayer::getNeuronColor(const global::ValueType value) {
 	return newColor;
 }
 
-void VisualDenseLayer::drawNeuron(const sf::FloatRect &rect, const double input, const double output, sf::RenderTexture &target) {
+void VisualDenseLayer::drawNeuron(
+    const sf::FloatRect &rect,
+    const double input,
+    const double output,
+    sf::RenderTexture &target) {
 	sf::RectangleShape shape(rect.size);
 	shape.setFillColor(getNeuronColor(output));
 	shape.setPosition(rect.position);
