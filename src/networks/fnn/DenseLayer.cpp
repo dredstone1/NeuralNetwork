@@ -110,9 +110,14 @@ void Hidden_Layer::backward(
 	}
 }
 
-void DenseLayer::updateWeight(const global::ValueType learningRate) {
-	gradients.multiply(-learningRate);
-	parameters.add(gradients);
+void DenseLayer::updateWeight(const std::shared_ptr<IOptimizer> optimizer) {
+	for (size_t i = 0; i < parameters.getSize(); ++i) {
+		parameters.bias[i] -= optimizer->calculate(parameters.bias[i], gradients.bias[i]);
+
+		for (size_t j = 0; j < parameters.getPrevSize(); ++j) {
+			parameters.weights[i][j] -= optimizer->calculate(parameters.weights[i][j], gradients.weights[i][j]);
+		}
+	}
 }
 
 const global::ParamMetrix DenseLayer::getData() const {

@@ -1,6 +1,8 @@
 #include "../networks/fnn/FNNetwork.hpp"
+#include "optimizers.hpp"
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <model.hpp>
 
 namespace nn::visualizer {
@@ -56,8 +58,18 @@ Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       visual(config),
       learningRate(config.trainingConfig.getLearningRate()) {
+	initOptimizer();
 	initModel();
 	initVisual();
+}
+
+void Model::initOptimizer() {
+	const std::string &type = config.trainingConfig.getOptimizerType();
+
+	if (type == "Const") {
+		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(config.trainingConfig.getOptimizer().get());
+		optimizer = std::make_shared<ConstantOptimizer>(*optConfig);
+	}
 }
 
 void Model::initVisual() {
@@ -104,10 +116,10 @@ void Model::resetNetworkGradient() {
 }
 
 void Model::updateWeights(const int batchSize) {
-	const global::ValueType CURRENT_LEARNING_RATE = learningRate / batchSize;
+	optimizer->setOfset(batchSize);
 
 	for (auto &subNet : network) {
-		subNet->updateWeights(CURRENT_LEARNING_RATE);
+		subNet->updateWeights(optimizer);
 	}
 }
 

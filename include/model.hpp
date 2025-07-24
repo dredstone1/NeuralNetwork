@@ -3,7 +3,9 @@
 
 #include "../src/model/dataBase.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
+#include <memory>
 #include <network/INetwork.hpp>
+#include "../src/model/optimizers.hpp"
 
 namespace nn::visualizer {
 constexpr int BAR_WIDTH = 100;
@@ -48,6 +50,8 @@ class Model {
 
 	global::ValueType learningRate;
 
+	std::shared_ptr<IOptimizer> optimizer;
+
 	void Forword(const global::ParamMetrix &input, const int modelIndex);
 
 	void Backward(const global::ParamMetrix &output);
@@ -64,6 +68,7 @@ class Model {
 
 	void initModel();
 	void initVisual();
+	void initOptimizer();
 
 	float calculatePercentage(size_t currentSize, size_t totalSize);
 

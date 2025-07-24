@@ -1,7 +1,7 @@
 #ifndef IVISUALNETWORK
 #define IVISUALNETWORK
 
-#include "../src/visualizer/panel.hpp"
+#include "../../src/visualizer/panel.hpp"
 #include <SFML/Graphics.hpp>
 #include <thread>
 

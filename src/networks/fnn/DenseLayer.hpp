@@ -3,6 +3,7 @@
 
 #include "../../model/config.hpp"
 #include "LayerParameters.hpp"
+#include "../src/model/optimizers.hpp"
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
@@ -39,7 +40,7 @@ class DenseLayer {
 	virtual ~DenseLayer() = default;
 
 	virtual void forward(const global::ParamMetrix &metrix) = 0;
-	void updateWeight(const global::ValueType learningRate);
+	void updateWeight(const std::shared_ptr<IOptimizer> optimizer);
 	virtual void backward(
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,

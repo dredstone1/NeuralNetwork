@@ -9,7 +9,6 @@
 	"training config": {
 		"batch size": 8,
 		"batch count": 100000,
-		"learning rate": 0.1,
 		"auto save": {
 			"saveEvery": 2000,
 			"dataFilenameAutoSave": "mode.txt"
@@ -17,6 +16,10 @@
 		"auto evaluating": {
 			"evaluateEvery": 1000,
 			"dataBaseFilename": "../tests/data/database-binary_test"
+		},
+		"optimizer": {
+			"type": "Const",
+			"learning rate": 0.4
 		}
 	},
 	"network config": [

@@ -1,11 +1,31 @@
 #ifndef CONFIG
 #define CONFIG
 
+#include "Globals.hpp"
 #include "activations.hpp"
 #include <memory>
 #include <nlohmann/json.hpp>
 
 namespace nn::model {
+class IOptimizerConfig {
+  public:
+	virtual void fromJson(const nlohmann::json &j) = 0;
+	virtual global::ValueType getLearningRate() const = 0;
+
+	virtual ~IOptimizerConfig() = default;
+};
+
+class ConstantOptimizerConfig : public IOptimizerConfig {
+  private:
+	global::ValueType learningRate{0.001};
+
+  public:
+	ConstantOptimizerConfig(const nlohmann::json &j) { fromJson(j); }
+	void fromJson(const nlohmann::json &j) override;
+	global::ValueType getLearningRate() const override { return learningRate; }
+
+	~ConstantOptimizerConfig() = default;
+};
 
 class ISubNetworkConfig {
   protected:
@@ -69,7 +89,8 @@ class TrainingConfig {
 	size_t batchSize;
 	int batchCount;
 
-	global::ValueType learningRate = 0.001;
+	std::unique_ptr<IOptimizerConfig> optimizer;
+	std::string optimizerType;
 
   public:
 	TrainingConfig() {}
@@ -86,7 +107,10 @@ class TrainingConfig {
 	int getBatchCount() const { return batchCount; }
 	size_t getBatchSize() const { return batchSize; }
 
-	global::ValueType getLearningRate() const { return learningRate; }
+	global::ValueType getLearningRate() const { return optimizer->getLearningRate(); }
+
+	const std::unique_ptr<IOptimizerConfig> &getOptimizer() const { return optimizer; }
+	const std::string &getOptimizerType() const { return optimizerType; }
 };
 
 struct VisualMode {

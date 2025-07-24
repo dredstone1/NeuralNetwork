@@ -2,6 +2,8 @@
 #include "activations.hpp"
 #include <fstream>
 #include <iostream>
+#include <memory>
+#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
 Config::Config(const std::string &config_filepath) {
@@ -63,13 +65,26 @@ int NetworkConfig::outputSize() const {
 void TrainingConfig::fromJson(const nlohmann::json &j) {
 	batchCount = j.at("batch count");
 	batchSize = j.at("batch size");
-	learningRate = j.at("learning rate");
 
 	if (j.contains("auto save")) {
 		autoSave = j.at("auto save").get<AutoSave>();
 	}
+
 	if (j.contains("auto evaluating")) {
 		autoEvaluating = j.at("auto evaluating").get<AutoEvaluating>();
 	}
+
+	if (j.contains("optimizer")) {
+		nlohmann::json optimizerJ = j.at("optimizer");
+		optimizerType = optimizerJ.at("type");
+
+		if (optimizerType == "Const") {
+			optimizer = std::make_unique<ConstantOptimizerConfig>(optimizerJ);
+		}
+	}
+}
+
+void ConstantOptimizerConfig::fromJson(const nlohmann::json &j) {
+	learningRate = j.at("learning rate");
 }
 } // namespace nn::model
