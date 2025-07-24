@@ -70,10 +70,7 @@ void Model::initOptimizer() {
 	if (type == "const") {
 		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(config.trainingConfig.getOptimizer().get());
 		optimizer = std::make_shared<ConstantOptimizer>(*optConfig);
-	} else if (type == "adam") {
-		auto *optConfig = dynamic_cast<AdamOptimizerConfig *>(config.trainingConfig.getOptimizer().get());
-		optimizer = std::make_shared<AdamOptimizer>(*optConfig);
-	}
+    }
 }
 
 void Model::initVisual() {

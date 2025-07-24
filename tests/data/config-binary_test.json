@@ -18,11 +18,8 @@
 			"dataBaseFilename": "../tests/data/database-binary_test"
 		},
 		"optimizer": {
-			"type": "adam",
-			"lr": 0.000001,
-			"beta1": 0.9,
-			"beta2": 0.999,
-			"epsilon": 1e-8
+			"type": "const",
+			"lr": 0.1
 		}
 	},
 	"network config": [

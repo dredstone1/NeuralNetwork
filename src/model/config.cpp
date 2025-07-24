@@ -80,13 +80,11 @@ void TrainingConfig::fromJson(const nlohmann::json &j) {
 
 		if (optimizerType == "const") {
 			optimizer = std::make_unique<ConstantOptimizerConfig>(optimizerJ);
-		} else if (optimizerType == "adam") {
-			optimizer = std::make_unique<AdamOptimizerConfig>(optimizerJ);
 		}
 	}
 }
 
 void ConstantOptimizerConfig::fromJson(const nlohmann::json &j) {
-	learningRate = j.at("learning rate");
+	learningRate = j.at("lr");
 }
 } // namespace nn::model

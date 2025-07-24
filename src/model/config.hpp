@@ -27,35 +27,6 @@ class ConstantOptimizerConfig : public IOptimizerConfig {
 	~ConstantOptimizerConfig() = default;
 };
 
-class AdamOptimizerConfig : public IOptimizerConfig {
-  private:
-	global::ValueType learningRate{0.001};
-	global::ValueType beta1{0.9};
-	global::ValueType beta2{0.999};
-	global::ValueType epsilon{1e-8};
-
-  public:
-	AdamOptimizerConfig() = default;
-	AdamOptimizerConfig(const nlohmann::json &j) { fromJson(j); }
-
-	void fromJson(const nlohmann::json &j) override {
-		if (j.contains("lr"))       learningRate = j["lr"].get<global::ValueType>();
-		if (j.contains("beta1"))    beta1        = j["beta1"].get<global::ValueType>();
-		if (j.contains("beta2"))    beta2        = j["beta2"].get<global::ValueType>();
-		if (j.contains("epsilon"))  epsilon      = j["epsilon"].get<global::ValueType>();
-	}
-
-	global::ValueType getLearningRate() const override { return learningRate; }
-
-	// Accessors for internal Adam parameters
-	global::ValueType getBeta1()   const { return beta1; }
-	global::ValueType getBeta2()   const { return beta2; }
-	global::ValueType getEpsilon() const { return epsilon; }
-
-	~AdamOptimizerConfig() = default;
-};
-
-
 class ISubNetworkConfig {
   protected:
 	int inputSize{0};
