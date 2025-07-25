@@ -7,7 +7,7 @@
 		]
 	},
 	"training config": {
-		"batch size": 8,
+		"batch size": 32,
 		"batch count": 100000,
 		"auto save": {
 			"saveEvery": 2000,
@@ -28,14 +28,14 @@
 			"input size": 10,
 			"output size": 16,
 			"output activation": 1,
-			"layers": [{ "size": 15, "activationType": 1 }]
+			"layers": [{ "size": 100, "dropoutRate": 0.1, "activationType": 1 }]
 		},
 		{
 			"type": "FNN",
 			"input size": 16,
 			"output size": 16,
 			"output activation": 4,
-			"layers": [{ "size": 15, "activationType": 1 }]
+			"layers": [{ "size": 30, "dropoutRate": 0.1, "activationType": 1 }]
 		}
 	]
 }

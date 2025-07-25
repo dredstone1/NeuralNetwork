@@ -64,7 +64,7 @@ class Model {
 
 	void printTrainingResult(
 	    const std::chrono::high_resolution_clock::time_point &start,
-	    double error);
+	    const double error);
 
 	void initModel();
 	void initVisual();
@@ -80,6 +80,8 @@ class Model {
 	int outputSize();
 	int inputSize();
 	const global::ParamMetrix &getOutput() const;
+    
+    void setTraining(const bool state);
 
   public:
 	Model(const std::string &config_filepath);

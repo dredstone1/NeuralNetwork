@@ -1,4 +1,5 @@
 #include "DenseLayer.hpp"
+#include <random>
 
 namespace nn::model::fnn {
 DenseLayer::DenseLayer(
@@ -15,7 +16,23 @@ DenseLayer::DenseLayer(
 	}
 }
 
+void Hidden_Layer::CreateDropoutMask() {
+	const float keepProb = 1.0f - config.dropoutRate;
+
+	if (dropoutMask.size() != dots.size()) {
+		dropoutMask.resize(dots.size());
+	}
+
+	static thread_local std::mt19937 rng{std::random_device{}()};
+	std::bernoulli_distribution bernoulli(keepProb);
+
+	for (size_t i = 0; i < dropoutMask.size(); ++i) {
+		dropoutMask[i] = static_cast<uint8_t>(bernoulli(rng));
+	}
+}
+
 void Output_Layer::forward(const global::ParamMetrix &metrix) {
+
 	for (size_t i = 0; i < dots.size(); ++i) {
 		dots.net[i] = parameters.bias[i];
 
@@ -66,12 +83,22 @@ global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
 }
 
 void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
+	CreateDropoutMask();
+	const float keepProb = 1.0f - config.dropoutRate;
+
 	for (size_t i = 0; i < dots.size(); ++i) {
+		if (dropoutMask[i] == 0) {
+			dots.net[i] = 0;
+			continue;
+		}
+
 		dots.net[i] = parameters.bias[i];
 
 		for (size_t j = 0; j < metrix.size(); ++j) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
 		}
+
+		dots.net[i] /= keepProb;
 	}
 
 	activationFunction.activate(dots.net, dots.out);
@@ -96,12 +123,18 @@ void Hidden_Layer::backward(
     global::ParamMetrix &deltas,
     const global::ParamMetrix &prevLayer,
     const LayerParameters *nextLayer) {
+
 	if (!nextLayer)
 		return;
 
 	deltas = getDelta(deltas, *nextLayer);
 
 	for (size_t i = 0; i < getSize(); ++i) {
+		if (dropoutMask[i] == 0) {
+			deltas[i] = 0; // Ensure this delta is zeroed
+			continue;
+		}
+
 		gradients.bias[i] += deltas[i];
 
 		for (size_t j = 0; j < getPrevSize(); ++j) {

@@ -2,8 +2,9 @@
 #define DENSELAYER
 
 #include "../../model/config.hpp"
-#include "LayerParameters.hpp"
 #include "../src/model/optimizers.hpp"
+#include "Globals.hpp"
+#include "LayerParameters.hpp"
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
@@ -30,6 +31,8 @@ class DenseLayer {
 	LayerParameters gradients;
 
 	Activation activationFunction;
+
+	bool isTraining{false};
 
   public:
 	DenseLayer(
@@ -64,6 +67,8 @@ class DenseLayer {
 
 	const global::ParamMetrix getData() const;
 	void setData(const global::ParamMetrix newParam);
+
+	void setTraining(const bool state) { isTraining = state; }
 };
 
 class Hidden_Layer : public DenseLayer {
@@ -72,6 +77,10 @@ class Hidden_Layer : public DenseLayer {
 	global::ParamMetrix getDelta(
 	    const global::ParamMetrix &output,
 	    const LayerParameters &nextLayer);
+
+	std::vector<int> dropoutMask;
+
+	void CreateDropoutMask();
 
   public:
 	Hidden_Layer(

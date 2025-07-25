@@ -1,7 +1,6 @@
 #ifndef CONFIG
 #define CONFIG
 
-#include "Globals.hpp"
 #include "activations.hpp"
 #include <memory>
 #include <nlohmann/json.hpp>
@@ -44,9 +43,10 @@ class ISubNetworkConfig {
 
 struct DenseLayerConfig {
 	int size;
+    float dropoutRate = 1;
 	ActivationType activationType = ActivationType::None;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig, size, activationType)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig, size, dropoutRate, activationType)
 
 class FNNConfig : public ISubNetworkConfig {
   public:

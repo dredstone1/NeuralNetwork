@@ -1,9 +1,6 @@
 #include "../networks/fnn/FNNetwork.hpp"
-#include "config.hpp"
-#include "optimizers.hpp"
 #include <fstream>
 #include <iostream>
-#include <memory>
 #include <model.hpp>
 
 namespace nn::visualizer {
@@ -70,7 +67,7 @@ void Model::initOptimizer() {
 	if (type == "const") {
 		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(config.trainingConfig.getOptimizer().get());
 		optimizer = std::make_shared<ConstantOptimizer>(*optConfig);
-    }
+	}
 }
 
 void Model::initVisual() {
@@ -133,7 +130,10 @@ void Model::Backward(const global::ParamMetrix &output) {
 	}
 }
 
-global::ValueType Model::runBackPropagation(const Batch &batch, const bool doBackward, global::Transformation transformation) {
+global::ValueType Model::runBackPropagation(
+    const Batch &batch,
+    const bool doBackward,
+    global::Transformation transformation) {
 	global::ValueType error = 0.0;
 
 	if (batch.size() == 0) {
@@ -165,7 +165,9 @@ global::ValueType Model::runBackPropagation(const Batch &batch, const bool doBac
 	return error / batch.size();
 }
 
-void Model::printTrainingResult(const std::chrono::high_resolution_clock::time_point &start, double error) {
+void Model::printTrainingResult(
+    const std::chrono::high_resolution_clock::time_point &start,
+    const double error) {
 	const auto end = std::chrono::high_resolution_clock::now();
 	const int time_taken = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
 	const int minutes = time_taken / SECONDS_IN_MINUTE;
@@ -198,9 +200,9 @@ void Model::train(const std::string &db_filename, global::Transformation transfo
 
 	trainedDataBase.load(db_filename);
 
-	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
 	visual.updateLearningRate(learningRate);
 
+	setTraining(true);
 	for (int i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
 		visual.updateBatchCounter(i);
 
@@ -231,10 +233,9 @@ void Model::train(const std::string &db_filename, global::Transformation transfo
 			break;
 		}
 	}
+	setTraining(false);
 
 	printTrainingResult(start, error);
-
-	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
 }
 
 float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
@@ -243,7 +244,11 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
 }
 
-modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, const bool showProgressbar, global::Transformation transformation) {
+modelResult Model::evaluateModel(
+    DataBase &dataBase,
+    const bool cancleOnError,
+    const bool showProgressbar,
+    global::Transformation transformation) {
 	modelResult result{0, 0, 0};
 
 	if (showProgressbar) {
@@ -283,7 +288,10 @@ modelResult Model::evaluateModel(DataBase &dataBase, const bool cancleOnError, c
 	return result;
 }
 
-modelResult Model::evaluateModel(const std::string &db_filename, const bool cancleOnError, global::Transformation transformation) {
+modelResult Model::evaluateModel(
+    const std::string &db_filename,
+    const bool cancleOnError,
+    global::Transformation transformation) {
 	DataBase dataBase(config.trainingConfig);
 	dataBase.load(db_filename);
 	return evaluateModel(dataBase, cancleOnError, transformation);
@@ -355,4 +363,12 @@ global::Prediction Model::getPrediction() {
 	return {max, getOutput()[max]};
 }
 
+void Model::setTraining(const bool state) {
+	visual.updateAlgorithmMode(
+	    state ? visualizer::AlgorithmMode::Training : visualizer::AlgorithmMode::Normal);
+
+	for (auto &sub : network) {
+		sub->setTraining(state);
+	}
+}
 } // namespace nn::model

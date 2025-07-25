@@ -56,7 +56,7 @@ class IVisualNetwork : public Panel {
 		}
 
 		while (vstate->settings.pause) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 		while (vstate->settings.preciseMode && updateStatus()) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));

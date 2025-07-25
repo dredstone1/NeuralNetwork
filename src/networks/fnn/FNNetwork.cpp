@@ -104,7 +104,7 @@ void FNNetwork::updateWeights(const std::shared_ptr<IOptimizer> optimizer) {
 
 void FNNetwork::calculateInputDelta(const global::ParamMetrix &deltas) {
 	for (int i = 0; i < inputSize(); ++i) {
-        input[i] = 0;
+		input[i] = 0;
 		for (size_t j = 0; j < layers[0]->getSize(); ++j) {
 			input[i] += deltas[j] * layers[0]->getParms().weights[j][i];
 		}
@@ -137,6 +137,12 @@ void FNNetwork::setParams(const global::ParamMetrix params) {
 		}
 
 		layers[i]->setData(newParam);
+	}
+}
+
+void FNNetwork::setTraining(const bool state) {
+	for (auto &layer : layers) {
+		layer->setTraining(state);
 	}
 }
 } // namespace nn::model::fnn

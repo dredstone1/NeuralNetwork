@@ -1,8 +1,8 @@
 #ifndef INETWORK
 #define INETWORK
 
-#include "IvisualNetwork.hpp"
 #include "../src/model/optimizers.hpp"
+#include "IvisualNetwork.hpp"
 
 namespace nn::model {
 class INetwork {
@@ -25,6 +25,8 @@ class INetwork {
 
 	virtual global::ParamMetrix getParams() const = 0;
 	virtual void setParams(const global::ParamMetrix params) = 0;
+
+	virtual void setTraining(const bool state) = 0;
 };
 } // namespace nn::model
 

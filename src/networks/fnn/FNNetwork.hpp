@@ -1,8 +1,8 @@
 #ifndef FNNNETWORK
 #define FNNNETWORK
 
-#include "FnnVisualizer.hpp"
 #include "DenseLayer.hpp"
+#include "FnnVisualizer.hpp"
 #include <network/INetwork.hpp>
 
 namespace nn::model::fnn {
@@ -12,7 +12,7 @@ class FNNetwork : public INetwork {
 	std::vector<std::unique_ptr<DenseLayer>> layers;
 	global::ParamMetrix input;
 
-    void calculateInputDelta(const global::ParamMetrix &deltas);
+	void calculateInputDelta(const global::ParamMetrix &deltas);
 
 	const std::shared_ptr<visualizer::fnn::FnnVisualier> visual;
 
@@ -24,7 +24,7 @@ class FNNetwork : public INetwork {
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &newInput) override;
-    void backward(const global::ParamMetrix &outputDeltas) override;
+	void backward(const global::ParamMetrix &outputDeltas) override;
 	void updateWeights(const std::shared_ptr<IOptimizer> optimizer) override;
 	void resetGradient() override;
 
@@ -39,9 +39,11 @@ class FNNetwork : public INetwork {
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
 
-    global::ParamMetrix getParams() const override;
-    void setParams(const global::ParamMetrix params) override;
+	global::ParamMetrix getParams() const override;
+	void setParams(const global::ParamMetrix params) override;
+
+	void setTraining(const bool state) override;
 };
-} // namespace nn::model
+} // namespace nn::model::fnn
 
 #endif // FNNNETWORK
