@@ -43,7 +43,7 @@ class ISubNetworkConfig {
 
 struct DenseLayerConfig {
 	int size;
-    float dropoutRate = 1;
+	float dropoutRate = 1;
 	ActivationType activationType = ActivationType::None;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig, size, dropoutRate, activationType)
@@ -120,9 +120,10 @@ struct VisualMode {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
 
 struct VisualConfig {
+	bool enableVisuals{true};
 	std::vector<VisualMode> modes;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualConfig, modes);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualConfig, enableVisuals, modes);
 
 class Config {
   public:

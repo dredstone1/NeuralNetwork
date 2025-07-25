@@ -1,6 +1,7 @@
 #include "../networks/fnn/FNNetwork.hpp"
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <model.hpp>
 
 namespace nn::visualizer {
@@ -58,7 +59,9 @@ Model::Model(const std::string &config_filepath)
       learningRate(config.trainingConfig.getLearningRate()) {
 	initOptimizer();
 	initModel();
-	initVisual();
+	if (config.visualConfig.enableVisuals) {
+		initVisual();
+	}
 }
 
 void Model::initOptimizer() {
@@ -91,9 +94,18 @@ void Model::initModel() {
 
 		if (_config->NNLable() == "FNN") {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
-			std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = std::make_shared<visualizer::fnn::FnnVisualier>(visual.Vstate, width, sub_);
 
-			network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
+			if (config.visualConfig.enableVisuals) {
+				std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ =
+				    std::make_shared<visualizer::fnn::FnnVisualier>(
+				        visual.Vstate,
+				        width,
+				        sub_);
+
+				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
+			} else {
+				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true));
+			}
 		}
 	}
 }

@@ -3,6 +3,7 @@
 
 #include "DenseLayer.hpp"
 #include "FnnVisualizer.hpp"
+#include <memory>
 #include <network/INetwork.hpp>
 
 namespace nn::model::fnn {
@@ -20,7 +21,7 @@ class FNNetwork : public INetwork {
 	FNNetwork(
 	    const FNNConfig &_config,
 	    const bool randomInit,
-	    const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_);
+	    const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = std::shared_ptr<visualizer::fnn::FnnVisualier>());
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &newInput) override;
