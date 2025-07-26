@@ -1,6 +1,8 @@
 #include "../networks/fnn/FNNetwork.hpp"
+#include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <model.hpp>
 
@@ -194,15 +196,11 @@ void Model::printTrainingResult(
 	          << "final score: " << error << "\n";
 }
 
-void Model::train(const std::string &db_filename, global::Transformation transformation) {
+void Model::train(
+    const std::string &db_filename,
+    global::Transformation transformation) {
 	DataBase trainedDataBase(config.trainingConfig);
 	DataBase evaluateDataBase(config.trainingConfig);
-
-	visualizer::ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
-
-	const auto start = std::chrono::high_resolution_clock::now();
-	global::ValueType error = 0.0;
-	modelResult result;
 
 	if (config.trainingConfig.isAutoEvaluating()) {
 		evaluateDataBase.load(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
@@ -212,9 +210,39 @@ void Model::train(const std::string &db_filename, global::Transformation transfo
 
 	trainedDataBase.load(db_filename);
 
+	trainModel(trainedDataBase, evaluateDataBase, transformation);
+}
+
+void Model::train(
+    const std::vector<std::string> &db_filename,
+    global::Transformation transformation) {
+	DataBase trainedDataBase(config.trainingConfig);
+	DataBase evaluateDataBase(config.trainingConfig);
+
+	if (config.trainingConfig.isAutoEvaluating()) {
+		evaluateDataBase.load(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
+	}
+
+	std::cout << "Training AI" << std::endl;
+
+	trainedDataBase.load(db_filename);
+
+	trainModel(trainedDataBase, evaluateDataBase, transformation);
+}
+
+void Model::trainModel(
+    DataBase &trainedDataBase,
+    DataBase &evaluateDataBase,
+    global::Transformation transformation) {
+	visualizer::ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
+
+	const auto start = std::chrono::high_resolution_clock::now();
+	global::ValueType error = 0.0;
+	modelResult result;
+
 	visual.updateLearningRate(learningRate);
 
-	setTraining(true);
+	setTraining();
 	for (int i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
 		visual.updateBatchCounter(i);
 
@@ -225,6 +253,7 @@ void Model::train(const std::string &db_filename, global::Transformation transfo
 			save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
 		}
 
+		setEvaluating();
 		if (i >= config.trainingConfig.getAutoEvaluating().evaluateEvery &&
 		    config.trainingConfig.isAutoEvaluating() &&
 		    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
@@ -234,6 +263,7 @@ void Model::train(const std::string &db_filename, global::Transformation transfo
 				break;
 			}
 		}
+		setTraining();
 
 		visual.updateError(result.percentage, error, i);
 
@@ -245,7 +275,7 @@ void Model::train(const std::string &db_filename, global::Transformation transfo
 			break;
 		}
 	}
-	setTraining(false);
+	setNormal();
 
 	printTrainingResult(start, error);
 }
@@ -269,6 +299,8 @@ modelResult Model::evaluateModel(
 
 	result.dbSize = dataBase.DataBaseLength();
 	visualizer::ProgressBar bar(result.dbSize, EVALUATING_HEADER);
+
+	setEvaluating();
 
 	for (int i = 0; i < result.dbSize; ++i) {
 		TrainSample &sample = dataBase.getSample(i);
@@ -297,6 +329,7 @@ modelResult Model::evaluateModel(
 
 	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);
 
+	setNormal();
 	return result;
 }
 
@@ -375,12 +408,26 @@ global::Prediction Model::getPrediction() {
 	return {max, getOutput()[max]};
 }
 
-void Model::setTraining(const bool state) {
-	visual.updateAlgorithmMode(
-	    state ? visualizer::AlgorithmMode::Training : visualizer::AlgorithmMode::Normal);
+void Model::setTraining() {
+	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
 
 	for (auto &sub : network) {
-		sub->setTraining(state);
+		sub->setTraining(true);
+	}
+}
+
+void Model::setNormal() {
+	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
+
+	for (auto &sub : network) {
+		sub->setTraining(false);
+	}
+}
+void Model::setEvaluating() {
+	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Evaluating);
+
+	for (auto &sub : network) {
+		sub->setTraining(false);
 	}
 }
 } // namespace nn::model

@@ -21,7 +21,10 @@ constexpr std::string_view FPS_TEXT = "fps: ";
 } // namespace TextLabels
 
 constexpr std::array<std::string_view, 2> NNRunningModeName = {"Running", "Pause"};
-constexpr std::array<std::string_view, 2> algorithmName = {"Normal", "Training"};
+constexpr std::array<std::string_view, 3> algorithmName = {
+    "Normal",
+    "Training",
+    "Evaluating"};
 constexpr std::array<std::string_view, 2> NNmodeName = {"Forword", "Backward"};
 
 constexpr sf::Color TEXT_COLOR(0, 0, 0);

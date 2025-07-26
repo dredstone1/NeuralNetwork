@@ -2,10 +2,11 @@
 #define MODEL
 
 #include "../src/model/dataBase.hpp"
+#include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
 #include <memory>
 #include <network/INetwork.hpp>
-#include "../src/model/optimizers.hpp"
+#include <vector>
 
 namespace nn::visualizer {
 constexpr int BAR_WIDTH = 100;
@@ -76,12 +77,15 @@ class Model {
 	    DataBase &dataBase,
 	    const bool cancleOnError = false,
 	    const bool showProgressbar = true, global::Transformation transformation = nullptr);
+	void trainModel(DataBase &trainedDataBase, DataBase &evaluateDataBase, global::Transformation transformation = nullptr);
 
 	int outputSize();
 	int inputSize();
 	const global::ParamMetrix &getOutput() const;
-    
-    void setTraining(const bool state);
+
+	void setTraining();
+	void setNormal();
+	void setEvaluating();
 
   public:
 	Model(const std::string &config_filepath);
@@ -89,6 +93,7 @@ class Model {
 
 	void runModel(const global::ParamMetrix &input);
 	void train(const std::string &db_filename, global::Transformation transformation = nullptr);
+	void train(const std::vector<std::string> &db_filename, global::Transformation transformation = nullptr);
 	modelResult evaluateModel(
 	    const std::string &db_filename,
 	    const bool cancleOnError = false, global::Transformation transformation = nullptr);

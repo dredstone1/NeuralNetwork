@@ -1,6 +1,7 @@
 #include "tests.hpp"
-#include <model.hpp>
 #include <iostream>
+#include <model.hpp>
+#include <vector>
 
 int int_to_binary(int num) {
 	int binary = 0;
@@ -80,7 +81,8 @@ int main(int argc, char *argv[]) {
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-		model.train("../tests/data/database-binary_test");
+        std::vector<std::string> files {"../tests/data/test1", "../tests/data/test2"};
+		model.train(files);
 
 		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");
 		std::cout << "training result: " << result.percentage << "%\n";

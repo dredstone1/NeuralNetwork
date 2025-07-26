@@ -31,6 +31,7 @@ enum class NnMode {
 enum class AlgorithmMode {
 	Normal,
 	Training,
+	Evaluating,
 };
 
 struct Settings {

@@ -3,6 +3,7 @@
 
 #include "config.hpp"
 #include <random>
+#include <vector>
 
 namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";
@@ -19,29 +20,13 @@ struct TrainSample {
 	      input(0) {}
 };
 
-enum class SamplesMode {
-	classification,
-	full,
-};
-
 struct Samples {
-	const int sInputSize;
-	const int sOutputSize;
-
-	const SamplesMode sMode;
+	int sInputSize;
+	int sOutputSize;
 
 	std::vector<TrainSample> samples;
 
-	Samples(
-	    const int sampleInputSize,
-	    const int sampleOutputSize,
-	    const SamplesMode sampleMode,
-	    const int _size)
-	    : sInputSize(sampleInputSize),
-	      sOutputSize(sampleOutputSize),
-	      sMode(sampleMode) {
-		samples.reserve(_size);
-	}
+	Samples() {}
 	~Samples() = default;
 
 	size_t size() const { return samples.size(); }
@@ -61,7 +46,7 @@ struct Batch {
 
 class DataBase {
   private:
-	std::unique_ptr<Samples> samples;
+	Samples samples;
 	std::vector<Batch> batches;
 	size_t currentBatch;
 	std::vector<int> shuffled_indices;
@@ -78,9 +63,10 @@ class DataBase {
 	~DataBase() = default;
 
 	int load(const std::string &db_filename);
-	TrainSample &getSample(const int i) { return samples->samples[i]; }
+	int load(const std::vector<std::string> &db_filenames);
+	TrainSample &getSample(const int i) { return samples.samples[i]; }
 
-	size_t DataBaseLength() const { return samples ? samples->size() : 0; }
+	size_t DataBaseLength() const { return samples.size(); }
 	Batch &getBatch();
 };
 } // namespace nn::model
