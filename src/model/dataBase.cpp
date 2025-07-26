@@ -42,7 +42,6 @@ void DataBase::getDataBaseStatus(const std::string &line) {
 
 	samples.sInputSize = sampleInputSize;
 
-    printf("test443: %d\n", dataBaseSize);
 	samples.samples.reserve(samples.size() + dataBaseSize);
 }
 
@@ -90,7 +89,6 @@ int DataBase::load(const std::string &db_filename) {
 
 int DataBase::load(const std::vector<std::string> &db_filenames) {
 	for (auto name : db_filenames) {
-            printf("name: %s\n", name.c_str());
 		int error = load(name);
 
 		if (error) {
