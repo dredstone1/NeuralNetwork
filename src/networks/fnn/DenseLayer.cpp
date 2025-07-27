@@ -83,11 +83,13 @@ global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
 }
 
 void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
-	CreateDropoutMask();
+	if (isTraining) {
+		CreateDropoutMask();
+	}
 	const float keepProb = 1.0f - config.dropoutRate;
 
 	for (size_t i = 0; i < dots.size(); ++i) {
-		if (dropoutMask[i] == 0) {
+		if (isTraining && dropoutMask[i] == 0) {
 			dots.net[i] = 0;
 			continue;
 		}
@@ -98,7 +100,9 @@ void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 			dots.net[i] += parameters.weights[i][j] * metrix[j];
 		}
 
-		dots.net[i] /= keepProb;
+		if (isTraining) {
+			dots.net[i] /= keepProb;
+		}
 	}
 
 	activationFunction.activate(dots.net, dots.out);
@@ -130,8 +134,8 @@ void Hidden_Layer::backward(
 	deltas = getDelta(deltas, *nextLayer);
 
 	for (size_t i = 0; i < getSize(); ++i) {
-		if (dropoutMask[i] == 0) {
-			deltas[i] = 0; // Ensure this delta is zeroed
+		if (isTraining && dropoutMask[i] == 0) {
+			deltas[i] = 0;
 			continue;
 		}
 
