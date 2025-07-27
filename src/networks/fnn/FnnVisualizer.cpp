@@ -1,5 +1,6 @@
 #include "FnnVisualizer.hpp"
 #include "../../visualizer/fonts.hpp"
+#include "network/IvisualNetwork.hpp"
 #include <SFML/System/Vector2.hpp>
 
 namespace nn::visualizer::fnn {
@@ -124,6 +125,21 @@ void VisualDenseLayer::drawWeights(const int neuron_i, sf::RenderTexture &target
 	}
 }
 
+int VisualDenseLayer::getParamCount() const {
+	return parameters.getSize() * parameters.getPrevSize();
+}
+
+void VisualDenseLayer::drawGapWeight(sf::RenderTexture &target) {
+	sf::VertexArray line_(sf::PrimitiveType::LineStrip, 2);
+
+	line_[0].position = sf::Vector2f(0, MODEL_HEIGHT / 2.) + pos;
+	line_[1].position = sf::Vector2f(width, MODEL_HEIGHT / 2.) + pos;
+
+	line_[0].color = LINE_COLOR;
+	line_[1].color = LINE_COLOR;
+	target.draw(line_);
+}
+
 sf::Color VisualDenseLayer::getNeuronColor(const global::ValueType value) {
 	sf::Color newColor = NEURON_BG_COLOR;
 	newColor.b *= value;
@@ -162,13 +178,18 @@ void VisualDenseLayer::drawNeuron(
 }
 
 void VisualDenseLayer::renderNeuron(const int index, sf::RenderTexture &target) {
-	if (parameters.getSize() * parameters.getPrevSize() < MAX_WEIGHT_TO_RENDER) {
+	if (getParamCount() < MAX_WEIGHT_TO_RENDER) {
 		drawWeights(index, target);
 	}
+
 	drawNeuron(cacheNeurons[index], dots.net[index], dots.out[index], target);
 }
 
 void VisualDenseLayer::drawNeurons(sf::RenderTexture &target) {
+	if (getParamCount() >= MAX_WEIGHT_TO_RENDER) {
+		drawGapWeight(target);
+	}
+
 	for (size_t neuron = 0; neuron < dots.size(); ++neuron) {
 		renderNeuron(neuron, target);
 	}

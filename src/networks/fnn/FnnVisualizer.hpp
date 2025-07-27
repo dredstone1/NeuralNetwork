@@ -40,6 +40,7 @@ class VisualDenseLayer {
 	std::vector<sf::FloatRect> cachePrevNeurons;
 
 	void drawWeights(const int neuron_i, sf::RenderTexture &target);
+	void drawGapWeight(sf::RenderTexture &target);
 	void drawNeurons(sf::RenderTexture &target);
 	void renderNeuron(const int index, sf::RenderTexture &target);
 	void drawNeuron(const sf::FloatRect &rect, const double input, const double output, sf::RenderTexture &target);
@@ -52,6 +53,8 @@ class VisualDenseLayer {
 	sf::Angle calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2);
 	float calculateGap(const int size, const float scale);
 	sf::Vector2f getCenter(const sf::FloatRect &rect);
+
+	int getParamCount() const;
 
 	void doCacheWeights();
 	void doCacheNeurons();
