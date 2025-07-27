@@ -162,7 +162,9 @@ void VisualDenseLayer::drawNeuron(
 }
 
 void VisualDenseLayer::renderNeuron(const int index, sf::RenderTexture &target) {
-	drawWeights(index, target);
+	if (parameters.getSize() * parameters.getPrevSize() < MAX_WEIGHT_TO_RENDER) {
+		drawWeights(index, target);
+	}
 	drawNeuron(cacheNeurons[index], dots.net[index], dots.out[index], target);
 }
 
