@@ -20,7 +20,7 @@ constexpr sf::Color FONT_COLOR_NORMAL(50, 50, 50);
 
 constexpr sf::Color LINE_COLOR(0, 0, 0);
 
-constexpr int MAX_WEIGHT_TO_RENDER = 10000;
+constexpr int MAX_WEIGHT_TO_RENDER = 1000;
 
 static const std::array<sf::Color, 3> color_lookup = {
     FONT_COLOR_UP,
@@ -43,7 +43,7 @@ class VisualDenseLayer {
 	void drawGapWeight(sf::RenderTexture &target);
 	void drawNeurons(sf::RenderTexture &target);
 	void renderNeuron(const int index, sf::RenderTexture &target);
-	void drawNeuron(const sf::FloatRect &rect, const double input, const double output, sf::RenderTexture &target);
+	void drawNeuron(const sf::FloatRect&rect, const double input, const double output, sf::RenderTexture &target);
 
 	textType getTextT(const int layer_i, const int layer_p);
 	sf::Color getColorFromTextT(const textType text_type);
