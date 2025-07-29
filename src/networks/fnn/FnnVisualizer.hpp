@@ -20,7 +20,7 @@ constexpr sf::Color FONT_COLOR_NORMAL(50, 50, 50);
 
 constexpr sf::Color LINE_COLOR(0, 0, 0);
 
-constexpr int MAX_WEIGHT_TO_RENDER = 50000;
+constexpr int MAX_WEIGHT_TO_RENDER = 10000;
 
 static const std::array<sf::Color, 3> color_lookup = {
     FONT_COLOR_UP,
