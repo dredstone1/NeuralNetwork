@@ -94,7 +94,6 @@ void VisualManager::updateAlgorithmMode(const AlgorithmMode algoritem_mode) {
 	}
 
 	Vstate->algorithmMode = algoritem_mode;
-	Vstate->settings.exitTraining = algoritem_mode == AlgorithmMode::Normal;
 }
 
 void VisualManager::updatePrediction(const global::Prediction &pre) {

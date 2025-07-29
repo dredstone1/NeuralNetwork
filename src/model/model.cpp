@@ -264,7 +264,7 @@ void Model::trainModel(
 			}
 		}
 
-		if (visual.exitTraining() == true) {
+		if (visual.exitTraining()) {
 			break;
 		}
 		setTraining();
