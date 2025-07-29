@@ -263,6 +263,10 @@ void Model::trainModel(
 				break;
 			}
 		}
+
+		if (visual.exitTraining() == true) {
+			break;
+		}
 		setTraining();
 
 		visual.updateError(result.percentage, error, i);
@@ -271,9 +275,6 @@ void Model::trainModel(
 		bar.printBar();
 
 		visual.updateLearningRate(learningRate);
-		if (visual.exitTraining() == true) {
-			break;
-		}
 	}
 	setNormal();
 
