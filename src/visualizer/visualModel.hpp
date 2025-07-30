@@ -66,6 +66,7 @@ class ModelPanel : public Panel {
 	sf::Sprite getSprite() const;
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
+	bool updateStatus() const override;
 };
 } // namespace nn::visualizer
 

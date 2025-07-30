@@ -3,6 +3,7 @@
 
 #include "VisualizerRenderer.hpp"
 #include <network/IvisualNetwork.hpp>
+#include <thread>
 
 namespace nn::model {
 class Model;

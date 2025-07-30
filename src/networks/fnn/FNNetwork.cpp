@@ -142,7 +142,6 @@ void FNNetwork::setParams(const global::ParamMetrix params) {
 
 		for (size_t k = 0; k < newParam.size(); ++k) {
 			newParam[k] = params[j];
-
 			j++;
 		}
 

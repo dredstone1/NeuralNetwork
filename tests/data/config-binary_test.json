@@ -8,7 +8,7 @@
 		]
 	},
 	"training config": {
-		"batch size": 112,
+		"batch size": 16,
 		"batch count": 10000,
 		"auto save": {
 			"saveEvery": 2000,
@@ -29,7 +29,14 @@
 			"input size": 10,
 			"output size": 16,
 			"output activation": 4,
-			"layers": [{ "size": 100, "dropoutRate": 0, "activationType": 1 }]
+			"layers": [
+				{ "size": 30, "dropoutRate": 0, "activationType": 1 },
+				{ "size": 30, "dropoutRate": 0, "activationType": 1 },
+				{ "size": 30, "dropoutRate": 0, "activationType": 1 },
+				{ "size": 30, "dropoutRate": 0, "activationType": 1 },
+				{ "size": 30, "dropoutRate": 0, "activationType": 1 },
+				{ "size": 30, "dropoutRate": 0, "activationType": 1 }
+			]
 		}
 	]
 }

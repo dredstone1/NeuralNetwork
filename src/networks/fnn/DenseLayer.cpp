@@ -17,6 +17,10 @@ DenseLayer::DenseLayer(
 }
 
 void Hidden_Layer::CreateDropoutMask() {
+	// if (config.dropoutRate == 0) {
+	// 	return;
+	// }
+
 	const float keepProb = 1.0f - config.dropoutRate;
 
 	if (dropoutMask.size() != dots.size()) {

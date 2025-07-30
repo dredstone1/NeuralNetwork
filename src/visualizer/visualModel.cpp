@@ -153,4 +153,14 @@ void ModelPanel::setInput(const global::ParamMetrix &input) {
 void ModelPanel::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
 	subNetworks.push_back(newVisual);
 }
+
+bool ModelPanel::updateStatus() const {
+	for (size_t i = 0; i < subNetworks.size(); ++i) {
+		if (subNetworks[i]->updateStatus()) {
+			return true;
+		}
+	}
+
+	return false;
+}
 } // namespace nn::visualizer

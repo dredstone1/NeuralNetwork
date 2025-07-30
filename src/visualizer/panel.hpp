@@ -22,7 +22,7 @@ class Panel {
 	virtual ~Panel() = default;
 
 	int render();
-	bool updateStatus() const { return need_update; }
+	virtual bool updateStatus() const { return need_update; }
 	void setUpdate(const bool wait = false);
 };
 } // namespace nn::visualizer
