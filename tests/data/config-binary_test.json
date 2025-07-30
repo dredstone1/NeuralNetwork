@@ -8,7 +8,7 @@
 		]
 	},
 	"training config": {
-		"batch size": 16,
+		"batch size": 112,
 		"batch count": 10000,
 		"auto save": {
 			"saveEvery": 2000,

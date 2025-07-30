@@ -238,7 +238,6 @@ void Model::trainModel(
 
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
-	modelResult result;
 
 	visual.updateLearningRate(learningRate);
 
@@ -248,6 +247,7 @@ void Model::trainModel(
 
 		Batch &batch = trainedDataBase.getBatch();
 		error = runBackPropagation(batch, true, transformation);
+		visual.updateLost(error, i);
 
 		if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
 			save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
@@ -257,7 +257,9 @@ void Model::trainModel(
 		if (i >= config.trainingConfig.getAutoEvaluating().evaluateEvery &&
 		    config.trainingConfig.isAutoEvaluating() &&
 		    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-			result = evaluateModel(evaluateDataBase, false, false, transformation);
+
+			modelResult result = evaluateModel(evaluateDataBase, false, false, transformation);
+			visual.updateEvaluate(result.percentage, i);
 
 			if (result.percentage == 100) {
 				break;
@@ -267,9 +269,8 @@ void Model::trainModel(
 		if (visual.exitTraining()) {
 			break;
 		}
-		setTraining();
 
-		visual.updateError(result.percentage, error, i);
+		setTraining();
 
 		bar++;
 		bar.printBar();

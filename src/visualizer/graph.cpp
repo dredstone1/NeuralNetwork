@@ -160,12 +160,13 @@ sf::Sprite GraphUIPanel::getSprite() {
 	return sf::Sprite(VRender.getTexture());
 }
 
-void GraphUIPanel::addData(
-    const global::ValueType newDataEvaluate,
-    const global::ValueType newDataLost,
-    int index) {
-	graphLost.addData(newDataLost, index);
+void GraphUIPanel::addEvaluateData(const global::ValueType newDataEvaluate, int index) {
 	graphEvaluate.addData(newDataEvaluate, index);
+	setUpdate();
+}
+
+void GraphUIPanel::addLostData(const global::ValueType newDataLost, int index) {
+	graphLost.addData(newDataLost, index);
 	setUpdate();
 }
 } // namespace nn::visualizer

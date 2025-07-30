@@ -72,10 +72,9 @@ class GraphUIPanel : public Panel {
 	~GraphUIPanel() = default;
 
 	sf::Sprite getSprite();
-	void addData(
-	    const global::ValueType newDataEvaluate,
-	    const global::ValueType newDataLost,
-	    int index);
+
+	void addLostData(const global::ValueType newDataLost, int index);
+	void addEvaluateData(const global::ValueType newDataEvaluate, int index);
 };
 
 } // namespace nn::visualizer

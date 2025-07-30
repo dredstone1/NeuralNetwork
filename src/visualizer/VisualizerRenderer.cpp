@@ -125,11 +125,16 @@ void VisualRender::start() {
 	renderLoop();
 }
 
-void VisualRender::updateBatchCounter(
-    const global::ValueType newDataEvaluate,
+void VisualRender::updateLost(
     const global::ValueType newDataLost,
     int index) {
-	Vgraph.addData(newDataEvaluate, newDataLost, index);
+	Vgraph.addLostData(newDataLost, index);
+}
+
+void VisualRender::updateEvaluate(
+    const global::ValueType newDataEvaluate,
+    int index) {
+	Vgraph.addEvaluateData(newDataEvaluate, index);
 }
 
 VisualRender::~VisualRender() {

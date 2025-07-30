@@ -77,15 +77,24 @@ void VisualManager::updateBatchCounter(const int batch) {
 	Vstate->currentBatch = batch;
 }
 
-void VisualManager::updateError(
-    const global::ValueType newDataEvaluate,
+void VisualManager::updateLost(
     const global::ValueType newDataLost,
     int index) {
 	if (!checkPointers()) {
 		return;
 	}
 
-	renderer->updateBatchCounter(newDataEvaluate, newDataLost, index);
+	renderer->updateLost(newDataLost, index);
+}
+
+void VisualManager::updateEvaluate(
+    const global::ValueType newDataEvaluate,
+    int index) {
+	if (!checkPointers()) {
+		return;
+	}
+
+	renderer->updateEvaluate(newDataEvaluate, index);
 }
 
 void VisualManager::updateAlgorithmMode(const AlgorithmMode algoritem_mode) {

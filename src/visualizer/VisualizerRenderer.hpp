@@ -43,8 +43,11 @@ class VisualRender {
 	void start();
 
 	bool updateStatus();
-	void updateBatchCounter(
+	void updateEvaluate(
 	    const global::ValueType newDataEvaluate,
+	    int index);
+
+	void updateLost(
 	    const global::ValueType newDataLost,
 	    int index);
 

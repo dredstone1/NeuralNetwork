@@ -74,10 +74,7 @@ int DataBase::load(const std::string &db_filename) {
 	}
 
 	std::cout << "Loaded " << samples.size() << " samples." << "\n";
-	if (config.getBatchSize() > samples.size()) {
-		std::cout << "batch size too big" << "\n";
-		return 1;
-	}
+
 	file.close();
 
 	shuffled_indices.resize(samples.size());
