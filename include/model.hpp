@@ -61,7 +61,10 @@ class Model {
 	void resetNetworkGradient();
 	global::ValueType getLoss(const global::Prediction &pre);
 
-	global::ValueType runBackPropagation(const Batch &batch, const bool updateWeights, global::Transformation transformation = nullptr);
+	global::ValueType runBackPropagation(
+	    const Batch &batch,
+	    const bool updateWeights,
+	    global::Transformation transformation = nullptr);
 
 	void printTrainingResult(
 	    const std::chrono::high_resolution_clock::time_point &start,
@@ -76,8 +79,13 @@ class Model {
 	modelResult evaluateModel(
 	    DataBase &dataBase,
 	    const bool cancleOnError = false,
-	    const bool showProgressbar = true, global::Transformation transformation = nullptr);
-	void trainModel(DataBase &trainedDataBase, DataBase &evaluateDataBase, global::Transformation transformation = nullptr);
+	    const bool showProgressbar = true,
+	    global::Transformation transformation = nullptr);
+	void trainModel(
+	    DataBase &trainedDataBase,
+	    DataBase &evaluateDataBase,
+	    global::Transformation transformationB = nullptr,
+	    global::Transformation transformationE = nullptr);
 
 	int outputSize();
 	int inputSize();
@@ -92,11 +100,18 @@ class Model {
 	~Model() = default;
 
 	void runModel(const global::ParamMetrix &input);
-	void train(const std::string &db_filename, global::Transformation transformation = nullptr);
-	void train(const std::vector<std::string> &db_filename, global::Transformation transformation = nullptr);
+	void train(
+	    const std::string &db_filename,
+	    global::Transformation transformationB = nullptr,
+	    global::Transformation transformationE = nullptr);
+	void train(
+	    const std::vector<std::string> &db_filename,
+	    global::Transformation transformationB = nullptr,
+	    global::Transformation transformationE = nullptr);
 	modelResult evaluateModel(
 	    const std::string &db_filename,
-	    const bool cancleOnError = false, global::Transformation transformation = nullptr);
+	    const bool cancleOnError = false,
+	    global::Transformation transformation = nullptr);
 
 	void save(const std::string &file);
 	void load(const std::string &file);

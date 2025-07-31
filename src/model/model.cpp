@@ -198,42 +198,55 @@ void Model::printTrainingResult(
 
 void Model::train(
     const std::string &db_filename,
-    global::Transformation transformation) {
+    global::Transformation transformationB,
+    global::Transformation transformationE) {
 	DataBase trainedDataBase(config.trainingConfig);
 	DataBase evaluateDataBase(config.trainingConfig);
 
 	if (config.trainingConfig.isAutoEvaluating()) {
-		evaluateDataBase.load(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
+		evaluateDataBase.load(
+		    config.trainingConfig.getAutoEvaluating().dataBaseFilename);
 	}
 
 	std::cout << "Training AI" << std::endl;
 
 	trainedDataBase.load(db_filename);
 
-	trainModel(trainedDataBase, evaluateDataBase, transformation);
+	trainModel(
+	    trainedDataBase,
+	    evaluateDataBase,
+	    transformationB,
+	    transformationE);
 }
 
 void Model::train(
     const std::vector<std::string> &db_filename,
-    global::Transformation transformation) {
+    global::Transformation transformationB,
+    global::Transformation transformationE) {
 	DataBase trainedDataBase(config.trainingConfig);
 	DataBase evaluateDataBase(config.trainingConfig);
 
 	if (config.trainingConfig.isAutoEvaluating()) {
-		evaluateDataBase.load(config.trainingConfig.getAutoEvaluating().dataBaseFilename);
+		evaluateDataBase.load(
+		    config.trainingConfig.getAutoEvaluating().dataBaseFilename);
 	}
 
 	std::cout << "Training AI" << std::endl;
 
 	trainedDataBase.load(db_filename);
 
-	trainModel(trainedDataBase, evaluateDataBase, transformation);
+	trainModel(
+	    trainedDataBase,
+	    evaluateDataBase,
+	    transformationB,
+	    transformationE);
 }
 
 void Model::trainModel(
     DataBase &trainedDataBase,
     DataBase &evaluateDataBase,
-    global::Transformation transformation) {
+    global::Transformation transformationB,
+    global::Transformation transformationE) {
 	visualizer::ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 
 	const auto start = std::chrono::high_resolution_clock::now();
@@ -246,7 +259,7 @@ void Model::trainModel(
 		visual.updateBatchCounter(i);
 
 		Batch &batch = trainedDataBase.getBatch();
-		error = runBackPropagation(batch, true, transformation);
+		error = runBackPropagation(batch, true, transformationB);
 		visual.updateLost(error, i);
 
 		if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
@@ -256,8 +269,8 @@ void Model::trainModel(
 		setEvaluating();
 		if (config.trainingConfig.isAutoEvaluating() &&
 		    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-			modelResult result = evaluateModel(evaluateDataBase, false, false, transformation);
-			visual.updateEvaluate(result.percentage, i/config.trainingConfig.getAutoEvaluating().evaluateEvery);
+			modelResult result = evaluateModel(evaluateDataBase, false, false, transformationE);
+			visual.updateEvaluate(result.percentage, i / config.trainingConfig.getAutoEvaluating().evaluateEvery);
 
 			if (result.percentage == 100) {
 				break;
