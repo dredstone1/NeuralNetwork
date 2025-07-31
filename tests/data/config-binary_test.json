@@ -8,7 +8,7 @@
 		]
 	},
 	"training config": {
-		"batch size": 16,
+		"batch size": 8,
 		"batch count": 10000,
 		"auto save": {
 			"saveEvery": 2000,
@@ -20,7 +20,7 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 0.1
+			"lr": 0
 		}
 	},
 	"network config": [

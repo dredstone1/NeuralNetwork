@@ -24,6 +24,7 @@ global::ValueType Graph::getValue(const int index) const {
 	if (Index == index) {
 		return data[index] / IndexCount;
 	}
+
 	return data[index] / dataGaps;
 }
 
@@ -47,16 +48,20 @@ void Graph::renderDot(
 
 void Graph::drawTo(sf::RenderTarget &target, sf::Vector2f position, const sf::Color &color) {
 	for (int i = 0; i < static_cast<int>(resolution); ++i) {
+		if (data[i + 1] == 0) {
+			break;
+		}
+
 		renderDot(i, target, position, color);
 	}
 }
 
 void Graph::addData(global::ValueType new_data, int index) {
-
 	if (dataGaps == 0)
 		return;
 
-	int place = std::floor((index - 1) / dataGaps);
+	int place = std::floor(index / dataGaps);
+
 	if (place < 0 || place >= static_cast<int>(resolution))
 		return;
 
@@ -81,8 +86,14 @@ float Graph::getAlpha() const {
 GraphUIPanel::GraphUIPanel(std::shared_ptr<StateManager> vstate_)
     : Panel(vstate_),
       VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
-      graphLost(vstate->config.trainingConfig.getBatchCount(), GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT),
-      graphEvaluate(vstate->config.trainingConfig.getBatchCount(), GRAPH_RESOLUTION, GRAPH_HEIGHT_ALPHA_DEFAULT / 100) {
+      graphLost(
+          vstate->config.trainingConfig.getBatchCount(),
+          GRAPH_RESOLUTION,
+          GRAPH_HEIGHT_ALPHA_DEFAULT),
+      graphEvaluate(
+          vstate->config.trainingConfig.getBatchCount() / vstate_->config.trainingConfig.getAutoEvaluating().evaluateEvery,
+          GRAPH_RESOLUTION,
+          GRAPH_HEIGHT_ALPHA_DEFAULT / 100) {
 }
 
 void GraphUIPanel::clear() {

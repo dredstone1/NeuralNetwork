@@ -254,12 +254,10 @@ void Model::trainModel(
 		}
 
 		setEvaluating();
-		if (i >= config.trainingConfig.getAutoEvaluating().evaluateEvery &&
-		    config.trainingConfig.isAutoEvaluating() &&
+		if (config.trainingConfig.isAutoEvaluating() &&
 		    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-
 			modelResult result = evaluateModel(evaluateDataBase, false, false, transformation);
-			visual.updateEvaluate(result.percentage, i);
+			visual.updateEvaluate(result.percentage, i/config.trainingConfig.getAutoEvaluating().evaluateEvery);
 
 			if (result.percentage == 100) {
 				break;
