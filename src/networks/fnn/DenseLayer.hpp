@@ -65,6 +65,8 @@ class DenseLayer {
 	void addParams(const LayerParameters &gradients) { parameters.add(gradients); }
 	void setParams(const LayerParameters &gradients) { parameters.set(gradients); }
 
+	size_t getParamCount() const;
+
 	const global::ParamMetrix getData() const;
 	void setData(const global::ParamMetrix newParam);
 

@@ -14,15 +14,10 @@ FNNetwork::FNNetwork(
 	for (; i < _config.layersConfig.size(); ++i) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
 		    _config.layersConfig[i],
-		    prevSize_,
-		    randomInit));
+		    prevSize_, randomInit));
 
 		if (visual) {
-			visual->initLayer(
-			    i,
-			    layers[i]->getDots(),
-			    layers[i]->getParms(),
-			    layers[i]->getGrad());
+			Vinit(i);
 		}
 
 		prevSize_ = _config.layersConfig[i].size;
@@ -34,12 +29,15 @@ FNNetwork::FNNetwork(
 	    randomInit));
 
 	if (visual) {
-		visual->initLayer(
-		    i,
-		    layers[i]->getDots(),
-		    layers[i]->getParms(),
-		    layers[i]->getGrad());
+		Vinit(i);
 	}
+}
+
+void FNNetwork::Vinit(const size_t i) {
+	visual->initLayer(i,
+	                  layers[i]->getDots(),
+	                  layers[i]->getParms(),
+	                  layers[i]->getGrad());
 }
 
 void FNNetwork::forward(const global::ParamMetrix &newInput) {
@@ -111,6 +109,7 @@ void FNNetwork::updateWeights(IOptimizer &optimizer) {
 void FNNetwork::calculateInputDelta(const global::ParamMetrix &deltas) {
 	for (int i = 0; i < inputSize(); ++i) {
 		input[i] = 0;
+
 		for (size_t j = 0; j < layers[0]->getSize(); ++j) {
 			input[i] += deltas[j] * layers[0]->getParms().weights[j][i];
 		}
@@ -122,7 +121,6 @@ global::ParamMetrix FNNetwork::getParams() const {
 
 	for (size_t i = 0; i < layers.size(); ++i) {
 		global::ParamMetrix params = layers[i]->getData();
-
 		matrix.insert(matrix.end(), params.begin(), params.end());
 	}
 
@@ -134,11 +132,11 @@ void FNNetwork::setParams(const global::ParamMetrix params) {
 
 	int j = 0;
 	for (size_t i = 0; i < layers.size(); ++i) {
-		global::ParamMetrix newParam(layers[i]->getSize() * layers[i]->getPrevSize() + layers[i]->getSize());
+		global::ParamMetrix newParam(layers[i]->getParamCount());
 
 		for (size_t k = 0; k < newParam.size(); ++k) {
 			newParam[k] = params[j];
-			j++;
+			++j;
 		}
 
 		layers[i]->setData(newParam);

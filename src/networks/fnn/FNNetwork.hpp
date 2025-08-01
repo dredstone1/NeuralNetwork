@@ -3,6 +3,7 @@
 
 #include "DenseLayer.hpp"
 #include "FnnVisualizer.hpp"
+#include <cstddef>
 #include <memory>
 #include <network/INetwork.hpp>
 
@@ -13,15 +14,17 @@ class FNNetwork : public INetwork {
 	std::vector<std::unique_ptr<DenseLayer>> layers;
 	global::ParamMetrix input;
 
+	const std::shared_ptr<visualizer::fnn::FnnVisualier> visual;
+
 	void calculateInputDelta(const global::ParamMetrix &deltas);
 
-	const std::shared_ptr<visualizer::fnn::FnnVisualier> visual;
+	void Vinit(const size_t i);
 
   public:
 	FNNetwork(
 	    const FNNConfig &_config,
 	    const bool randomInit,
-	    const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = std::shared_ptr<visualizer::fnn::FnnVisualier>());
+	    const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = nullptr);
 	~FNNetwork() override = default;
 
 	void forward(const global::ParamMetrix &newInput) override;
@@ -37,7 +40,9 @@ class FNNetwork : public INetwork {
 	const global::ParamMetrix &getOutput() const override;
 	const global::ParamMetrix &getInput() const override;
 
-	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
+	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override {
+		return visual;
+	}
 
 	global::ParamMetrix getParams() const override;
 	void setParams(const global::ParamMetrix params) override;

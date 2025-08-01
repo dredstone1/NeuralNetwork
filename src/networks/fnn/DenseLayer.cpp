@@ -17,9 +17,9 @@ DenseLayer::DenseLayer(
 }
 
 void Hidden_Layer::CreateDropoutMask() {
-	// if (config.dropoutRate == 0) {
-	// 	return;
-	// }
+	if (config.dropoutRate == 0) {
+		return;
+	}
 
 	const float keepProb = 1.0f - config.dropoutRate;
 
@@ -36,7 +36,6 @@ void Hidden_Layer::CreateDropoutMask() {
 }
 
 void Output_Layer::forward(const global::ParamMetrix &metrix) {
-
 	for (size_t i = 0; i < dots.size(); ++i) {
 		dots.net[i] = parameters.bias[i];
 
@@ -93,7 +92,7 @@ void Hidden_Layer::forward(const global::ParamMetrix &metrix) {
 	const float keepProb = 1.0f - config.dropoutRate;
 
 	for (size_t i = 0; i < dots.size(); ++i) {
-		if (isTraining && dropoutMask[i] == 0) {
+		if (isTraining && config.dropoutRate && dropoutMask[i] == 0) {
 			dots.net[i] = 0;
 			continue;
 		}
@@ -138,7 +137,7 @@ void Hidden_Layer::backward(
 	deltas = getDelta(deltas, *nextLayer);
 
 	for (size_t i = 0; i < getSize(); ++i) {
-		if (isTraining && dropoutMask[i] == 0) {
+		if (isTraining && config.dropoutRate && dropoutMask[i] == 0) {
 			deltas[i] = 0;
 			continue;
 		}
@@ -149,6 +148,10 @@ void Hidden_Layer::backward(
 			gradients.weights[i][j] += deltas[i] * prevLayer[j];
 		}
 	}
+}
+
+size_t DenseLayer::getParamCount() const {
+	return getSize() * getPrevSize() + getSize();
 }
 
 void DenseLayer::updateWeight(nn::model::IOptimizer &optimizer) {
@@ -170,14 +173,14 @@ const global::ParamMetrix DenseLayer::getData() const {
 		for (size_t j = 0; j < getPrevSize(); ++j) {
 			matrix[currentI] = parameters.weights[i][j];
 
-			currentI++;
+			++currentI;
 		}
 	}
 
 	for (size_t i = 0; i < getSize(); ++i) {
 		matrix[currentI] = parameters.bias[i];
 
-		currentI++;
+		++currentI;
 	}
 
 	return matrix;
@@ -189,15 +192,20 @@ void DenseLayer::setData(const global::ParamMetrix newParam) {
 		for (size_t j = 0; j < getPrevSize(); ++j) {
 			parameters.weights[i][j] = newParam[currentI];
 
-			currentI++;
+			++currentI;
 		}
 	}
 
 	for (size_t i = 0; i < getSize(); ++i) {
 		parameters.bias[i] = newParam[currentI];
 
-		currentI++;
+		++currentI;
 	}
+}
+
+Neurons::Neurons(const int size) {
+	out.resize(size, 0.0);
+	net.resize(size, 0.0);
 }
 
 void Neurons::reset() {
@@ -205,10 +213,5 @@ void Neurons::reset() {
 		out[i] = 0.0;
 		net[i] = 0.0;
 	}
-}
-
-Neurons::Neurons(const int size) {
-	out.resize(size, 0.0);
-	net.resize(size, 0.0);
 }
 } // namespace nn::model::fnn
