@@ -60,6 +60,17 @@ class FNNConfig : public ISubNetworkConfig {
 	ActivationType outputActivation;
 };
 
+class CNNConfig : public ISubNetworkConfig {
+  public:
+	CNNConfig(const nlohmann::json &j);
+	~CNNConfig() = default;
+
+	const std::string NNLable() const override { return "CNN"; }
+	void fromJson(const nlohmann::json &j) override;
+
+	ActivationType outputActivation;
+};
+
 class NetworkConfig {
   public:
 	int inputSize() const;

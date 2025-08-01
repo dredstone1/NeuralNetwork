@@ -1,4 +1,5 @@
 #include "../networks/fnn/FNNetwork.hpp"
+#include "../networks/cnn/CNNetwork.hpp"
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
@@ -84,6 +85,9 @@ void Model::initVisual() {
 		if (_config->NNLable() == "FNN") {
 			visual.addVisualSubNetwork(network[i]->getVisual());
 			network[i]->getVisual()->setVstate(visual.Vstate);
+		} else if (_config->NNLable() == "CNN") {
+			visual.addVisualSubNetwork(network[i]->getVisual());
+			network[i]->getVisual()->setVstate(visual.Vstate);
 		}
 	}
 }
@@ -107,6 +111,20 @@ void Model::initModel() {
 				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
 			} else {
 				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true));
+			}
+		} else if (_config->NNLable() == "CNN") {
+			CNNConfig &sub_ = *dynamic_cast<CNNConfig *>(_config.get());
+
+			if (config.visualConfig.enableVisuals) {
+				std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =
+				    std::make_shared<visualizer::cnn::CnnVisualier>(
+				        visual.Vstate,
+				        width,
+				        sub_);
+
+				network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true, visual_));
+			} else {
+				network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true));
 			}
 		}
 	}

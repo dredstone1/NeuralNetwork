@@ -54,6 +54,14 @@ void FNNConfig::fromJson(const nlohmann::json &j) {
 	outputActivation = (ActivationType)j.at("output activation");
 }
 
+CNNConfig::CNNConfig(const nlohmann::json &j) {
+	fromJson(j);
+}
+
+void CNNConfig::fromJson(const nlohmann::json &j) {
+	outputActivation = (ActivationType)j.at("output activation");
+}
+
 int NetworkConfig::inputSize() const {
 	return SubNetworksConfig[0]->getInputSize();
 }
