@@ -55,8 +55,26 @@ void FNNConfig::fromJson(const nlohmann::json &j) {
 	inputSize = j.at("input size");
 	outputSize = j.at("output size");
 
-	layersConfig = j.at("layers").get<std::vector<DenseLayerConfig>>();
+	for (auto &layer_ : j.at("layers")) {
+		layersConfig.push_back(DenseLayerConfig(layer_));
+	}
 	outputActivation = (ActivationType)j.at("output activation");
+}
+
+DenseLayerConfig::DenseLayerConfig(const nlohmann::json &j) {
+	fromJson(j);
+}
+
+void DenseLayerConfig::fromJson(const nlohmann::json &j) {
+	size = j.at("size");
+
+	if (j.contains("dropoutRate")) {
+		dropoutRate = j.at("dropoutRate");
+	}
+
+	if (j.contains("activationType")) {
+		activationType = j.at("activationType");
+	}
 }
 } // namespace fnn
 

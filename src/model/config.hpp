@@ -4,6 +4,7 @@
 #include "activations.hpp"
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 namespace nn::model {
@@ -43,15 +44,14 @@ class ISubNetworkConfig {
 };
 
 namespace fnn {
-struct DenseLayerConfig {
+class DenseLayerConfig {
+  public:
+	DenseLayerConfig(const nlohmann::json &j);
 	int size;
-	float dropoutRate = 1;
+	float dropoutRate{0};
 	ActivationType activationType = ActivationType::None;
+	void fromJson(const nlohmann::json &j);
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig,
-                                   size,
-                                   dropoutRate,
-                                   activationType)
 
 const std::string FNN_LABLE = "FNN";
 class FNNConfig : public ISubNetworkConfig {
