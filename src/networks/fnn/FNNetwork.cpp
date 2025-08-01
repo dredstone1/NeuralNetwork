@@ -102,7 +102,7 @@ const global::ParamMetrix &FNNetwork::getInput() const {
 	return input;
 }
 
-void FNNetwork::updateWeights(const std::shared_ptr<IOptimizer> optimizer) {
+void FNNetwork::updateWeights(IOptimizer &optimizer) {
 	for (auto &layer : layers) {
 		layer->updateWeight(optimizer);
 	}

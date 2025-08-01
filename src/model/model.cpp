@@ -73,7 +73,7 @@ void Model::initOptimizer() {
 
 	if (type == "const") {
 		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(config.trainingConfig.getOptimizer().get());
-		optimizer = std::make_shared<ConstantOptimizer>(*optConfig);
+		optimizer = std::make_unique<ConstantOptimizer>(*optConfig);
 	}
 }
 
@@ -100,7 +100,7 @@ void Model::initModel() {
 		auto _config = config.networkConfig.SubNetworksConfig[i];
 
 		if (_config->NNLable() == fnn::FNN_LABLE) {
-            fnn::FNNConfig &sub_ = *dynamic_cast<fnn::FNNConfig *>(_config.get());
+			fnn::FNNConfig &sub_ = *dynamic_cast<fnn::FNNConfig *>(_config.get());
 
 			if (config.visualConfig.enableVisuals) {
 				std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ =
@@ -114,7 +114,7 @@ void Model::initModel() {
 				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true));
 			}
 		} else if (_config->NNLable() == cnn::CNN_LABLE) {
-            cnn::CNNConfig &sub_ = *dynamic_cast<cnn::CNNConfig *>(_config.get());
+			cnn::CNNConfig &sub_ = *dynamic_cast<cnn::CNNConfig *>(_config.get());
 
 			if (config.visualConfig.enableVisuals) {
 				std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =
@@ -150,7 +150,7 @@ void Model::updateWeights(const int batchSize) {
 	optimizer->setOfset(batchSize);
 
 	for (auto &subNet : network) {
-		subNet->updateWeights(optimizer);
+		subNet->updateWeights(*optimizer);
 	}
 }
 
@@ -177,12 +177,8 @@ global::ValueType Model::runBackPropagation(
 	for (size_t i = 0; i < batch.size(); ++i) {
 		auto current_sample_ptr = batch.samples.at(i);
 		visual.updatePrediction(current_sample_ptr->pre);
-		if (transformation == nullptr) {
-			runModel(current_sample_ptr->input);
-		} else {
-			global::ParamMetrix newSample = transformation(current_sample_ptr->input);
-			runModel(newSample);
-		}
+
+		runModel(transformation(current_sample_ptr->input));
 
 		global::ParamMetrix output(outputSize());
 		output[current_sample_ptr->pre.index] = 1;
@@ -261,6 +257,30 @@ void Model::train(
 	    transformationE);
 }
 
+bool Model::autoEvaluating(
+    const int i,
+    DataBase &evaluateDataBase,
+    global::Transformation transformationE) {
+	setEvaluating();
+	if (config.trainingConfig.isAutoEvaluating() &&
+	    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
+		modelResult result = evaluateModel(evaluateDataBase, false, false, transformationE);
+		visual.updateEvaluate(result.percentage, i / config.trainingConfig.getAutoEvaluating().evaluateEvery);
+
+		if (result.percentage == 100) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void Model::autoSave(const int i) {
+	if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
+		save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
+	}
+}
+
 void Model::trainModel(
     DataBase &trainedDataBase,
     DataBase &evaluateDataBase,
@@ -281,22 +301,9 @@ void Model::trainModel(
 		error = runBackPropagation(batch, true, transformationB);
 		visual.updateLost(error, i);
 
-		if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
-			save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
-		}
+		autoSave(i);
 
-		setEvaluating();
-		if (config.trainingConfig.isAutoEvaluating() &&
-		    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-			modelResult result = evaluateModel(evaluateDataBase, false, false, transformationE);
-			visual.updateEvaluate(result.percentage, i / config.trainingConfig.getAutoEvaluating().evaluateEvery);
-
-			if (result.percentage == 100) {
-				break;
-			}
-		}
-
-		if (visual.exitTraining()) {
+		if (visual.exitTraining() || autoEvaluating(i, evaluateDataBase, transformationE)) {
 			break;
 		}
 
@@ -337,11 +344,7 @@ modelResult Model::evaluateModel(
 	for (int i = 0; i < result.dbSize; ++i) {
 		TrainSample &sample = dataBase.getSample(i);
 
-		if (transformation == nullptr) {
-			runModel(sample.input);
-		} else {
-			runModel(transformation(sample.input));
-		}
+		runModel(transformation(sample.input));
 
 		size_t predicted_index = std::distance(
 		    getOutput().begin(),

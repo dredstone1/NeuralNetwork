@@ -11,7 +11,7 @@ class INetwork {
 
 	virtual void forward(const global::ParamMetrix &input) = 0;
 	virtual void backward(const global::ParamMetrix &outputDeltas) = 0;
-	virtual void updateWeights(const std::shared_ptr<IOptimizer> optimizer) = 0;
+	virtual void updateWeights(IOptimizer &optimizer) = 0;
 	virtual void resetGradient() = 0;
 
 	virtual int outputSize() const = 0;

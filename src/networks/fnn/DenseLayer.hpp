@@ -43,7 +43,7 @@ class DenseLayer {
 	virtual ~DenseLayer() = default;
 
 	virtual void forward(const global::ParamMetrix &metrix) = 0;
-	void updateWeight(const std::shared_ptr<IOptimizer> optimizer);
+	void updateWeight(IOptimizer &optimizer);
 	virtual void backward(
 	    global::ParamMetrix &deltas,
 	    const global::ParamMetrix &prevLayer,

@@ -151,11 +151,11 @@ void Hidden_Layer::backward(
 	}
 }
 
-void DenseLayer::updateWeight(const std::shared_ptr<nn::model::IOptimizer> optimizer) {
-	optimizer->step(parameters.bias.data(), gradients.bias.data(), parameters.bias.size());
+void DenseLayer::updateWeight(nn::model::IOptimizer &optimizer) {
+	optimizer.step(parameters.bias.data(), gradients.bias.data(), parameters.bias.size());
 
 	for (size_t i = 0; i < parameters.weights.size(); ++i) {
-		optimizer->step(
+		optimizer.step(
 		    parameters.weights[i].data(),
 		    gradients.weights[i].data(),
 		    parameters.weights[i].size());

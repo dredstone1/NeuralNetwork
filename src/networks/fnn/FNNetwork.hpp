@@ -26,7 +26,7 @@ class FNNetwork : public INetwork {
 
 	void forward(const global::ParamMetrix &newInput) override;
 	void backward(const global::ParamMetrix &outputDeltas) override;
-	void updateWeights(const std::shared_ptr<IOptimizer> optimizer) override;
+	void updateWeights(IOptimizer &optimizer) override;
 	void resetGradient() override;
 
 	global::ValueType getLoss(const global::Prediction &index) const override;

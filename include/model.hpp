@@ -42,6 +42,10 @@ struct modelResult {
 	float percentage;
 };
 
+inline nn::global::Transformation dt = [](const nn::global::ParamMetrix &p) {
+	return p;
+};
+
 class Model {
   private:
 	const Config config;
@@ -50,8 +54,7 @@ class Model {
 	visualizer::VisualManager visual;
 
 	global::ValueType learningRate;
-
-	std::shared_ptr<IOptimizer> optimizer;
+	std::unique_ptr<IOptimizer> optimizer;
 
 	void Forword(const global::ParamMetrix &input, const int modelIndex);
 
@@ -64,7 +67,7 @@ class Model {
 	global::ValueType runBackPropagation(
 	    const Batch &batch,
 	    const bool updateWeights,
-	    global::Transformation transformation = nullptr);
+	    global::Transformation transformation = dt);
 
 	void printTrainingResult(
 	    const std::chrono::high_resolution_clock::time_point &start,
@@ -80,12 +83,12 @@ class Model {
 	    DataBase &dataBase,
 	    const bool cancleOnError = false,
 	    const bool showProgressbar = true,
-	    global::Transformation transformation = nullptr);
+	    global::Transformation transformation = dt);
 	void trainModel(
 	    DataBase &trainedDataBase,
 	    DataBase &evaluateDataBase,
-	    global::Transformation transformationB = nullptr,
-	    global::Transformation transformationE = nullptr);
+	    global::Transformation transformationB = dt,
+	    global::Transformation transformationE = dt);
 
 	int outputSize();
 	int inputSize();
@@ -95,6 +98,13 @@ class Model {
 	void setNormal();
 	void setEvaluating();
 
+	bool autoEvaluating(
+	    const int i,
+	    DataBase &evaluateDataBase,
+	    global::Transformation transformationE);
+
+	void autoSave(const int i);
+
   public:
 	Model(const std::string &config_filepath);
 	~Model() = default;
@@ -102,16 +112,16 @@ class Model {
 	void runModel(const global::ParamMetrix &input);
 	void train(
 	    const std::string &db_filename,
-	    global::Transformation transformationB = nullptr,
-	    global::Transformation transformationE = nullptr);
+	    global::Transformation transformationB = dt,
+	    global::Transformation transformationE = dt);
 	void train(
 	    const std::vector<std::string> &db_filename,
-	    global::Transformation transformationB = nullptr,
-	    global::Transformation transformationE = nullptr);
+	    global::Transformation transformationB = dt,
+	    global::Transformation transformationE = dt);
 	modelResult evaluateModel(
 	    const std::string &db_filename,
 	    const bool cancleOnError = false,
-	    global::Transformation transformation = nullptr);
+	    global::Transformation transformation = dt);
 
 	void save(const std::string &file);
 	void load(const std::string &file);

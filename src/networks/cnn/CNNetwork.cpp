@@ -40,7 +40,7 @@ const global::ParamMetrix &CNNetwork::getInput() const {
 	return input;
 }
 
-void CNNetwork::updateWeights(const std::shared_ptr<IOptimizer>) {
+void CNNetwork::updateWeights(IOptimizer &) {
 }
 
 void CNNetwork::calculateInputDelta(const global::ParamMetrix &) {
