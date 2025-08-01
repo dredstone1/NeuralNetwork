@@ -99,8 +99,8 @@ void Model::initModel() {
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		auto _config = config.networkConfig.SubNetworksConfig[i];
 
-		if (_config->NNLable() == FNN_LABLE) {
-			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
+		if (_config->NNLable() == fnn::FNN_LABLE) {
+            fnn::FNNConfig &sub_ = *dynamic_cast<fnn::FNNConfig *>(_config.get());
 
 			if (config.visualConfig.enableVisuals) {
 				std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ =
@@ -113,8 +113,8 @@ void Model::initModel() {
 			} else {
 				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true));
 			}
-		} else if (_config->NNLable() == CNN_LABLE) {
-			CNNConfig &sub_ = *dynamic_cast<CNNConfig *>(_config.get());
+		} else if (_config->NNLable() == cnn::CNN_LABLE) {
+            cnn::CNNConfig &sub_ = *dynamic_cast<cnn::CNNConfig *>(_config.get());
 
 			if (config.visualConfig.enableVisuals) {
 				std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =

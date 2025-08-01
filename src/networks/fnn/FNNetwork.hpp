@@ -35,7 +35,6 @@ class FNNetwork : public INetwork {
 	int inputSize() const override;
 
 	const global::ParamMetrix &getOutput() const override;
-	const global::ParamMetrix &getNet() const override;
 	const global::ParamMetrix &getInput() const override;
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }

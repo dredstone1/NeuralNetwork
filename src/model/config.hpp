@@ -17,7 +17,7 @@ class IOptimizerConfig {
 
 class ConstantOptimizerConfig : public IOptimizerConfig {
   private:
-	global::ValueType learningRate{0.001};
+	global::ValueType learningRate{0.1};
 
   public:
 	ConstantOptimizerConfig(const nlohmann::json &j) { fromJson(j); }
@@ -42,6 +42,7 @@ class ISubNetworkConfig {
 	virtual ~ISubNetworkConfig() = default;
 };
 
+namespace fnn {
 struct DenseLayerConfig {
 	int size;
 	float dropoutRate = 1;
@@ -61,7 +62,9 @@ class FNNConfig : public ISubNetworkConfig {
 	std::vector<DenseLayerConfig> layersConfig;
 	ActivationType outputActivation;
 };
+} // namespace fnn
 
+namespace cnn {
 const std::string CNN_LABLE = "CNN";
 class CNNConfig : public ISubNetworkConfig {
   public:
@@ -73,6 +76,7 @@ class CNNConfig : public ISubNetworkConfig {
 
 	ActivationType outputActivation;
 };
+} // namespace cnn
 
 class NetworkConfig {
   public:

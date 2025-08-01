@@ -87,19 +87,15 @@ void FNNetwork::resetGradient() {
 }
 
 int FNNetwork::inputSize() const {
-	return layers[0]->getPrevSize();
+	return config.getInputSize();
 }
 
 int FNNetwork::outputSize() const {
-	return layers[layers.size() - 1]->getSize();
+	return config.getOutputSize();
 }
 
 const global::ParamMetrix &FNNetwork::getOutput() const {
 	return layers[layers.size() - 1]->getOut();
-}
-
-const global::ParamMetrix &FNNetwork::getNet() const {
-	return layers[layers.size() - 1]->getNet();
 }
 
 const global::ParamMetrix &FNNetwork::getInput() const {

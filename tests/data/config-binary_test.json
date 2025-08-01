@@ -20,12 +20,14 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 0
+			"lr": 0.1
 		}
 	},
 	"network config": [
 		{
 			"type": "CNN",
+			"input size": 10,
+			"output size": 16,
 			"output activation": 4
 		},
 		{

@@ -74,7 +74,7 @@ class VisualDenseLayer {
 
 class FnnVisualier : public IVisualNetwork {
   private:
-	const model::FNNConfig &config;
+	const model::fnn::FNNConfig &config;
 
 	std::vector<std::unique_ptr<VisualDenseLayer>> Layers;
 
@@ -86,7 +86,7 @@ class FnnVisualier : public IVisualNetwork {
 	FnnVisualier(
 	    const std::shared_ptr<StateManager> state_,
 	    const std::uint32_t width,
-	    const model::FNNConfig &_config);
+	    const model::fnn::FNNConfig &_config);
 	~FnnVisualier() = default;
 
 	void initLayer(

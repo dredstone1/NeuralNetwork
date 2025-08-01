@@ -7,7 +7,7 @@ namespace nn::visualizer::fnn {
 FnnVisualier::FnnVisualier(
     const std::shared_ptr<StateManager> state_,
     const std::uint32_t width,
-    const model::FNNConfig &_config)
+    const model::fnn::FNNConfig &_config)
     : IVisualNetwork(state_, width),
       config(_config),
       Layers(config.layersConfig.size() + 1) {

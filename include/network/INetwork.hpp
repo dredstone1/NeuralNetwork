@@ -19,7 +19,6 @@ class INetwork {
 
 	virtual global::ValueType getLoss(const global::Prediction &index) const = 0;
 	virtual const global::ParamMetrix &getOutput() const = 0;
-	virtual const global::ParamMetrix &getNet() const = 0;
 	virtual const global::ParamMetrix &getInput() const = 0;
 	virtual std::shared_ptr<visualizer::IVisualNetwork> getVisual() = 0;
 

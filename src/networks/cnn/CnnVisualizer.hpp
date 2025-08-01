@@ -6,7 +6,7 @@
 namespace nn::visualizer::cnn {
 class CnnVisualier : public IVisualNetwork {
   private:
-	const model::CNNConfig &config;
+	const model::cnn::CNNConfig &config;
 
 	void renderNetwork() override;
 	void renderLayers();
@@ -16,7 +16,7 @@ class CnnVisualier : public IVisualNetwork {
 	CnnVisualier(
 	    const std::shared_ptr<StateManager> state_,
 	    const std::uint32_t width,
-	    const model::CNNConfig &_config);
+	    const model::cnn::CNNConfig &_config);
 	~CnnVisualier() = default;
 
 	void initLayer(const int index);

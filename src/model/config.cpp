@@ -37,12 +37,16 @@ Config::Config(const std::string &config_filepath) {
 void NetworkConfig::fromJson(const nlohmann::json &j) {
 	for (auto &subNetworkConfig : j) {
 		std::string type = subNetworkConfig.at("type");
-		if (type == "FNN") {
-			SubNetworksConfig.push_back(std::make_shared<FNNConfig>(subNetworkConfig));
+		if (type == fnn::FNN_LABLE) {
+			SubNetworksConfig.push_back(std::make_shared<fnn::FNNConfig>(subNetworkConfig));
+		}
+		if (type == cnn::CNN_LABLE) {
+			SubNetworksConfig.push_back(std::make_shared<cnn::CNNConfig>(subNetworkConfig));
 		}
 	}
 }
 
+namespace fnn {
 FNNConfig::FNNConfig(const nlohmann::json &j) {
 	fromJson(j);
 }
@@ -54,7 +58,9 @@ void FNNConfig::fromJson(const nlohmann::json &j) {
 	layersConfig = j.at("layers").get<std::vector<DenseLayerConfig>>();
 	outputActivation = (ActivationType)j.at("output activation");
 }
+} // namespace fnn
 
+namespace cnn {
 CNNConfig::CNNConfig(const nlohmann::json &j) {
 	fromJson(j);
 }
@@ -65,6 +71,7 @@ void CNNConfig::fromJson(const nlohmann::json &j) {
 
 	outputActivation = (ActivationType)j.at("output activation");
 }
+} // namespace cnn
 
 int NetworkConfig::inputSize() const {
 	return SubNetworksConfig[0]->getInputSize();
