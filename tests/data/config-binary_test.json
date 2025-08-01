@@ -25,6 +25,10 @@
 	},
 	"network config": [
 		{
+			"type": "CNN",
+			"output activation": 4
+		},
+		{
 			"type": "FNN",
 			"input size": 10,
 			"output size": 16,

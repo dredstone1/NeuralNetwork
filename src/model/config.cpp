@@ -50,6 +50,7 @@ FNNConfig::FNNConfig(const nlohmann::json &j) {
 void FNNConfig::fromJson(const nlohmann::json &j) {
 	inputSize = j.at("input size");
 	outputSize = j.at("output size");
+
 	layersConfig = j.at("layers").get<std::vector<DenseLayerConfig>>();
 	outputActivation = (ActivationType)j.at("output activation");
 }
@@ -59,6 +60,9 @@ CNNConfig::CNNConfig(const nlohmann::json &j) {
 }
 
 void CNNConfig::fromJson(const nlohmann::json &j) {
+	inputSize = j.at("input size");
+	outputSize = j.at("output size");
+
 	outputActivation = (ActivationType)j.at("output activation");
 }
 

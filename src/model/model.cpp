@@ -1,5 +1,6 @@
-#include "../networks/fnn/FNNetwork.hpp"
 #include "../networks/cnn/CNNetwork.hpp"
+#include "../networks/fnn/FNNetwork.hpp"
+#include "config.hpp"
 #include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
@@ -98,7 +99,7 @@ void Model::initModel() {
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		auto _config = config.networkConfig.SubNetworksConfig[i];
 
-		if (_config->NNLable() == "FNN") {
+		if (_config->NNLable() == FNN_LABLE) {
 			FNNConfig &sub_ = *dynamic_cast<FNNConfig *>(_config.get());
 
 			if (config.visualConfig.enableVisuals) {
@@ -112,7 +113,7 @@ void Model::initModel() {
 			} else {
 				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true));
 			}
-		} else if (_config->NNLable() == "CNN") {
+		} else if (_config->NNLable() == CNN_LABLE) {
 			CNNConfig &sub_ = *dynamic_cast<CNNConfig *>(_config.get());
 
 			if (config.visualConfig.enableVisuals) {

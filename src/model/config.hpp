@@ -4,6 +4,7 @@
 #include "activations.hpp"
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <string>
 
 namespace nn::model {
 class IOptimizerConfig {
@@ -48,24 +49,26 @@ struct DenseLayerConfig {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig, size, dropoutRate, activationType)
 
+const std::string FNN_LABLE = "FNN";
 class FNNConfig : public ISubNetworkConfig {
   public:
 	FNNConfig(const nlohmann::json &j);
 	~FNNConfig() = default;
 
-	const std::string NNLable() const override { return "FNN"; }
+	const std::string NNLable() const override { return FNN_LABLE; }
 	void fromJson(const nlohmann::json &j) override;
 
 	std::vector<DenseLayerConfig> layersConfig;
 	ActivationType outputActivation;
 };
 
+const std::string CNN_LABLE = "CNN";
 class CNNConfig : public ISubNetworkConfig {
   public:
 	CNNConfig(const nlohmann::json &j);
 	~CNNConfig() = default;
 
-	const std::string NNLable() const override { return "CNN"; }
+	const std::string NNLable() const override { return CNN_LABLE; }
 	void fromJson(const nlohmann::json &j) override;
 
 	ActivationType outputActivation;
