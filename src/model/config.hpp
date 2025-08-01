@@ -48,7 +48,10 @@ struct DenseLayerConfig {
 	float dropoutRate = 1;
 	ActivationType activationType = ActivationType::None;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig, size, dropoutRate, activationType)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DenseLayerConfig,
+                                   size,
+                                   dropoutRate,
+                                   activationType)
 
 const std::string FNN_LABLE = "FNN";
 class FNNConfig : public ISubNetworkConfig {
@@ -97,7 +100,9 @@ struct AutoEvaluating {
 	int evaluateEvery{-1};
 	std::string dataBaseFilename{"dataBase"};
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoEvaluating, evaluateEvery, dataBaseFilename);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoEvaluating,
+                                   evaluateEvery,
+                                   dataBaseFilename);
 
 class TrainingConfig {
   private:
@@ -119,15 +124,19 @@ class TrainingConfig {
 	bool isAutoSave() const { return (autoSave.saveEvery > 0); }
 	const AutoSave &getAutoSave() const { return autoSave; }
 
-	bool isAutoEvaluating() const { return (autoEvaluating.evaluateEvery > 0); }
+	bool isAutoEvaluating() const { return autoEvaluating.evaluateEvery > 0; }
 	const AutoEvaluating &getAutoEvaluating() const { return autoEvaluating; }
 
 	int getBatchCount() const { return batchCount; }
 	size_t getBatchSize() const { return batchSize; }
 
-	global::ValueType getLearningRate() const { return optimizer->getLearningRate(); }
+	global::ValueType getLearningRate() const {
+		return optimizer->getLearningRate();
+	}
 
-	const std::unique_ptr<IOptimizerConfig> &getOptimizer() const { return optimizer; }
+	const std::unique_ptr<IOptimizerConfig> &getOptimizer() const {
+		return optimizer;
+	}
 	const std::string &getOptimizerType() const { return optimizerType; }
 };
 

@@ -6,7 +6,6 @@
 #include <cmath>
 
 namespace nn::model {
-
 class IOptimizer {
   protected:
 	int batchSize;
@@ -14,7 +13,10 @@ class IOptimizer {
   public:
 	virtual ~IOptimizer() = default;
 
-	virtual void step(global::ValueType *weight, const global::ValueType *grad, std::size_t size) = 0;
+	virtual void step(
+	    global::ValueType *weight,
+	    const global::ValueType *grad,
+	    std::size_t size) = 0;
 	virtual void reset() = 0;
 
 	void setOfset(const int batchSize_) { batchSize = batchSize_; }
@@ -25,9 +27,13 @@ class ConstantOptimizer : public IOptimizer {
 	const ConstantOptimizerConfig &config;
 
   public:
-	ConstantOptimizer(const ConstantOptimizerConfig &config_) : config(config_) {}
+	ConstantOptimizer(const ConstantOptimizerConfig &config_)
+	    : config(config_) {}
 
-	void step(global::ValueType *weight, const global::ValueType *grad, std::size_t size) override;
+	void step(
+	    global::ValueType *weight,
+	    const global::ValueType *grad,
+	    std::size_t size) override;
 
 	void reset() override {}
 };

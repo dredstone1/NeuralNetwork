@@ -2,6 +2,7 @@
 #include "../networks/fnn/FNNetwork.hpp"
 #include "config.hpp"
 #include "dataBase.hpp"
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -81,53 +82,58 @@ void Model::initVisual() {
 	visual.start();
 
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
-		auto _config = config.networkConfig.SubNetworksConfig[i];
+		visual.addVisualSubNetwork(network[i]->getVisual());
+		network[i]->getVisual()->setVstate(visual.Vstate);
+	}
+}
 
-		if (_config->NNLable() == "FNN") {
-			visual.addVisualSubNetwork(network[i]->getVisual());
-			network[i]->getVisual()->setVstate(visual.Vstate);
-		} else if (_config->NNLable() == "CNN") {
-			visual.addVisualSubNetwork(network[i]->getVisual());
-			network[i]->getVisual()->setVstate(visual.Vstate);
+std::uint32_t Model::calculateSubNetWidth() const {
+	return visualizer::SUB_NETWORKS_WIDTH / config.networkConfig.SubNetworksConfig.size();
+}
+
+void Model::initModel() {
+	const std::uint32_t WIDTH = calculateSubNetWidth();
+
+	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
+		ISubNetworkConfig &_config = *config.networkConfig.SubNetworksConfig[i];
+
+		if (_config.NNLable() == fnn::FNN_LABLE) {
+			addFNN(WIDTH, _config);
+		} else if (_config.NNLable() == cnn::CNN_LABLE) {
+			addCNN(WIDTH, _config);
 		}
 	}
 }
 
-void Model::initModel() {
-	const std::uint32_t width = visualizer::SUB_NETWORKS_WIDTH / config.networkConfig.SubNetworksConfig.size();
+void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
+	fnn::FNNConfig &sub_ = (fnn::FNNConfig &)(_config);
 
-	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
-		auto _config = config.networkConfig.SubNetworksConfig[i];
+	if (config.visualConfig.enableVisuals) {
+		std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ =
+		    std::make_shared<visualizer::fnn::FnnVisualier>(
+		        visual.Vstate,
+		        width,
+		        sub_);
 
-		if (_config->NNLable() == fnn::FNN_LABLE) {
-			fnn::FNNConfig &sub_ = *dynamic_cast<fnn::FNNConfig *>(_config.get());
+		network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
+	} else {
+		network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true));
+	}
+}
 
-			if (config.visualConfig.enableVisuals) {
-				std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ =
-				    std::make_shared<visualizer::fnn::FnnVisualier>(
-				        visual.Vstate,
-				        width,
-				        sub_);
+void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
+	cnn::CNNConfig &sub_ = (cnn::CNNConfig &)(_config);
 
-				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
-			} else {
-				network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true));
-			}
-		} else if (_config->NNLable() == cnn::CNN_LABLE) {
-			cnn::CNNConfig &sub_ = *dynamic_cast<cnn::CNNConfig *>(_config.get());
+	if (config.visualConfig.enableVisuals) {
+		std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =
+		    std::make_shared<visualizer::cnn::CnnVisualier>(
+		        visual.Vstate,
+		        width,
+		        sub_);
 
-			if (config.visualConfig.enableVisuals) {
-				std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =
-				    std::make_shared<visualizer::cnn::CnnVisualier>(
-				        visual.Vstate,
-				        width,
-				        sub_);
-
-				network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true, visual_));
-			} else {
-				network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true));
-			}
-		}
+		network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true, visual_));
+	} else {
+		network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true));
 	}
 }
 
@@ -197,6 +203,7 @@ global::ValueType Model::runBackPropagation(
 void Model::printTrainingResult(
     const std::chrono::high_resolution_clock::time_point &start,
     const double error) {
+
 	const auto end = std::chrono::high_resolution_clock::now();
 	const int time_taken = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
 	const int minutes = time_taken / SECONDS_IN_MINUTE;

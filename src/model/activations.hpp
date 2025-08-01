@@ -37,35 +37,45 @@ class Activation {
 	static global::ValueType derivativeTanh(const global::ValueType z);
 
 	static void relu(const global::ParamMetrix &net, global::ParamMetrix &out);
-	static void derivativeRelu(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void derivativeRelu(const global::ParamMetrix &net,
+	                           global::ParamMetrix &out);
 
-	static void leakyRelu(const global::ParamMetrix &net, global::ParamMetrix &out);
-	static void derivativeLeakyRelu(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void leakyRelu(const global::ParamMetrix &net,
+	                      global::ParamMetrix &out);
+	static void derivativeLeakyRelu(const global::ParamMetrix &net,
+	                                global::ParamMetrix &out);
 
-	static void sigmoid(const global::ParamMetrix &net, global::ParamMetrix &out);
-	static void derivativeSigmoid(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void sigmoid(const global::ParamMetrix &net,
+	                    global::ParamMetrix &out);
+	static void derivativeSigmoid(const global::ParamMetrix &net,
+	                              global::ParamMetrix &out);
 
 	static void tanh(const global::ParamMetrix &net, global::ParamMetrix &out);
-	static void derivativeTanh(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void derivativeTanh(const global::ParamMetrix &net,
+	                           global::ParamMetrix &out);
 
-	static void softmax(const global::ParamMetrix &net, global::ParamMetrix &out);
+	static void softmax(const global::ParamMetrix &net,
+	                    global::ParamMetrix &out);
 
 	static global::ValueType maxVector(const global::ParamMetrix &metrix);
 
   public:
-	Activation(const ActivationType activationType_) : activationType(activationType_) {}
-	Activation(const Activation &other) : activationType(other.activationType) {}
+	Activation(const ActivationType activationType_)
+	    : activationType(activationType_) {}
+	Activation(const Activation &other)
+	    : activationType(other.activationType) {}
 	~Activation() = default;
 
 	global::ValueType activate(const global::ValueType x) const;
 	global::ValueType derivativeActivate(const global::ValueType x) const;
 
-	void activate(const global::ParamMetrix &net, global::ParamMetrix &out) const;
-	void derivativeActivate(const global::ParamMetrix &net, global::ParamMetrix &out) const;
+	void activate(const global::ParamMetrix &net,
+	              global::ParamMetrix &out) const;
+	void derivativeActivate(const global::ParamMetrix &net,
+	                        global::ParamMetrix &out) const;
 
 	ActivationType getType() { return activationType; }
 };
-
 } // namespace nn::model
 
 #endif // ACTIVATIONS

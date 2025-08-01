@@ -105,6 +105,11 @@ class Model {
 
 	void autoSave(const int i);
 
+    void addFNN(const std::uint32_t width, ISubNetworkConfig &_config);
+    void addCNN(const std::uint32_t width, ISubNetworkConfig &_config);
+
+    std::uint32_t calculateSubNetWidth() const;
+
   public:
 	Model(const std::string &config_filepath);
 	~Model() = default;

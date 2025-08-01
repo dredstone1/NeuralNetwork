@@ -59,9 +59,11 @@ int DataBase::load(const std::string &db_filename) {
 	getDataBaseStatus(line);
 
 	while (getline(file, line)) {
-		if (line.empty() || line.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
+		if (line.empty() ||
+		    line.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
 			continue;
 		}
+
 		TrainSample new_sample = readLine(line);
 		if (new_sample.input.size() == 0)
 			continue;
@@ -104,7 +106,7 @@ void DataBase::generateBatches() {
 	batches.reserve(num_batches_expected);
 
 	for (size_t i = 0; i < samples.size(); i += config.getBatchSize()) {
-		size_t current_batch_actual_size = std::min((size_t)config.getBatchSize(), samples.size() - i);
+		size_t current_batch_actual_size = std::min(config.getBatchSize(), samples.size() - i);
 
 		if (current_batch_actual_size == 0)
 			break;
