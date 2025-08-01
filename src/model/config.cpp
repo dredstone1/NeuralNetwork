@@ -2,8 +2,6 @@
 #include "activations.hpp"
 #include <fstream>
 #include <iostream>
-#include <memory>
-#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
 Config::Config(const std::string &config_filepath) {
