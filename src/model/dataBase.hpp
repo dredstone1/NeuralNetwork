@@ -21,8 +21,8 @@ struct TrainSample {
 };
 
 struct Samples {
-	int sInputSize;
-	int sOutputSize;
+	size_t sInputSize;
+	size_t sOutputSize;
 
 	std::vector<TrainSample> samples;
 

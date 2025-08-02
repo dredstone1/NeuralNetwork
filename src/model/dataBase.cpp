@@ -23,10 +23,10 @@ TrainSample DataBase::readLine(const std::string &line) {
 
 	new_sample.pre.index = std::stoull(token);
 
-	for (int i = 0; i < samples.sInputSize; ++i) {
+	for (size_t i = 0; i < samples.sInputSize; ++i) {
 		iss >> token;
 
-		new_sample.input({}) = std::stod(token);
+		new_sample.input({i}) = std::stod(token);
 	}
 
 	return new_sample;

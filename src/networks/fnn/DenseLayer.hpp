@@ -3,9 +3,7 @@
 
 #include "../../model/config.hpp"
 #include "../src/model/optimizers.hpp"
-#include "Globals.hpp"
 #include "tensor.hpp"
-#include <cstddef>
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
@@ -56,7 +54,7 @@ class DenseLayer {
 	const LayerParams &getGrad() { return gradients; }
 
 	size_t size() const { return net.numElements(); }
-	size_t prevSize() const { return parameters.weights.getShape()[1]; }
+	size_t prevSize() const { return parameters.prevSize(); }
 
 	const global::Tensor &getNet() const { return net; }
 	const global::Tensor &getOut() const { return out; }
@@ -79,7 +77,7 @@ class Hidden_Layer : public DenseLayer {
 	    const global::Tensor &output,
 	    const LayerParams &nextLayer);
 
-	std::vector<int> dropoutMask;
+	global::Tensor dropoutMask;
 
 	void CreateDropoutMask();
 
@@ -89,7 +87,9 @@ class Hidden_Layer : public DenseLayer {
 	    const int _prev_size,
 	    const bool randomInit = false)
 	    : DenseLayer(_config.size, _prev_size, _config.activationType, randomInit),
-	      config(_config) {}
+	      config(_config),
+	      dropoutMask({_config.size, 1}) {
+	}
 	~Hidden_Layer() override = default;
 
 	void forward(const global::Tensor &metrix) override;

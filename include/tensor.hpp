@@ -13,17 +13,19 @@ class Tensor {
 	std::vector<size_t> shape;
 	std::vector<size_t> strides;
 
+	void computeStrides();
+
   public:
 	// Constructors
 	Tensor(const std::vector<size_t> &shape, const float init = 0.0f);
 
 	// Access
-	float &operator()(const std::vector<size_t> &indices);
-	float operator()(const std::vector<size_t> &indices) const;
+	ValueType &operator()(const std::vector<size_t> &indices);
+	ValueType operator()(const std::vector<size_t> &indices) const;
 
 	// Utilities
-	size_t numElements() const;
 	const std::vector<size_t> &getShape() const;
+	size_t numElements() const;
 
 	// Iterators for range-based loops
 	auto begin() { return data.begin(); }
@@ -33,6 +35,13 @@ class Tensor {
 
 	// Math ops
 	Tensor operator+(const Tensor &other) const;
+	Tensor &operator+=(const Tensor &other);
+	Tensor &operator-=(const Tensor &other);
+	Tensor &operator*=(const Tensor &other);
+	Tensor operator*(const Tensor &other) const;
+	Tensor &operator*=(ValueType scalar);
+	Tensor operator*(ValueType scalar) const;
+
 	Tensor matmul(const Tensor &other) const;
 };
 } // namespace nn::global

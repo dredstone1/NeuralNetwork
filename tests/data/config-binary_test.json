@@ -8,14 +8,14 @@
 		]
 	},
 	"training config": {
-		"batch size": 32,
-		"batch count": 10000,
+		"batch size": 4,
+		"batch count": 1000,
 		"auto save": {
 			"saveEvery": 2000,
 			"dataFilenameAutoSave": "mode.txt"
 		},
 		"auto evaluating": {
-			"evaluateEvery": 100,
+			"evaluateEvery": 10,
 			"dataBaseFilename": "../tests/data/database-binary_test"
 		},
 		"optimizer": {
@@ -29,10 +29,7 @@
 			"input size": 10,
 			"output size": 16,
 			"output activation": 4,
-			"layers": [
-				{ "size": 30, "activationType": 1 },
-				{ "size": 30, "activationType": 1 }
-			]
+			"layers": [{ "size": 10, "activationType": 1 }]
 		}
 	]
 }
