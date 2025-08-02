@@ -77,7 +77,7 @@ class Hidden_Layer : public DenseLayer {
 	    const global::Tensor &output,
 	    const LayerParams &nextLayer);
 
-	global::Tensor dropoutMask;
+	std::vector<int> dropoutMask;
 
 	void CreateDropoutMask();
 
@@ -87,9 +87,7 @@ class Hidden_Layer : public DenseLayer {
 	    const int _prev_size,
 	    const bool randomInit = false)
 	    : DenseLayer(_config.size, _prev_size, _config.activationType, randomInit),
-	      config(_config),
-	      dropoutMask({_config.size, 1}) {
-	}
+	      config(_config) {}
 	~Hidden_Layer() override = default;
 
 	void forward(const global::Tensor &metrix) override;

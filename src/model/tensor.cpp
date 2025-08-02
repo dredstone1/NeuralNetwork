@@ -1,5 +1,4 @@
 #include "../../include/tensor.hpp"
-#include <initializer_list>
 #include <numeric>
 #include <stdexcept>
 
@@ -113,26 +112,6 @@ Tensor &Tensor::operator*=(ValueType scalar) {
 Tensor Tensor::operator*(ValueType scalar) const {
 	Tensor result = *this;
 	result *= scalar;
-	return result;
-}
-
-Tensor Tensor::matmul(const Tensor &other) const {
-	size_t M = shape[0];
-	size_t K = shape[1];
-	size_t N = other.shape[1];
-
-	Tensor result({M, N}, 0.0f);
-
-	for (size_t i = 0; i < M; ++i) {
-		for (size_t j = 0; j < N; ++j) {
-			float sum = 0.0f;
-			for (size_t k = 0; k < K; ++k) {
-				sum += (*this)({i, k}) * other({k, j});
-			}
-			result({i, j}) = sum;
-		}
-	}
-
 	return result;
 }
 } // namespace nn::global

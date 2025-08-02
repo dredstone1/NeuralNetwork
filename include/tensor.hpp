@@ -41,8 +41,6 @@ class Tensor {
 	Tensor operator*(const Tensor &other) const;
 	Tensor &operator*=(ValueType scalar);
 	Tensor operator*(ValueType scalar) const;
-
-	Tensor matmul(const Tensor &other) const;
 };
 } // namespace nn::global
 

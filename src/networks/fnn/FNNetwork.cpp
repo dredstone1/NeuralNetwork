@@ -48,7 +48,7 @@ void FNNetwork::forward(const global::Tensor &newInput) {
 
 	for (size_t i = 1; i < layers.size(); ++i) {
 		layers[i]->forward(layers[i - 1]->getOut());
-
+        
 		if (visual) {
 			visual->setUpdate();
 			visual->attempPause();

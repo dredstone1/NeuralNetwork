@@ -31,8 +31,8 @@ static const std::array<sf::Color, 3> color_lookup = {
 
 class VisualDenseLayer {
   private:
-	global::Tensor net;
-	global::Tensor out;
+	const global::Tensor &net;
+	const global::Tensor &out;
 
 	const model::fnn::LayerParams &parameters;
 	const model::fnn::LayerParams &gradients;
@@ -46,7 +46,11 @@ class VisualDenseLayer {
 	void drawGapWeight(sf::RenderTexture &target);
 	void drawNeurons(sf::RenderTexture &target);
 	void renderNeuron(const size_t index, sf::RenderTexture &target);
-	void drawNeuron(const sf::FloatRect&rect, const double input, const double output, sf::RenderTexture &target);
+	void drawNeuron(
+	    const sf::FloatRect &rect,
+	    const global::ValueType &input,
+	    const global::ValueType &output,
+	    sf::RenderTexture &target);
 
 	textType getTextT(const size_t layer_i, const size_t layer_p);
 	sf::Color getColorFromTextT(const textType text_type);

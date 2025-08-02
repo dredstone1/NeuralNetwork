@@ -26,11 +26,15 @@ void Hidden_Layer::CreateDropoutMask() {
 
 	const float keepProb = 1.0f - config.dropoutRate;
 
+	if (dropoutMask.size() != size()) {
+		dropoutMask.resize(size());
+	}
+
 	static thread_local std::mt19937 rng{std::random_device{}()};
 	std::bernoulli_distribution bernoulli(keepProb);
 
-	for (size_t i = 0; i < dropoutMask.numElements(); ++i) {
-		dropoutMask({i}) = static_cast<uint8_t>(bernoulli(rng));
+	for (size_t i = 0; i < dropoutMask.size(); ++i) {
+		dropoutMask[i] = static_cast<uint8_t>(bernoulli(rng));
 	}
 }
 
@@ -67,6 +71,7 @@ void Output_Layer::backward(
 
 	gradients.biases += deltas;
 	for (size_t i = 0; i < size(); ++i) {
+		gradients.biases({i}) += deltas({i});
 
 		for (size_t j = 0; j < prevSize(); ++j) {
 			gradients.weights({i, j}) += deltas({i}) * prevLayer({j});
@@ -91,7 +96,7 @@ void Hidden_Layer::forward(const global::Tensor &metrix) {
 	const float keepProb = 1.0f - config.dropoutRate;
 
 	for (size_t i = 0; i < size(); ++i) {
-		if (isTraining && config.dropoutRate && dropoutMask({i}) == 0) {
+		if (isTraining && config.dropoutRate && dropoutMask[i] == 0) {
 			net({i}) = 0;
 			continue;
 		}
@@ -110,6 +115,31 @@ void Hidden_Layer::forward(const global::Tensor &metrix) {
 	activationFunction.activate(net, out);
 }
 
+
+void Hidden_Layer::backward(
+    global::Tensor &deltas,
+    const global::Tensor &prevLayer,
+    const LayerParams *nextLayer) {
+
+	if (!nextLayer)
+		return;
+
+	deltas = getDelta(deltas, *nextLayer);
+
+	for (size_t i = 0; i < size(); ++i) {
+		if (isTraining && config.dropoutRate && dropoutMask[i] == 0) {
+			deltas({i}) = 0;
+			continue;
+		}
+
+		gradients.biases({i}) += deltas({i});
+
+		for (size_t j = 0; j < prevSize(); ++j) {
+			gradients.weights({i, j}) += deltas({i}) * prevLayer({j});
+		}
+	}
+}
+
 global::Tensor Hidden_Layer::getDelta(
     const global::Tensor &output,
     const LayerParams &nextLayer) {
@@ -125,39 +155,13 @@ global::Tensor Hidden_Layer::getDelta(
 	return deltas;
 }
 
-void Hidden_Layer::backward(
-    global::Tensor &deltas,
-    const global::Tensor &prevLayer,
-    const LayerParams *nextLayer) {
-
-	if (!nextLayer)
-		return;
-
-	deltas = getDelta(deltas, *nextLayer);
-
-	if (isTraining && config.dropoutRate) {
-		deltas *= dropoutMask;
-	}
-	gradients.biases += deltas;
-
-	for (size_t i = 0; i < size(); ++i) {
-
-		for (size_t j = 0; j < prevSize(); ++j) {
-			gradients.weights({i, j}) += deltas({i}) * prevLayer({j});
-		}
-	}
-}
-
 size_t DenseLayer::getParamCount() const {
 	return size() * prevSize() + size();
 }
 
 void DenseLayer::updateWeight(nn::model::IOptimizer &optimizer) {
 	optimizer.step(parameters.biases, gradients.biases);
-
-	for (size_t i = 0; i < size(); ++i) {
-		optimizer.step(parameters.weights, gradients.weights);
-	}
+	optimizer.step(parameters.weights, gradients.weights);
 }
 
 const global::Tensor DenseLayer::getData() const {

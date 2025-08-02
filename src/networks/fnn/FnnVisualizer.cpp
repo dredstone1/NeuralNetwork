@@ -155,8 +155,8 @@ sf::Color VisualDenseLayer::getNeuronColor(const global::ValueType value) {
 
 void VisualDenseLayer::drawNeuron(
     const sf::FloatRect &rect,
-    const double input,
-    const double output,
+    const global::ValueType &input,
+    const global::ValueType &output,
     sf::RenderTexture &target) {
 	sf::RectangleShape shape(rect.size);
 	shape.setFillColor(getNeuronColor(output));
@@ -188,7 +188,6 @@ void VisualDenseLayer::renderNeuron(const size_t index, sf::RenderTexture &targe
 	if (getParamCount() < MAX_WEIGHT_TO_RENDER) {
 		drawWeights(index, target);
 	}
-
 	drawNeuron(cacheNeurons[index], net({index}), out({index}), target);
 }
 
