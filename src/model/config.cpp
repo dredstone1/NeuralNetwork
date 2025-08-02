@@ -1,5 +1,6 @@
 #include "config.hpp"
 #include "activations.hpp"
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 
@@ -89,11 +90,11 @@ void CNNConfig::fromJson(const nlohmann::json &j) {
 }
 } // namespace cnn
 
-int NetworkConfig::inputSize() const {
+size_t NetworkConfig::inputSize() const {
 	return SubNetworksConfig[0]->getInputSize();
 }
 
-int NetworkConfig::outputSize() const {
+size_t NetworkConfig::outputSize() const {
 	return SubNetworksConfig[SubNetworksConfig.size() - 1]->getOutputSize();
 }
 

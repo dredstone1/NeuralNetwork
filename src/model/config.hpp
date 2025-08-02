@@ -2,6 +2,7 @@
 #define CONFIG
 
 #include "activations.hpp"
+#include <cstddef>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -29,15 +30,15 @@ class ConstantOptimizerConfig : public IOptimizerConfig {
 
 class ISubNetworkConfig {
   protected:
-	int inputSize{0};
-	int outputSize{0};
+	size_t inputSize{0};
+	size_t outputSize{0};
 
   public:
 	virtual void fromJson(const nlohmann::json &j) = 0;
 	virtual const std::string NNLable() const = 0;
 
-	int getInputSize() const { return inputSize; }
-	int getOutputSize() const { return outputSize; }
+	size_t getInputSize() const { return inputSize; }
+	size_t getOutputSize() const { return outputSize; }
 
 	virtual ~ISubNetworkConfig() = default;
 };
@@ -46,7 +47,7 @@ namespace fnn {
 class DenseLayerConfig {
   public:
 	DenseLayerConfig(const nlohmann::json &j);
-	int size;
+	size_t size;
 	float dropoutRate{0};
 	ActivationType activationType = ActivationType::None;
 	void fromJson(const nlohmann::json &j);
@@ -82,8 +83,8 @@ class CNNConfig : public ISubNetworkConfig {
 
 class NetworkConfig {
   public:
-	int inputSize() const;
-	int outputSize() const;
+	size_t inputSize() const;
+	size_t outputSize() const;
 
 	std::vector<std::shared_ptr<ISubNetworkConfig>> SubNetworksConfig;
 	void fromJson(const nlohmann::json &j);
@@ -109,7 +110,7 @@ class TrainingConfig {
 	AutoEvaluating autoEvaluating;
 
 	size_t batchSize;
-	int batchCount;
+	size_t batchCount;
 
 	std::unique_ptr<IOptimizerConfig> optimizer;
 	std::string optimizerType;
@@ -126,7 +127,7 @@ class TrainingConfig {
 	bool isAutoEvaluating() const { return autoEvaluating.evaluateEvery > 0; }
 	const AutoEvaluating &getAutoEvaluating() const { return autoEvaluating; }
 
-	int getBatchCount() const { return batchCount; }
+	size_t getBatchCount() const { return batchCount; }
 	size_t getBatchSize() const { return batchSize; }
 
 	global::ValueType getLearningRate() const {

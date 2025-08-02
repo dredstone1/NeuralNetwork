@@ -3,27 +3,28 @@
 
 #include "../src/model/optimizers.hpp"
 #include "IvisualNetwork.hpp"
+#include "tensor.hpp"
 
 namespace nn::model {
 class INetwork {
   public:
 	virtual ~INetwork() = default;
 
-	virtual void forward(const global::ParamMetrix &input) = 0;
-	virtual void backward(const global::ParamMetrix &outputDeltas) = 0;
+	virtual void forward(const global::Tensor &input) = 0;
+	virtual void backward(const global::Tensor &outputDeltas) = 0;
 	virtual void updateWeights(IOptimizer &optimizer) = 0;
 	virtual void resetGradient() = 0;
 
-	virtual int outputSize() const = 0;
-	virtual int inputSize() const = 0;
+	virtual size_t outputSize() const = 0;
+	virtual size_t inputSize() const = 0;
 
 	virtual global::ValueType getLoss(const global::Prediction &index) const = 0;
-	virtual const global::ParamMetrix &getOutput() const = 0;
-	virtual const global::ParamMetrix &getInput() const = 0;
+	virtual const global::Tensor &getOutput() const = 0;
+	virtual const global::Tensor &getInput() const = 0;
 	virtual std::shared_ptr<visualizer::IVisualNetwork> getVisual() = 0;
 
-	virtual global::ParamMetrix getParams() const = 0;
-	virtual void setParams(const global::ParamMetrix params) = 0;
+	virtual global::Tensor getParams() const = 0;
+	virtual void setParams(const global::Tensor params) = 0;
 
 	virtual void setTraining(const bool state) = 0;
 };

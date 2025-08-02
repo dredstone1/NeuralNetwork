@@ -4,6 +4,7 @@
 #include "VInterface.hpp"
 #include "Vstatus.hpp"
 #include "graph.hpp"
+#include "tensor.hpp"
 #include "visualModel.hpp"
 
 namespace nn::visualizer {
@@ -55,7 +56,7 @@ class VisualRender {
 	void setNewPhaseMode(const NnMode nn_mode);
 
 	void updatePrediction(const global::Prediction &pre);
-	void updateInput(const global::ParamMetrix &input);
+	void updateInput(const global::Tensor &input);
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 };

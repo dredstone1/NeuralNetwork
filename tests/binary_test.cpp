@@ -1,3 +1,4 @@
+#include "tensor.hpp"
 #include "tests.hpp"
 #include <iostream>
 #include <model.hpp>
@@ -64,7 +65,7 @@ void print_database(int actual_size, int input_size, int database_size) {
 	}
 }
 
-void printVector(const nn::global::ParamMetrix &vec) {
+void printVector(const nn::global::Tensor &vec) {
 	for (const auto &elem : vec) {
 		std::cout << elem << ' ';
 	}
@@ -73,7 +74,7 @@ void printVector(const nn::global::ParamMetrix &vec) {
 }
 
 int main(int argc, char *argv[]) {
-	int input_size = 10;
+	size_t input_size = 10;
 
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
 	nn::model::Model model(config_FN);
@@ -109,7 +110,7 @@ int main(int argc, char *argv[]) {
 		int binary = int_to_binary(num1);
 		std::cout << "binary: " << binary << std::endl;
 
-		nn::global::ParamMetrix input(input_size, 0.1);
+		nn::global::Tensor input({input_size}, 0.1);
 
 		std::cout << "Enter an integer 2: ";
 		std::getline(std::cin, str_num);
@@ -125,9 +126,9 @@ int main(int argc, char *argv[]) {
 		}
 
 		for (size_t i = 4 + num2; i > num2; i--) {
-			input[i - 1] = bit_by_index(num1, 4 - i + num2);
-			if (input[i - 1] == 0) {
-				input[i - 1] = 0.5;
+			input({i - 1}) = bit_by_index(num1, 4 - i + num2);
+			if (input({i - 1}) == 0) {
+				input({i - 1}) = 0.5;
 			}
 		}
 

@@ -1,6 +1,7 @@
 #ifndef ACTIVATIONSP
 #define ACTIVATIONSP
 
+#include "tensor.hpp"
 #include <Globals.hpp>
 #include <cmath>
 
@@ -36,28 +37,28 @@ class Activation {
 	static global::ValueType tanh(const global::ValueType z);
 	static global::ValueType derivativeTanh(const global::ValueType z);
 
-	static void relu(const global::ParamMetrix &net, global::ParamMetrix &out);
-	static void derivativeRelu(const global::ParamMetrix &net,
-	                           global::ParamMetrix &out);
+	static void relu(const global::Tensor &net, global::Tensor &out);
+	static void derivativeRelu(const global::Tensor &net,
+	                           global::Tensor &out);
 
-	static void leakyRelu(const global::ParamMetrix &net,
-	                      global::ParamMetrix &out);
-	static void derivativeLeakyRelu(const global::ParamMetrix &net,
-	                                global::ParamMetrix &out);
+	static void leakyRelu(const global::Tensor &net,
+	                      global::Tensor &out);
+	static void derivativeLeakyRelu(const global::Tensor &net,
+	                                global::Tensor &out);
 
-	static void sigmoid(const global::ParamMetrix &net,
-	                    global::ParamMetrix &out);
-	static void derivativeSigmoid(const global::ParamMetrix &net,
-	                              global::ParamMetrix &out);
+	static void sigmoid(const global::Tensor &net,
+	                    global::Tensor &out);
+	static void derivativeSigmoid(const global::Tensor &net,
+	                              global::Tensor &out);
 
-	static void tanh(const global::ParamMetrix &net, global::ParamMetrix &out);
-	static void derivativeTanh(const global::ParamMetrix &net,
-	                           global::ParamMetrix &out);
+	static void tanh(const global::Tensor &net, global::Tensor &out);
+	static void derivativeTanh(const global::Tensor &net,
+	                           global::Tensor &out);
 
-	static void softmax(const global::ParamMetrix &net,
-	                    global::ParamMetrix &out);
+	static void softmax(const global::Tensor &net,
+	                    global::Tensor &out);
 
-	static global::ValueType maxVector(const global::ParamMetrix &metrix);
+	static global::ValueType maxVector(const global::Tensor &metrix);
 
   public:
 	Activation(const ActivationType activationType_)
@@ -69,10 +70,10 @@ class Activation {
 	global::ValueType activate(const global::ValueType x) const;
 	global::ValueType derivativeActivate(const global::ValueType x) const;
 
-	void activate(const global::ParamMetrix &net,
-	              global::ParamMetrix &out) const;
-	void derivativeActivate(const global::ParamMetrix &net,
-	                        global::ParamMetrix &out) const;
+	void activate(const global::Tensor &net,
+	              global::Tensor &out) const;
+	void derivativeActivate(const global::Tensor &net,
+	                        global::Tensor &out) const;
 
 	ActivationType getType() { return activationType; }
 };

@@ -31,7 +31,7 @@ global::ValueType Activation::derivativeActivate(const global::ValueType z) cons
 	}
 }
 
-void Activation::activate(const global::ParamMetrix &net, global::ParamMetrix &out) const {
+void Activation::activate(const global::Tensor &net, global::Tensor &out) const {
 	switch (activationType) {
 	case ActivationType::Relu:
 		relu(net, out);
@@ -53,7 +53,7 @@ void Activation::activate(const global::ParamMetrix &net, global::ParamMetrix &o
 	}
 }
 
-void Activation::derivativeActivate(const global::ParamMetrix &net, global::ParamMetrix &out) const {
+void Activation::derivativeActivate(const global::Tensor &net, global::Tensor &out) const {
 	switch (activationType) {
 	case ActivationType::Relu:
 		derivativeRelu(net, out);
@@ -72,8 +72,8 @@ void Activation::derivativeActivate(const global::ParamMetrix &net, global::Para
 	}
 }
 
-global::ValueType Activation::maxVector(const global::ParamMetrix &metrix) {
-	global::ValueType max = metrix[0];
+global::ValueType Activation::maxVector(const global::Tensor &metrix) {
+	global::ValueType max = metrix({0});
 	for (auto &value : metrix) {
 		if (value > max) {
 			max = value;
@@ -113,64 +113,64 @@ global::ValueType Activation::derivativeTanh(const global::ValueType z) {
 	return 1.0 - t * t;
 }
 
-void Activation::relu(const global::ParamMetrix &net, global::ParamMetrix &out) {
-	for (size_t i = 0; i < net.size(); ++i)
-		out[i] = relu(net[i]);
+void Activation::relu(const global::Tensor &net, global::Tensor &out) {
+	for (size_t i = 0; i < net.numElements(); ++i)
+		out({i}) = relu(net({i}));
 }
 
-void Activation::derivativeRelu(const global::ParamMetrix &net, global::ParamMetrix &out) {
-	for (size_t i = 0; i < net.size(); ++i)
-		out[i] *= derivativeRelu(net[i]);
+void Activation::derivativeRelu(const global::Tensor &net, global::Tensor &out) {
+	for (size_t i = 0; i < net.numElements(); ++i)
+		out({i}) *= derivativeRelu(net({i}));
 }
 
-void Activation::leakyRelu(const global::ParamMetrix &net, global::ParamMetrix &out) {
-	for (size_t i = 0; i < net.size(); ++i)
-		out[i] = leakyRelu(net[i]);
+void Activation::leakyRelu(const global::Tensor &net, global::Tensor &out) {
+	for (size_t i = 0; i < net.numElements(); ++i)
+		out({i}) = leakyRelu(net({i}));
 }
 
-void Activation::derivativeLeakyRelu(const global::ParamMetrix &net, global::ParamMetrix &out) {
-	for (size_t i = 0; i < net.size(); ++i)
-		out[i] *= derivativeLeakyRelu(net[i]);
+void Activation::derivativeLeakyRelu(const global::Tensor &net, global::Tensor &out) {
+	for (size_t i = 0; i < net.numElements(); ++i)
+		out({i}) *= derivativeLeakyRelu(net({i}));
 }
 
-void Activation::sigmoid(const global::ParamMetrix &net, global::ParamMetrix &out) {
-	for (size_t i = 0; i < net.size(); ++i)
-		out[i] = sigmoid(net[i]);
+void Activation::sigmoid(const global::Tensor &net, global::Tensor &out) {
+	for (size_t i = 0; i < net.numElements(); ++i)
+		out({i}) = sigmoid(net({i}));
 }
 
-void Activation::derivativeSigmoid(const global::ParamMetrix &net, global::ParamMetrix &out) {
-	for (size_t i = 0; i < net.size(); ++i)
-		out[i] *= derivativeSigmoid(net[i]);
+void Activation::derivativeSigmoid(const global::Tensor &net, global::Tensor &out) {
+	for (size_t i = 0; i < net.numElements(); ++i)
+		out({i}) *= derivativeSigmoid(net({i}));
 }
 
-void Activation::tanh(const global::ParamMetrix &net, global::ParamMetrix &out) {
-	for (size_t i = 0; i < net.size(); ++i)
-		out[i] = tanh(net[i]);
+void Activation::tanh(const global::Tensor &net, global::Tensor &out) {
+	for (size_t i = 0; i < net.numElements(); ++i)
+		out({i}) = tanh(net({i}));
 }
 
-void Activation::derivativeTanh(const global::ParamMetrix &net, global::ParamMetrix &out) {
-	for (size_t i = 0; i < net.size(); ++i)
-		out[i] *= derivativeTanh(net[i]);
+void Activation::derivativeTanh(const global::Tensor &net, global::Tensor &out) {
+	for (size_t i = 0; i < net.numElements(); ++i)
+		out({i}) *= derivativeTanh(net({i}));
 }
 
-void Activation::softmax(const global::ParamMetrix &net, global::ParamMetrix &out) {
+void Activation::softmax(const global::Tensor &net, global::Tensor &out) {
 	global::ValueType max = maxVector(net);
 	global::ValueType sum = 0.0;
 
-	for (size_t i = 0; i < net.size(); ++i) {
-		global::ValueType x = net[i] - max;
+	for (size_t i = 0; i < net.numElements(); ++i) {
+		global::ValueType x = net({i}) - max;
 		if (x < -700.0)
 			x = -700.0;
 		if (x > 700.0)
 			x = 700.0;
-		out[i] = std::exp(x);
-		sum += out[i];
+		out({i}) = std::exp(x);
+		sum += out({i});
 	}
 
 	sum = maxValue(sum, 1e-10);
 
-	for (size_t i = 0; i < out.size(); ++i) {
-		out[i] /= sum;
+	for (size_t i = 0; i < out.numElements(); ++i) {
+		out({i}) /= sum;
 	}
 }
 } // namespace nn::model

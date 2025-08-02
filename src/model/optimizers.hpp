@@ -2,7 +2,7 @@
 #define OPTIMIZERS
 
 #include "config.hpp"
-#include <Globals.hpp>
+#include "tensor.hpp"
 #include <cmath>
 
 namespace nn::model {
@@ -14,8 +14,8 @@ class IOptimizer {
 	virtual ~IOptimizer() = default;
 
 	virtual void step(
-	    global::ValueType *weight,
-	    const global::ValueType *grad,
+	    global::Tensor &weight,
+	    const global::Tensor &grad,
 	    std::size_t size) = 0;
 	virtual void reset() = 0;
 
@@ -31,8 +31,8 @@ class ConstantOptimizer : public IOptimizer {
 	    : config(config_) {}
 
 	void step(
-	    global::ValueType *weight,
-	    const global::ValueType *grad,
+	    global::Tensor &weight,
+	    const global::Tensor &grad,
 	    std::size_t size) override;
 
 	void reset() override {}

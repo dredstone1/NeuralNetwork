@@ -10,14 +10,14 @@ const std::string DATABASE_FILE_EXETENTION = ".nndb";
 
 struct TrainSample {
 	global::Prediction pre;
-	global::ParamMetrix input;
+	global::Tensor input;
 
-	TrainSample(const int sampleOutputSize, const int sampleInputSize)
+	TrainSample(const size_t sampleOutputSize, const size_t sampleInputSize)
 	    : pre(sampleOutputSize, 0),
-	      input(sampleInputSize, 0) {}
+	      input({sampleInputSize}, 0) {}
 	TrainSample()
 	    : pre(0, 0),
-	      input(0) {}
+	      input({0}) {}
 };
 
 struct Samples {

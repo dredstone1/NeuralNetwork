@@ -1,4 +1,5 @@
 #include "VisualizerRenderer.hpp"
+#include "tensor.hpp"
 
 namespace nn::visualizer {
 constexpr std::uint32_t NN_WIDTH = 1055u;
@@ -150,7 +151,7 @@ void VisualRender::updatePrediction(const global::Prediction &pre) {
 	visualModel.setPrediction(pre);
 }
 
-void VisualRender::updateInput(const global::ParamMetrix &input) {
+void VisualRender::updateInput(const global::Tensor &input) {
 	visualModel.setInput(input);
 }
 

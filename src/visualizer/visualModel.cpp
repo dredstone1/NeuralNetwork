@@ -1,13 +1,14 @@
 #include "visualModel.hpp"
 #include "../networks/fnn/FnnVisualizer.hpp"
 #include "fonts.hpp"
+#include "tensor.hpp"
 
 namespace nn::visualizer {
-DummyLayer::DummyLayer(const int size_, const sf::Vector2f pos_)
+DummyLayer::DummyLayer(const size_t size_, const sf::Vector2f pos_)
     : pos(pos_),
       layerRender({global::NEURON_WIDTH, MODEL_HEIGHT}),
       cacheNeurons(size_),
-      values(size_, 0) {
+      values({size_}) {
 	createVLayer();
 }
 
@@ -18,7 +19,7 @@ void DummyLayer::createVLayer() {
 	float gap = calculateGap(size(), neuron_width_scaled);
 	float x = pos.x + global::NEURON_WIDTH - neuron_width_scaled;
 
-	for (int neuron = 0; neuron < size(); ++neuron) {
+	for (size_t neuron = 0; neuron < size(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
 		cacheNeurons[neuron] = sf::FloatRect(sf::Vector2f(x, y), {neuron_width_scaled, neuron_width_scaled});
 	}
@@ -30,7 +31,7 @@ void DummyLayer::clear() {
 	layerRender.clear(MODEL_BG);
 }
 
-void DummyLayer::setValues(const global::ParamMetrix &newValues) {
+void DummyLayer::setValues(const global::Tensor &newValues) {
 	values = newValues;
 }
 
@@ -39,7 +40,7 @@ void DummyLayer::display() {
 }
 
 void DummyLayer::draw(sf::RenderTexture &target) {
-	for (int i = 0; i < size(); ++i) {
+	for (size_t i = 0; i < size(); ++i) {
 		renderNeuron(target, i);
 	}
 }
@@ -63,16 +64,16 @@ sf::Color DummyLayer::getNeuronColor(const global::ValueType value) {
 	return newColor;
 }
 
-void DummyLayer::renderNeuron(sf::RenderTexture &target, const int index) {
+void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 	sf::RectangleShape shape(cacheNeurons[index].size);
-	shape.setFillColor(getNeuronColor(values[index]));
+	shape.setFillColor(getNeuronColor(values({index})));
 	shape.setPosition(cacheNeurons[index].position + pos);
 
 	target.draw(shape);
 
 	if (10 * cacheNeurons[index].size.y / global::NEURON_WIDTH > global::MIN_FONT_SIZE) {
 		std::ostringstream ss;
-		ss << std::fixed << std::setprecision(4) << values[index];
+		ss << std::fixed << std::setprecision(4) << values({index});
 
 		sf::Text text(Fonts::getFont());
 		text.setCharacterSize(10 * cacheNeurons[index].size.y / global::NEURON_WIDTH);
@@ -127,7 +128,7 @@ void ModelPanel::renderSubNetworks() {
 	}
 }
 
-void ModelPanel::renderSubNetwork(const int index) {
+void ModelPanel::renderSubNetwork(const size_t index) {
 	subNetworks[index]->render();
 
 	sf::Sprite sub = subNetworks[index]->getSprite();
@@ -137,14 +138,14 @@ void ModelPanel::renderSubNetwork(const int index) {
 }
 
 void ModelPanel::setPrediction(const global::Prediction &pre) {
-	global::ParamMetrix output(predictionLayer.size(), 0);
-	output[pre.index] = 1;
+	global::Tensor output({predictionLayer.size()});
+	output({pre.index}) = 1;
 	predictionLayer.setValues(output);
 
 	setUpdate();
 }
 
-void ModelPanel::setInput(const global::ParamMetrix &input) {
+void ModelPanel::setInput(const global::Tensor &input) {
 	inputLayer.setValues(input);
 
 	setUpdate();

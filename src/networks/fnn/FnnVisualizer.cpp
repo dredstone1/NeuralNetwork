@@ -1,7 +1,10 @@
 #include "FnnVisualizer.hpp"
 #include "../../visualizer/fonts.hpp"
+#include "DenseLayer.hpp"
 #include "network/IvisualNetwork.hpp"
+#include "tensor.hpp"
 #include <SFML/System/Vector2.hpp>
+#include <cstddef>
 
 namespace nn::visualizer::fnn {
 FnnVisualier::FnnVisualier(
@@ -32,14 +35,16 @@ void FnnVisualier::renderLayer(const int index) {
 
 void FnnVisualier::initLayer(
     const int index,
-    const model::fnn::Neurons &dots,
-    const model::fnn::LayerParameters &parameters,
-    const model::fnn::LayerParameters &gradients) {
+    const global::Tensor &net,
+    const global::Tensor &out,
+    const model::fnn::LayerParams &parameters,
+    const model::fnn::LayerParams &gradients) {
 	float _width = visualWidth / Layers.size();
 	float offset = _width * index;
 	Layers[index] = std::make_unique<VisualDenseLayer>(
 	    _width,
-	    dots,
+	    net,
+	    out,
 	    parameters,
 	    gradients,
 	    sf::Vector2f(offset, 0));
@@ -47,29 +52,31 @@ void FnnVisualier::initLayer(
 
 VisualDenseLayer::VisualDenseLayer(
     const std::uint32_t _width,
-    const model::fnn::Neurons &_dots,
-    const model::fnn::LayerParameters &_parameters,
-    const model::fnn::LayerParameters &_gradients,
+    const global::Tensor &net_,
+    const global::Tensor &out_,
+    const model::fnn::LayerParams &_parameters,
+    const model::fnn::LayerParams &_gradients,
     const sf::Vector2f _pos)
-    : dots(_dots),
+    : net(net_),
+      out(out_),
       parameters(_parameters),
       gradients(_gradients),
       pos(_pos),
-      cacheNeurons(_dots.size()),
-      cachePrevNeurons(_parameters.getPrevSize()),
+      cacheNeurons(net.numElements()),
+      cachePrevNeurons(_parameters.prevSize()),
       width(_width) {
 	doCacheNeurons();
 	doCacheWeights();
 }
 
 void VisualDenseLayer::doCacheWeights() {
-	float scale = getScaleFactor(parameters.getPrevSize());
+	float scale = getScaleFactor(parameters.prevSize());
 	float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
-	float gap = calculateGap(parameters.getPrevSize(), neuron_width_scaled);
+	float gap = calculateGap(parameters.prevSize(), neuron_width_scaled);
 	float x = pos.x;
 
-	for (size_t neuron = 0; neuron < parameters.getPrevSize(); ++neuron) {
+	for (size_t neuron = 0; neuron < parameters.prevSize(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
 		cachePrevNeurons[neuron] = sf::FloatRect(
 		    sf::Vector2f(x, y),
@@ -78,13 +85,13 @@ void VisualDenseLayer::doCacheWeights() {
 }
 
 void VisualDenseLayer::doCacheNeurons() {
-	float scale = getScaleFactor(dots.size());
+	float scale = getScaleFactor(net.numElements());
 	float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
-	float gap = calculateGap(dots.size(), neuron_width_scaled);
+	float gap = calculateGap(net.numElements(), neuron_width_scaled);
 	float x = pos.x + width - neuron_width_scaled;
 
-	for (size_t neuron = 0; neuron < dots.size(); ++neuron) {
+	for (size_t neuron = 0; neuron < net.numElements(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
 		cacheNeurons[neuron] = sf::FloatRect(
 		    sf::Vector2f(x, y),
@@ -105,8 +112,8 @@ sf::Vector2f VisualDenseLayer::getCenter(const sf::FloatRect &rect) {
 	return {rect.position.x, rect.position.y + rect.size.y / 2.f};
 }
 
-void VisualDenseLayer::drawWeights(const int neuron_i, sf::RenderTexture &target) {
-	for (size_t neuronP = 0; neuronP < parameters.getPrevSize(); neuronP++) {
+void VisualDenseLayer::drawWeights(const size_t neuron_i, sf::RenderTexture &target) {
+	for (size_t neuronP = 0; neuronP < parameters.prevSize(); neuronP++) {
 		sf::VertexArray line_(sf::PrimitiveType::LineStrip, 3);
 
 		sf::Vector2f from = getCenter(cachePrevNeurons[neuronP]);
@@ -118,7 +125,7 @@ void VisualDenseLayer::drawWeights(const int neuron_i, sf::RenderTexture &target
 		line_[2].position = to;
 
 		line_[0].color = LINE_COLOR;
-		line_[0].color.a = parameters.weights[neuron_i][neuronP] * 50;
+		line_[0].color.a = parameters.weights({neuron_i, neuronP}) * 50;
 		line_[1].color = line_[0].color;
 		line_[2].color = getColorFromTextT(getTextT(neuron_i, neuronP));
 		target.draw(line_);
@@ -126,7 +133,7 @@ void VisualDenseLayer::drawWeights(const int neuron_i, sf::RenderTexture &target
 }
 
 int VisualDenseLayer::getParamCount() const {
-	return parameters.getSize() * parameters.getPrevSize();
+	return parameters.size() * parameters.prevSize();
 }
 
 void VisualDenseLayer::drawGapWeight(sf::RenderTexture &target) {
@@ -177,12 +184,12 @@ void VisualDenseLayer::drawNeuron(
 	}
 }
 
-void VisualDenseLayer::renderNeuron(const int index, sf::RenderTexture &target) {
+void VisualDenseLayer::renderNeuron(const size_t index, sf::RenderTexture &target) {
 	if (getParamCount() < MAX_WEIGHT_TO_RENDER) {
 		drawWeights(index, target);
 	}
 
-	drawNeuron(cacheNeurons[index], dots.net[index], dots.out[index], target);
+	drawNeuron(cacheNeurons[index], net({index}), out({index}), target);
 }
 
 void VisualDenseLayer::drawNeurons(sf::RenderTexture &target) {
@@ -190,7 +197,7 @@ void VisualDenseLayer::drawNeurons(sf::RenderTexture &target) {
 		drawGapWeight(target);
 	}
 
-	for (size_t neuron = 0; neuron < dots.size(); ++neuron) {
+	for (size_t neuron = 0; neuron < net.numElements(); ++neuron) {
 		renderNeuron(neuron, target);
 	}
 }
@@ -217,11 +224,11 @@ float VisualDenseLayer::calculateGap(const int size, const float scale) {
 	return (MODEL_HEIGHT - (size * scale)) / (size - 1);
 }
 
-textType VisualDenseLayer::getTextT(const int layer_i, const int layer_p) {
-	if (gradients.weights[layer_i][layer_p] < 0)
+textType VisualDenseLayer::getTextT(const size_t layer_i, const size_t layer_p) {
+	if (gradients.weights({layer_i, layer_p}) < 0)
 		return textType::DOWN;
 
-	if (gradients.weights[layer_i][layer_p] > 0)
+	if (gradients.weights({layer_i, layer_p}) > 0)
 		return textType::UP;
 
 	return textType::NORMAL;

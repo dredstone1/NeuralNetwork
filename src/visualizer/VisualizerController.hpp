@@ -2,6 +2,7 @@
 #define VISUALIZERCONTROLLER
 
 #include "VisualizerRenderer.hpp"
+#include "tensor.hpp"
 #include <network/IvisualNetwork.hpp>
 #include <thread>
 
@@ -46,7 +47,7 @@ class VisualManager {
 	bool exitTraining();
 
 	void updatePrediction(const global::Prediction &pre);
-	void updateInput(const global::ParamMetrix &input);
+	void updateInput(const global::Tensor &input);
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 };

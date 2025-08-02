@@ -4,71 +4,70 @@
 #include "../../model/config.hpp"
 #include "../src/model/optimizers.hpp"
 #include "Globals.hpp"
-#include "LayerParameters.hpp"
+#include "tensor.hpp"
+#include <cstddef>
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 
-struct Neurons {
-	global::ParamMetrix out;
-	global::ParamMetrix net;
+struct LayerParams {
+	global::Tensor weights;
+	global::Tensor biases;
 
-	Neurons(const int size);
-	Neurons(const global::ParamMetrix &net_, const global::ParamMetrix &out_)
-	    : out(out_),
-	      net(net_) {}
-	~Neurons() = default;
+	LayerParams(size_t out_dim, size_t in_dim)
+	    : weights({out_dim, in_dim}), biases({out_dim}) {}
+	size_t size() const { return biases.numElements(); }
+	size_t prevSize() const { return weights.getShape()[1]; }
 
-	Neurons(const Neurons &other) : out(other.out), net(other.net) {}
-	size_t size() const { return out.size(); }
-	void reset();
+	size_t paramSize() const { return biases.numElements() + weights.numElements(); }
 };
 
 class DenseLayer {
   protected:
-	Neurons dots;
-	LayerParameters parameters;
-	LayerParameters gradients;
+	global::Tensor net;
+	global::Tensor out;
+
+	LayerParams parameters;
+	LayerParams gradients;
 
 	Activation activationFunction;
 
 	bool isTraining{false};
 
+	void fillParamRandom();
+
   public:
 	DenseLayer(
-	    const int size,
-	    const int prevSize,
+	    const size_t size,
+	    const size_t prevSize,
 	    const ActivationType activation,
 	    const bool randomInit = false);
 	virtual ~DenseLayer() = default;
 
-	virtual void forward(const global::ParamMetrix &metrix) = 0;
+	virtual void forward(const global::Tensor &metrix) = 0;
 	void updateWeight(IOptimizer &optimizer);
 	virtual void backward(
-	    global::ParamMetrix &deltas,
-	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters *nextLayer = nullptr) = 0;
+	    global::Tensor &deltas,
+	    const global::Tensor &prevLayer,
+	    const LayerParams *nextLayer = nullptr) = 0;
 	virtual global::ValueType getLoss(const global::Prediction &) { return 0; };
 
-	const Neurons &getDots() const { return dots; }
-	const LayerParameters &getParms() { return parameters; }
-	const LayerParameters &getGrad() { return gradients; }
+	const LayerParams &getParms() { return parameters; }
+	const LayerParams &getGrad() { return gradients; }
 
-	size_t getSize() const { return dots.size(); }
-	size_t getPrevSize() const { return parameters.getPrevSize(); }
+	size_t size() const { return net.numElements(); }
+	size_t prevSize() const { return parameters.weights.getShape()[1]; }
 
-	const global::ParamMetrix &getNet() const { return dots.net; }
-	const global::ParamMetrix &getOut() const { return dots.out; }
+	const global::Tensor &getNet() const { return net; }
+	const global::Tensor &getOut() const { return out; }
 
-	void resetDots() { dots.reset(); }
-	void resetGradient() { gradients.reset(); }
-	void addParams(const LayerParameters &gradients) { parameters.add(gradients); }
-	void setParams(const LayerParameters &gradients) { parameters.set(gradients); }
+	void resetDots();
+	void resetGradient();
 
 	size_t getParamCount() const;
 
-	const global::ParamMetrix getData() const;
-	void setData(const global::ParamMetrix newParam);
+	const global::Tensor getData() const;
+	void setData(const global::Tensor newParam);
 
 	void setTraining(const bool state) { isTraining = state; }
 };
@@ -76,9 +75,9 @@ class DenseLayer {
 class Hidden_Layer : public DenseLayer {
   private:
 	const DenseLayerConfig &config;
-	global::ParamMetrix getDelta(
-	    const global::ParamMetrix &output,
-	    const LayerParameters &nextLayer);
+	global::Tensor getDelta(
+	    const global::Tensor &output,
+	    const LayerParams &nextLayer);
 
 	std::vector<int> dropoutMask;
 
@@ -93,21 +92,21 @@ class Hidden_Layer : public DenseLayer {
 	      config(_config) {}
 	~Hidden_Layer() override = default;
 
-	void forward(const global::ParamMetrix &metrix) override;
+	void forward(const global::Tensor &metrix) override;
 	void backward(
-	    global::ParamMetrix &deltas,
-	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters *nextLayer) override;
+	    global::Tensor &deltas,
+	    const global::Tensor &prevLayer,
+	    const LayerParams *nextLayer) override;
 };
 
 class Output_Layer : public DenseLayer {
   private:
 	const FNNConfig &config;
 
-	global::ParamMetrix getDelta(const global::ParamMetrix &output);
+	global::Tensor getDelta(const global::Tensor &output);
 	static global::ValueType getCrossEntropyLoss(
-	    const global::ParamMetrix &prediction,
-	    const int target);
+	    const global::Tensor &prediction,
+	    const size_t target);
 
   public:
 	Output_Layer(
@@ -122,15 +121,14 @@ class Output_Layer : public DenseLayer {
 	      config(_config) {}
 	~Output_Layer() override = default;
 
-	void forward(const global::ParamMetrix &metrix) override;
+	void forward(const global::Tensor &metrix) override;
 	void backward(
-	    global::ParamMetrix &deltas,
-	    const global::ParamMetrix &prevLayer,
-	    const LayerParameters *) override;
+	    global::Tensor &deltas,
+	    const global::Tensor &prevLayer,
+	    const LayerParams *) override;
 
 	global::ValueType getLoss(const global::Prediction &index) override;
 };
-
 } // namespace nn::model::fnn
 
 #endif // DENSELAYER

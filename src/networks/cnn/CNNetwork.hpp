@@ -2,6 +2,7 @@
 #define CNNNETWORK
 
 #include "CnnVisualizer.hpp"
+#include "tensor.hpp"
 #include <memory>
 #include <network/INetwork.hpp>
 
@@ -9,9 +10,9 @@ namespace nn::model::cnn {
 class CNNetwork : public INetwork {
   private:
 	const CNNConfig &config;
-	global::ParamMetrix input;
+	global::Tensor input;
 
-	void calculateInputDelta(const global::ParamMetrix &deltas);
+	void calculateInputDelta(const global::Tensor &deltas);
 
 	const std::shared_ptr<visualizer::cnn::CnnVisualier> visual;
 
@@ -22,23 +23,23 @@ class CNNetwork : public INetwork {
 	    const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ = std::shared_ptr<visualizer::cnn::CnnVisualier>());
 	~CNNetwork() override = default;
 
-	void forward(const global::ParamMetrix &newInput) override;
-	void backward(const global::ParamMetrix &outputDeltas) override;
+	void forward(const global::Tensor &newInput) override;
+	void backward(const global::Tensor &outputDeltas) override;
 	void updateWeights(IOptimizer &optimizer) override;
 	void resetGradient() override;
 
 	global::ValueType getLoss(const global::Prediction &index) const override;
 
-	int outputSize() const override;
-	int inputSize() const override;
+	size_t outputSize() const override;
+	size_t inputSize() const override;
 
-	const global::ParamMetrix &getOutput() const override;
-	const global::ParamMetrix &getInput() const override;
+	const global::Tensor &getOutput() const override;
+	const global::Tensor &getInput() const override;
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
 
-	global::ParamMetrix getParams() const override;
-	void setParams(const global::ParamMetrix params) override;
+	global::Tensor getParams() const override;
+	void setParams(const global::Tensor params) override;
 
 	void setTraining(const bool state) override;
 };

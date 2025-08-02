@@ -4,6 +4,7 @@
 #include "../src/model/dataBase.hpp"
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
+#include "tensor.hpp"
 #include <memory>
 #include <network/INetwork.hpp>
 #include <vector>
@@ -42,7 +43,7 @@ struct modelResult {
 	float percentage;
 };
 
-inline nn::global::Transformation dt = [](const nn::global::ParamMetrix &p) {
+inline nn::global::Transformation dt = [](const nn::global::Tensor &p) {
 	return p;
 };
 
@@ -56,9 +57,9 @@ class Model {
 	global::ValueType learningRate;
 	std::unique_ptr<IOptimizer> optimizer;
 
-	void Forword(const global::ParamMetrix &input, const int modelIndex);
+	void Forword(const global::Tensor &input, const int modelIndex);
 
-	void Backward(const global::ParamMetrix &output);
+	void Backward(const global::Tensor &output);
 	void updateWeights(const int batch_size);
 
 	void resetNetworkGradient();
@@ -90,9 +91,9 @@ class Model {
 	    global::Transformation transformationB = dt,
 	    global::Transformation transformationE = dt);
 
-	int outputSize();
-	int inputSize();
-	const global::ParamMetrix &getOutput() const;
+	size_t outputSize() const;
+	size_t inputSize() const;
+	const global::Tensor &getOutput() const;
 
 	void setTraining();
 	void setNormal();
@@ -114,7 +115,7 @@ class Model {
 	Model(const std::string &config_filepath);
 	~Model() = default;
 
-	void runModel(const global::ParamMetrix &input);
+	void runModel(const global::Tensor &input);
 	void train(
 	    const std::string &db_filename,
 	    global::Transformation transformationB = dt,
@@ -131,7 +132,7 @@ class Model {
 	void save(const std::string &file);
 	void load(const std::string &file);
 
-	global::Prediction getPrediction();
+	global::Prediction getPrediction() const;
 };
 } // namespace nn::model
 

@@ -2,19 +2,17 @@
 #define GLOBAL
 
 #include <cstdint>
-#include <vector>
+#include <tensor.hpp>
 
 namespace nn::global {
-using ValueType = float;
-using ParamMetrix = std::vector<ValueType>;
 
-using Transformation = global::ParamMetrix (*)(const global::ParamMetrix &);
+using Transformation = Tensor (*)(const Tensor &);
 
 struct Prediction {
 	size_t index;
 	global::ValueType value;
 	Prediction() : index(0), value(0) {}
-	Prediction(const int index_, const global::ValueType value_)
+	Prediction(const size_t index_, const global::ValueType value_)
 	    : index(index_),
 	      value(value_) {}
 };

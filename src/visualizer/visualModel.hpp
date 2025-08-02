@@ -1,6 +1,7 @@
 #ifndef VISUALMODEL
 #define VISUALMODEL
 
+#include "tensor.hpp"
 #include <network/IvisualNetwork.hpp>
 
 namespace nn::visualizer {
@@ -21,20 +22,20 @@ class DummyLayer {
 	static float calculateGap(const int size, const float scale);
 	static sf::Color getNeuronColor(const global::ValueType value);
 
-	void renderNeuron(sf::RenderTexture &target, const int index);
+	void renderNeuron(sf::RenderTexture &target, const size_t index);
 
 	void doCacheNeurons();
 
 	sf::RenderTexture layerRender;
 	std::vector<sf::FloatRect> cacheNeurons;
-	global::ParamMetrix values;
+	global::Tensor values;
 
   public:
-	DummyLayer(const int size, const sf::Vector2f pos = {0, 0});
+	DummyLayer(const size_t size, const sf::Vector2f pos = {0, 0});
 	~DummyLayer() = default;
 
-	int size() const { return values.size(); }
-	void setValues(const global::ParamMetrix &newValues);
+	size_t size() const { return values.numElements(); }
+	void setValues(const global::Tensor &newValues);
 
 	void draw(sf::RenderTexture &target);
 };
@@ -55,14 +56,14 @@ class ModelPanel : public Panel {
 	std::vector<std::shared_ptr<IVisualNetwork>> subNetworks;
 
 	void renderSubNetworks();
-	void renderSubNetwork(const int index);
+	void renderSubNetwork(const size_t index);
 
   public:
 	ModelPanel(const std::shared_ptr<StateManager> state_);
 	~ModelPanel() = default;
 
 	void setPrediction(const global::Prediction &index);
-	void setInput(const global::ParamMetrix &input);
+	void setInput(const global::Tensor &input);
 	sf::Sprite getSprite() const;
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);

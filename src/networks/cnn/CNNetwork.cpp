@@ -1,4 +1,6 @@
 #include "CNNetwork.hpp"
+#include "tensor.hpp"
+#include <cstddef>
 
 namespace nn::model::cnn {
 CNNetwork::CNNetwork(
@@ -6,15 +8,15 @@ CNNetwork::CNNetwork(
     const bool,
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
-      input(_config.getInputSize(), 0.0),
+      input({_config.getInputSize()}, 0.0),
       visual(visual_) {
 }
 
-void CNNetwork::forward(const global::ParamMetrix &newInput) {
+void CNNetwork::forward(const global::Tensor &newInput) {
 	input = newInput;
 }
 
-void CNNetwork::backward(const global::ParamMetrix &) {
+void CNNetwork::backward(const global::Tensor &) {
 }
 
 global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
@@ -24,33 +26,33 @@ global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
 void CNNetwork::resetGradient() {
 }
 
-int CNNetwork::inputSize() const {
+size_t CNNetwork::inputSize() const {
 	return config.getInputSize();
 }
 
-int CNNetwork::outputSize() const {
+size_t CNNetwork::outputSize() const {
 	return config.getOutputSize();
 }
 
-const global::ParamMetrix &CNNetwork::getOutput() const {
+const global::Tensor &CNNetwork::getOutput() const {
 	return input;
 }
 
-const global::ParamMetrix &CNNetwork::getInput() const {
+const global::Tensor &CNNetwork::getInput() const {
 	return input;
 }
 
 void CNNetwork::updateWeights(IOptimizer &) {
 }
 
-void CNNetwork::calculateInputDelta(const global::ParamMetrix &) {
+void CNNetwork::calculateInputDelta(const global::Tensor &) {
 }
 
-global::ParamMetrix CNNetwork::getParams() const {
+global::Tensor CNNetwork::getParams() const {
 	return input;
 }
 
-void CNNetwork::setParams(const global::ParamMetrix) {
+void CNNetwork::setParams(const global::Tensor) {
 }
 
 void CNNetwork::setTraining(const bool) {

@@ -1,4 +1,5 @@
 #include "VisualizerController.hpp"
+#include "tensor.hpp"
 
 namespace nn::visualizer {
 VisualManager::VisualManager(const model::Config &_config) : config(_config) {
@@ -113,7 +114,7 @@ void VisualManager::updatePrediction(const global::Prediction &pre) {
 	renderer->updatePrediction(pre);
 }
 
-void VisualManager::updateInput(const global::ParamMetrix &input) {
+void VisualManager::updateInput(const global::Tensor &input) {
 	if (!checkPointers()) {
 		return;
 	}

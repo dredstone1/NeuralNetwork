@@ -2,6 +2,7 @@
 #define FNNVISUALNETWORK
 
 #include "DenseLayer.hpp"
+#include "tensor.hpp"
 #include <network/IvisualNetwork.hpp>
 
 namespace nn::visualizer::fnn {
@@ -30,22 +31,24 @@ static const std::array<sf::Color, 3> color_lookup = {
 
 class VisualDenseLayer {
   private:
-	const model::fnn::Neurons &dots;
-	const model::fnn::LayerParameters &parameters;
-	const model::fnn::LayerParameters &gradients;
+	global::Tensor net;
+	global::Tensor out;
+
+	const model::fnn::LayerParams &parameters;
+	const model::fnn::LayerParams &gradients;
 
 	const sf::Vector2f pos;
 
 	std::vector<sf::FloatRect> cacheNeurons;
 	std::vector<sf::FloatRect> cachePrevNeurons;
 
-	void drawWeights(const int neuron_i, sf::RenderTexture &target);
+	void drawWeights(const size_t neuron_i, sf::RenderTexture &target);
 	void drawGapWeight(sf::RenderTexture &target);
 	void drawNeurons(sf::RenderTexture &target);
-	void renderNeuron(const int index, sf::RenderTexture &target);
+	void renderNeuron(const size_t index, sf::RenderTexture &target);
 	void drawNeuron(const sf::FloatRect&rect, const double input, const double output, sf::RenderTexture &target);
 
-	textType getTextT(const int layer_i, const int layer_p);
+	textType getTextT(const size_t layer_i, const size_t layer_p);
 	sf::Color getColorFromTextT(const textType text_type);
 	sf::Color getNeuronColor(const global::ValueType value);
 	float getScaleFactor(const std::size_t neuron_count);
@@ -63,9 +66,10 @@ class VisualDenseLayer {
   public:
 	VisualDenseLayer(
 	    const std::uint32_t width,
-	    const model::fnn::Neurons &dots,
-	    const model::fnn::LayerParameters &parameters,
-	    const model::fnn::LayerParameters &gradients,
+	    const global::Tensor &net,
+	    const global::Tensor &out,
+	    const model::fnn::LayerParams &parameters,
+	    const model::fnn::LayerParams &gradients,
 	    const sf::Vector2f pos);
 	~VisualDenseLayer() = default;
 
@@ -91,9 +95,10 @@ class FnnVisualier : public IVisualNetwork {
 
 	void initLayer(
 	    const int index,
-	    const model::fnn::Neurons &dots,
-	    const model::fnn::LayerParameters &parameters,
-	    const model::fnn::LayerParameters &gradients);
+	    const global::Tensor &net,
+	    const global::Tensor &out,
+	    const model::fnn::LayerParams &parameters,
+	    const model::fnn::LayerParams &gradients);
 };
 } // namespace nn::visualizer::fnn
 

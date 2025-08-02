@@ -26,7 +26,7 @@ TrainSample DataBase::readLine(const std::string &line) {
 	for (int i = 0; i < samples.sInputSize; ++i) {
 		iss >> token;
 
-		new_sample.input[i] = std::stod(token);
+		new_sample.input({}) = std::stod(token);
 	}
 
 	return new_sample;
@@ -65,7 +65,7 @@ int DataBase::load(const std::string &db_filename) {
 		}
 
 		TrainSample new_sample = readLine(line);
-		if (new_sample.input.size() == 0)
+		if (new_sample.input.numElements() == 0)
 			continue;
 
 		samples.add(new_sample);

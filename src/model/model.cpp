@@ -1,7 +1,9 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
+#include "Globals.hpp"
 #include "config.hpp"
 #include "dataBase.hpp"
+#include "tensor.hpp"
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -137,7 +139,7 @@ void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	}
 }
 
-void Model::runModel(const global::ParamMetrix &input) {
+void Model::runModel(const global::Tensor &input) {
 	visual.updateInput(input);
 	network[0]->forward(input);
 
@@ -160,8 +162,8 @@ void Model::updateWeights(const int batchSize) {
 	}
 }
 
-void Model::Backward(const global::ParamMetrix &output) {
-	global::ParamMetrix deltas = output;
+void Model::Backward(const global::Tensor &output) {
+	global::Tensor deltas = output;
 
 	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
 		network[i]->backward(deltas);
@@ -186,8 +188,8 @@ global::ValueType Model::runBackPropagation(
 
 		runModel(transformation(current_sample_ptr->input));
 
-		global::ParamMetrix output(outputSize());
-		output[current_sample_ptr->pre.index] = 1;
+		global::Tensor output({outputSize()});
+		output({current_sample_ptr->pre.index}) = 1;
 
 		if (doBackward) {
 			Backward(output);
@@ -301,7 +303,7 @@ void Model::trainModel(
 	visual.updateLearningRate(learningRate);
 
 	setTraining();
-	for (int i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
+	for (size_t i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
 		visual.updateBatchCounter(i);
 
 		Batch &batch = trainedDataBase.getBatch();
@@ -384,7 +386,7 @@ modelResult Model::evaluateModel(
 	return evaluateModel(dataBase, cancleOnError, transformation);
 }
 
-const global::ParamMetrix &Model::getOutput() const {
+const global::Tensor &Model::getOutput() const {
 	return network[network.size() - 1]->getOutput();
 }
 
@@ -392,11 +394,11 @@ global::ValueType Model::getLoss(const global::Prediction &pre) {
 	return network[network.size() - 1]->getLoss(pre);
 }
 
-int Model::outputSize() {
+size_t Model::outputSize() const {
 	return network[network.size() - 1]->outputSize();
 }
 
-int Model::inputSize() {
+size_t Model::inputSize() const {
 	return network[0]->inputSize();
 }
 
@@ -404,10 +406,11 @@ void Model::save(const std::string &file) {
 	std::ofstream outFile(file);
 
 	for (size_t i = 0; i < network.size(); ++i) {
-		global::ParamMetrix params = network[i]->getParams();
+		global::Tensor params = network[i]->getParams();
 
-		for (size_t j = 0; j < params.size(); ++j) {
-			outFile << params[j] << " ";
+		outFile << params.numElements() << " ";
+		for (size_t j = 0; j < params.numElements(); ++j) {
+			outFile << params({j}) << " ";
 		}
 
 		outFile << std::endl;
@@ -423,11 +426,16 @@ void Model::load(const std::string &file) {
 	int networkI = 0;
 	while (std::getline(inFile, line)) {
 		std::istringstream iss(line);
-		global::ParamMetrix numbers;
+
+		size_t ParamSize;
+		iss >> ParamSize;
+		global::Tensor numbers({ParamSize});
+
 		float num;
 
-		while (iss >> num) {
-			numbers.push_back(num);
+		for (size_t i = 0; i < ParamSize; ++i) {
+			iss >> num;
+			numbers({i}) = num;
 		}
 
 		network[networkI]->setParams(numbers);
@@ -438,16 +446,16 @@ void Model::load(const std::string &file) {
 	inFile.close();
 }
 
-global::Prediction Model::getPrediction() {
-	int max = 0;
+global::Prediction Model::getPrediction() const {
+	size_t max = 0;
 
-	for (int i = 1; i < (int)outputSize(); ++i) {
-		if (getOutput()[i] > getOutput()[max]) {
+	for (size_t i = 1; i < outputSize(); ++i) {
+		if (getOutput()({i}) > getOutput()({max})) {
 			max = i;
 		}
 	}
 
-	return {max, getOutput()[max]};
+	return global::Prediction(max, getOutput()({max}));
 }
 
 void Model::setTraining() {

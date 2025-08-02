@@ -3,6 +3,7 @@
 
 #include "DenseLayer.hpp"
 #include "FnnVisualizer.hpp"
+#include "tensor.hpp"
 #include <cstddef>
 #include <memory>
 #include <network/INetwork.hpp>
@@ -12,11 +13,11 @@ class FNNetwork : public INetwork {
   private:
 	const FNNConfig &config;
 	std::vector<std::unique_ptr<DenseLayer>> layers;
-	global::ParamMetrix input;
+	global::Tensor input;
 
 	const std::shared_ptr<visualizer::fnn::FnnVisualier> visual;
 
-	void calculateInputDelta(const global::ParamMetrix &deltas);
+	void calculateInputDelta(const global::Tensor &deltas);
 
 	void Vinit(const size_t i);
 
@@ -27,25 +28,27 @@ class FNNetwork : public INetwork {
 	    const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = nullptr);
 	~FNNetwork() override = default;
 
-	void forward(const global::ParamMetrix &newInput) override;
-	void backward(const global::ParamMetrix &outputDeltas) override;
+	void forward(const global::Tensor &newInput) override;
+	void backward(const global::Tensor &outputDeltas) override;
 	void updateWeights(IOptimizer &optimizer) override;
 	void resetGradient() override;
 
 	global::ValueType getLoss(const global::Prediction &index) const override;
 
-	int outputSize() const override;
-	int inputSize() const override;
+	size_t outputSize() const override;
+	size_t inputSize() const override;
 
-	const global::ParamMetrix &getOutput() const override;
-	const global::ParamMetrix &getInput() const override;
+	const global::Tensor &getOutput() const override;
+	const global::Tensor &getInput() const override;
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override {
 		return visual;
 	}
 
-	global::ParamMetrix getParams() const override;
-	void setParams(const global::ParamMetrix params) override;
+	global::Tensor getParams() const override;
+	void setParams(const global::Tensor params) override;
+
+    size_t getParamCount() const;
 
 	void setTraining(const bool state) override;
 };
