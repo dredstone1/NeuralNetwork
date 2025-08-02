@@ -10,17 +10,39 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init)
 	}
 
 	size_t totalSize = std::accumulate(shape.begin(), shape.end(), size_t(1), std::multiplies<>());
-	data.resize(totalSize, init);
+	data.assign(totalSize, init);
 	computeStrides();
 }
 
 void Tensor::computeStrides() {
-	strides.resize(shape.size());
+	const size_t dim = shape.size();
+	strides.resize(dim);
 	size_t stride = 1;
-	for (int i = static_cast<int>(shape.size()) - 1; i >= 0; --i) {
+	for (size_t i = dim; i-- > 0;) {
 		strides[i] = stride;
 		stride *= shape[i];
 	}
+}
+
+inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
+	if (indices.size() != shape.size()) {
+		throw std::invalid_argument("Incorrect number of indices.");
+	}
+	size_t index = 0;
+	for (size_t i = 0; i < shape.size(); ++i) {
+		if (indices[i] >= shape[i])
+			throw std::out_of_range("Index out of bounds.");
+		index += indices[i] * strides[i];
+	}
+	return index;
+}
+
+ValueType &Tensor::operator()(const std::vector<size_t> &indices) {
+	return data[flattenIndex(indices)];
+}
+
+ValueType Tensor::operator()(const std::vector<size_t> &indices) const {
+	return data[flattenIndex(indices)];
 }
 
 const std::vector<size_t> &Tensor::getShape() const {
@@ -31,87 +53,60 @@ size_t Tensor::numElements() const {
 	return data.size();
 }
 
-ValueType &Tensor::operator()(const std::vector<size_t> &indices) {
-	if (indices.size() != shape.size()) {
-		throw std::invalid_argument("Incorrect number of indices.");
-	}
-
-	size_t flatIndex = 0;
-	for (size_t i = 0; i < shape.size(); ++i) {
-		if (indices[i] >= shape[i])
-			throw std::out_of_range("Index out of bounds.");
-		flatIndex += indices[i] * strides[i];
-	}
-	return data[flatIndex];
-}
-
-ValueType Tensor::operator()(const std::vector<size_t> &indices) const {
-	if (indices.size() != shape.size()) {
-		throw std::invalid_argument("Incorrect number of indices.");
-	}
-
-	size_t flatIndex = 0;
-	for (size_t i = 0; i < shape.size(); ++i) {
-		if (indices[i] >= shape[i])
-			throw std::out_of_range("Index out of bounds.");
-		flatIndex += indices[i] * strides[i];
-	}
-	return data[flatIndex];
-}
-
 Tensor Tensor::operator+(const Tensor &other) const {
+	if (shape != other.shape) {
+		throw std::invalid_argument("Shape mismatch in Tensor::operator+.");
+	}
 	Tensor result(shape);
-	for (size_t i = 0; i < data.size(); ++i)
+	const size_t N = data.size();
+	for (size_t i = 0; i < N; ++i)
 		result.data[i] = data[i] + other.data[i];
 	return result;
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {
-	if (shape != other.shape) {
+	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
-	}
-	for (size_t i = 0; i < data.size(); ++i) {
+	const size_t N = data.size();
+	for (size_t i = 0; i < N; ++i)
 		data[i] += other.data[i];
-	}
 	return *this;
 }
 
 Tensor &Tensor::operator-=(const Tensor &other) {
-	if (shape != other.shape) {
+	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch in Tensor::operator-=.");
-	}
-	for (size_t i = 0; i < data.size(); ++i) {
+	const size_t N = data.size();
+	for (size_t i = 0; i < N; ++i)
 		data[i] -= other.data[i];
-	}
 	return *this;
 }
 
 Tensor &Tensor::operator*=(const Tensor &other) {
-	if (shape != other.shape) {
+	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch in Tensor::operator*=.");
-	}
-	for (size_t i = 0; i < data.size(); ++i) {
+	const size_t N = data.size();
+	for (size_t i = 0; i < N; ++i)
 		data[i] *= other.data[i];
-	}
 	return *this;
 }
 
 Tensor Tensor::operator*(const Tensor &other) const {
-	Tensor result = *this;
+	Tensor result(*this);
 	result *= other;
 	return result;
 }
 
 Tensor &Tensor::operator*=(ValueType scalar) {
-	for (auto &x : data) {
+	for (auto &x : data)
 		x *= scalar;
-	}
 	return *this;
 }
 
 Tensor Tensor::operator*(ValueType scalar) const {
-	Tensor result = *this;
+	Tensor result(*this);
 	result *= scalar;
 	return result;
 }
+
 } // namespace nn::global

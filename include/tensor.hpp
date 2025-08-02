@@ -5,6 +5,7 @@
 #include <vector>
 
 namespace nn::global {
+
 using ValueType = float;
 
 class Tensor {
@@ -14,34 +15,39 @@ class Tensor {
 	std::vector<size_t> strides;
 
 	void computeStrides();
+	size_t flattenIndex(const std::vector<size_t> &indices) const;
 
   public:
 	// Constructors
-	Tensor(const std::vector<size_t> &shape, const float init = 0.0f);
+	explicit Tensor(const std::vector<size_t> &shape, float init = 0.0f);
 
-	// Access
+	// Element access
 	ValueType &operator()(const std::vector<size_t> &indices);
 	ValueType operator()(const std::vector<size_t> &indices) const;
 
-	// Utilities
+	// Shape and size
 	const std::vector<size_t> &getShape() const;
 	size_t numElements() const;
 
-	// Iterators for range-based loops
-	auto begin() { return data.begin(); }
-	auto end() { return data.end(); }
-	auto begin() const { return data.begin(); }
-	auto end() const { return data.end(); }
+	// Iterators (for range-based loops)
+	auto begin() noexcept { return data.begin(); }
+	auto end() noexcept { return data.end(); }
+	auto begin() const noexcept { return data.begin(); }
+	auto end() const noexcept { return data.end(); }
 
-	// Math ops
+	// Arithmetic operations
 	Tensor operator+(const Tensor &other) const;
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);
 	Tensor &operator*=(const Tensor &other);
 	Tensor operator*(const Tensor &other) const;
+
+	// Scalar operations
 	Tensor &operator*=(ValueType scalar);
 	Tensor operator*(ValueType scalar) const;
 };
+
 } // namespace nn::global
 
 #endif // TENSOR
+
