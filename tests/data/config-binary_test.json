@@ -9,7 +9,7 @@
 	},
 	"training config": {
 		"batch size": 16,
-		"batch count": 1000,
+		"batch count": 1000000,
 		"auto save": {
 			"saveEvery": 2000,
 			"dataFilenameAutoSave": "mode.txt"
@@ -20,7 +20,7 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 1
+			"lr": 0
 		}
 	},
 	"network config": [

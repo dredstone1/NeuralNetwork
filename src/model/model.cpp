@@ -1,14 +1,7 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
-#include "Globals.hpp"
-#include "config.hpp"
-#include "dataBase.hpp"
-#include "tensor.hpp"
-#include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <iterator>
-#include <memory>
 #include <model.hpp>
 
 namespace nn::visualizer {

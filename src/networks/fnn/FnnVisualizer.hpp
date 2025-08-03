@@ -48,8 +48,8 @@ class VisualDenseLayer {
 	void renderNeuron(const size_t index, sf::RenderTexture &target);
 	void drawNeuron(
 	    const sf::FloatRect &rect,
-	    const global::ValueType &input,
-	    const global::ValueType &output,
+	    const global::ValueType input,
+	    const global::ValueType output,
 	    sf::RenderTexture &target);
 
 	textType getTextT(const size_t layer_i, const size_t layer_p);
