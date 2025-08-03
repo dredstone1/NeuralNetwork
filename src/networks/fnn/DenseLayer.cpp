@@ -75,8 +75,9 @@ global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
 void Hidden_Layer::forward(const global::Tensor &metrix) {
 	if (isTraining)
 		CreateDropoutMask();
-
-	net = parameters.weights.matmul(metrix);
+    
+    net.fill(0);
+	net += parameters.weights.matmul(metrix);
 	net += parameters.biases;
 
 	if (isTraining && config.dropoutRate > 0.0f) {
