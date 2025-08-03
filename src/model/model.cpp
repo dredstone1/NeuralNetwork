@@ -189,7 +189,7 @@ global::ValueType Model::runBackPropagation(
 		runModel(transformation(current_sample_ptr->input));
 
 		global::Tensor output({outputSize()});
-		output({current_sample_ptr->pre.index}) = 1;
+		output[current_sample_ptr->pre.index] = 1;
 
 		if (doBackward) {
 			Backward(output);
@@ -410,7 +410,7 @@ void Model::save(const std::string &file) {
 
 		outFile << params.numElements() << " ";
 		for (size_t j = 0; j < params.numElements(); ++j) {
-			outFile << params({j}) << " ";
+			outFile << params[j] << " ";
 		}
 
 		outFile << std::endl;
@@ -435,7 +435,7 @@ void Model::load(const std::string &file) {
 
 		for (size_t i = 0; i < ParamSize; ++i) {
 			iss >> num;
-			numbers({i}) = num;
+			numbers[i] = num;
 		}
 
 		network[networkI]->setParams(numbers);
@@ -450,12 +450,12 @@ global::Prediction Model::getPrediction() const {
 	size_t max = 0;
 
 	for (size_t i = 1; i < outputSize(); ++i) {
-		if (getOutput()({i}) > getOutput()({max})) {
+		if (getOutput()[i] > getOutput()[max]) {
 			max = i;
 		}
 	}
 
-	return global::Prediction(max, getOutput()({max}));
+	return global::Prediction(max, getOutput()[max]);
 }
 
 void Model::setTraining() {

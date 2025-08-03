@@ -15,7 +15,7 @@ class Tensor {
 	std::vector<size_t> strides;
 
 	void computeStrides();
-	size_t flattenIndex(const std::vector<size_t> &indices) const;
+	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
 
   public:
 	// Constructors
@@ -24,11 +24,13 @@ class Tensor {
 	// Element access
 	ValueType &operator()(const std::vector<size_t> &indices);
 	ValueType operator()(const std::vector<size_t> &indices) const;
+	inline ValueType &operator[](size_t i) { return data[i]; }
+	inline const ValueType &operator[](size_t i) const { return data[i]; }
 
 	// Shape and size
-	const std::vector<size_t> &getShape() const;
-	size_t numElements() const;
-	const std::vector<ValueType> &getData() const { return data; }
+	const std::vector<size_t> &getShape() const { return shape; }
+	inline size_t numElements() const { return data.size(); }
+	inline const std::vector<ValueType> &getData() const { return data; }
 
 	// Iterators (for range-based loops)
 	auto begin() noexcept { return data.begin(); }

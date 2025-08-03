@@ -45,14 +45,6 @@ ValueType Tensor::operator()(const std::vector<size_t> &indices) const {
 	return data[flattenIndex(indices)];
 }
 
-const std::vector<size_t> &Tensor::getShape() const {
-	return shape;
-}
-
-size_t Tensor::numElements() const {
-	return data.size();
-}
-
 Tensor Tensor::operator+(const Tensor &other) const {
 	if (shape != other.shape) {
 		throw std::invalid_argument("Shape mismatch in Tensor::operator+.");
@@ -70,20 +62,25 @@ Tensor Tensor::operator+(const Tensor &other) const {
 Tensor &Tensor::operator+=(const Tensor &other) {
 	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch.");
-	float *a = data.data();
-	const float *b = other.data.data();
+
+	float *__restrict__ a = data.data();
+	const float *__restrict__ b = other.data.data();
 	const size_t N = data.size();
+
 	for (size_t i = 0; i < N; ++i)
 		a[i] += b[i];
+
 	return *this;
 }
 
 Tensor &Tensor::operator-=(const Tensor &other) {
 	if (shape != other.shape)
-		throw std::invalid_argument("Shape mismatch in Tensor::operator-=.");
+		throw std::invalid_argument("Shape mismatch.");
+	float *a = data.data();
+	const float *b = other.data.data();
 	const size_t N = data.size();
 	for (size_t i = 0; i < N; ++i)
-		data[i] -= other.data[i];
+		a[i] -= b[i];
 	return *this;
 }
 
@@ -141,7 +138,7 @@ Tensor Tensor::matmul(const Tensor &other) const {
 	if (K != bShape[0])
 		throw std::runtime_error("matmul: shape mismatch.");
 
-	Tensor result({M}, 0.0f);
+	Tensor result({M});
 
 	const float *A = data.data();
 	const float *B = other.data.data();
@@ -169,14 +166,16 @@ Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
 	size_t m = aShape[0];
 	size_t n = bShape[0];
 
-	Tensor result({m, n}, 0.0f);
+	Tensor result({m, n});
+	float *r = result.data.data();
+	const float *A = a.data.data();
+	const float *B = b.data.data();
 
 	for (size_t i = 0; i < m; ++i) {
 		for (size_t j = 0; j < n; ++j) {
-			result({i, j}) = a({i}) * b({j});
+			r[i * n + j] = A[i] * B[j];
 		}
 	}
-
 	return result;
 }
 
@@ -194,9 +193,9 @@ Tensor Tensor::matmulT(const Tensor &vec) const {
 
 	Tensor result({N}, 0.0f);
 
-	const float* W = data.data();
-	const float* V = vec.data.data();
-	float* R = result.data.data();
+	const float *W = data.data();
+	const float *V = vec.data.data();
+	float *R = result.data.data();
 
 	for (size_t i = 0; i < N; ++i) {
 		float sum = 0.0f;

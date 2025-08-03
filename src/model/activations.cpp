@@ -73,7 +73,7 @@ void Activation::derivativeActivate(const global::Tensor &net, global::Tensor &o
 }
 
 global::ValueType Activation::maxVector(const global::Tensor &metrix) {
-	global::ValueType max = metrix({0});
+	global::ValueType max = metrix[0];
 	for (auto &value : metrix) {
 		if (value > max) {
 			max = value;
@@ -115,42 +115,42 @@ global::ValueType Activation::derivativeTanh(const global::ValueType z) {
 
 void Activation::relu(const global::Tensor &net, global::Tensor &out) {
 	for (size_t i = 0; i < net.numElements(); ++i)
-		out({i}) = relu(net({i}));
+		out[i] = relu(net[i]);
 }
 
 void Activation::derivativeRelu(const global::Tensor &net, global::Tensor &out) {
 	for (size_t i = 0; i < net.numElements(); ++i)
-		out({i}) *= derivativeRelu(net({i}));
+		out[i] *= derivativeRelu(net[i]);
 }
 
 void Activation::leakyRelu(const global::Tensor &net, global::Tensor &out) {
 	for (size_t i = 0; i < net.numElements(); ++i)
-		out({i}) = leakyRelu(net({i}));
+		out[i] = leakyRelu(net[i]);
 }
 
 void Activation::derivativeLeakyRelu(const global::Tensor &net, global::Tensor &out) {
 	for (size_t i = 0; i < net.numElements(); ++i)
-		out({i}) *= derivativeLeakyRelu(net({i}));
+		out[i] *= derivativeLeakyRelu(net[i]);
 }
 
 void Activation::sigmoid(const global::Tensor &net, global::Tensor &out) {
 	for (size_t i = 0; i < net.numElements(); ++i)
-		out({i}) = sigmoid(net({i}));
+		out[i] = sigmoid(net[i]);
 }
 
 void Activation::derivativeSigmoid(const global::Tensor &net, global::Tensor &out) {
 	for (size_t i = 0; i < net.numElements(); ++i)
-		out({i}) *= derivativeSigmoid(net({i}));
+		out[i] *= derivativeSigmoid(net[i]);
 }
 
 void Activation::tanh(const global::Tensor &net, global::Tensor &out) {
 	for (size_t i = 0; i < net.numElements(); ++i)
-		out({i}) = tanh(net({i}));
+		out[i] = tanh(net[i]);
 }
 
 void Activation::derivativeTanh(const global::Tensor &net, global::Tensor &out) {
 	for (size_t i = 0; i < net.numElements(); ++i)
-		out({i}) *= derivativeTanh(net({i}));
+		out[i] *= derivativeTanh(net[i]);
 }
 
 void Activation::softmax(const global::Tensor &net, global::Tensor &out) {
@@ -158,13 +158,13 @@ void Activation::softmax(const global::Tensor &net, global::Tensor &out) {
 	global::ValueType sum = 0.0;
 
 	for (size_t i = 0; i < net.numElements(); ++i) {
-		global::ValueType x = net({i}) - max;
+		global::ValueType x = net[i] - max;
 		if (x < -700.0)
 			x = -700.0;
 		if (x > 700.0)
 			x = 700.0;
-		out({i}) = std::exp(x);
-		sum += out({i});
+		out[i] = std::exp(x);
+		sum += out[i];
 	}
 
 	sum = maxValue(sum, 1e-10);
