@@ -63,7 +63,7 @@ void FNNetwork::backward(const global::Tensor &outputDeltas) {
 	resetGradient();
 
 	layers.back()->backward(deltas, layers[layers.size() - 2]->getOut());
-	visual->setGrad(0, layers[0]->getGrad());
+	visual->setGrad(layers.size() - 1, layers[layers.size() - 1]->getGrad());
 
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
 		const global::Tensor &prev = (i == 0) ? input : layers[i - 1]->getOut();
