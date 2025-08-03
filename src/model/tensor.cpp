@@ -58,18 +58,23 @@ Tensor Tensor::operator+(const Tensor &other) const {
 		throw std::invalid_argument("Shape mismatch in Tensor::operator+.");
 	}
 	Tensor result(shape);
+	const float *a = data.data();
+	const float *b = other.data.data();
+	float *r = result.data.data();
 	const size_t N = data.size();
 	for (size_t i = 0; i < N; ++i)
-		result.data[i] = data[i] + other.data[i];
+		r[i] = a[i] + b[i];
 	return result;
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {
 	if (shape != other.shape)
-		throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
+		throw std::invalid_argument("Shape mismatch.");
+	float *a = data.data();
+	const float *b = other.data.data();
 	const size_t N = data.size();
 	for (size_t i = 0; i < N; ++i)
-		data[i] += other.data[i];
+		a[i] += b[i];
 	return *this;
 }
 
@@ -125,30 +130,32 @@ Tensor Tensor::operator*(ValueType scalar) const {
 }
 
 Tensor Tensor::matmul(const Tensor &other) const {
-	const std::vector<size_t> &aShape = this->getShape();
-	const std::vector<size_t> &bShape = other.getShape();
+	const auto &aShape = shape;
+	const auto &bShape = other.shape;
 
-	if (aShape.size() == 2 && bShape.size() == 1) {
-		size_t M = aShape[0];
-		size_t K = aShape[1];
-		if (bShape[0] != K) {
-			throw std::runtime_error("matmul: incompatible shapes for matrix-vector multiplication");
+	if (aShape.size() != 2 || bShape.size() != 1)
+		throw std::runtime_error("matmul: unsupported shapes.");
+
+	size_t M = aShape[0];
+	size_t K = aShape[1];
+	if (K != bShape[0])
+		throw std::runtime_error("matmul: shape mismatch.");
+
+	Tensor result({M}, 0.0f);
+
+	const float *A = data.data();
+	const float *B = other.data.data();
+	float *R = result.data.data();
+
+	for (size_t i = 0; i < M; ++i) {
+		float sum = 0.0f;
+		size_t base = i * K;
+		for (size_t j = 0; j < K; ++j) {
+			sum += A[base + j] * B[j];
 		}
-
-		Tensor result({M}, 0.0f);
-
-		for (size_t i = 0; i < M; ++i) {
-			float sum = 0.0f;
-			for (size_t j = 0; j < K; ++j) {
-				sum += (*this)({i, j}) * other({j});
-			}
-			result({i}) = sum;
-		}
-
-		return result;
+		R[i] = sum;
 	}
-
-	throw std::runtime_error("matmul: unsupported shape combination");
+	return result;
 }
 
 Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
@@ -172,33 +179,32 @@ Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
 
 	return result;
 }
-Tensor Tensor::matmulT(const Tensor &vec) const {
-	const auto &wShape = this->getShape();
-	const auto &vShape = vec.getShape();
 
-	if (wShape.size() != 2) {
-		throw std::runtime_error("matmulT: the tensor must be 2D");
-	}
-	if (vShape.size() != 1) {
-		throw std::runtime_error("matmulT: input vector must be 1D");
-	}
-	if (vShape[0] != wShape[0]) {
-		throw std::runtime_error("matmulT: incompatible dimensions for multiplication");
-	}
+Tensor Tensor::matmulT(const Tensor &vec) const {
+	const auto &wShape = shape;
+	const auto &vShape = vec.shape;
+
+	if (wShape.size() != 2 || vShape.size() != 1)
+		throw std::runtime_error("matmulT: bad dimensions");
 
 	size_t M = wShape[0];
 	size_t N = wShape[1];
+	if (vShape[0] != M)
+		throw std::runtime_error("matmulT: incompatible");
 
 	Tensor result({N}, 0.0f);
+
+	const float* W = data.data();
+	const float* V = vec.data.data();
+	float* R = result.data.data();
 
 	for (size_t i = 0; i < N; ++i) {
 		float sum = 0.0f;
 		for (size_t j = 0; j < M; ++j) {
-			sum += (*this)({j, i}) * vec({j});
+			sum += W[j * N + i] * V[j];
 		}
-		result({i}) = sum;
+		R[i] = sum;
 	}
-
 	return result;
 }
 } // namespace nn::global
