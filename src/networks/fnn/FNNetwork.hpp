@@ -21,6 +21,8 @@ class FNNetwork : public INetwork {
 
 	void Vinit(const size_t i);
 
+    void vUpdate();
+
   public:
 	FNNetwork(
 	    const FNNConfig &_config,

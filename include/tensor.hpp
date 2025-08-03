@@ -5,7 +5,6 @@
 #include <vector>
 
 namespace nn::global {
-
 using ValueType = float;
 
 class Tensor {
@@ -20,6 +19,7 @@ class Tensor {
   public:
 	// Constructors
 	Tensor(const std::vector<size_t> &shape, float init = 0.0f);
+	// Tensor(const Tensor &other);
 
 	// Element access
 	ValueType &operator()(const std::vector<size_t> &indices);
@@ -64,7 +64,6 @@ class Tensor {
 	static Tensor outer(const Tensor &a, const Tensor &b);
 	Tensor matmulT(const Tensor &vec) const;
 };
-
 } // namespace nn::global
 
 #endif // TENSOR

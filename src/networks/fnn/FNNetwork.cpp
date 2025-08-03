@@ -7,7 +7,7 @@ FNNetwork::FNNetwork(
     const bool randomInit,
     const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_)
     : config(_config),
-      input({_config.getInputSize()}, 0.0),
+      input({_config.getInputSize()}),
       visual(visual_) {
 	int prevSize_ = _config.getInputSize();
 	size_t i = 0;
@@ -35,11 +35,8 @@ FNNetwork::FNNetwork(
 }
 
 void FNNetwork::Vinit(const size_t i) {
-	visual->initLayer(i,
-	                  layers[i]->getNet(),
-	                  layers[i]->getOut(),
-	                  layers[i]->getParms(),
-	                  layers[i]->getGrad());
+	visual->initLayer(i, layers[i]->getNet(), layers[i]->getOut(),
+	                  layers[i]->getParms(), layers[i]->getGrad());
 }
 
 void FNNetwork::forward(const global::Tensor &newInput) {
@@ -48,11 +45,15 @@ void FNNetwork::forward(const global::Tensor &newInput) {
 
 	for (size_t i = 1; i < layers.size(); ++i) {
 		layers[i]->forward(layers[i - 1]->getOut());
-        
-		if (visual) {
-			visual->setUpdate();
-			visual->attempPause();
-		}
+	}
+
+	vUpdate();
+}
+
+void FNNetwork::vUpdate() {
+	if (visual) {
+		visual->setUpdate();
+		visual->attempPause();
 	}
 }
 
@@ -67,10 +68,7 @@ void FNNetwork::backward(const global::Tensor &outputDeltas) {
 		const global::Tensor &prev = (i == 0) ? input : layers[i - 1]->getOut();
 		layers[i]->backward(deltas, prev, &layers[i + 1]->getParms());
 
-		if (visual) {
-			visual->setUpdate();
-			visual->attempPause();
-		}
+		vUpdate();
 	}
 
 	calculateInputDelta(deltas);
@@ -109,11 +107,11 @@ void FNNetwork::updateWeights(IOptimizer &optimizer) {
 }
 
 void FNNetwork::calculateInputDelta(const global::Tensor &deltas) {
-	for (size_t i = 0; i < inputSize(); ++i) {
-		input({i}) = 0;
+	input.fill(0);
 
+	for (size_t i = 0; i < inputSize(); ++i) {
 		for (size_t j = 0; j < layers[0]->size(); ++j) {
-			input({i}) += deltas({j}) * layers[0]->getParms().weights({j, i});
+			input[i] += deltas[j] * layers[0]->getParms().weights({j, i});
 		}
 	}
 }
@@ -137,7 +135,7 @@ global::Tensor FNNetwork::getParams() const {
 		global::Tensor params = layers[i]->getData();
 
 		for (size_t j = 0; j < params.numElements(); ++j) {
-			matrix({matrixI}) = params({j});
+			matrix[matrixI] = params[j];
 			++matrixI;
 		}
 	}
@@ -151,7 +149,7 @@ void FNNetwork::setParams(const global::Tensor params) {
 		global::Tensor newParam({layers[i]->getParamCount()});
 
 		for (size_t k = 0; k < newParam.numElements(); ++k) {
-			newParam({k}) = params({j});
+			newParam[k] = params[j];
 			++j;
 		}
 

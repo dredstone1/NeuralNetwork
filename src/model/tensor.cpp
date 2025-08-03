@@ -1,6 +1,6 @@
-#include "../../include/tensor.hpp"
 #include <numeric>
 #include <stdexcept>
+#include <tensor.hpp>
 
 namespace nn::global {
 Tensor::Tensor(const std::vector<size_t> &shape, float init)

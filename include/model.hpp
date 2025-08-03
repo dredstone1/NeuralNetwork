@@ -4,10 +4,8 @@
 #include "../src/model/dataBase.hpp"
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
-#include "tensor.hpp"
 #include <memory>
 #include <network/INetwork.hpp>
-#include <vector>
 
 namespace nn::visualizer {
 constexpr int BAR_WIDTH = 100;
