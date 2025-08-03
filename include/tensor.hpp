@@ -19,7 +19,7 @@ class Tensor {
 
   public:
 	// Constructors
-	explicit Tensor(const std::vector<size_t> &shape, float init = 0.0f);
+	Tensor(const std::vector<size_t> &shape, float init = 0.0f);
 
 	// Element access
 	ValueType &operator()(const std::vector<size_t> &indices);
@@ -37,17 +37,22 @@ class Tensor {
 
 	// Arithmetic operations
 	Tensor operator+(const Tensor &other) const;
+	Tensor operator*(const Tensor &other) const;
+
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);
 	Tensor &operator*=(const Tensor &other);
-	Tensor operator*(const Tensor &other) const;
+	Tensor &operator/=(const Tensor &other);
 
 	// Scalar operations
 	Tensor &operator*=(ValueType scalar);
+	Tensor &operator/=(ValueType scalar);
 	Tensor operator*(ValueType scalar) const;
+
+	Tensor matmul(const Tensor &other) const;
+    static Tensor outer(const Tensor &a, const Tensor &b);
 };
 
 } // namespace nn::global
 
 #endif // TENSOR
-

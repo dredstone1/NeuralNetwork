@@ -169,8 +169,6 @@ void Activation::softmax(const global::Tensor &net, global::Tensor &out) {
 
 	sum = maxValue(sum, 1e-10);
 
-	for (size_t i = 0; i < out.numElements(); ++i) {
-		out({i}) /= sum;
-	}
+	out /= sum;
 }
 } // namespace nn::model

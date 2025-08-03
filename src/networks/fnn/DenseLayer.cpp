@@ -26,35 +26,24 @@ void Hidden_Layer::CreateDropoutMask() {
 
 	const float keepProb = 1.0f - config.dropoutRate;
 
-	if (dropoutMask.size() != size()) {
-		dropoutMask.resize(size());
-	}
-
 	static thread_local std::mt19937 rng{std::random_device{}()};
 	std::bernoulli_distribution bernoulli(keepProb);
 
-	for (size_t i = 0; i < dropoutMask.size(); ++i) {
-		dropoutMask[i] = static_cast<uint8_t>(bernoulli(rng));
+	for (size_t i = 0; i < dropoutMask.numElements(); ++i) {
+		dropoutMask({i}) = static_cast<uint8_t>(bernoulli(rng));
 	}
 }
 
 void Output_Layer::forward(const global::Tensor &metrix) {
-	for (size_t i = 0; i < size(); ++i) {
-		net({i}) = parameters.biases({i});
-
-		for (size_t j = 0; j < metrix.numElements(); ++j) {
-			net({i}) += parameters.weights({i, j}) * metrix({j});
-		}
-	}
+	net = parameters.weights.matmul(metrix);
+	net += parameters.biases;
 
 	activationFunction.activate(net, out);
 }
 
 global::Tensor Output_Layer::getDelta(const global::Tensor &output) {
 	global::Tensor deltas = out;
-	for (size_t i = 0; i < size(); ++i) {
-		deltas({i}) -= output({i});
-	}
+	deltas -= output;
 
 	return deltas;
 }
@@ -70,13 +59,7 @@ void Output_Layer::backward(
 	}
 
 	gradients.biases += deltas;
-	for (size_t i = 0; i < size(); ++i) {
-		gradients.biases({i}) += deltas({i});
-
-		for (size_t j = 0; j < prevSize(); ++j) {
-			gradients.weights({i, j}) += deltas({i}) * prevLayer({j});
-		}
-	}
+	gradients.weights += global::Tensor::outer(deltas, prevLayer);
 }
 
 global::ValueType Output_Layer::getCrossEntropyLoss(
@@ -90,31 +73,19 @@ global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
 }
 
 void Hidden_Layer::forward(const global::Tensor &metrix) {
-	if (isTraining) {
+	if (isTraining)
 		CreateDropoutMask();
-	}
-	const float keepProb = 1.0f - config.dropoutRate;
 
-	for (size_t i = 0; i < size(); ++i) {
-		if (isTraining && config.dropoutRate && dropoutMask[i] == 0) {
-			net({i}) = 0;
-			continue;
-		}
+	net = parameters.weights.matmul(metrix);
+	net += parameters.biases;
 
-		net({i}) = parameters.biases({i});
-
-		for (size_t j = 0; j < metrix.numElements(); ++j) {
-			net({i}) += parameters.weights({i, j}) * metrix({j});
-		}
-
-		if (isTraining) {
-			net({i}) /= keepProb;
-		}
+	if (isTraining && config.dropoutRate > 0.0f) {
+		net /= 1.0f - config.dropoutRate;
+		net *= dropoutMask;
 	}
 
 	activationFunction.activate(net, out);
 }
-
 
 void Hidden_Layer::backward(
     global::Tensor &deltas,
@@ -126,18 +97,13 @@ void Hidden_Layer::backward(
 
 	deltas = getDelta(deltas, *nextLayer);
 
-	for (size_t i = 0; i < size(); ++i) {
-		if (isTraining && config.dropoutRate && dropoutMask[i] == 0) {
-			deltas({i}) = 0;
-			continue;
-		}
-
-		gradients.biases({i}) += deltas({i});
-
-		for (size_t j = 0; j < prevSize(); ++j) {
-			gradients.weights({i, j}) += deltas({i}) * prevLayer({j});
-		}
+	if (isTraining && config.dropoutRate) {
+		deltas *= dropoutMask;
 	}
+
+	gradients.biases += deltas;
+
+	gradients.weights += global::Tensor::outer(deltas, prevLayer);
 }
 
 global::Tensor Hidden_Layer::getDelta(
