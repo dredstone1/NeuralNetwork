@@ -3,6 +3,7 @@
 
 #include "DenseLayer.hpp"
 #include "tensor.hpp"
+#include <cstddef>
 #include <network/IvisualNetwork.hpp>
 
 namespace nn::visualizer::fnn {
@@ -31,13 +32,13 @@ static const std::array<sf::Color, 3> color_lookup = {
 
 class VisualDenseLayer {
   private:
-	const global::Tensor &net;
-	const global::Tensor &out;
+	global::Tensor net{{0}};
+	global::Tensor out{{0}};
 
-	const model::fnn::LayerParams &parameters;
-	const model::fnn::LayerParams &gradients;
+	model::fnn::LayerParams parameters{0, 0};
+	model::fnn::LayerParams gradients{0, 0};
 
-	const sf::Vector2f pos;
+	sf::Vector2f pos;
 
 	std::vector<sf::FloatRect> cacheNeurons;
 	std::vector<sf::FloatRect> cachePrevNeurons;
@@ -65,26 +66,31 @@ class VisualDenseLayer {
 
 	void doCacheWeights();
 	void doCacheNeurons();
-	const std::uint32_t width;
+	std::uint32_t width;
 
   public:
 	VisualDenseLayer(
 	    const std::uint32_t width,
-	    const global::Tensor &net,
-	    const global::Tensor &out,
-	    const model::fnn::LayerParams &parameters,
-	    const model::fnn::LayerParams &gradients,
-	    const sf::Vector2f pos);
+	    const sf::Vector2f pos);	
+    VisualDenseLayer() {}
 	~VisualDenseLayer() = default;
 
 	void draw(sf::RenderTexture &target);
+
+	void setNet(const global::Tensor &newNet);
+	void setOut(const global::Tensor &newOut);
+	void setGrad(const model::fnn::LayerParams &newGrad);
+	void setParam(const model::fnn::LayerParams &newParam);
+
+	void setWidth(const std::uint32_t newWidth) { width = newWidth; }
+	void setPos(const sf::Vector2f &newPos) { pos = newPos; }
 };
 
 class FnnVisualier : public IVisualNetwork {
   private:
 	const model::fnn::FNNConfig &config;
 
-	std::vector<std::unique_ptr<VisualDenseLayer>> Layers;
+	std::vector<VisualDenseLayer> Layers;
 
 	void renderNetwork() override;
 	void renderLayers();
@@ -97,12 +103,10 @@ class FnnVisualier : public IVisualNetwork {
 	    const model::fnn::FNNConfig &_config);
 	~FnnVisualier() = default;
 
-	void initLayer(
-	    const int index,
-	    const global::Tensor &net,
-	    const global::Tensor &out,
-	    const model::fnn::LayerParams &parameters,
-	    const model::fnn::LayerParams &gradients);
+	void setNet(const size_t i, const global::Tensor &newNet);
+	void setOut(const size_t i, const global::Tensor &newOut);
+	void setGrad(const size_t i, const model::fnn::LayerParams &newGrad);
+	void setParam(const size_t i, const model::fnn::LayerParams &newParam);
 };
 } // namespace nn::visualizer::fnn
 

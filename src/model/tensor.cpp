@@ -18,6 +18,17 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init)
 	computeStrides();
 }
 
+Tensor &Tensor::operator=(const Tensor &other) {
+	if (this == &other)
+		return *this;
+
+	data = other.data;
+	shape = other.shape;
+	strides = other.strides;
+
+	return *this;
+}
+
 void Tensor::computeStrides() {
 	const size_t dim = shape.size();
 	strides.resize(dim);

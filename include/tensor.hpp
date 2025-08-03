@@ -19,7 +19,12 @@ class Tensor {
   public:
 	// Constructors
 	Tensor(const std::vector<size_t> &shape, float init = 0.0f);
-	// Tensor(const Tensor &other);
+	Tensor(const Tensor &other)
+	    : data(other.data),
+	      shape(other.shape),
+	      strides(other.strides) {}
+
+	Tensor &operator=(const Tensor &other);
 
 	// Element access
 	ValueType &operator()(const std::vector<size_t> &indices);

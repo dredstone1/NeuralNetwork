@@ -1,9 +1,6 @@
 #include "FnnVisualizer.hpp"
 #include "../../visualizer/fonts.hpp"
-#include "DenseLayer.hpp"
 #include "network/IvisualNetwork.hpp"
-#include "tensor.hpp"
-#include <SFML/System/Vector2.hpp>
 #include <cstddef>
 
 namespace nn::visualizer::fnn {
@@ -14,6 +11,13 @@ FnnVisualier::FnnVisualier(
     : IVisualNetwork(state_, width),
       config(_config),
       Layers(config.layersConfig.size() + 1) {
+
+	for (size_t i = 0; i < Layers.size(); ++i) {
+		float _width = visualWidth / Layers.size();
+		float offset = _width * i;
+		Layers[i].setWidth(_width);
+		Layers[i].setPos({offset, 0});
+	}
 }
 
 void FnnVisualier::renderNetwork() {
@@ -27,49 +31,19 @@ void FnnVisualier::renderLayers() {
 }
 
 void FnnVisualier::renderLayer(const int index) {
-	if (!Layers[index])
-		return;
-
-	Layers[index]->draw(networkRender);
+	Layers[index].draw(networkRender);
 }
 
-void FnnVisualier::initLayer(
-    const int index,
-    const global::Tensor &net,
-    const global::Tensor &out,
-    const model::fnn::LayerParams &parameters,
-    const model::fnn::LayerParams &gradients) {
-	float _width = visualWidth / Layers.size();
-	float offset = _width * index;
-	Layers[index] = std::make_unique<VisualDenseLayer>(
-	    _width,
-	    net,
-	    out,
-	    parameters,
-	    gradients,
-	    sf::Vector2f(offset, 0));
-}
-
-VisualDenseLayer::VisualDenseLayer(
-    const std::uint32_t _width,
-    const global::Tensor &net_,
-    const global::Tensor &out_,
-    const model::fnn::LayerParams &_parameters,
-    const model::fnn::LayerParams &_gradients,
-    const sf::Vector2f _pos)
-    : net(net_),
-      out(out_),
-      parameters(_parameters),
-      gradients(_gradients),
-      pos(_pos),
-      cacheNeurons(net.numElements()),
-      cachePrevNeurons(_parameters.prevSize()),
+VisualDenseLayer::VisualDenseLayer(const std::uint32_t _width, const sf::Vector2f _pos)
+    : pos(_pos),
       width(_width) {
 	doCacheNeurons();
 	doCacheWeights();
 }
 
 void VisualDenseLayer::doCacheWeights() {
+	cachePrevNeurons.resize(parameters.prevSize());
+
 	float scale = getScaleFactor(parameters.prevSize());
 	float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
@@ -85,6 +59,8 @@ void VisualDenseLayer::doCacheWeights() {
 }
 
 void VisualDenseLayer::doCacheNeurons() {
+	cacheNeurons.resize(net.numElements());
+
 	float scale = getScaleFactor(net.numElements());
 	float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
@@ -232,5 +208,55 @@ textType VisualDenseLayer::getTextT(const size_t layer_i, const size_t layer_p) 
 		return textType::UP;
 
 	return textType::NORMAL;
+}
+
+void FnnVisualier::setNet(const size_t i, const global::Tensor &newNet) {
+	Layers[i].setNet(newNet);
+}
+void FnnVisualier::setOut(const size_t i, const global::Tensor &newOut) {
+	Layers[i].setOut(newOut);
+}
+void FnnVisualier::setParam(const size_t i, const model::fnn::LayerParams &newParam) {
+	Layers[i].setParam(newParam);
+}
+void FnnVisualier::setGrad(const size_t i, const model::fnn::LayerParams &newGrad) {
+	Layers[i].setGrad(newGrad);
+}
+
+void VisualDenseLayer::setNet(const global::Tensor &newNet) {
+	if (newNet.numElements() != net.numElements()) {
+		net = newNet;
+		doCacheNeurons();
+		doCacheWeights();
+	} else {
+		net = newNet;
+	}
+}
+void VisualDenseLayer::setOut(const global::Tensor &newOut) {
+	if (newOut.numElements() != out.numElements()) {
+		out = newOut;
+		doCacheNeurons();
+		doCacheWeights();
+	} else {
+		out = newOut;
+	}
+}
+void VisualDenseLayer::setParam(const model::fnn::LayerParams &newParam) {
+	if (newParam.size() != parameters.size() || newParam.prevSize() != parameters.prevSize()) {
+		parameters = newParam;
+		doCacheNeurons();
+		doCacheWeights();
+	} else {
+		parameters = newParam;
+	}
+}
+void VisualDenseLayer::setGrad(const model::fnn::LayerParams &newGrad) {
+	if (newGrad.size() != gradients.size() || newGrad.prevSize() != gradients.prevSize()) {
+		gradients = newGrad;
+		doCacheNeurons();
+		doCacheWeights();
+	} else {
+		gradients = newGrad;
+	}
 }
 } // namespace nn::visualizer::fnn

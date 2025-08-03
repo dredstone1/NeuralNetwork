@@ -19,8 +19,6 @@ class FNNetwork : public INetwork {
 
 	void calculateInputDelta(const global::Tensor &deltas);
 
-	void Vinit(const size_t i);
-
     void vUpdate();
 
   public:
