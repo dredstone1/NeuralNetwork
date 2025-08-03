@@ -172,4 +172,33 @@ Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
 
 	return result;
 }
+Tensor Tensor::matmulT(const Tensor &vec) const {
+	const auto &wShape = this->getShape();
+	const auto &vShape = vec.getShape();
+
+	if (wShape.size() != 2) {
+		throw std::runtime_error("matmulT: the tensor must be 2D");
+	}
+	if (vShape.size() != 1) {
+		throw std::runtime_error("matmulT: input vector must be 1D");
+	}
+	if (vShape[0] != wShape[0]) {
+		throw std::runtime_error("matmulT: incompatible dimensions for multiplication");
+	}
+
+	size_t M = wShape[0];
+	size_t N = wShape[1];
+
+	Tensor result({N}, 0.0f);
+
+	for (size_t i = 0; i < N; ++i) {
+		float sum = 0.0f;
+		for (size_t j = 0; j < M; ++j) {
+			sum += (*this)({j, i}) * vec({j});
+		}
+		result({i}) = sum;
+	}
+
+	return result;
+}
 } // namespace nn::global

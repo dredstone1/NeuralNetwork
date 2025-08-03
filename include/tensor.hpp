@@ -51,6 +51,7 @@ class Tensor {
 
 	Tensor matmul(const Tensor &other) const;
     static Tensor outer(const Tensor &a, const Tensor &b);
+    Tensor matmulT(const Tensor &vec) const;
 };
 
 } // namespace nn::global

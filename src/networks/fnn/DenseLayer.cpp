@@ -109,13 +109,8 @@ void Hidden_Layer::backward(
 global::Tensor Hidden_Layer::getDelta(
     const global::Tensor &output,
     const LayerParams &nextLayer) {
-	global::Tensor deltas({size()});
-	for (size_t i = 0; i < size(); i++) {
-		for (size_t j = 0; j < nextLayer.size(); ++j) {
-			deltas({i}) += output({j}) * nextLayer.weights({j, i});
-		}
-	}
 
+	auto deltas = nextLayer.weights.matmulT(output);
 	activationFunction.derivativeActivate(out, deltas);
 
 	return deltas;
@@ -180,19 +175,12 @@ void DenseLayer::fillParamRandom() {
 }
 
 void DenseLayer::resetDots() {
-	for (size_t i = 0; i < net.numElements(); ++i) {
-		net({i}) = 0;
-		out({i}) = 0;
-	}
+	net *= 0;
+	out *= 0;
 }
 
 void DenseLayer::resetGradient() {
-	for (auto &value : gradients.biases) {
-		value = 0;
-	}
-
-	for (auto &value : gradients.weights) {
-		value = 0;
-	}
+	gradients.biases *= 0;
+	gradients.weights *= 0;
 }
 } // namespace nn::model::fnn
