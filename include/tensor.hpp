@@ -27,30 +27,38 @@ class Tensor {
 	inline ValueType &operator[](size_t i) { return data[i]; }
 	inline const ValueType &operator[](size_t i) const { return data[i]; }
 
-	// Shape and size
-	const std::vector<size_t> &getShape() const { return shape; }
-	inline size_t numElements() const { return data.size(); }
-	inline const std::vector<ValueType> &getData() const { return data; }
-
 	// Iterators (for range-based loops)
 	auto begin() noexcept { return data.begin(); }
 	auto end() noexcept { return data.end(); }
 	auto begin() const noexcept { return data.begin(); }
 	auto end() const noexcept { return data.end(); }
 
+	// Shape and size
+	inline const std::vector<size_t> &getShape() const { return shape; }
+	inline size_t numElements() const { return data.size(); }
+	inline const std::vector<ValueType> &getData() const { return data; }
+	inline void fill(const ValueType &value) { std::fill(begin(), end(), value); }
+
 	// Arithmetic operations
 	Tensor operator+(const Tensor &other) const;
 	Tensor operator*(const Tensor &other) const;
+	Tensor operator-(const Tensor &other) const;
+	Tensor operator/(const Tensor &other) const;
+
+	Tensor operator*(ValueType scalar) const;
+	Tensor operator+(ValueType scalar) const;
+	Tensor operator/(ValueType scalar) const;
+	Tensor operator-(ValueType scalar) const;
 
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);
 	Tensor &operator*=(const Tensor &other);
 	Tensor &operator/=(const Tensor &other);
 
-	// Scalar operations
 	Tensor &operator*=(ValueType scalar);
 	Tensor &operator/=(ValueType scalar);
-	Tensor operator*(ValueType scalar) const;
+	Tensor &operator+=(ValueType scalar);
+	Tensor &operator-=(ValueType scalar);
 
 	Tensor matmul(const Tensor &other) const;
 	static Tensor outer(const Tensor &a, const Tensor &b);

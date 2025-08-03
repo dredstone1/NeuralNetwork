@@ -9,7 +9,11 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init)
 		throw std::invalid_argument("Tensor shape cannot be empty.");
 	}
 
-	size_t totalSize = std::accumulate(shape.begin(), shape.end(), size_t(1), std::multiplies<>());
+	size_t totalSize = std::accumulate(
+	    shape.begin(),
+	    shape.end(),
+	    size_t(1),
+	    std::multiplies<>());
 	data.assign(totalSize, init);
 	computeStrides();
 }
@@ -59,6 +63,34 @@ Tensor Tensor::operator+(const Tensor &other) const {
 	return result;
 }
 
+Tensor Tensor::operator-(const Tensor &other) const {
+	if (shape != other.shape) {
+		throw std::invalid_argument("Shape mismatch in Tensor::operator-.");
+	}
+	Tensor result(shape);
+	const float *a = data.data();
+	const float *b = other.data.data();
+	float *r = result.data.data();
+	const size_t N = data.size();
+	for (size_t i = 0; i < N; ++i)
+		r[i] = a[i] - b[i];
+	return result;
+}
+
+Tensor Tensor::operator/(const Tensor &other) const {
+	if (shape != other.shape) {
+		throw std::invalid_argument("Shape mismatch in Tensor::operator/.");
+	}
+	Tensor result(shape);
+	const float *a = data.data();
+	const float *b = other.data.data();
+	float *r = result.data.data();
+	const size_t N = data.size();
+	for (size_t i = 0; i < N; ++i)
+		r[i] = a[i] / b[i];
+	return result;
+}
+
 Tensor &Tensor::operator+=(const Tensor &other) {
 	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch.");
@@ -102,18 +134,23 @@ Tensor &Tensor::operator/=(const Tensor &other) {
 	return *this;
 }
 
-Tensor Tensor::operator*(const Tensor &other) const {
-	Tensor result(*this);
-	result *= other;
-	return result;
-}
-
 Tensor &Tensor::operator*=(ValueType scalar) {
 	for (auto &x : data)
 		x *= scalar;
 	return *this;
 }
 
+Tensor &Tensor::operator-=(ValueType scalar) {
+	for (auto &x : data)
+		x -= scalar;
+	return *this;
+}
+
+Tensor &Tensor::operator+=(ValueType scalar) {
+	for (auto &x : data)
+		x += scalar;
+	return *this;
+}
 Tensor &Tensor::operator/=(ValueType scalar) {
 	for (auto &x : data)
 		x /= scalar;
@@ -123,6 +160,24 @@ Tensor &Tensor::operator/=(ValueType scalar) {
 Tensor Tensor::operator*(ValueType scalar) const {
 	Tensor result(*this);
 	result *= scalar;
+	return result;
+}
+
+Tensor Tensor::operator/(ValueType scalar) const {
+	Tensor result(*this);
+	result /= scalar;
+	return result;
+}
+
+Tensor Tensor::operator-(ValueType scalar) const {
+	Tensor result(*this);
+	result -= scalar;
+	return result;
+}
+
+Tensor Tensor::operator+(ValueType scalar) const {
+	Tensor result(*this);
+	result += scalar;
 	return result;
 }
 
