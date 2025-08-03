@@ -28,6 +28,7 @@ class Tensor {
 	// Shape and size
 	const std::vector<size_t> &getShape() const;
 	size_t numElements() const;
+	const std::vector<ValueType> &getData() const { return data; }
 
 	// Iterators (for range-based loops)
 	auto begin() noexcept { return data.begin(); }
@@ -50,8 +51,8 @@ class Tensor {
 	Tensor operator*(ValueType scalar) const;
 
 	Tensor matmul(const Tensor &other) const;
-    static Tensor outer(const Tensor &a, const Tensor &b);
-    Tensor matmulT(const Tensor &vec) const;
+	static Tensor outer(const Tensor &a, const Tensor &b);
+	Tensor matmulT(const Tensor &vec) const;
 };
 
 } // namespace nn::global
