@@ -1,11 +1,7 @@
 #ifndef FNNNETWORK
 #define FNNNETWORK
 
-#include "DenseLayer.hpp"
 #include "FnnVisualizer.hpp"
-#include "tensor.hpp"
-#include <cstddef>
-#include <memory>
 #include <network/INetwork.hpp>
 
 namespace nn::model::fnn {

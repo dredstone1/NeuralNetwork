@@ -1,6 +1,4 @@
 #include "DenseLayer.hpp"
-#include "tensor.hpp"
-#include <cstddef>
 #include <random>
 
 namespace nn::model::fnn {

@@ -1,7 +1,5 @@
 #include "FnnVisualizer.hpp"
 #include "../../visualizer/fonts.hpp"
-#include "network/IvisualNetwork.hpp"
-#include <cstddef>
 
 namespace nn::visualizer::fnn {
 FnnVisualier::FnnVisualier(

@@ -47,11 +47,8 @@ class VisualDenseLayer {
 	void drawGapWeight(sf::RenderTexture &target);
 	void drawNeurons(sf::RenderTexture &target);
 	void renderNeuron(const size_t index, sf::RenderTexture &target);
-	void drawNeuron(
-	    const sf::FloatRect &rect,
-	    const global::ValueType input,
-	    const global::ValueType output,
-	    sf::RenderTexture &target);
+	void drawNeuron(const sf::FloatRect &rect, const global::ValueType input,
+	                const global::ValueType output, sf::RenderTexture &target);
 
 	textType getTextT(const size_t layer_i, const size_t layer_p);
 	sf::Color getColorFromTextT(const textType text_type);
@@ -71,8 +68,8 @@ class VisualDenseLayer {
   public:
 	VisualDenseLayer(
 	    const std::uint32_t width,
-	    const sf::Vector2f pos);	
-    VisualDenseLayer() {}
+	    const sf::Vector2f pos);
+	VisualDenseLayer() {}
 	~VisualDenseLayer() = default;
 
 	void draw(sf::RenderTexture &target);
