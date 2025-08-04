@@ -18,10 +18,8 @@ FNNetwork::FNNetwork(
 		    prevSize_, randomInit));
 
 		prevSize_ = _config.layersConfig[i].size;
-		visual->setNet(i, layers[i]->getNet());
-		visual->setOut(i, layers[i]->getOut());
-		visual->setParam(i, layers[i]->getParms());
-		visual->setGrad(i, layers[i]->getGrad());
+
+		sendNewVData(i);
 	}
 
 	layers.push_back(std::make_unique<Output_Layer>(
@@ -29,32 +27,49 @@ FNNetwork::FNNetwork(
 	    prevSize_,
 	    randomInit));
 
+	sendNewVData(i);
+}
+
+void FNNetwork::sendNewVData(const size_t i) const {
+	if (!visual) {
+		return;
+	}
+
 	visual->setNet(i, layers[i]->getNet());
 	visual->setOut(i, layers[i]->getOut());
 	visual->setParam(i, layers[i]->getParms());
 	visual->setGrad(i, layers[i]->getGrad());
 }
 
+void FNNetwork::sendNewVNeurons(const size_t i) const {
+	if (!visual) {
+		return;
+	}
+
+	visual->setNet(i, layers[i]->getNet());
+	visual->setOut(i, layers[i]->getOut());
+}
+
 void FNNetwork::forward(const global::Tensor &newInput) {
 	input = newInput;
 	layers[0]->forward(input);
-	visual->setNet(0, layers[0]->getNet());
-	visual->setOut(0, layers[0]->getOut());
+	sendNewVNeurons(0);
 
 	for (size_t i = 1; i < layers.size(); ++i) {
 		layers[i]->forward(layers[i - 1]->getOut());
-		visual->setNet(i, layers[i]->getNet());
-		visual->setOut(i, layers[i]->getOut());
+		sendNewVNeurons(i);
 	}
 
 	vUpdate();
 }
 
 void FNNetwork::vUpdate() {
-	if (visual) {
-		visual->setUpdate();
-		visual->attempPause();
+	if (!visual) {
+		return;
 	}
+
+	visual->setUpdate();
+	visual->attempPause();
 }
 
 void FNNetwork::backward(const global::Tensor &outputDeltas) {
@@ -63,12 +78,18 @@ void FNNetwork::backward(const global::Tensor &outputDeltas) {
 	resetGradient();
 
 	layers.back()->backward(deltas, layers[layers.size() - 2]->getOut());
-	visual->setGrad(layers.size() - 1, layers[layers.size() - 1]->getGrad());
+
+	if (visual) {
+		visual->setGrad(layers.size() - 1, layers[layers.size() - 1]->getGrad());
+	}
 
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
 		const global::Tensor &prev = (i == 0) ? input : layers[i - 1]->getOut();
 		layers[i]->backward(deltas, prev, &layers[i + 1]->getParms());
-		visual->setGrad(i, layers[i]->getGrad());
+
+		if (visual) {
+			visual->setGrad(i, layers[i]->getGrad());
+		}
 
 		vUpdate();
 	}
@@ -83,7 +104,10 @@ global::ValueType FNNetwork::getLoss(const global::Prediction &pre) const {
 void FNNetwork::resetGradient() {
 	for (size_t i = 0; i < layers.size(); ++i) {
 		layers[i]->resetGradient();
-		visual->setGrad(i, layers[i]->getGrad());
+
+		if (visual) {
+			visual->setGrad(i, layers[i]->getGrad());
+		}
 	}
 }
 
@@ -106,7 +130,10 @@ const global::Tensor &FNNetwork::getInput() const {
 void FNNetwork::updateWeights(IOptimizer &optimizer) {
 	for (size_t i = 0; i < layers.size(); ++i) {
 		layers[i]->updateWeight(optimizer);
-		visual->setParam(i, layers[i]->getParms());
+
+		if (visual) {
+			visual->setParam(i, layers[i]->getParms());
+		}
 	}
 }
 
@@ -158,7 +185,10 @@ void FNNetwork::setParams(const global::Tensor params) {
 		}
 
 		layers[i]->setData(newParam);
-		visual->setParam(i, layers[i]->getParms());
+
+		if (visual) {
+			visual->setParam(i, layers[i]->getParms());
+		}
 	}
 }
 

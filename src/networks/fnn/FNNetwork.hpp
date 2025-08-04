@@ -19,7 +19,10 @@ class FNNetwork : public INetwork {
 
 	void calculateInputDelta(const global::Tensor &deltas);
 
-    void vUpdate();
+	void vUpdate();
+
+	void sendNewVData(const size_t i) const;
+	void sendNewVNeurons(const size_t i) const;
 
   public:
 	FNNetwork(
@@ -48,7 +51,7 @@ class FNNetwork : public INetwork {
 	global::Tensor getParams() const override;
 	void setParams(const global::Tensor params) override;
 
-    size_t getParamCount() const;
+	size_t getParamCount() const;
 
 	void setTraining(const bool state) override;
 };
