@@ -3,6 +3,7 @@
 
 #include "VisualizerRenderer.hpp"
 #include "tensor.hpp"
+#include <cstdint>
 #include <network/IvisualNetwork.hpp>
 #include <thread>
 
@@ -23,7 +24,7 @@ class VisualManager {
 	void stop();
 	void startVisuals();
 
-	inline bool checkPointers() { return renderer && Vstate; }
+	inline bool checkPointers() const { return renderer && Vstate; }
 	void initState();
 
 	friend class model::Model;

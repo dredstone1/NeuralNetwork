@@ -2,6 +2,8 @@
 #define VISUALMODEL
 
 #include "tensor.hpp"
+#include <SFML/System/Vector2.hpp>
+#include <cstdint>
 #include <network/IvisualNetwork.hpp>
 
 namespace nn::visualizer {
@@ -37,6 +39,8 @@ class DummyLayer {
 	size_t size() const { return values.numElements(); }
 	void setValues(const global::Tensor &newValues);
 
+	std::uint32_t getWidth() { return cacheNeurons[0].size.x; }
+	void setPos(const sf::Vector2f &newPos);
 	void draw(sf::RenderTexture &target);
 };
 
@@ -58,6 +62,8 @@ class ModelPanel : public Panel {
 	void renderSubNetworks();
 	void renderSubNetwork(const size_t index);
 
+	sf::FloatRect subNetworksRect;
+
   public:
 	ModelPanel(const std::shared_ptr<StateManager> state_);
 	~ModelPanel() = default;
@@ -68,6 +74,8 @@ class ModelPanel : public Panel {
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 	bool updateStatus() const override;
+
+	std::uint32_t getsubNetworkWidth() const;
 };
 } // namespace nn::visualizer
 

@@ -3,6 +3,8 @@
 
 #include "../../src/visualizer/panel.hpp"
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace nn::visualizer {
 constexpr std::uint32_t MODEL_HEIGHT = 770u;
@@ -13,14 +15,14 @@ constexpr sf::Color MODEL_BG = PANELS_BG;
 
 class IVisualNetwork : public Panel {
   private:
-	void clear() { networkRender.clear(MODEL_BG); }
+	void clear() { networkRender.clear(sf::Color::Red); }
 	void display() { networkRender.display(); }
 	void doRender() override;
 
-    bool shouldSleep() const;
+	bool shouldSleep() const;
 
   protected:
-	const float visualWidth;
+	float visualWidth;
 	sf::RenderTexture networkRender;
 
 	virtual void renderNetwork() = 0;
@@ -37,6 +39,12 @@ class IVisualNetwork : public Panel {
 	sf::Sprite getSprite() { return sf::Sprite(networkRender.getTexture()); }
 	void setVstate(std::shared_ptr<StateManager> state_) { vstate = state_; }
 	void attempPause();
+
+	virtual void setWidth(const std::uint32_t newWidth) {
+		visualWidth = newWidth;
+		if (networkRender.resize({newWidth, networkRender.getSize().y})) {
+		}
+	}
 };
 } // namespace nn::visualizer
 

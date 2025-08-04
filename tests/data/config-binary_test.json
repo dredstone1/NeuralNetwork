@@ -1,6 +1,6 @@
 {
 	"visual config": {
-		"enableVisuals": false,
+		"enableVisuals": true,
 		"modes": [
 			{ "state": "pause", "mode": true },
 			{ "state": "precise mode", "mode": false },
@@ -26,8 +26,8 @@
 	"network config": [
 		{
 			"type": "FNN",
-			"input size": 10,
-			"output size": 16,
+			"input size": 100,
+			"output size": 100,
 			"output activation": 4,
 			"layers": [
 				{ "size": 30, "activationType": 1 },

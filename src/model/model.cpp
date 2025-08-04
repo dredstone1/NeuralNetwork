@@ -1,5 +1,6 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <model.hpp>

@@ -1,7 +1,12 @@
 #include "visualModel.hpp"
 #include "../networks/fnn/FnnVisualizer.hpp"
+#include "Globals.hpp"
 #include "fonts.hpp"
-#include "tensor.hpp"
+#include "network/IvisualNetwork.hpp"
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <cstdint>
+#include <memory>
 
 namespace nn::visualizer {
 DummyLayer::DummyLayer(const size_t size_, const sf::Vector2f pos_)
@@ -29,6 +34,11 @@ void DummyLayer::createVLayer() {
 
 void DummyLayer::clear() {
 	layerRender.clear(MODEL_BG);
+}
+
+void DummyLayer::setPos(const sf::Vector2f &newPos) {
+	pos = newPos;
+	createVLayer();
 }
 
 void DummyLayer::setValues(const global::Tensor &newValues) {
@@ -90,9 +100,19 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 
 ModelPanel::ModelPanel(const std::shared_ptr<StateManager> state_)
     : Panel(state_),
-      predictionLayer(state_->config.networkConfig.outputSize(), {MODEL_WIDTH - global::NEURON_WIDTH, 0}),
+      predictionLayer(state_->config.networkConfig.outputSize()),
       inputLayer(state_->config.networkConfig.inputSize()),
       modelRender({MODEL_WIDTH, MODEL_HEIGHT}) {
+	predictionLayer.setPos({MODEL_WIDTH - (float)predictionLayer.getWidth(), 0});
+
+	std::uint32_t offset = MODEL_WIDTH;
+
+	offset -= predictionLayer.getWidth();
+	offset -= inputLayer.getWidth();
+
+	subNetworksRect.size.x = offset;
+	subNetworksRect.size.y = MODEL_HEIGHT;
+	subNetworksRect.position.x = inputLayer.getWidth();
 }
 
 sf::Sprite ModelPanel::getSprite() const {
@@ -100,7 +120,7 @@ sf::Sprite ModelPanel::getSprite() const {
 }
 
 void ModelPanel::clear() {
-	modelRender.clear(MODEL_BG);
+	modelRender.clear(sf::Color::Blue);
 }
 
 void ModelPanel::display() {
@@ -119,7 +139,7 @@ void ModelPanel::doRender() {
 }
 
 float ModelPanel::getSubNetworkOffset(const int index) const {
-	return SUB_NETWORKS_WIDTH * index / subNetworks.size();
+	return subNetworksRect.size.x * index / subNetworks.size();
 }
 
 void ModelPanel::renderSubNetworks() {
@@ -132,7 +152,7 @@ void ModelPanel::renderSubNetwork(const size_t index) {
 	subNetworks[index]->render();
 
 	sf::Sprite sub = subNetworks[index]->getSprite();
-	sub.setPosition({global::NEURON_WIDTH + getSubNetworkOffset(index), 0});
+	sub.setPosition({subNetworksRect.position.x + getSubNetworkOffset(index), 0});
 
 	modelRender.draw(sub);
 }
@@ -153,6 +173,10 @@ void ModelPanel::setInput(const global::Tensor &input) {
 
 void ModelPanel::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
 	subNetworks.push_back(newVisual);
+
+	for (auto &sub : subNetworks) {
+		sub->setWidth(subNetworksRect.size.x / subNetworks.size());
+	}
 }
 
 bool ModelPanel::updateStatus() const {
