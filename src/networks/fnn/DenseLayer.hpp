@@ -13,6 +13,7 @@ struct LayerParams {
 
 	LayerParams(size_t out_dim, size_t in_dim)
 	    : weights({out_dim, in_dim}), biases({out_dim}) {}
+
 	size_t size() const { return biases.numElements(); }
 	size_t prevSize() const { return weights.getShape()[1]; }
 

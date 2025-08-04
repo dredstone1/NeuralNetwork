@@ -4,7 +4,6 @@
 #include "../src/model/dataBase.hpp"
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
-#include <memory>
 #include <network/INetwork.hpp>
 
 namespace nn::visualizer {
