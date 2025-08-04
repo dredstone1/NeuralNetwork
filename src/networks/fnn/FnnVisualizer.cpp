@@ -35,8 +35,7 @@ void FnnVisualier::renderLayer(const int index) {
 VisualDenseLayer::VisualDenseLayer(const std::uint32_t _width, const sf::Vector2f _pos)
     : pos(_pos),
       width(_width) {
-	doCacheNeurons();
-	doCacheWeights();
+	doCache();
 }
 
 void VisualDenseLayer::doCacheWeights() {
@@ -114,7 +113,7 @@ void VisualDenseLayer::drawGapWeight(sf::RenderTexture &target) {
 	sf::VertexArray line_(sf::PrimitiveType::LineStrip, 2);
 
 	line_[0].position = sf::Vector2f(0, MODEL_HEIGHT / 2.) + pos;
-	line_[1].position = sf::Vector2f(width, MODEL_HEIGHT / 2.) + pos;
+	line_[1].position = sf::Vector2f(width - cacheNeurons[0].size.x, MODEL_HEIGHT / 2.) + pos;
 
 	line_[0].color = LINE_COLOR;
 	line_[1].color = LINE_COLOR;
@@ -224,8 +223,7 @@ void FnnVisualier::setGrad(const size_t i, const model::fnn::LayerParams &newGra
 void VisualDenseLayer::setNet(const global::Tensor &newNet) {
 	if (newNet.numElements() != net.numElements()) {
 		net = newNet;
-		doCacheNeurons();
-		doCacheWeights();
+		doCache();
 	} else {
 		net = newNet;
 	}
@@ -233,8 +231,7 @@ void VisualDenseLayer::setNet(const global::Tensor &newNet) {
 void VisualDenseLayer::setOut(const global::Tensor &newOut) {
 	if (newOut.numElements() != out.numElements()) {
 		out = newOut;
-		doCacheNeurons();
-		doCacheWeights();
+		doCache();
 	} else {
 		out = newOut;
 	}
@@ -242,8 +239,7 @@ void VisualDenseLayer::setOut(const global::Tensor &newOut) {
 void VisualDenseLayer::setParam(const model::fnn::LayerParams &newParam) {
 	if (newParam.size() != parameters.size() || newParam.prevSize() != parameters.prevSize()) {
 		parameters = newParam;
-		doCacheNeurons();
-		doCacheWeights();
+		doCache();
 	} else {
 		parameters = newParam;
 	}
@@ -251,10 +247,38 @@ void VisualDenseLayer::setParam(const model::fnn::LayerParams &newParam) {
 void VisualDenseLayer::setGrad(const model::fnn::LayerParams &newGrad) {
 	if (newGrad.size() != gradients.size() || newGrad.prevSize() != gradients.prevSize()) {
 		gradients = newGrad;
-		doCacheNeurons();
-		doCacheWeights();
+		doCache();
 	} else {
 		gradients = newGrad;
 	}
 }
+
+void FnnVisualier::setWidth(const std::uint32_t newWidth) {
+
+	visualWidth = newWidth;
+	if (networkRender.resize({newWidth, networkRender.getSize().y})) {
+	}
+
+	for (size_t i = 0; i < Layers.size(); ++i) {
+		float _width = visualWidth / Layers.size();
+		float offset = _width * i;
+		Layers[i].setWidth(_width);
+		Layers[i].setPos({offset, 0});
+	}
+}
+
+void VisualDenseLayer::doCache() {
+	doCacheNeurons();
+	doCacheWeights();
+}
+
+void VisualDenseLayer::setWidth(const std::uint32_t newWidth) {
+	width = newWidth;
+	doCache();
+}
+void VisualDenseLayer::setPos(const sf::Vector2f &newPos) {
+	pos = newPos;
+	doCache();
+}
+
 } // namespace nn::visualizer::fnn

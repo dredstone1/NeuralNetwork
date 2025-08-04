@@ -26,4 +26,11 @@ void IVisualNetwork::attempPause() {
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
+
+void IVisualNetwork::setWidth(const std::uint32_t newWidth) {
+	visualWidth = newWidth;
+	if (networkRender.resize({newWidth, networkRender.getSize().y})) {
+		return;
+	}
+}
 } // namespace nn::visualizer

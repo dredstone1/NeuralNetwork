@@ -79,8 +79,10 @@ class VisualDenseLayer {
 	void setGrad(const model::fnn::LayerParams &newGrad);
 	void setParam(const model::fnn::LayerParams &newParam);
 
-	void setWidth(const std::uint32_t newWidth) { width = newWidth; }
-	void setPos(const sf::Vector2f &newPos) { pos = newPos; }
+	void setWidth(const std::uint32_t newWidth);
+	void setPos(const sf::Vector2f &newPos);
+
+	void doCache();
 };
 
 class FnnVisualier : public IVisualNetwork {
@@ -104,19 +106,7 @@ class FnnVisualier : public IVisualNetwork {
 	void setOut(const size_t i, const global::Tensor &newOut);
 	void setGrad(const size_t i, const model::fnn::LayerParams &newGrad);
 	void setParam(const size_t i, const model::fnn::LayerParams &newParam);
-	void setWidth(const std::uint32_t newWidth) override {
-
-		visualWidth = newWidth;
-		if (networkRender.resize({newWidth, networkRender.getSize().y})) {
-		}
-
-		for (size_t i = 0; i < Layers.size(); ++i) {
-			float _width = visualWidth / Layers.size();
-			float offset = _width * i;
-			Layers[i].setWidth(_width);
-			Layers[i].setPos({offset, 0});
-		}
-	}
+	void setWidth(const std::uint32_t newWidth) override;
 };
 } // namespace nn::visualizer::fnn
 

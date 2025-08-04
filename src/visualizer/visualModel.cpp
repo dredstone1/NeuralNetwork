@@ -3,6 +3,7 @@
 #include "Globals.hpp"
 #include "fonts.hpp"
 #include "network/IvisualNetwork.hpp"
+#include "panel.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <cstdint>
@@ -120,7 +121,7 @@ sf::Sprite ModelPanel::getSprite() const {
 }
 
 void ModelPanel::clear() {
-	modelRender.clear(sf::Color::Blue);
+	modelRender.clear(PANELS_BG);
 }
 
 void ModelPanel::display() {

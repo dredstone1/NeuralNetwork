@@ -15,7 +15,7 @@ constexpr sf::Color MODEL_BG = PANELS_BG;
 
 class IVisualNetwork : public Panel {
   private:
-	void clear() { networkRender.clear(sf::Color::Red); }
+	void clear() { networkRender.clear(PANELS_BG); }
 	void display() { networkRender.display(); }
 	void doRender() override;
 
@@ -40,11 +40,7 @@ class IVisualNetwork : public Panel {
 	void setVstate(std::shared_ptr<StateManager> state_) { vstate = state_; }
 	void attempPause();
 
-	virtual void setWidth(const std::uint32_t newWidth) {
-		visualWidth = newWidth;
-		if (networkRender.resize({newWidth, networkRender.getSize().y})) {
-		}
-	}
+	virtual void setWidth(const std::uint32_t newWidth);
 };
 } // namespace nn::visualizer
 
