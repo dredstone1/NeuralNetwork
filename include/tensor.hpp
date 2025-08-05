@@ -7,11 +7,18 @@
 namespace nn::global {
 using ValueType = float;
 
+enum class Backend {
+	CPU,
+	GPU,
+};
+
 class Tensor {
   private:
 	std::vector<ValueType> data;
 	std::vector<size_t> shape;
 	std::vector<size_t> strides;
+
+	Backend BackendType;
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
