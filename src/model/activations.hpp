@@ -67,9 +67,6 @@ class Activation {
 	    : activationType(other.activationType) {}
 	~Activation() = default;
 
-	global::ValueType activate(const global::ValueType x) const;
-	global::ValueType derivativeActivate(const global::ValueType x) const;
-
 	void activate(const global::Tensor &net,
 	              global::Tensor &out) const;
 	void derivativeActivate(const global::Tensor &net,

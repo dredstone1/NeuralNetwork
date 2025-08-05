@@ -4,6 +4,10 @@
 #include <cstddef>
 #include <vector>
 
+namespace nn::model {
+class Activation;
+}
+
 namespace nn::global {
 using ValueType = float;
 
@@ -19,17 +23,18 @@ class Tensor {
 	std::vector<size_t> cpu_strides;
 
 	ValueType *gpu_data = nullptr;
-    size_t gpu_data_size{0};
+    std::size_t gpu_data_size{0};
 	ValueType *gpu_shape = nullptr;
-    size_t gpu_shape_size{0};
+	size_t gpu_shape_size{0};
 	ValueType *gpu_strides = nullptr;
-    size_t gpu_strides_size{0};
-
+	size_t gpu_strides_size{0};
 
 	static const bool isGpu{false};
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
+
+	friend model::Activation;
 
   public:
 	// Constructors

@@ -1,37 +1,53 @@
+#ifndef TENSOR_GPU
+#define TENSOR_GPU
+
+#include "tensor.hpp"
 #include <cstddef>
 
 class Tensor; // Forward declaration
 
-namespace tensor_gpu {
+namespace nn::global::tensor_gpu {
 
 /// Allocate memory on GPU for a tensor.
-float *allocate(std::size_t count);
+ValueType *allocate(std::size_t count);
 
 /// Free GPU memory.
-void deallocate(float *devicePtr);
+void deallocate(ValueType *devicePtr);
 
 /// Copy data from CPU to GPU.
-void copyToDevice(float *deviceDst, const float *hostSrc, std::size_t count);
+void copyToDevice(ValueType *deviceDst, const ValueType *hostSrc, std::size_t count);
 
 /// Copy data from GPU to CPU.
-void copyToHost(float *hostDst, const float *deviceSrc, std::size_t count);
+void copyToHost(ValueType *hostDst, const ValueType *deviceSrc, std::size_t count);
 
 /// Set all elements to zero (on GPU).
-void zero(float *deviceData, std::size_t count);
+void zero(ValueType *deviceData, std::size_t count);
 
 /// Element-wise addition: C = A + B
-void add(const float *A, const float *B, float *C, std::size_t count);
+void add(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
 
 /// Element-wise multiply: C = A * B
-void multiply(const float *A, const float *B, float *C, std::size_t count);
+void multiply(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
 
 /// Dot product between two vectors (A · B)
-float dot(const float *A, const float *B, std::size_t count);
+float dot(const ValueType *A, const ValueType *B, std::size_t count);
 
-/// Apply activation function (e.g., ReLU)
-void relu(float *deviceData, std::size_t count);
+// ---------------- ReLU ----------------
+void relu(const ValueType *input, ValueType *output, std::size_t count);
+void relu_derivative(const ValueType *input, ValueType *output, std::size_t count);
 
-/// Apply derivative of activation function (e.g., ReLU')
-void relu_derivative(const float *input, float *output, std::size_t count);
+// ---------------- Sigmoid ----------------
+void sigmoid(const ValueType *input, ValueType *output, std::size_t count);
+void sigmoid_derivative(const ValueType *input, ValueType *output, std::size_t count);
 
-} // namespace tensor_gpu
+// ---------------- Tanh ----------------
+void tanh_activation(const ValueType *input, ValueType *output, std::size_t count);
+void tanh_derivative(const ValueType *input, ValueType *output, std::size_t count);
+
+// ---------------- Leaky ReLU ----------------
+void leaky_relu(const ValueType *input, ValueType *output, std::size_t count, ValueType alpha = 0.01f);
+void leaky_relu_derivative(const ValueType *input, ValueType *output, std::size_t count, ValueType alpha = 0.01f);
+
+} // namespace nn::global::tensor_gpu
+
+#endif // TENSOR_GPU

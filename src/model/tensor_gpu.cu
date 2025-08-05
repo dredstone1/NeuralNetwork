@@ -3,12 +3,11 @@
 #include <cstddef>
 #include <stdexcept>
 
-namespace tensor_gpu {
-
+namespace nn::global::tensor_gpu {
 // Allocate memory on GPU for a tensor.
-float* allocate(std::size_t count) {
-    float* devicePtr = nullptr;
-    cudaError_t err = cudaMalloc(&devicePtr, count * sizeof(float));
+ValueType* allocate(std::size_t count) {
+    ValueType* devicePtr = nullptr;
+    cudaError_t err = cudaMalloc(&devicePtr, count * sizeof(ValueType));
     if (err != cudaSuccess) {
         throw std::runtime_error("cudaMalloc failed");
     }
@@ -16,24 +15,24 @@ float* allocate(std::size_t count) {
 }
 
 // Free GPU memory.
-void deallocate(float* devicePtr) {
+void deallocate(ValueType* devicePtr) {
     if (devicePtr) {
         cudaFree(devicePtr);
     }
 }
 
 // Copy data from CPU to GPU.
-void copyToDevice(float* deviceDst, const float* hostSrc, std::size_t count) {
-    cudaMemcpy(deviceDst, hostSrc, count * sizeof(float), cudaMemcpyHostToDevice);
+void copyToDevice(ValueType* deviceDst, const ValueType* hostSrc, std::size_t count) {
+    cudaMemcpy(deviceDst, hostSrc, count * sizeof(ValueType), cudaMemcpyHostToDevice);
 }
 
 // Copy data from GPU to CPU.
-void copyToHost(float* hostDst, const float* deviceSrc, std::size_t count) {
-    cudaMemcpy(hostDst, deviceSrc, count * sizeof(float), cudaMemcpyDeviceToHost);
+void copyToHost(ValueType* hostDst, const ValueType* deviceSrc, std::size_t count) {
+    cudaMemcpy(hostDst, deviceSrc, count * sizeof(ValueType), cudaMemcpyDeviceToHost);
 }
 
 // Kernel to set all elements to zero.
-__global__ void zeroKernel(float* data, std::size_t count) {
+__global__ void zeroKernel(ValueType* data, std::size_t count) {
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < count) {
         data[idx] = 0.0f;
@@ -41,7 +40,7 @@ __global__ void zeroKernel(float* data, std::size_t count) {
 }
 
 // Set all elements to zero (on GPU).
-void zero(float* deviceData, std::size_t count) {
+void zero(ValueType* deviceData, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     zeroKernel<<<numBlocks, blockSize>>>(deviceData, count);
@@ -49,7 +48,7 @@ void zero(float* deviceData, std::size_t count) {
 }
 
 // Kernel for element-wise addition: C = A + B
-__global__ void addKernel(const float* A, const float* B, float* C, std::size_t count) {
+__global__ void addKernel(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < count) {
         C[idx] = A[idx] + B[idx];
@@ -57,7 +56,7 @@ __global__ void addKernel(const float* A, const float* B, float* C, std::size_t 
 }
 
 // Element-wise addition: C = A + B
-void add(const float* A, const float* B, float* C, std::size_t count) {
+void add(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     addKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -65,7 +64,7 @@ void add(const float* A, const float* B, float* C, std::size_t count) {
 }
 
 // Kernel for element-wise multiplication: C = A * B
-__global__ void multiplyKernel(const float* A, const float* B, float* C, std::size_t count) {
+__global__ void multiplyKernel(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < count) {
         C[idx] = A[idx] * B[idx];
@@ -73,7 +72,7 @@ __global__ void multiplyKernel(const float* A, const float* B, float* C, std::si
 }
 
 // Element-wise multiply: C = A * B
-void multiply(const float* A, const float* B, float* C, std::size_t count) {
+void multiply(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     multiplyKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -81,8 +80,8 @@ void multiply(const float* A, const float* B, float* C, std::size_t count) {
 }
 
 // Dot product kernel using parallel reduction (simplified version)
-__global__ void dotKernel(const float* A, const float* B, float* partialSum, std::size_t count) {
-    __shared__ float cache[256];
+__global__ void dotKernel(const ValueType* A, const ValueType* B, ValueType* partialSum, std::size_t count) {
+    __shared__ ValueType cache[256];
     std::size_t tid = threadIdx.x;
     std::size_t idx = blockIdx.x * blockDim.x + tid;
 
@@ -107,23 +106,23 @@ __global__ void dotKernel(const float* A, const float* B, float* partialSum, std
 }
 
 // Dot product between two vectors (A · B)
-float dot(const float* A, const float* B, std::size_t count) {
+float dot(const ValueType* A, const ValueType* B, std::size_t count) {
     const std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
 
     // Allocate partial sums
-    float* d_partialSum = nullptr;
-    cudaMalloc(&d_partialSum, numBlocks * sizeof(float));
+    ValueType* d_partialSum = nullptr;
+    cudaMalloc(&d_partialSum, numBlocks * sizeof(ValueType));
 
     dotKernel<<<numBlocks, blockSize>>>(A, B, d_partialSum, count);
     cudaDeviceSynchronize();
 
     // Copy partial sums to host
-    float* h_partialSum = new float[numBlocks];
+    ValueType* h_partialSum = new ValueType[numBlocks];
     cudaMemcpy(h_partialSum, d_partialSum, numBlocks * sizeof(float), cudaMemcpyDeviceToHost);
 
     // Final reduction on CPU
-    float totalSum = 0.0f;
+    ValueType totalSum = 0.0f;
     for (std::size_t i = 0; i < numBlocks; i++) {
         totalSum += h_partialSum[i];
     }
@@ -134,24 +133,24 @@ float dot(const float* A, const float* B, std::size_t count) {
 }
 
 // Kernel to apply ReLU activation: max(0, x)
-__global__ void reluKernel(float* data, std::size_t count) {
+__global__ void reluKernel(const ValueType *input, ValueType *output, std::size_t count) {
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < count) {
-        data[idx] = data[idx] > 0.0f ? data[idx] : 0.0f;
+        output[idx] = input[idx] > 0.0 ? input[idx] : 0.0f;
     }
 }
 
 // Apply activation function (e.g., ReLU)
-void relu(float* deviceData, std::size_t count) {
+void relu(const ValueType *input, ValueType *output, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
-    reluKernel<<<numBlocks, blockSize>>>(deviceData, count);
+    reluKernel<<<numBlocks, blockSize>>>(input, output, count);
     cudaDeviceSynchronize();
 }
 
 // Kernel to apply ReLU derivative:
 // output[i] = input[i] > 0 ? 1 : 0
-__global__ void reluDerivativeKernel(const float* input, float* output, std::size_t count) {
+__global__ void reluDerivativeKernel(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < count) {
         output[idx] = (input[idx] > 0.0f) ? 1.0f : 0.0f;
@@ -159,10 +158,111 @@ __global__ void reluDerivativeKernel(const float* input, float* output, std::siz
 }
 
 // Apply derivative of activation function (e.g., ReLU')
-void relu_derivative(const float* input, float* output, std::size_t count) {
+void relu_derivative(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     reluDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel to apply Sigmoid activation: 1 / (1 + exp(-x))
+__global__ void sigmoidKernel(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        ValueType x = input[idx];
+        output[idx] = 1.0f / (1.0f + expf(-x));
+    }
+}
+
+// Apply Sigmoid activation
+void sigmoid(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    sigmoidKernel<<<numBlocks, blockSize>>>(input, output, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel for Sigmoid derivative: s(x) * (1 - s(x))
+__global__ void sigmoidDerivativeKernel(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        ValueType x = input[idx];
+        ValueType s = 1.0f / (1.0f + expf(-x));
+        output[idx] = s * (1.0f - s);
+    }
+}
+
+// Apply Sigmoid derivative
+void sigmoid_derivative(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    sigmoidDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel to apply Tanh activation: tanh(x)
+__global__ void tanhKernel(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        output[idx] = tanhf(input[idx]);
+    }
+}
+
+// Apply Tanh activation
+void tanh_activation(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    tanhKernel<<<numBlocks, blockSize>>>(input, output, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel for Tanh derivative: 1 - tanh(x)^2
+__global__ void tanhDerivativeKernel(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        ValueType t = tanhf(input[idx]);
+        output[idx] = 1.0f - t * t;
+    }
+}
+
+// Apply Tanh derivative
+void tanh_derivative(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    tanhDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel for Leaky ReLU: x > 0 ? x : alpha * x
+__global__ void leakyReluKernel(const ValueType* input, ValueType* output, std::size_t count, ValueType alpha) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        ValueType x = input[idx];
+        output[idx] = (x > 0.0f) ? x : alpha * x;
+    }
+}
+
+// Apply Leaky ReLU
+void leaky_relu(const ValueType* input, ValueType* output, std::size_t count, ValueType alpha) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    leakyReluKernel<<<numBlocks, blockSize>>>(input, output, count, alpha);
+    cudaDeviceSynchronize();
+}
+
+// Kernel for Leaky ReLU derivative: x > 0 ? 1 : alpha
+__global__ void leakyReluDerivativeKernel(const ValueType* input, ValueType* output, std::size_t count, ValueType alpha) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        output[idx] = (input[idx] > 0.0f) ? 1.0f : alpha;
+    }
+}
+
+// Apply Leaky ReLU derivative
+void leaky_relu_derivative(const ValueType* input, ValueType* output, std::size_t count, ValueType alpha) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    leakyReluDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count, alpha);
     cudaDeviceSynchronize();
 }
 } // namespace tensor_gpu
