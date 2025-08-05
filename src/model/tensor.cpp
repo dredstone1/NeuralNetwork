@@ -1,6 +1,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <tensor.hpp>
+#include "tensor_gpu.hpp"
 
 namespace nn::global {
 Tensor::Tensor(const std::vector<size_t> &shape, float init)
