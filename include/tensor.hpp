@@ -19,10 +19,14 @@ class Tensor {
 	std::vector<size_t> cpu_strides;
 
 	ValueType *gpu_data = nullptr;
+    size_t gpu_data_size{0};
 	ValueType *gpu_shape = nullptr;
+    size_t gpu_shape_size{0};
 	ValueType *gpu_strides = nullptr;
+    size_t gpu_strides_size{0};
 
-	bool isGpu() const { return true; }
+
+	static const bool isGpu{false};
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
@@ -50,7 +54,6 @@ class Tensor {
 	auto end() const noexcept { return cpu_data.end(); }
 
 	// Shape and size
-	const std::vector<size_t> &getShape() const;
 	size_t numElements() const;
 	const std::vector<ValueType> &getData() const;
 	void fill(const ValueType &value);

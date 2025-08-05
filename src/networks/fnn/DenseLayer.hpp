@@ -11,11 +11,15 @@ struct LayerParams {
 	global::Tensor weights;
 	global::Tensor biases;
 
-	LayerParams(size_t out_dim, size_t in_dim)
-	    : weights({out_dim, in_dim}), biases({out_dim}) {}
+	size_t size_;
+	size_t prevSize_;
 
-	size_t size() const { return biases.numElements(); }
-	size_t prevSize() const { return weights.getShape()[1]; }
+	LayerParams(size_t out_dim, size_t in_dim)
+	    : weights({out_dim, in_dim}), biases({out_dim}),
+	      size_(out_dim), prevSize_(in_dim) {}
+
+	size_t size() const { return size_; }
+	size_t prevSize() const { return prevSize_; }
 
 	size_t paramSize() const { return biases.numElements() + weights.numElements(); }
 };

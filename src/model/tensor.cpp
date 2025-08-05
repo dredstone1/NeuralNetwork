@@ -4,8 +4,7 @@
 #include <tensor.hpp>
 
 namespace nn::global {
-Tensor::Tensor(const std::vector<size_t> &shape, float init)
-    : cpu_shape(shape) {
+Tensor::Tensor(const std::vector<size_t> &shape, float init) {
 	if (shape.empty()) {
 		throw std::invalid_argument("Tensor shape cannot be empty.");
 	}
@@ -15,38 +14,38 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init)
 	    shape.end(),
 	    size_t(1),
 	    std::multiplies<>());
-	cpu_data.assign(totalSize, init);
+
+	if (!isGpu) {
+		cpu_shape = shape;
+		cpu_data.assign(totalSize, init);
+	}
+
 	computeStrides();
 }
 
 ValueType &Tensor::operator[](size_t i) {
-	if (isGpu()) {
-		return gpu_data[i];
+	if (isGpu) {
 	}
 	return cpu_data[i];
 }
 
 const ValueType &Tensor::operator[](size_t i) const {
-	if (isGpu()) {
-		return gpu_data[i];
+	if (isGpu) {
 	}
 	return cpu_data[i];
 }
 
-const std::vector<size_t> &Tensor::getShape() const {
-
-	if (isGpu()) {
-		return gpu_data[i];
-	}
-	return cpu_shape;
-}
-
 size_t Tensor::numElements() const {
+	if (isGpu) {
+		return gpu_data_size;
+	}
 	return cpu_data.size();
 }
 
 const std::vector<ValueType> &Tensor::getData() const {
-	return cpu_data;
+	if (!isGpu) {
+		return cpu_data;
+	}
 }
 
 void Tensor::fill(const ValueType &value) {
@@ -57,10 +56,12 @@ Tensor &Tensor::operator=(const Tensor &other) {
 	if (this == &other)
 		return *this;
 
-	cpu_data = other.cpu_data;
-	cpu_shape = other.cpu_shape;
-	cpu_strides = other.cpu_strides;
-
+	if (!isGpu) {
+		cpu_data = other.cpu_data;
+		cpu_shape = other.cpu_shape;
+		cpu_strides = other.cpu_strides;
+	} else {
+	}
 	return *this;
 }
 
@@ -138,68 +139,86 @@ Tensor Tensor::operator/(const Tensor &other) const {
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {
-	if (cpu_shape != other.cpu_shape)
-		throw std::invalid_argument("Shape mismatch.");
-
-	float *__restrict__ a = cpu_data.data();
-	const float *__restrict__ b = other.cpu_data.data();
-	const size_t N = cpu_data.size();
-
-	for (size_t i = 0; i < N; ++i)
-		a[i] += b[i];
-
+	if (!isGpu) {
+		if (cpu_shape != other.cpu_shape)
+			throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
+		const size_t N = cpu_data.size();
+		for (size_t i = 0; i < N; ++i)
+			cpu_data[i] += other.cpu_data[i];
+	} else {
+	}
 	return *this;
 }
 
 Tensor &Tensor::operator-=(const Tensor &other) {
-	if (cpu_shape != other.cpu_shape)
-		throw std::invalid_argument("Shape mismatch.");
-	float *a = cpu_data.data();
-	const float *b = other.cpu_data.data();
-	const size_t N = cpu_data.size();
-	for (size_t i = 0; i < N; ++i)
-		a[i] -= b[i];
+	if (!isGpu) {
+		if (cpu_shape != other.cpu_shape)
+			throw std::invalid_argument("Shape mismatch in Tensor::operator-=.");
+		const size_t N = cpu_data.size();
+		for (size_t i = 0; i < N; ++i)
+			cpu_data[i] -= other.cpu_data[i];
+	} else {
+	}
 	return *this;
 }
 
 Tensor &Tensor::operator*=(const Tensor &other) {
-	if (cpu_shape != other.cpu_shape)
-		throw std::invalid_argument("Shape mismatch in Tensor::operator*=.");
-	const size_t N = cpu_data.size();
-	for (size_t i = 0; i < N; ++i)
-		cpu_data[i] *= other.cpu_data[i];
+	if (!isGpu) {
+		if (cpu_shape != other.cpu_shape)
+			throw std::invalid_argument("Shape mismatch in Tensor::operator*=.");
+		const size_t N = cpu_data.size();
+		for (size_t i = 0; i < N; ++i)
+			cpu_data[i] *= other.cpu_data[i];
+	} else {
+	}
 	return *this;
 }
 
 Tensor &Tensor::operator/=(const Tensor &other) {
-	if (cpu_shape != other.cpu_shape)
-		throw std::invalid_argument("Shape mismatch in Tensor::operator/=.");
-	const size_t N = cpu_data.size();
-	for (size_t i = 0; i < N; ++i)
-		cpu_data[i] /= other.cpu_data[i];
+	if (!isGpu) {
+		if (cpu_shape != other.cpu_shape)
+			throw std::invalid_argument("Shape mismatch in Tensor::operator/=.");
+		const size_t N = cpu_data.size();
+		for (size_t i = 0; i < N; ++i)
+			cpu_data[i] /= other.cpu_data[i];
+	} else {
+	}
 	return *this;
 }
 
 Tensor &Tensor::operator*=(ValueType scalar) {
-	for (auto &x : cpu_data)
-		x *= scalar;
+	if (!isGpu) {
+		for (auto &x : cpu_data)
+			x *= scalar;
+	} else {
+	}
 	return *this;
 }
 
 Tensor &Tensor::operator-=(ValueType scalar) {
-	for (auto &x : cpu_data)
-		x -= scalar;
+	if (!isGpu) {
+		for (auto &x : cpu_data)
+			x -= scalar;
+	} else {
+	}
 	return *this;
 }
 
 Tensor &Tensor::operator+=(ValueType scalar) {
-	for (auto &x : cpu_data)
-		x += scalar;
+	if (!isGpu) {
+		for (auto &x : cpu_data)
+			x += scalar;
+	} else {
+	}
 	return *this;
 }
+
 Tensor &Tensor::operator/=(ValueType scalar) {
-	for (auto &x : cpu_data)
-		x /= scalar;
+	if (!isGpu) {
+		for (auto &x : cpu_data)
+			x /= scalar;
+	} else {
+	}
 	return *this;
 }
 
@@ -228,83 +247,86 @@ Tensor Tensor::operator+(ValueType scalar) const {
 }
 
 Tensor Tensor::matmul(const Tensor &other) const {
-	const auto &aShape = cpu_shape;
-	const auto &bShape = other.cpu_shape;
+	if (!isGpu) {
+		const auto &aShape = cpu_shape;
+		const auto &bShape = other.cpu_shape;
 
-	if (aShape.size() != 2 || bShape.size() != 1)
-		throw std::runtime_error("matmul: unsupported shapes.");
+		if (aShape.size() != 2 || bShape.size() != 1)
+			throw std::runtime_error("matmul: unsupported shapes.");
 
-	size_t M = aShape[0];
-	size_t K = aShape[1];
-	if (K != bShape[0])
-		throw std::runtime_error("matmul: shape mismatch.");
+		size_t M = aShape[0];
+		size_t K = aShape[1];
+		if (K != bShape[0])
+			throw std::runtime_error("matmul: shape mismatch.");
 
-	Tensor result({M});
+		Tensor result({M});
 
-	const float *A = cpu_data.data();
-	const float *B = other.cpu_data.data();
-	float *R = result.cpu_data.data();
+		const float *A = cpu_data.data();
+		const float *B = other.cpu_data.data();
+		float *R = result.cpu_data.data();
 
-	for (size_t i = 0; i < M; ++i) {
-		float sum = 0.0f;
-		size_t base = i * K;
-		for (size_t j = 0; j < K; ++j) {
-			sum += A[base + j] * B[j];
+		for (size_t i = 0; i < M; ++i) {
+			float sum = 0.0f;
+			size_t base = i * K;
+			for (size_t j = 0; j < K; ++j) {
+				sum += A[base + j] * B[j];
+			}
+			R[i] = sum;
 		}
-		R[i] = sum;
+		return result;
 	}
-	return result;
 }
 
 Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
-	const std::vector<size_t> &aShape = a.getShape();
-	const std::vector<size_t> &bShape = b.getShape();
-
-	if (aShape.size() != 1 || bShape.size() != 1) {
-		throw std::runtime_error("outer: both tensors must be 1D vectors");
-	}
-
-	size_t m = aShape[0];
-	size_t n = bShape[0];
-
-	Tensor result({m, n});
-	float *r = result.cpu_data.data();
-	const float *A = a.cpu_data.data();
-	const float *B = b.cpu_data.data();
-
-	for (size_t i = 0; i < m; ++i) {
-		for (size_t j = 0; j < n; ++j) {
-			r[i * n + j] = A[i] * B[j];
+	if (!isGpu) {
+		if (a.cpu_shape.size() != 1 || b.cpu_shape.size() != 1) {
+			throw std::runtime_error("outer: both tensors must be 1D vectors");
 		}
+
+		size_t m = a.cpu_shape[0];
+		size_t n = b.cpu_shape[0];
+
+		Tensor result({m, n});
+		float *r = result.cpu_data.data();
+		const float *A = a.cpu_data.data();
+		const float *B = b.cpu_data.data();
+
+		for (size_t i = 0; i < m; ++i) {
+			for (size_t j = 0; j < n; ++j) {
+				r[i * n + j] = A[i] * B[j];
+			}
+		}
+		return result;
 	}
-	return result;
 }
 
 Tensor Tensor::matmulT(const Tensor &vec) const {
-	const auto &wShape = cpu_shape;
-	const auto &vShape = vec.cpu_shape;
+	if (!isGpu) {
+		const auto &wShape = cpu_shape;
+		const auto &vShape = vec.cpu_shape;
 
-	if (wShape.size() != 2 || vShape.size() != 1)
-		throw std::runtime_error("matmulT: bad dimensions");
+		if (wShape.size() != 2 || vShape.size() != 1)
+			throw std::runtime_error("matmulT: bad dimensions");
 
-	size_t M = wShape[0];
-	size_t N = wShape[1];
-	if (vShape[0] != M)
-		throw std::runtime_error("matmulT: incompatible");
+		size_t M = wShape[0];
+		size_t N = wShape[1];
+		if (vShape[0] != M)
+			throw std::runtime_error("matmulT: incompatible");
 
-	Tensor result({N}, 0.0f);
+		Tensor result({N}, 0.0f);
 
-	const float *W = cpu_data.data();
-	const float *V = vec.cpu_data.data();
-	float *R = result.cpu_data.data();
+		const float *W = cpu_data.data();
+		const float *V = vec.cpu_data.data();
+		float *R = result.cpu_data.data();
 
-	for (size_t i = 0; i < N; ++i) {
-		float sum = 0.0f;
-		for (size_t j = 0; j < M; ++j) {
-			sum += W[j * N + i] * V[j];
+		for (size_t i = 0; i < N; ++i) {
+			float sum = 0.0f;
+			for (size_t j = 0; j < M; ++j) {
+				sum += W[j * N + i] * V[j];
+			}
+			R[i] = sum;
 		}
-		R[i] = sum;
+		return result;
 	}
-	return result;
 }
 } // namespace nn::global
