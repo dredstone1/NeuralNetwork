@@ -18,6 +18,11 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init) {
 	if (!isGpu) {
 		cpu_shape = shape;
 		cpu_data.assign(totalSize, init);
+	} else {
+		gpu_shape = (size_t *)tensor_gpu::allocate(shape.size() * sizeof(size_t));
+		tensor_gpu::copyToDevice(gpu_shape, shape.data(), gpu_data_size * sizeof(size_t));
+		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
+		gpu_data_size = totalSize;
 	}
 
 	computeStrides();
@@ -76,66 +81,78 @@ void Tensor::computeStrides() {
 }
 
 inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
-	if (indices.size() != cpu_shape.size()) {
-		throw std::invalid_argument("Incorrect number of indices.");
+	if (!isGpu) {
+		if (indices.size() != cpu_shape.size()) {
+			throw std::invalid_argument("Incorrect number of indices.");
+		}
+		size_t index = 0;
+		for (size_t i = 0; i < cpu_shape.size(); ++i) {
+			if (indices[i] >= cpu_shape[i])
+				throw std::out_of_range("Index out of bounds.");
+			index += indices[i] * cpu_strides[i];
+		}
+		return index;
 	}
-	size_t index = 0;
-	for (size_t i = 0; i < cpu_shape.size(); ++i) {
-		if (indices[i] >= cpu_shape[i])
-			throw std::out_of_range("Index out of bounds.");
-		index += indices[i] * cpu_strides[i];
-	}
-	return index;
 }
 
 ValueType &Tensor::operator()(const std::vector<size_t> &indices) {
-	return cpu_data[flattenIndex(indices)];
+	if (!isGpu) {
+		return cpu_data[flattenIndex(indices)];
+	}
 }
 
 ValueType Tensor::operator()(const std::vector<size_t> &indices) const {
-	return cpu_data[flattenIndex(indices)];
+	if (!isGpu) {
+		return cpu_data[flattenIndex(indices)];
+	}
 }
 
 Tensor Tensor::operator+(const Tensor &other) const {
-	if (cpu_shape != other.cpu_shape) {
-		throw std::invalid_argument("Shape mismatch in Tensor::operator+.");
+	if (!isGpu) {
+		if (cpu_shape != other.cpu_shape) {
+			throw std::invalid_argument("Shape mismatch in Tensor::operator+.");
+		}
+		Tensor result(cpu_shape);
+		const float *a = cpu_data.data();
+		const float *b = other.cpu_data.data();
+		float *r = result.cpu_data.data();
+		const size_t N = cpu_data.size();
+		for (size_t i = 0; i < N; ++i)
+			r[i] = a[i] + b[i];
+		return result;
 	}
-	Tensor result(cpu_shape);
-	const float *a = cpu_data.data();
-	const float *b = other.cpu_data.data();
-	float *r = result.cpu_data.data();
-	const size_t N = cpu_data.size();
-	for (size_t i = 0; i < N; ++i)
-		r[i] = a[i] + b[i];
-	return result;
 }
 
 Tensor Tensor::operator-(const Tensor &other) const {
-	if (cpu_shape != other.cpu_shape) {
-		throw std::invalid_argument("Shape mismatch in Tensor::operator-.");
+	if (!isGpu) {
+		if (cpu_shape != other.cpu_shape) {
+			throw std::invalid_argument("Shape mismatch in Tensor::operator-.");
+		}
+		Tensor result(cpu_shape);
+		const float *a = cpu_data.data();
+		const float *b = other.cpu_data.data();
+		float *r = result.cpu_data.data();
+		const size_t N = cpu_data.size();
+		for (size_t i = 0; i < N; ++i)
+			r[i] = a[i] - b[i];
+		return result;
 	}
-	Tensor result(cpu_shape);
-	const float *a = cpu_data.data();
-	const float *b = other.cpu_data.data();
-	float *r = result.cpu_data.data();
-	const size_t N = cpu_data.size();
-	for (size_t i = 0; i < N; ++i)
-		r[i] = a[i] - b[i];
-	return result;
 }
 
 Tensor Tensor::operator/(const Tensor &other) const {
-	if (cpu_shape != other.cpu_shape) {
-		throw std::invalid_argument("Shape mismatch in Tensor::operator/.");
+	if (!isGpu) {
+		if (cpu_shape != other.cpu_shape) {
+			throw std::invalid_argument("Shape mismatch in Tensor::operator/.");
+		}
+		Tensor result(cpu_shape);
+		const float *a = cpu_data.data();
+		const float *b = other.cpu_data.data();
+		float *r = result.cpu_data.data();
+		const size_t N = cpu_data.size();
+		for (size_t i = 0; i < N; ++i)
+			r[i] = a[i] / b[i];
+		return result;
 	}
-	Tensor result(cpu_shape);
-	const float *a = cpu_data.data();
-	const float *b = other.cpu_data.data();
-	float *r = result.cpu_data.data();
-	const size_t N = cpu_data.size();
-	for (size_t i = 0; i < N; ++i)
-		r[i] = a[i] / b[i];
-	return result;
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {

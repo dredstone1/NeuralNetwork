@@ -1,21 +1,23 @@
 #ifndef TENSOR_GPU
 #define TENSOR_GPU
 
-#include "tensor.hpp"
 #include <cstddef>
+namespace nn::global {
+using ValueType = float;
+}
 
 class Tensor; // Forward declaration
 
 namespace nn::global::tensor_gpu {
 
 /// Allocate memory on GPU for a tensor.
-ValueType *allocate(std::size_t count);
+void *allocate(std::size_t count);
 
 /// Free GPU memory.
 void deallocate(ValueType *devicePtr);
 
 /// Copy data from CPU to GPU.
-void copyToDevice(ValueType *deviceDst, const ValueType *hostSrc, std::size_t count);
+void copyToDevice(void *deviceDst, const void *hostSrc, std::size_t count);
 
 /// Copy data from GPU to CPU.
 void copyToHost(ValueType *hostDst, const ValueType *deviceSrc, std::size_t count);

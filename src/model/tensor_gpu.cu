@@ -5,9 +5,9 @@
 
 namespace nn::global::tensor_gpu {
 // Allocate memory on GPU for a tensor.
-ValueType* allocate(std::size_t count) {
-    ValueType* devicePtr = nullptr;
-    cudaError_t err = cudaMalloc(&devicePtr, count * sizeof(ValueType));
+void* allocate(std::size_t count) {
+    void* devicePtr = nullptr;
+    cudaError_t err = cudaMalloc(&devicePtr, count);
     if (err != cudaSuccess) {
         throw std::runtime_error("cudaMalloc failed");
     }
@@ -22,8 +22,8 @@ void deallocate(ValueType* devicePtr) {
 }
 
 // Copy data from CPU to GPU.
-void copyToDevice(ValueType* deviceDst, const ValueType* hostSrc, std::size_t count) {
-    cudaMemcpy(deviceDst, hostSrc, count * sizeof(ValueType), cudaMemcpyHostToDevice);
+void copyToDevice(void* deviceDst, const void * hostSrc, std::size_t size) {
+    cudaMemcpy(deviceDst, hostSrc, size, cudaMemcpyHostToDevice);
 }
 
 // Copy data from GPU to CPU.

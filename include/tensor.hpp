@@ -3,13 +3,13 @@
 
 #include <cstddef>
 #include <vector>
+#include "../src/model/tensor_gpu.hpp"
 
 namespace nn::model {
 class Activation;
 }
 
 namespace nn::global {
-using ValueType = float;
 
 enum class Backend {
 	CPU,
@@ -24,9 +24,9 @@ class Tensor {
 
 	ValueType *gpu_data = nullptr;
     std::size_t gpu_data_size{0};
-	ValueType *gpu_shape = nullptr;
+	size_t *gpu_shape = nullptr;
 	size_t gpu_shape_size{0};
-	ValueType *gpu_strides = nullptr;
+	size_t *gpu_strides = nullptr;
 	size_t gpu_strides_size{0};
 
 	static const bool isGpu{false};
