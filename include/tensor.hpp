@@ -14,11 +14,15 @@ enum class Backend {
 
 class Tensor {
   private:
-	std::vector<ValueType> data;
-	std::vector<size_t> shape;
-	std::vector<size_t> strides;
+	std::vector<ValueType> cpu_data;
+	std::vector<size_t> cpu_shape;
+	std::vector<size_t> cpu_strides;
 
-	Backend BackendType;
+	ValueType *gpu_data = nullptr;
+	ValueType *gpu_shape = nullptr;
+	ValueType *gpu_strides = nullptr;
+
+	bool isGpu() const { return true; }
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
@@ -27,29 +31,29 @@ class Tensor {
 	// Constructors
 	Tensor(const std::vector<size_t> &shape, float init = 0.0f);
 	Tensor(const Tensor &other)
-	    : data(other.data),
-	      shape(other.shape),
-	      strides(other.strides) {}
+	    : cpu_data(other.cpu_data),
+	      cpu_shape(other.cpu_shape),
+	      cpu_strides(other.cpu_strides) {}
 
 	Tensor &operator=(const Tensor &other);
 
 	// Element access
 	ValueType &operator()(const std::vector<size_t> &indices);
 	ValueType operator()(const std::vector<size_t> &indices) const;
-	inline ValueType &operator[](size_t i) { return data[i]; }
-	inline const ValueType &operator[](size_t i) const { return data[i]; }
+	ValueType &operator[](size_t i);
+	const ValueType &operator[](size_t i) const;
 
 	// Iterators (for range-based loops)
-	auto begin() noexcept { return data.begin(); }
-	auto end() noexcept { return data.end(); }
-	auto begin() const noexcept { return data.begin(); }
-	auto end() const noexcept { return data.end(); }
+	auto begin() noexcept { return cpu_data.begin(); }
+	auto end() noexcept { return cpu_data.end(); }
+	auto begin() const noexcept { return cpu_data.begin(); }
+	auto end() const noexcept { return cpu_data.end(); }
 
 	// Shape and size
-	inline const std::vector<size_t> &getShape() const { return shape; }
-	inline size_t numElements() const { return data.size(); }
-	inline const std::vector<ValueType> &getData() const { return data; }
-	inline void fill(const ValueType &value) { std::fill(begin(), end(), value); }
+	const std::vector<size_t> &getShape() const;
+	size_t numElements() const;
+	const std::vector<ValueType> &getData() const;
+	void fill(const ValueType &value);
 
 	// Arithmetic operations
 	Tensor operator+(const Tensor &other) const;

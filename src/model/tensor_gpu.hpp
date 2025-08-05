@@ -34,6 +34,4 @@ void relu(float *deviceData, std::size_t count);
 /// Apply derivative of activation function (e.g., ReLU')
 void relu_derivative(const float *input, float *output, std::size_t count);
 
-// Add more operations as needed...
-
 } // namespace tensor_gpu
