@@ -26,9 +26,14 @@ void copyToDevice(void* deviceDst, const void * hostSrc, std::size_t size) {
     cudaMemcpy(deviceDst, hostSrc, size, cudaMemcpyHostToDevice);
 }
 
+
+void copyDeviceToDevice(void *deviceDst, const void *deviceSrc, std::size_t count) {
+    cudaMemcpy(deviceDst, deviceDst, count, cudaMemcpyDeviceToDevice);
+}
+
 // Copy data from GPU to CPU.
-void copyToHost(ValueType* hostDst, const ValueType* deviceSrc, std::size_t count) {
-    cudaMemcpy(hostDst, deviceSrc, count * sizeof(ValueType), cudaMemcpyDeviceToHost);
+void copyToHost(void* hostDst, const void* deviceSrc, std::size_t count) {
+    cudaMemcpy(hostDst, deviceSrc, count, cudaMemcpyDeviceToHost);
 }
 
 // Kernel to set all elements to zero.
@@ -130,6 +135,19 @@ float dot(const ValueType* A, const ValueType* B, std::size_t count) {
     delete[] h_partialSum;
     cudaFree(d_partialSum);
     return totalSum;
+}
+
+__global__ void computeStrides(const size_t *shape, size_t *strides, size_t ndim) {
+    size_t stride = 1;
+    for (int i = ndim - 1; i >= 0; --i) {
+        strides[i] = stride;
+        stride *= shape[i];
+    }
+}
+
+void computeStridesDevice(const size_t *gpu_shape, size_t *gpu_strides, std::size_t ndim) {
+    computeStrides<<<1, 1>>>(gpu_shape, gpu_strides, ndim);
+    cudaDeviceSynchronize(); // Ensure computation completes
 }
 
 // Kernel to apply ReLU activation: max(0, x)

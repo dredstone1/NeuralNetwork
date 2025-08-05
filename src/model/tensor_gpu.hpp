@@ -20,7 +20,9 @@ void deallocate(ValueType *devicePtr);
 void copyToDevice(void *deviceDst, const void *hostSrc, std::size_t count);
 
 /// Copy data from GPU to CPU.
-void copyToHost(ValueType *hostDst, const ValueType *deviceSrc, std::size_t count);
+void copyToHost(void *hostDst, const void *deviceSrc, std::size_t count);
+
+void copyDeviceToDevice(void *deviceDst, const void *deviceSrc, std::size_t count);
 
 /// Set all elements to zero (on GPU).
 void zero(ValueType *deviceData, std::size_t count);
@@ -33,6 +35,8 @@ void multiply(const ValueType *A, const ValueType *B, ValueType *C, std::size_t 
 
 /// Dot product between two vectors (A · B)
 float dot(const ValueType *A, const ValueType *B, std::size_t count);
+
+void computeStridesDevice(const size_t *gpu_shape, size_t *gpu_strides, std::size_t ndim);
 
 // ---------------- ReLU ----------------
 void relu(const ValueType *input, ValueType *output, std::size_t count);

@@ -66,17 +66,30 @@ Tensor &Tensor::operator=(const Tensor &other) {
 		cpu_shape = other.cpu_shape;
 		cpu_strides = other.cpu_strides;
 	} else {
+		gpu_shape = (size_t *)tensor_gpu::allocate(other.gpu_shape_size * sizeof(size_t));
+		gpu_data = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
+		gpu_data_size = other.gpu_data_size;
+		gpu_shape_size = other.gpu_shape_size;
+
+		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
+		tensor_gpu::copyDeviceToDevice(gpu_shape, other.gpu_shape, gpu_shape_size * sizeof(size_t));
+		tensor_gpu::copyDeviceToDevice(gpu_strides, other.gpu_strides, gpu_shape_size * sizeof(size_t));
 	}
 	return *this;
 }
 
 void Tensor::computeStrides() {
-	const size_t dim = cpu_shape.size();
-	cpu_strides.resize(dim);
-	size_t stride = 1;
-	for (size_t i = dim; i-- > 0;) {
-		cpu_strides[i] = stride;
-		stride *= cpu_shape[i];
+	if (isGpu) {
+		gpu_strides = (size_t *)tensor_gpu::allocate(gpu_shape_size * sizeof(size_t));
+		tensor_gpu::computeStridesDevice(gpu_shape, gpu_strides, gpu_shape_size * sizeof(size_t));
+	} else {
+		const size_t dim = cpu_shape.size();
+		cpu_strides.resize(dim);
+		size_t stride = 1;
+		for (size_t i = dim; i-- > 0;) {
+			cpu_strides[i] = stride;
+			stride *= cpu_shape[i];
+		}
 	}
 }
 
