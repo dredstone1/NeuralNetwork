@@ -77,12 +77,15 @@ int main(int argc, char *argv[]) {
 	size_t input_size = 10;
 
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
+    // nn::global::Tensor give_me_a_name({5, 1});
+    // nn::global::Tensor newt = give_me_a_name;
+    // return 0;
 	nn::model::Model model(config_FN);
 
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-		std::vector<std::string> files{"../tests/data/test1", "../tests/data/test2"};
+        std::vector<std::string> files {"../tests/data/test1", "../tests/data/test2"};
 		model.train(files);
 
 		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");

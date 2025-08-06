@@ -26,8 +26,8 @@
 	"network config": [
 		{
 			"type": "FNN",
-			"input size": 100,
-			"output size": 100,
+			"input size": 10,
+			"output size": 16,
 			"output activation": 4,
 			"layers": [
 				{ "size": 30, "activationType": 1 },

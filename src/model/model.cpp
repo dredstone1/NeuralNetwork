@@ -1,5 +1,6 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
+#include "dataBase.hpp"
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -134,7 +135,8 @@ void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 }
 
 void Model::runModel(const global::Tensor &input) {
-	visual.updateInput(input);
+	// visual.updateInput(input);
+	printf("test1:\n");
 	network[0]->forward(input);
 
 	for (size_t i = 1; i < network.size(); ++i) {
@@ -177,13 +179,18 @@ global::ValueType Model::runBackPropagation(
 
 	resetNetworkGradient();
 	for (size_t i = 0; i < batch.size(); ++i) {
-		auto current_sample_ptr = batch.samples.at(i);
+		TrainSample *current_sample_ptr = batch.samples.at(i);
 		visual.updatePrediction(current_sample_ptr->pre);
 
-		runModel(transformation(current_sample_ptr->input));
+		printf("test1\n");
+		printf("test1: %zu\n", current_sample_ptr->input.numElements());
+		// runModel(transformation(current_sample_ptr->input));
+
+		printf("\n");
+		runModel(current_sample_ptr->input);
 
 		global::Tensor output({outputSize()});
-		output[current_sample_ptr->pre.index] = 1;
+		output.setValue({current_sample_ptr->pre.index}, 1);
 
 		if (doBackward) {
 			Backward(output);
@@ -404,7 +411,7 @@ void Model::save(const std::string &file) {
 
 		outFile << params.numElements() << " ";
 		for (size_t j = 0; j < params.numElements(); ++j) {
-			outFile << params[j] << " ";
+			outFile << params.getValue({j}) << " ";
 		}
 
 		outFile << std::endl;
@@ -429,7 +436,7 @@ void Model::load(const std::string &file) {
 
 		for (size_t i = 0; i < ParamSize; ++i) {
 			iss >> num;
-			numbers[i] = num;
+			numbers.setValue({i}, num);
 		}
 
 		network[networkI]->setParams(numbers);
@@ -444,12 +451,12 @@ global::Prediction Model::getPrediction() const {
 	size_t max = 0;
 
 	for (size_t i = 1; i < outputSize(); ++i) {
-		if (getOutput()[i] > getOutput()[max]) {
+		if (getOutput().getValue({i}) > getOutput().getValue({max})) {
 			max = i;
 		}
 	}
 
-	return global::Prediction(max, getOutput()[max]);
+	return global::Prediction(max, getOutput().getValue({max}));
 }
 
 void Model::setTraining() {

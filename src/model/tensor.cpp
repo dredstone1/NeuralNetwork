@@ -34,41 +34,23 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init) {
 }
 
 Tensor::Tensor(const Tensor &other) {
-    if (isGpu) {
-        gpu_data_size = other.gpu_data_size;
-        gpu_shape_size = other.gpu_shape_size;
+	if (isGpu) {
+		gpu_data_size = other.gpu_data_size;
+		gpu_shape_size = other.gpu_shape_size;
 
 		gpu_data = (ValueType *)tensor_gpu::allocate(gpu_data_size * sizeof(ValueType));
 		gpu_strides = (size_t *)tensor_gpu::allocate(gpu_shape_size * sizeof(size_t));
 		gpu_shape = (size_t *)tensor_gpu::allocate(gpu_shape_size * sizeof(size_t));
 
-        tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size*sizeof(ValueType));
-        tensor_gpu::copyDeviceToDevice(gpu_shape, other.gpu_shape, gpu_shape_size*sizeof(size_t));
-        tensor_gpu::copyDeviceToDevice(gpu_shape, other.gpu_shape, gpu_shape_size*sizeof(size_t));
+		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
+		tensor_gpu::copyDeviceToDevice(gpu_shape, other.gpu_shape, gpu_shape_size * sizeof(size_t));
+		tensor_gpu::copyDeviceToDevice(gpu_shape, other.gpu_shape, gpu_shape_size * sizeof(size_t));
 
-    } else {
-        cpu_data = other.cpu_data;
-        cpu_shape = other.cpu_shape;
-        cpu_strides = other.cpu_strides;
-    }
-}
-
-ValueType &Tensor::operator[](size_t i) {
-	static ValueType value;
-	if (isGpu) {
-		value = tensor_gpu::getValueAt(gpu_data, i);
-		return value;
+	} else {
+		cpu_data = other.cpu_data;
+		cpu_shape = other.cpu_shape;
+		cpu_strides = other.cpu_strides;
 	}
-	return cpu_data[i];
-}
-
-const ValueType &Tensor::operator[](size_t i) const {
-	static ValueType value;
-	if (isGpu) {
-		value = tensor_gpu::getValueAt(gpu_data, i);
-		return value;
-	}
-	return cpu_data[i];
 }
 
 size_t Tensor::numElements() const {
@@ -150,24 +132,18 @@ inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 	}
 }
 
-ValueType &Tensor::operator()(const std::vector<size_t> &indices) {
-	static ValueType value;
-	if (!isGpu) {
-		return cpu_data[flattenIndex(indices)];
+ValueType Tensor::getValue(const std::vector<size_t> newShape) const {
+	if (isGpu) {
+		return tensor_gpu::getValueAtIndices(gpu_data, newShape.data(), gpu_shape, gpu_strides, gpu_shape_size);
 	}
-
-	value = tensor_gpu::getValueAtIndices(gpu_data, indices.data(), gpu_shape, gpu_strides, gpu_shape_size);
-	return value;
+	return cpu_data[flattenIndex(newShape)];
 }
 
-ValueType Tensor::operator()(const std::vector<size_t> &indices) const {
-	static ValueType value;
-	if (!isGpu) {
-		return cpu_data[flattenIndex(indices)];
+void Tensor::setValue(const std::vector<size_t> newShape, const ValueType value) {
+	if (isGpu) {
+		tensor_gpu::setValueAtIndices(gpu_data, newShape.data(), gpu_shape, gpu_strides, gpu_shape_size, value);
 	}
-
-	value = tensor_gpu::getValueAtIndices(gpu_data, indices.data(), gpu_shape, gpu_strides, gpu_shape_size);
-	return value;
+	cpu_data[flattenIndex(newShape)] = value;
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {
@@ -418,5 +394,13 @@ Tensor Tensor::matmulT(const Tensor &vec) const {
 	// Call GPU kernel or helper
 	tensor_gpu::matmulT(gpu_data, vec.gpu_data, result.gpu_data, M, N);
 	return result;
+}
+
+Tensor::~Tensor() {
+	if (isGpu) {
+		tensor_gpu::deallocate(gpu_data);
+		tensor_gpu::deallocate(gpu_shape);
+		tensor_gpu::deallocate(gpu_strides);
+	}
 }
 } // namespace nn::global

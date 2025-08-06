@@ -14,7 +14,7 @@ namespace nn::global::tensor_gpu {
 void *allocate(std::size_t size);
 
 /// Free GPU memory.
-void deallocate(ValueType *devicePtr);
+void deallocate(void *devicePtr);
 
 /// Copy data from CPU to GPU.
 void copyToDevice(void *deviceDst, const void *hostSrc, std::size_t count);
@@ -86,7 +86,15 @@ ValueType getValueAtIndices(
     const size_t *hostIndices,
     const size_t *deviceShape,
     const size_t *deviceStrides,
-    size_t rank);
+    size_t size);
+
+void setValueAtIndices(
+    ValueType *deviceData,
+    const size_t *hostIndices,
+    const size_t *deviceShape,
+    const size_t *deviceStrides,
+    size_t ndim,
+    ValueType value);
 
 void matmul(const ValueType *A, const ValueType *B, ValueType *R, size_t M, size_t K);
 void outer(const ValueType *a, const ValueType *b, ValueType *result, size_t m, size_t n);

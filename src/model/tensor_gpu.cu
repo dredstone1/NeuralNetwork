@@ -15,7 +15,7 @@ void* allocate(std::size_t size) {
 }
 
 // Free GPU memory.
-void deallocate(ValueType* devicePtr) {
+void deallocate(void* devicePtr) {
     if (devicePtr) {
         cudaFree(devicePtr);
     }
@@ -521,6 +521,51 @@ ValueType getValueAtIndices(
     cudaFree(deviceFlatIndex);
 
     return value;
+}
+
+__global__ void setValueAtIndexKernel(ValueType* data, size_t flatIndex, ValueType value) {
+    data[flatIndex] = value;
+}
+
+void setValueAtIndices(
+    ValueType* deviceData,
+    const size_t* hostIndices,
+    const size_t* deviceShape,
+    const size_t* deviceStrides,
+    size_t ndim,
+    ValueType value
+) {
+    // Step 1: Allocate and copy indices to GPU
+    size_t* deviceIndices;
+    cudaMalloc(&deviceIndices, ndim * sizeof(size_t));
+    cudaMemcpy(deviceIndices, hostIndices, ndim * sizeof(size_t), cudaMemcpyHostToDevice);
+
+    // Step 2: Allocate memory to store computed flat index
+    size_t* deviceFlatIndex;
+    cudaMalloc(&deviceFlatIndex, sizeof(size_t));
+
+    // Step 3: Launch kernel to compute flat index
+    computeFlatIndexKernel<<<1, 1>>>(deviceIndices, deviceShape, deviceStrides, ndim, deviceFlatIndex);
+    cudaDeviceSynchronize();
+
+    // Step 4: Copy flat index to host
+    size_t flatIndex;
+    cudaMemcpy(&flatIndex, deviceFlatIndex, sizeof(size_t), cudaMemcpyDeviceToHost);
+
+    // Step 5: Validate flat index
+    if (flatIndex == size_t(-1)) {
+        cudaFree(deviceIndices);
+        cudaFree(deviceFlatIndex);
+        throw std::out_of_range("Invalid indices in setValueAtIndices");
+    }
+
+    // Step 6: Launch kernel to set value at computed flat index
+    setValueAtIndexKernel<<<1, 1>>>(deviceData, flatIndex, value);
+    cudaDeviceSynchronize();
+
+    // Cleanup
+    cudaFree(deviceIndices);
+    cudaFree(deviceFlatIndex);
 }
 
 __global__ void matmulKernel(const ValueType *A, const ValueType *B, ValueType *R, size_t M, size_t K) {

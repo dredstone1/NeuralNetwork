@@ -28,7 +28,7 @@ void Hidden_Layer::CreateDropoutMask() {
 	std::bernoulli_distribution bernoulli(keepProb);
 
 	for (size_t i = 0; i < dropoutMask.numElements(); ++i) {
-		dropoutMask[i] = static_cast<uint8_t>(bernoulli(rng));
+		dropoutMask.setValue({i}, static_cast<uint8_t>(bernoulli(rng)));
 	}
 }
 
@@ -63,7 +63,7 @@ void Output_Layer::backward(
 global::ValueType Output_Layer::getCrossEntropyLoss(
     const global::Tensor &prediction,
     const size_t target) {
-	return -std::log(std::max(prediction[target], MIN_LOSS_VALUE));
+	return -std::log(std::max(prediction.getValue({target}), MIN_LOSS_VALUE));
 }
 
 global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
@@ -73,7 +73,7 @@ global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
 void Hidden_Layer::forward(const global::Tensor &metrix) {
 	if (isTraining)
 		CreateDropoutMask();
-    
+
 	net = parameters.weights.matmul(metrix);
 	net += parameters.biases;
 
@@ -129,14 +129,14 @@ const global::Tensor DenseLayer::getData() const {
 	size_t currentI = 0;
 	for (size_t i = 0; i < size(); ++i) {
 		for (size_t j = 0; j < prevSize(); ++j) {
-			matrix[currentI] = parameters.weights({i, j});
+			matrix.setValue({currentI}, parameters.weights.getValue({i, j}));
 
 			++currentI;
 		}
 	}
 
 	for (size_t i = 0; i < size(); ++i) {
-		matrix[currentI] = parameters.biases[i];
+		matrix.setValue({currentI}, parameters.biases.getValue({i}));
 
 		++currentI;
 	}
@@ -148,14 +148,14 @@ void DenseLayer::setData(const global::Tensor newParam) {
 	size_t currentI = 0;
 	for (size_t i = 0; i < size(); ++i) {
 		for (size_t j = 0; j < prevSize(); ++j) {
-			parameters.weights({i, j}) = newParam[currentI];
+			parameters.weights.setValue({i, j},  newParam.getValue({currentI}));
 
 			++currentI;
 		}
 	}
 
 	for (size_t i = 0; i < size(); ++i) {
-		parameters.biases[i] = newParam[currentI];
+		parameters.biases.setValue({i}, newParam.getValue({currentI}));
 
 		++currentI;
 	}

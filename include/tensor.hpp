@@ -37,13 +37,12 @@ class Tensor {
 	Tensor(const std::vector<size_t> &shape, float init = 0.0f);
 	Tensor(const Tensor &other);
 
+	~Tensor();
+
 	Tensor &operator=(const Tensor &other);
 
-	// Element access
-	ValueType &operator()(const std::vector<size_t> &indices);
-	ValueType operator()(const std::vector<size_t> &indices) const;
-	ValueType &operator[](size_t i);
-	const ValueType &operator[](size_t i) const;
+	ValueType getValue(const std::vector<size_t> newShape) const;
+	void setValue(const std::vector<size_t> newShape, const ValueType value);
 
 	// Iterators (for range-based loops)
 	auto begin() noexcept { return cpu_data.begin(); }
