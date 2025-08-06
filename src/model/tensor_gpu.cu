@@ -1,23 +1,12 @@
 #include <cuda_runtime.h>
 #include "tensor_gpu.hpp"
 #include <cstddef>
-#include <iostream>
 #include <stdexcept>
 
 
 namespace nn::global::tensor_gpu {
 // Allocate memory on GPU for a tensor.
 void* allocate(std::size_t size) {
-    int count = 0;
-    cudaError_t err = cudaGetDeviceCount(&count);
-    if (err != cudaSuccess) {
-        std::cerr << "CUDA error: " << cudaGetErrorString(err) << std::endl;
-    }
-    std::cout << "CUDA device count: " << count << std::endl;
-    cudaDeviceProp prop;
-    cudaGetDeviceProperties(&prop, 0);
-    std::cout << "GPU memory available: " << prop.totalGlobalMem / (1024 * 1024) << " MB\n";
-
     void* devicePtr = nullptr;
     cudaError_t err1 = cudaMalloc(&devicePtr, size);
     if (err1 != cudaSuccess) {

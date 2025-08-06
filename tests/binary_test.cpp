@@ -1,3 +1,4 @@
+#include "tensor.hpp"
 #include "tests.hpp"
 #include <iostream>
 #include <model.hpp>
@@ -81,7 +82,7 @@ int main(int argc, char *argv[]) {
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-        std::vector<std::string> files {"../tests/data/test1", "../tests/data/test2"};
+		std::vector<std::string> files{"../tests/data/test1", "../tests/data/test2"};
 		model.train(files);
 
 		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");

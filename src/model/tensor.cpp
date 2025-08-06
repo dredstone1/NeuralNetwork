@@ -21,10 +21,13 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init) {
 		cpu_shape = shape;
 		cpu_data.assign(totalSize, init);
 	} else {
+		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
+
 		gpu_shape = (size_t *)tensor_gpu::allocate(shape.size() * sizeof(size_t));
 		tensor_gpu::copyToDevice(gpu_shape, shape.data(), gpu_data_size * sizeof(size_t));
-		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
+
 		gpu_data_size = totalSize;
+		gpu_shape_size = shape.size();
 	}
 
 	computeStrides();

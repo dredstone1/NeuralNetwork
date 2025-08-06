@@ -45,13 +45,6 @@ FetchContent_Declare(nlohmann_json
 FetchContent_MakeAvailable(SFML nlohmann_json)
 
 # ------------------------------------------------------------------
-# Function: Apply sanitizers (for CPU code only)
-function(apply_sanitizers target)
-    target_compile_options(${target} PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
-    target_link_libraries(${target} PRIVATE -fsanitize=address)
-endfunction()
-
-# ------------------------------------------------------------------
 # Main library
 
 # Add both C++ and CUDA sources
@@ -97,8 +90,6 @@ if(BUILD_NN_TESTS)
     enable_testing()
     include(CTest)
 
-    apply_sanitizers(NeuralNetwork)
-
     file(GLOB TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
 
     if(TEST_SOURCES)
@@ -108,8 +99,6 @@ if(BUILD_NN_TESTS)
             add_executable(${test_name} ${test_file})
             target_link_libraries(${test_name} PRIVATE NeuralNetwork)
             target_include_directories(${test_name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-            apply_sanitizers(${test_name})
 
             add_test(NAME ${test_name} COMMAND ${test_name})
         endforeach()
@@ -122,4 +111,4 @@ endif()
 # Install
 install(TARGETS NeuralNetwork ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
- 
+
