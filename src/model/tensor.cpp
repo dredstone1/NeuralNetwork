@@ -33,6 +33,26 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init) {
 	computeStrides();
 }
 
+Tensor::Tensor(const Tensor &other) {
+    if (isGpu) {
+        gpu_data_size = other.gpu_data_size;
+        gpu_shape_size = other.gpu_shape_size;
+
+		gpu_data = (ValueType *)tensor_gpu::allocate(gpu_data_size * sizeof(ValueType));
+		gpu_strides = (size_t *)tensor_gpu::allocate(gpu_shape_size * sizeof(size_t));
+		gpu_shape = (size_t *)tensor_gpu::allocate(gpu_shape_size * sizeof(size_t));
+
+        tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size*sizeof(ValueType));
+        tensor_gpu::copyDeviceToDevice(gpu_shape, other.gpu_shape, gpu_shape_size*sizeof(size_t));
+        tensor_gpu::copyDeviceToDevice(gpu_shape, other.gpu_shape, gpu_shape_size*sizeof(size_t));
+
+    } else {
+        cpu_data = other.cpu_data;
+        cpu_shape = other.cpu_shape;
+        cpu_strides = other.cpu_strides;
+    }
+}
+
 ValueType &Tensor::operator[](size_t i) {
 	static ValueType value;
 	if (isGpu) {

@@ -11,11 +11,6 @@ class Activation;
 
 namespace nn::global {
 
-enum class Backend {
-	CPU,
-	GPU,
-};
-
 class Tensor {
   private:
 	std::vector<ValueType> cpu_data;
@@ -40,10 +35,7 @@ class Tensor {
   public:
 	// Constructors
 	Tensor(const std::vector<size_t> &shape, float init = 0.0f);
-	Tensor(const Tensor &other)
-	    : cpu_data(other.cpu_data),
-	      cpu_shape(other.cpu_shape),
-	      cpu_strides(other.cpu_strides) {}
+	Tensor(const Tensor &other);
 
 	Tensor &operator=(const Tensor &other);
 

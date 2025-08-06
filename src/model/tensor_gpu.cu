@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <stdexcept>
 
-
 namespace nn::global::tensor_gpu {
 // Allocate memory on GPU for a tensor.
 void* allocate(std::size_t size) {

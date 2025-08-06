@@ -65,8 +65,9 @@ int DataBase::load(const std::string &db_filename) {
 		}
 
 		TrainSample new_sample = readLine(line);
-		if (new_sample.input.numElements() == 0)
+		if (new_sample.input.numElements() == 0) {
 			continue;
+		}
 
 		samples.add(new_sample);
 	}
