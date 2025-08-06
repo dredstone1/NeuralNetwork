@@ -33,7 +33,7 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init) {
 ValueType &Tensor::operator[](size_t i) {
 	static ValueType value;
 	if (isGpu) {
-		value = tensor_gpu::getValueAt<ValueType>(gpu_data, i);
+		value = tensor_gpu::getValueAt(gpu_data, i);
 		return value;
 	}
 	return cpu_data[i];
@@ -42,7 +42,7 @@ ValueType &Tensor::operator[](size_t i) {
 const ValueType &Tensor::operator[](size_t i) const {
 	static ValueType value;
 	if (isGpu) {
-		value = tensor_gpu::getValueAt<ValueType>(gpu_data, i);
+		value = tensor_gpu::getValueAt(gpu_data, i);
 		return value;
 	}
 	return cpu_data[i];
@@ -133,7 +133,7 @@ ValueType &Tensor::operator()(const std::vector<size_t> &indices) {
 		return cpu_data[flattenIndex(indices)];
 	}
 
-	value = tensor_gpu::getValueAtIndices(indices.data());
+	value = tensor_gpu::getValueAtIndices(gpu_data, indices.data(), gpu_shape, gpu_strides, gpu_shape_size);
 	return value;
 }
 
@@ -143,7 +143,7 @@ ValueType Tensor::operator()(const std::vector<size_t> &indices) const {
 		return cpu_data[flattenIndex(indices)];
 	}
 
-	value = tensor_gpu::getValueAtIndices(indices.data());
+	value = tensor_gpu::getValueAtIndices(gpu_data, indices.data(), gpu_shape, gpu_strides, gpu_shape_size);
 	return value;
 }
 
@@ -155,6 +155,9 @@ Tensor &Tensor::operator+=(const Tensor &other) {
 		for (size_t i = 0; i < N; ++i)
 			cpu_data[i] += other.cpu_data[i];
 	} else {
+		if (gpu_shape != other.gpu_shape)
+			throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
+		tensor_gpu::add(gpu_data, other.gpu_data, gpu_data, gpu_data_size * sizeof(ValueType));
 	}
 	return *this;
 }
@@ -167,6 +170,9 @@ Tensor &Tensor::operator-=(const Tensor &other) {
 		for (size_t i = 0; i < N; ++i)
 			cpu_data[i] -= other.cpu_data[i];
 	} else {
+		if (gpu_shape != other.gpu_shape)
+			throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
+		tensor_gpu::subtraction(gpu_data, other.gpu_data, gpu_data, gpu_data_size * sizeof(ValueType));
 	}
 	return *this;
 }
@@ -179,6 +185,9 @@ Tensor &Tensor::operator*=(const Tensor &other) {
 		for (size_t i = 0; i < N; ++i)
 			cpu_data[i] *= other.cpu_data[i];
 	} else {
+		if (gpu_shape != other.gpu_shape)
+			throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
+		tensor_gpu::multiply(gpu_data, other.gpu_data, gpu_data, gpu_data_size * sizeof(ValueType));
 	}
 	return *this;
 }
@@ -191,6 +200,9 @@ Tensor &Tensor::operator/=(const Tensor &other) {
 		for (size_t i = 0; i < N; ++i)
 			cpu_data[i] /= other.cpu_data[i];
 	} else {
+		if (gpu_shape != other.gpu_shape)
+			throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
+		tensor_gpu::division(gpu_data, other.gpu_data, gpu_data, gpu_data_size * sizeof(ValueType));
 	}
 	return *this;
 }
@@ -200,6 +212,7 @@ Tensor &Tensor::operator*=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x *= scalar;
 	} else {
+		tensor_gpu::multiply(gpu_data, scalar, gpu_data, gpu_data_size * sizeof(ValueType));
 	}
 	return *this;
 }
@@ -209,6 +222,7 @@ Tensor &Tensor::operator-=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x -= scalar;
 	} else {
+		tensor_gpu::subtraction(gpu_data, scalar, gpu_data, gpu_data_size * sizeof(ValueType));
 	}
 	return *this;
 }
@@ -218,6 +232,7 @@ Tensor &Tensor::operator+=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x += scalar;
 	} else {
+		tensor_gpu::add(gpu_data, scalar, gpu_data, gpu_data_size * sizeof(ValueType));
 	}
 	return *this;
 }
@@ -227,6 +242,7 @@ Tensor &Tensor::operator/=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x /= scalar;
 	} else {
+		tensor_gpu::division(gpu_data, scalar, gpu_data, gpu_data_size * sizeof(ValueType));
 	}
 	return *this;
 }
@@ -284,6 +300,21 @@ Tensor Tensor::matmul(const Tensor &other) const {
 		}
 		return result;
 	}
+
+	// Validate shapes similarly (assumed available via gpu_shape_size and gpu_shape pointer)
+	if (gpu_shape_size != 2 || other.gpu_shape_size != 1)
+		throw std::runtime_error("matmul (GPU): unsupported shapes.");
+
+	size_t M = gpu_shape[0];
+	size_t K = gpu_shape[1];
+	if (K != other.gpu_shape[0])
+		throw std::runtime_error("matmul (GPU): shape mismatch.");
+
+	Tensor result({M}, 0.0f);
+
+	// Call GPU kernel or helper
+	tensor_gpu::matmul(gpu_data, other.gpu_data, result.gpu_data, M, K);
+	return result;
 }
 
 Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
@@ -307,6 +338,18 @@ Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
 		}
 		return result;
 	}
+
+	if (a.gpu_shape_size != 1 || b.gpu_shape_size != 1)
+		throw std::runtime_error("outer (GPU): both tensors must be 1D vectors");
+
+	size_t m = a.gpu_shape[0];
+	size_t n = b.gpu_shape[0];
+
+	Tensor result({m, n});
+
+	// Call GPU kernel or helper
+	tensor_gpu::outer(a.gpu_data, b.gpu_data, result.gpu_data, m, n);
+	return result;
 }
 
 Tensor Tensor::matmulT(const Tensor &vec) const {
@@ -337,5 +380,20 @@ Tensor Tensor::matmulT(const Tensor &vec) const {
 		}
 		return result;
 	}
+
+	// GPU path
+	if (gpu_shape_size != 2 || vec.gpu_shape_size != 1)
+		throw std::runtime_error("matmulT (GPU): bad dimensions");
+
+	size_t M = gpu_shape[0];
+	size_t N = gpu_shape[1];
+	if (vec.gpu_shape[0] != M)
+		throw std::runtime_error("matmulT (GPU): incompatible");
+
+	Tensor result({N});
+
+	// Call GPU kernel or helper
+	tensor_gpu::matmulT(gpu_data, vec.gpu_data, result.gpu_data, M, N);
+	return result;
 }
 } // namespace nn::global

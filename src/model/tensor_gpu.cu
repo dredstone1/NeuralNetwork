@@ -68,6 +68,39 @@ void add(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count
     cudaDeviceSynchronize();
 }
 
+
+// Kernel for element-wise addition: C = A - B
+__global__ void subtractionKernel(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        C[idx] = A[idx] - B[idx];
+    }
+}
+
+// Element-wise addition: C = A + B
+void subtraction(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    subtractionKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel for element-wise addition: C = A / B
+__global__ void divisionKernel(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        C[idx] = A[idx] / B[idx];
+    }
+}
+
+// Element-wise addition: C = A / B
+void division(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    divisionKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    cudaDeviceSynchronize();
+}
+
 // Kernel for element-wise multiplication: C = A * B
 __global__ void multiplyKernel(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -78,6 +111,71 @@ __global__ void multiplyKernel(const ValueType* A, const ValueType* B, ValueType
 
 // Element-wise multiply: C = A * B
 void multiply(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    multiplyKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel for element-wise addition: C = A + B
+__global__ void addKernel(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        C[idx] = A[idx] + B;
+    }
+}
+
+// Element-wise addition: C = A + B
+void add(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    addKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    cudaDeviceSynchronize();
+}
+
+
+// Kernel for element-wise addition: C = A - B
+__global__ void subtractionKernel(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        C[idx] = A[idx] - B;
+    }
+}
+
+// Element-wise addition: C = A + B
+void subtraction(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    subtractionKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel for element-wise addition: C = A / B
+__global__ void divisionKernel(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        C[idx] = A[idx] / B;
+    }
+}
+
+// Element-wise addition: C = A / B
+void division(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    divisionKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    cudaDeviceSynchronize();
+}
+
+// Kernel for element-wise multiplication: C = A * B
+__global__ void multiplyKernel(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+    std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < count) {
+        C[idx] = A[idx] * B;
+    }
+}
+
+// Element-wise multiply: C = A * B
+void multiply(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     multiplyKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -328,15 +426,13 @@ void softmax(const ValueType* input, ValueType* output, std::size_t count) {
     cudaDeviceSynchronize();
 }
 
-template <typename T>
-void setValueAt(T* devicePtr, std::size_t index, T value) {
-    cudaMemcpy(devicePtr + index, &value, sizeof(T), cudaMemcpyHostToDevice);
+void setValueAt(ValueType* devicePtr, std::size_t index, ValueType value) {
+    cudaMemcpy(devicePtr + index, &value, sizeof(ValueType), cudaMemcpyHostToDevice);
 }
 
-template <typename T>
-ValueType getValueAt(const T* devicePtr , std::size_t index) {
-    T value;
-    cudaMemcpy(&value, devicePtr + index, sizeof(T), cudaMemcpyDeviceToHost);
+ValueType getValueAt(const ValueType* devicePtr , std::size_t index) {
+    ValueType value;
+    cudaMemcpy(&value, devicePtr + index, sizeof(ValueType), cudaMemcpyDeviceToHost);
     return value;
 }
 
@@ -390,17 +486,17 @@ __global__ void computeFlatIndexKernel(
     *outIndex = flatIndex;
 }
 
-ValueType getValueAtIndicesGpu(
+ValueType getValueAtIndices(
     const ValueType* deviceData,
     const size_t* hostIndices,
     const size_t* deviceShape,
     const size_t* deviceStrides,
-    size_t rank
+    size_t size
 ) {
     // Copy host indices to device
     size_t* deviceIndices;
-    cudaMalloc(&deviceIndices, sizeof(size_t) * rank);
-    cudaMemcpy(deviceIndices, hostIndices, sizeof(size_t) * rank, cudaMemcpyHostToDevice);
+    cudaMalloc(&deviceIndices, sizeof(size_t) * size);
+    cudaMemcpy(deviceIndices, hostIndices, sizeof(size_t) * size, cudaMemcpyHostToDevice);
 
     // Allocate output for index
     size_t* deviceFlatIndex;
@@ -408,7 +504,7 @@ ValueType getValueAtIndicesGpu(
 
     // Launch kernel to compute flat index
     computeFlatIndexKernel<<<1, 1>>>(
-        deviceIndices, deviceShape, deviceStrides, rank, deviceFlatIndex
+        deviceIndices, deviceShape, deviceStrides, size, deviceFlatIndex
     );
     cudaDeviceSynchronize();
 
@@ -425,5 +521,61 @@ ValueType getValueAtIndicesGpu(
     cudaFree(deviceFlatIndex);
 
     return value;
+}
+
+__global__ void matmulKernel(const ValueType *A, const ValueType *B, ValueType *R, size_t M, size_t K) {
+    size_t row = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row < M) {
+        ValueType sum = 0;
+        for (size_t j = 0; j < K; ++j) {
+            sum += A[row * K + j] * B[j];
+        }
+        R[row] = sum;
+    }
+}
+
+__global__ void outerKernel(const ValueType *a, const ValueType *b, ValueType *result, size_t m, size_t n) {
+    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t total = m * n;
+    if (idx < total) {
+        size_t i = idx / n;
+        size_t j = idx % n;
+        result[i * n + j] = a[i] * b[j];
+    }
+}
+
+__global__ void matmulTKernel(const ValueType *W, const ValueType *V, ValueType *R, size_t M, size_t N) {
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    if (col < N) {
+        ValueType sum = 0;
+        for (size_t i = 0; i < M; ++i) {
+            // W is M x N, access element at (i, col)
+            sum += W[i * N + col] * V[i];
+        }
+        R[col] = sum;
+    }
+}
+
+// Wrapper functions to launch kernels
+
+void matmul(const ValueType *A, const ValueType *B, ValueType *R, size_t M, size_t K) {
+    const int blockSize = 256;
+    int gridSize = (M + blockSize - 1) / blockSize;
+    matmulKernel<<<gridSize, blockSize>>>(A, B, R, M, K);
+    cudaDeviceSynchronize();
+}
+
+void outer(const ValueType *a, const ValueType *b, ValueType *result, size_t m, size_t n) {
+    const int blockSize = 256;
+    int gridSize = (m * n + blockSize - 1) / blockSize;
+    outerKernel<<<gridSize, blockSize>>>(a, b, result, m, n);
+    cudaDeviceSynchronize();
+}
+
+void matmulT(const ValueType *W, const ValueType *V, ValueType *R, size_t M, size_t N) {
+    const int blockSize = 256;
+    int gridSize = (N + blockSize - 1) / blockSize;
+    matmulTKernel<<<gridSize, blockSize>>>(W, V, R, M, N);
+    cudaDeviceSynchronize();
 }
 } // namespace tensor_gpu

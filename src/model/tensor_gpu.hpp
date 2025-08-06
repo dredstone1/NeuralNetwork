@@ -30,8 +30,26 @@ void zero(ValueType *deviceData, std::size_t count);
 /// Element-wise addition: C = A + B
 void add(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
 
+/// Element-wise addition: C = A - B
+void subtraction(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
+
+/// Element-wise addition: C = A / B
+void division(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
+
 /// Element-wise multiply: C = A * B
 void multiply(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
+
+/// Element-wise addition: C = A + B
+void add(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
+
+/// Element-wise addition: C = A - B
+void subtraction(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
+
+/// Element-wise addition: C = A / B
+void division(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
+
+/// Element-wise multiply: C = A * B
+void multiply(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
 
 /// Dot product between two vectors (A · B)
 float dot(const ValueType *A, const ValueType *B, std::size_t count);
@@ -54,17 +72,25 @@ void tanh_derivative(const ValueType *input, ValueType *output, std::size_t coun
 void leaky_relu(const ValueType *input, ValueType *output, std::size_t count, ValueType alpha = 0.01f);
 void leaky_relu_derivative(const ValueType *input, ValueType *output, std::size_t count, ValueType alpha = 0.01f);
 
+// ---------------- Softmax ----------------
 void softmax(const ValueType *net, ValueType *out, std::size_t size);
 
-template <typename T>
-ValueType getValueAt(const T *devicePtr, std::size_t index);
+ValueType getValueAt(const ValueType *devicePtr, std::size_t index);
 
-template <typename T>
-void setValueAt(T *devicePtr, std::size_t index, T value);
+void setValueAt(ValueType *devicePtr, std::size_t index, ValueType value);
 
 size_t flattenIndexGpu(const size_t *indices, const size_t *d_shape, const size_t *d_strides, size_t ndim);
 
-ValueType getValueAtIndices(const size_t *indices);
+ValueType getValueAtIndices(
+    const ValueType *deviceData,
+    const size_t *hostIndices,
+    const size_t *deviceShape,
+    const size_t *deviceStrides,
+    size_t rank);
+
+void matmul(const ValueType *A, const ValueType *B, ValueType *R, size_t M, size_t K);
+void outer(const ValueType *a, const ValueType *b, ValueType *result, size_t m, size_t n);
+void matmulT(const ValueType *W, const ValueType *V, ValueType *R, size_t M, size_t N);
 } // namespace nn::global::tensor_gpu
 
 #endif // TENSOR_GPU

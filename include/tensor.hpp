@@ -28,7 +28,7 @@ class Tensor {
 	size_t *gpu_strides = nullptr;
 	size_t gpu_shape_size{0};
 
-	static const bool isGpu{false};
+	static const bool isGpu{true};
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
