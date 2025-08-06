@@ -1,7 +1,9 @@
 #include "tensor_gpu.hpp"
+#include <algorithm>
 #include <numeric>
 #include <stdexcept>
 #include <tensor.hpp>
+#include <vector>
 
 namespace nn::global {
 Tensor::Tensor(const std::vector<size_t> &shape, float init) {
@@ -29,13 +31,19 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init) {
 }
 
 ValueType &Tensor::operator[](size_t i) {
+	static ValueType value;
 	if (isGpu) {
+		value = tensor_gpu::getValueAt<ValueType>(gpu_data, i);
+		return value;
 	}
 	return cpu_data[i];
 }
 
 const ValueType &Tensor::operator[](size_t i) const {
+	static ValueType value;
 	if (isGpu) {
+		value = tensor_gpu::getValueAt<ValueType>(gpu_data, i);
+		return value;
 	}
 	return cpu_data[i];
 }
@@ -47,10 +55,15 @@ size_t Tensor::numElements() const {
 	return cpu_data.size();
 }
 
-const std::vector<ValueType> &Tensor::getData() const {
+void Tensor::getData(std::vector<ValueType> &dest) const {
 	if (!isGpu) {
-		return cpu_data;
+		dest = cpu_data;
 	}
+
+	ValueType *newV = nullptr;
+	tensor_gpu::copyToHost(newV, gpu_data, gpu_data_size * sizeof(ValueType));
+
+	std::copy(newV, newV + gpu_data_size, dest.begin());
 }
 
 void Tensor::fill(const ValueType &value) {
@@ -95,6 +108,7 @@ void Tensor::computeStrides() {
 
 inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 	if (!isGpu) {
+		// CPU version, same as before
 		if (indices.size() != cpu_shape.size()) {
 			throw std::invalid_argument("Incorrect number of indices.");
 		}
@@ -105,6 +119,11 @@ inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 			index += indices[i] * cpu_strides[i];
 		}
 		return index;
+	} else {
+		if (indices.size() != gpu_shape_size) {
+			throw std::invalid_argument("Incorrect number of indices.");
+		}
+		return tensor_gpu::flattenIndexGpu(indices.data(), gpu_shape, gpu_strides, gpu_shape_size);
 	}
 }
 

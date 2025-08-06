@@ -1,9 +1,9 @@
 #ifndef TENSOR
 #define TENSOR
 
+#include "../src/model/tensor_gpu.hpp"
 #include <cstddef>
 #include <vector>
-#include "../src/model/tensor_gpu.hpp"
 
 namespace nn::model {
 class Activation;
@@ -23,7 +23,7 @@ class Tensor {
 	std::vector<size_t> cpu_strides;
 
 	ValueType *gpu_data = nullptr;
-    std::size_t gpu_data_size{0};
+	std::size_t gpu_data_size{0};
 	size_t *gpu_shape = nullptr;
 	size_t *gpu_strides = nullptr;
 	size_t gpu_shape_size{0};
@@ -32,6 +32,8 @@ class Tensor {
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
+
+	void loadTempGpu() const;
 
 	friend model::Activation;
 
@@ -59,7 +61,7 @@ class Tensor {
 
 	// Shape and size
 	size_t numElements() const;
-	const std::vector<ValueType> &getData() const;
+	void getData(std::vector<ValueType> &dest) const;
 	void fill(const ValueType &value);
 
 	// Arithmetic operations

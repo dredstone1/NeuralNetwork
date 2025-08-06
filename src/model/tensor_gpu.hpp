@@ -54,6 +54,16 @@ void tanh_derivative(const ValueType *input, ValueType *output, std::size_t coun
 void leaky_relu(const ValueType *input, ValueType *output, std::size_t count, ValueType alpha = 0.01f);
 void leaky_relu_derivative(const ValueType *input, ValueType *output, std::size_t count, ValueType alpha = 0.01f);
 
+void softmax(const ValueType *net, ValueType *out, std::size_t size);
+
+template <typename T>
+ValueType getValueAt(const T *devicePtr, std::size_t index);
+
+template <typename T>
+void setValueAt(T *devicePtr, std::size_t index, T value);
+
+size_t flattenIndexGpu(const size_t *indices, const size_t *d_shape, const size_t *d_strides, size_t ndim);
+
 } // namespace nn::global::tensor_gpu
 
 #endif // TENSOR_GPU

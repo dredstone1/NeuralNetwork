@@ -28,7 +28,7 @@ void copyToDevice(void* deviceDst, const void * hostSrc, std::size_t size) {
 
 
 void copyDeviceToDevice(void *deviceDst, const void *deviceSrc, std::size_t count) {
-    cudaMemcpy(deviceDst, deviceDst, count, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(deviceDst, deviceSrc, count, cudaMemcpyDeviceToDevice);
 }
 
 // Copy data from GPU to CPU.
@@ -282,5 +282,100 @@ void leaky_relu_derivative(const ValueType* input, ValueType* output, std::size_
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     leakyReluDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count, alpha);
     cudaDeviceSynchronize();
+}
+
+__global__ void softmaxKernel(const ValueType* input, ValueType* output, std::size_t count) {
+    extern __shared__ ValueType shared[];
+
+    std::size_t tid = threadIdx.x;
+    std::size_t idx = blockIdx.x * blockDim.x + tid;
+
+    if (idx >= count) return;
+
+    // Load input into shared memory
+    shared[tid] = input[idx];
+    __syncthreads();
+
+    // Step 1: Find max value for numerical stability
+    ValueType max_val = shared[0];
+    for (std::size_t i = 1; i < blockDim.x && blockIdx.x * blockDim.x + i < count; ++i) {
+        max_val = fmaxf(max_val, shared[i]);
+    }
+    __syncthreads();
+
+    // Step 2: Compute exp(x - max)
+    ValueType e = expf(shared[tid] - max_val);
+    shared[tid] = e;
+    __syncthreads();
+
+    // Step 3: Sum of exponentials
+    ValueType sum = 0.0f;
+    for (std::size_t i = 0; i < blockDim.x && blockIdx.x * blockDim.x + i < count; ++i) {
+        sum += shared[i];
+    }
+    __syncthreads();
+
+    // Step 4: Normalize
+    output[idx] = shared[tid] / sum;
+}
+
+void softmax(const ValueType* input, ValueType* output, std::size_t count) {
+    std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+    std::size_t sharedMemSize = blockSize * sizeof(ValueType);
+
+    softmaxKernel<<<numBlocks, blockSize, sharedMemSize>>>(input, output, count);
+    cudaDeviceSynchronize();
+}
+
+template <typename T>
+void setValueAt(T* devicePtr, std::size_t index, T value) {
+    cudaMemcpy(devicePtr + index, &value, sizeof(T), cudaMemcpyHostToDevice);
+}
+
+template <typename T>
+ValueType getValueAt(const T* devicePtr , std::size_t index) {
+    T value;
+    cudaMemcpy(&value, devicePtr + index, sizeof(T), cudaMemcpyDeviceToHost);
+    return value;
+}
+
+// Compute flattened index on device
+__global__ void flattenIndexKernel(const size_t* indices, const size_t* shape, const size_t* strides, size_t ndim, size_t* outIndex) {
+    size_t idx = 0;
+    for (size_t i = 0; i < ndim; ++i) {
+        if (indices[i] >= shape[i]) {
+            *outIndex = size_t(-1); // invalid index
+            return;
+        }
+        idx += indices[i] * strides[i];
+    }
+    *outIndex = idx;
+}
+
+size_t flattenIndexGpu(const size_t* indices,const size_t* d_shape,const size_t* d_strides,size_t ndim) {
+    // Copy indices vector to device memory
+    size_t* d_indices = nullptr;
+    cudaMalloc(&d_indices, ndim * sizeof(size_t));
+    cudaMemcpy(d_indices, indices, ndim * sizeof(size_t), cudaMemcpyHostToDevice);
+
+    size_t* d_outIndex = nullptr;
+    cudaMalloc(&d_outIndex, sizeof(size_t));
+
+    // Launch kernel with a single thread since this is a scalar computation
+    flattenIndexKernel<<<1, 1>>>(d_indices, d_shape, d_strides, ndim, d_outIndex);
+    cudaDeviceSynchronize();
+
+    size_t hostIndex;
+    cudaMemcpy(&hostIndex, d_outIndex, sizeof(size_t), cudaMemcpyDeviceToHost);
+
+    cudaFree(d_indices);
+    cudaFree(d_outIndex);
+
+    if (hostIndex == size_t(-1)) {
+        throw std::out_of_range("Index out of bounds.");
+    }
+
+    return hostIndex;
 }
 } // namespace tensor_gpu
