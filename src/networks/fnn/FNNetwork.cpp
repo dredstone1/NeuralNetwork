@@ -139,13 +139,7 @@ void FNNetwork::updateWeights(IOptimizer &optimizer) {
 }
 
 void FNNetwork::calculateInputDelta(const global::Tensor &deltas) {
-	input.fill(0);
-
-	for (size_t i = 0; i < inputSize(); ++i) {
-		for (size_t j = 0; j < layers[0]->size(); ++j) {
-			input[i] += deltas[j] * layers[0]->getParms().weights({j, i});
-		}
-	}
+	input = deltas.matmulT(layers[0]->getParms().weights);
 }
 
 size_t FNNetwork::getParamCount() const {
@@ -167,7 +161,7 @@ global::Tensor FNNetwork::getParams() const {
 		global::Tensor params = layers[i]->getData();
 
 		for (size_t j = 0; j < params.numElements(); ++j) {
-			matrix[matrixI] = params[j];
+			matrix.setValue({matrixI}, params.getValue({j}));
 			++matrixI;
 		}
 	}
@@ -181,7 +175,7 @@ void FNNetwork::setParams(const global::Tensor params) {
 		global::Tensor newParam({layers[i]->getParamCount()});
 
 		for (size_t k = 0; k < newParam.numElements(); ++k) {
-			newParam[k] = params[j];
+			newParam.setValue({k}, params.getValue({j}));
 			++j;
 		}
 

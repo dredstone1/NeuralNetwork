@@ -4,8 +4,6 @@
 #include "fonts.hpp"
 #include "network/IvisualNetwork.hpp"
 #include "panel.hpp"
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <cstdint>
 #include <memory>
 
@@ -77,14 +75,14 @@ sf::Color DummyLayer::getNeuronColor(const global::ValueType value) {
 
 void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 	sf::RectangleShape shape(cacheNeurons[index].size);
-	shape.setFillColor(getNeuronColor(values({index})));
+	shape.setFillColor(getNeuronColor(values.getValue({index})));
 	shape.setPosition(cacheNeurons[index].position + pos);
 
 	target.draw(shape);
 
 	if (10 * cacheNeurons[index].size.y / global::NEURON_WIDTH > global::MIN_FONT_SIZE) {
 		std::ostringstream ss;
-		ss << std::fixed << std::setprecision(4) << values({index});
+		ss << std::fixed << std::setprecision(4) << values.getValue({index});
 
 		sf::Text text(Fonts::getFont());
 		text.setCharacterSize(10 * cacheNeurons[index].size.y / global::NEURON_WIDTH);
@@ -160,7 +158,7 @@ void ModelPanel::renderSubNetwork(const size_t index) {
 
 void ModelPanel::setPrediction(const global::Prediction &pre) {
 	global::Tensor output({predictionLayer.size()});
-	output({pre.index}) = 1;
+	output.setValue({pre.index}, 1);
 	predictionLayer.setValues(output);
 
 	setUpdate();

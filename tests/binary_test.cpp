@@ -129,9 +129,9 @@ int main(int argc, char *argv[]) {
 		}
 
 		for (size_t i = 4 + num2; i > num2; i--) {
-			input({i - 1}) = bit_by_index(num1, 4 - i + num2);
-			if (input({i - 1}) == 0) {
-				input({i - 1}) = 0.5;
+			input.setValue({i - 1}, bit_by_index(num1, 4 - i + num2));
+			if (input.getValue({i - 1}) == 0) {
+				input.setValue({i - 1}, 0.5);
 			}
 		}
 
