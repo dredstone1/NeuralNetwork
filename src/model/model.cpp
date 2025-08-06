@@ -135,8 +135,7 @@ void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 }
 
 void Model::runModel(const global::Tensor &input) {
-	// visual.updateInput(input);
-	printf("test1:\n");
+	visual.updateInput(input);
 	network[0]->forward(input);
 
 	for (size_t i = 1; i < network.size(); ++i) {
@@ -182,12 +181,7 @@ global::ValueType Model::runBackPropagation(
 		TrainSample *current_sample_ptr = batch.samples.at(i);
 		visual.updatePrediction(current_sample_ptr->pre);
 
-		printf("test1\n");
-		printf("test1: %zu\n", current_sample_ptr->input.numElements());
-		// runModel(transformation(current_sample_ptr->input));
-
-		printf("\n");
-		runModel(current_sample_ptr->input);
+		runModel(transformation(current_sample_ptr->input));
 
 		global::Tensor output({outputSize()});
 		output.setValue({current_sample_ptr->pre.index}, 1);

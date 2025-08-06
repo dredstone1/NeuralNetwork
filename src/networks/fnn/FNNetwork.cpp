@@ -52,7 +52,6 @@ void FNNetwork::sendNewVNeurons(const size_t i) const {
 
 void FNNetwork::forward(const global::Tensor &newInput) {
 	input = newInput;
-	printf("test1: %zu", input.numElements());
 	layers[0]->forward(input);
 	sendNewVNeurons(0);
 
@@ -139,7 +138,7 @@ void FNNetwork::updateWeights(IOptimizer &optimizer) {
 }
 
 void FNNetwork::calculateInputDelta(const global::Tensor &deltas) {
-	input = deltas.matmulT(layers[0]->getParms().weights);
+	input = layers[0]->getParms().weights.matmulT(deltas);
 }
 
 size_t FNNetwork::getParamCount() const {
