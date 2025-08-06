@@ -2,6 +2,7 @@
 #define TENSOR_GPU
 
 #include <cstddef>
+
 namespace nn::global {
 using ValueType = float;
 }

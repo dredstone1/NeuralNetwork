@@ -52,7 +52,7 @@ void FNNetwork::sendNewVNeurons(const size_t i) const {
 
 void FNNetwork::forward(const global::Tensor &newInput) {
 	input = newInput;
-	layers[0]->forward(input);
+	layers[0]->forward(newInput);
 	sendNewVNeurons(0);
 
 	for (size_t i = 1; i < layers.size(); ++i) {

@@ -1,9 +1,9 @@
 {
 	"visual config": {
-		"enableVisuals": false,
+		"enableVisuals": true,
 		"modes": [
 			{ "state": "pause", "mode": true },
-			{ "state": "precise mode", "mode": false },
+			{ "state": "precise mode", "mode": true },
 			{ "state": "auto pause", "mode": false }
 		]
 	},

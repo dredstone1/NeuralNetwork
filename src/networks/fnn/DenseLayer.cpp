@@ -33,6 +33,7 @@ void Hidden_Layer::CreateDropoutMask() {
 }
 
 void Output_Layer::forward(const global::Tensor &metrix) {
+
 	net = parameters.weights.matmul(metrix);
 	net += parameters.biases;
 

@@ -2,7 +2,6 @@
 #define TENSOR
 
 #include "../src/model/tensor_gpu.hpp"
-#include <cstddef>
 #include <vector>
 
 namespace nn::model {
@@ -14,14 +13,11 @@ namespace nn::global {
 class Tensor {
   private:
 	std::vector<ValueType> cpu_data;
-	std::vector<size_t> cpu_shape;
-	std::vector<size_t> cpu_strides;
+	std::vector<size_t> shape;
+	std::vector<size_t> strides;
 
 	ValueType *gpu_data = nullptr;
 	std::size_t gpu_data_size{0};
-	size_t *gpu_shape = nullptr;
-	size_t *gpu_strides = nullptr;
-	size_t gpu_shape_size{0};
 
 	static const bool isGpu{true};
 
