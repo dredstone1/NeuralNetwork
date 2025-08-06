@@ -378,4 +378,52 @@ size_t flattenIndexGpu(const size_t* indices,const size_t* d_shape,const size_t*
 
     return hostIndex;
 }
+
+__global__ void computeFlatIndexKernel(
+    const size_t* indices, const size_t* shape, const size_t* strides,
+    size_t rank, size_t* outIndex
+) {
+    size_t flatIndex = 0;
+    for (size_t i = 0; i < rank; ++i) {
+        flatIndex += indices[i] * strides[i];
+    }
+    *outIndex = flatIndex;
+}
+
+ValueType getValueAtIndicesGpu(
+    const ValueType* deviceData,
+    const size_t* hostIndices,
+    const size_t* deviceShape,
+    const size_t* deviceStrides,
+    size_t rank
+) {
+    // Copy host indices to device
+    size_t* deviceIndices;
+    cudaMalloc(&deviceIndices, sizeof(size_t) * rank);
+    cudaMemcpy(deviceIndices, hostIndices, sizeof(size_t) * rank, cudaMemcpyHostToDevice);
+
+    // Allocate output for index
+    size_t* deviceFlatIndex;
+    cudaMalloc(&deviceFlatIndex, sizeof(size_t));
+
+    // Launch kernel to compute flat index
+    computeFlatIndexKernel<<<1, 1>>>(
+        deviceIndices, deviceShape, deviceStrides, rank, deviceFlatIndex
+    );
+    cudaDeviceSynchronize();
+
+    // Copy back flat index
+    size_t flatIndex;
+    cudaMemcpy(&flatIndex, deviceFlatIndex, sizeof(size_t), cudaMemcpyDeviceToHost);
+
+    // Get value at that index
+    ValueType value;
+    cudaMemcpy(&value, deviceData + flatIndex, sizeof(ValueType), cudaMemcpyDeviceToHost);
+
+    // Cleanup
+    cudaFree(deviceIndices);
+    cudaFree(deviceFlatIndex);
+
+    return value;
+}
 } // namespace tensor_gpu

@@ -128,63 +128,23 @@ inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 }
 
 ValueType &Tensor::operator()(const std::vector<size_t> &indices) {
+	static ValueType value;
 	if (!isGpu) {
 		return cpu_data[flattenIndex(indices)];
 	}
+
+	value = tensor_gpu::getValueAtIndices(indices.data());
+	return value;
 }
 
 ValueType Tensor::operator()(const std::vector<size_t> &indices) const {
+	static ValueType value;
 	if (!isGpu) {
 		return cpu_data[flattenIndex(indices)];
 	}
-}
 
-Tensor Tensor::operator+(const Tensor &other) const {
-	if (!isGpu) {
-		if (cpu_shape != other.cpu_shape) {
-			throw std::invalid_argument("Shape mismatch in Tensor::operator+.");
-		}
-		Tensor result(cpu_shape);
-		const float *a = cpu_data.data();
-		const float *b = other.cpu_data.data();
-		float *r = result.cpu_data.data();
-		const size_t N = cpu_data.size();
-		for (size_t i = 0; i < N; ++i)
-			r[i] = a[i] + b[i];
-		return result;
-	}
-}
-
-Tensor Tensor::operator-(const Tensor &other) const {
-	if (!isGpu) {
-		if (cpu_shape != other.cpu_shape) {
-			throw std::invalid_argument("Shape mismatch in Tensor::operator-.");
-		}
-		Tensor result(cpu_shape);
-		const float *a = cpu_data.data();
-		const float *b = other.cpu_data.data();
-		float *r = result.cpu_data.data();
-		const size_t N = cpu_data.size();
-		for (size_t i = 0; i < N; ++i)
-			r[i] = a[i] - b[i];
-		return result;
-	}
-}
-
-Tensor Tensor::operator/(const Tensor &other) const {
-	if (!isGpu) {
-		if (cpu_shape != other.cpu_shape) {
-			throw std::invalid_argument("Shape mismatch in Tensor::operator/.");
-		}
-		Tensor result(cpu_shape);
-		const float *a = cpu_data.data();
-		const float *b = other.cpu_data.data();
-		float *r = result.cpu_data.data();
-		const size_t N = cpu_data.size();
-		for (size_t i = 0; i < N; ++i)
-			r[i] = a[i] / b[i];
-		return result;
-	}
+	value = tensor_gpu::getValueAtIndices(indices.data());
+	return value;
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {

@@ -64,6 +64,7 @@ void setValueAt(T *devicePtr, std::size_t index, T value);
 
 size_t flattenIndexGpu(const size_t *indices, const size_t *d_shape, const size_t *d_strides, size_t ndim);
 
+ValueType getValueAtIndices(const size_t *indices);
 } // namespace nn::global::tensor_gpu
 
 #endif // TENSOR_GPU
