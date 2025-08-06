@@ -24,7 +24,7 @@ Tensor::Tensor(const std::vector<size_t> &shape, float init) {
 		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
 
 		gpu_shape = (size_t *)tensor_gpu::allocate(shape.size() * sizeof(size_t));
-		tensor_gpu::copyToDevice(gpu_shape, shape.data(), gpu_data_size * sizeof(size_t));
+		tensor_gpu::copyToDevice(gpu_shape, shape.data(), shape.size() * sizeof(size_t));
 
 		gpu_data_size = totalSize;
 		gpu_shape_size = shape.size();
@@ -99,7 +99,7 @@ Tensor &Tensor::operator=(const Tensor &other) {
 void Tensor::computeStrides() {
 	if (isGpu) {
 		gpu_strides = (size_t *)tensor_gpu::allocate(gpu_shape_size * sizeof(size_t));
-		tensor_gpu::computeStridesDevice(gpu_shape, gpu_strides, gpu_shape_size * sizeof(size_t));
+		tensor_gpu::computeStridesDevice(gpu_shape, gpu_strides, gpu_shape_size);
 	} else {
 		const size_t dim = cpu_shape.size();
 		cpu_strides.resize(dim);
@@ -132,18 +132,20 @@ inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 	}
 }
 
-ValueType Tensor::getValue(const std::vector<size_t> newShape) const {
-	if (isGpu) {
-		return tensor_gpu::getValueAtIndices(gpu_data, newShape.data(), gpu_shape, gpu_strides, gpu_shape_size);
+ValueType Tensor::getValue(const std::vector<size_t> &indices) const {
+	if (!isGpu) {
+		return cpu_data[flattenIndex(indices)];
 	}
-	return cpu_data[flattenIndex(newShape)];
+
+	return tensor_gpu::getValueAt(gpu_data, flattenIndex(indices));
 }
 
-void Tensor::setValue(const std::vector<size_t> newShape, const ValueType value) {
-	if (isGpu) {
-		tensor_gpu::setValueAtIndices(gpu_data, newShape.data(), gpu_shape, gpu_strides, gpu_shape_size, value);
+void Tensor::setValue(const std::vector<size_t> &indices, const ValueType value) {
+	if (!isGpu) {
+		cpu_data[flattenIndex(indices)] = value;
+	} else {
+		tensor_gpu::setValueAt(gpu_data, flattenIndex(indices), value);
 	}
-	cpu_data[flattenIndex(newShape)] = value;
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {

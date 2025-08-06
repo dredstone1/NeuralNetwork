@@ -84,14 +84,12 @@ size_t flattenIndexGpu(const size_t *indices, const size_t *d_shape, const size_
 ValueType getValueAtIndices(
     const ValueType *deviceData,
     const size_t *hostIndices,
-    const size_t *deviceShape,
     const size_t *deviceStrides,
     size_t size);
 
 void setValueAtIndices(
     ValueType *deviceData,
     const size_t *hostIndices,
-    const size_t *deviceShape,
     const size_t *deviceStrides,
     size_t ndim,
     ValueType value);

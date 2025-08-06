@@ -41,8 +41,8 @@ class Tensor {
 
 	Tensor &operator=(const Tensor &other);
 
-	ValueType getValue(const std::vector<size_t> newShape) const;
-	void setValue(const std::vector<size_t> newShape, const ValueType value);
+	ValueType getValue(const std::vector<size_t> &newShape) const;
+	void setValue(const std::vector<size_t> &newShape, const ValueType value);
 
 	// Iterators (for range-based loops)
 	auto begin() noexcept { return cpu_data.begin(); }
