@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
+set(CMAKE_CUDA_ARCHITECTURES 86)  # For RTX 3060
 project(NeuralNetwork LANGUAGES CXX CUDA)  # Add CUDA here
 
 # ------------------------------------------------------------------
@@ -9,6 +10,8 @@ set(CMAKE_CUDA_STANDARD 17)                    # Add CUDA standard
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)           # Enforce it
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+enable_language(CUDA)
 
 # Default to Debug build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -63,7 +66,6 @@ set_target_properties(NeuralNetwork PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Enable separable compilation for CUDA files
 set_target_properties(NeuralNetwork PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
-    CUDA_RESOLVE_DEVICE_SYMBOLS ON
 )
 
 target_include_directories(NeuralNetwork
@@ -83,7 +85,6 @@ target_link_libraries(NeuralNetwork
         SFML::System
         nlohmann_json::nlohmann_json
         cuda
-        cudart
 )
 
 target_compile_options(NeuralNetwork PRIVATE -Wall -Wextra -Wpedantic)
@@ -121,4 +122,4 @@ endif()
 # Install
 install(TARGETS NeuralNetwork ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
-
+ 

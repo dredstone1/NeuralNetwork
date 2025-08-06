@@ -11,7 +11,7 @@ class Tensor; // Forward declaration
 namespace nn::global::tensor_gpu {
 
 /// Allocate memory on GPU for a tensor.
-void *allocate(std::size_t count);
+void *allocate(std::size_t size);
 
 /// Free GPU memory.
 void deallocate(ValueType *devicePtr);
