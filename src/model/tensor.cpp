@@ -60,7 +60,14 @@ void Tensor::getData(std::vector<ValueType> &dest) const {
 }
 
 void Tensor::fill(const ValueType &value) {
-	std::fill(begin(), end(), value);
+	if (isGpu) {
+		tensor_gpu::zero(gpu_data, gpu_data_size);
+		tensor_gpu::add(gpu_data, value, gpu_data, gpu_data_size);
+	} else {
+		for (auto &n : cpu_data) {
+			n = value;
+		}
+	}
 }
 
 Tensor &Tensor::operator=(const Tensor &other) {
@@ -72,7 +79,7 @@ Tensor &Tensor::operator=(const Tensor &other) {
 	if (!isGpu) {
 		cpu_data = other.cpu_data;
 	} else {
-        tensor_gpu::deallocate(gpu_data);
+		tensor_gpu::deallocate(gpu_data);
 		gpu_data = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
 		gpu_data_size = other.gpu_data_size;
 		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));

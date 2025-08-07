@@ -66,8 +66,8 @@ void print_database(int actual_size, int input_size, int database_size) {
 }
 
 void printVector(const nn::global::Tensor &vec) {
-	for (const auto &elem : vec) {
-		std::cout << elem << ' ';
+	for (size_t i =0; i < vec.numElements(); ++i) {
+		std::cout << vec.getValue({i}) << ' ';
 	}
 
 	std::cout << '\n';

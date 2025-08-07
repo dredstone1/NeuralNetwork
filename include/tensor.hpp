@@ -40,12 +40,6 @@ class Tensor {
 	ValueType getValue(const std::vector<size_t> &newShape) const;
 	void setValue(const std::vector<size_t> &newShape, const ValueType value);
 
-	// Iterators (for range-based loops)
-	auto begin() noexcept { return cpu_data.begin(); }
-	auto end() noexcept { return cpu_data.end(); }
-	auto begin() const noexcept { return cpu_data.begin(); }
-	auto end() const noexcept { return cpu_data.end(); }
-
 	// Shape and size
 	size_t numElements() const;
 	void getData(std::vector<ValueType> &dest) const;

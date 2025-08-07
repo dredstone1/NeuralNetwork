@@ -350,9 +350,15 @@ modelResult Model::evaluateModel(
 
 		runModel(transformation(sample.input));
 
-		size_t predicted_index = std::distance(
-		    getOutput().begin(),
-		    std::max_element(getOutput().begin(), getOutput().end()));
+		size_t predicted_index = 0;
+		float max_value = getOutput().getValue({0});
+
+		for (size_t j = 1; j < getOutput().numElements(); ++j) {
+			if (getOutput().getValue({j}) > max_value) {
+				max_value = getOutput().getValue({j});
+				predicted_index = j;
+			}
+		}
 
 		if (showProgressbar) {
 			bar++;

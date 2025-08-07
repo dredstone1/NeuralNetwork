@@ -149,7 +149,7 @@ void DenseLayer::setData(const global::Tensor newParam) {
 	size_t currentI = 0;
 	for (size_t i = 0; i < size(); ++i) {
 		for (size_t j = 0; j < prevSize(); ++j) {
-			parameters.weights.setValue({i, j},  newParam.getValue({currentI}));
+			parameters.weights.setValue({i, j}, newParam.getValue({currentI}));
 
 			++currentI;
 		}
@@ -168,8 +168,10 @@ void DenseLayer::fillParamRandom() {
 	global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prevSize()));
 	std::normal_distribution<> dist(0.0, std_dev);
 
-	for (auto &value : parameters.weights) {
-		value = dist(gen);
+	for (size_t i = 0; i < parameters.size(); ++i) {
+		for (size_t j = 0; j < parameters.prevSize(); ++j) {
+			parameters.weights.setValue({i, j}, dist(gen));
+		}
 	}
 }
 

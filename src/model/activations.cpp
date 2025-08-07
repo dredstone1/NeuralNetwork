@@ -48,9 +48,9 @@ global::ValueType Activation::maxVector(const global::Tensor &metrix) {
 	if (metrix.isGpu) {
 	}
 	global::ValueType max = metrix.cpu_data[0];
-	for (auto &value : metrix) {
-		if (value > max) {
-			max = value;
+	for (size_t i = 0; i < metrix.numElements(); ++i) {
+		if (metrix.getValue({i}) > max) {
+			max = metrix.getValue({i});
 		}
 	}
 
