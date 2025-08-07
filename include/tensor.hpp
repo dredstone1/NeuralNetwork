@@ -45,12 +45,6 @@ class Tensor {
 	void getData(std::vector<ValueType> &dest) const;
 	void fill(const ValueType &value);
 
-	// Arithmetic operations
-	Tensor operator*(ValueType scalar) const;
-	Tensor operator+(ValueType scalar) const;
-	Tensor operator/(ValueType scalar) const;
-	Tensor operator-(ValueType scalar) const;
-
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);
 	Tensor &operator*=(const Tensor &other);
