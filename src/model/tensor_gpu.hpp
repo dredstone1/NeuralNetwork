@@ -52,9 +52,6 @@ void division(const ValueType *A, const ValueType B, ValueType *C, std::size_t c
 /// Element-wise multiply: C = A * B
 void multiply(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
 
-/// Dot product between two vectors (A · B)
-float dot(const ValueType *A, const ValueType *B, std::size_t count);
-
 void computeStridesDevice(const size_t *gpu_shape, size_t *gpu_strides, std::size_t ndim);
 
 // ---------------- ReLU ----------------

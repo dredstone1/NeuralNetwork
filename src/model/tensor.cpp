@@ -22,7 +22,6 @@ Tensor::Tensor(const std::vector<size_t> &shape_, float init) {
 		cpu_data.assign(totalSize, init);
 	} else {
 		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
-
 		gpu_data_size = totalSize;
 	}
 
