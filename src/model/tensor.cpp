@@ -72,6 +72,7 @@ Tensor &Tensor::operator=(const Tensor &other) {
 	if (!isGpu) {
 		cpu_data = other.cpu_data;
 	} else {
+        tensor_gpu::deallocate(gpu_data);
 		gpu_data = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
 		gpu_data_size = other.gpu_data_size;
 		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));

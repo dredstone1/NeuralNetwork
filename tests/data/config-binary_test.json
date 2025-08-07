@@ -1,14 +1,14 @@
 {
 	"visual config": {
-		"enableVisuals": true,
+		"enableVisuals": false,
 		"modes": [
 			{ "state": "pause", "mode": true },
-			{ "state": "precise mode", "mode": true },
+			{ "state": "precise mode", "mode": false },
 			{ "state": "auto pause", "mode": false }
 		]
 	},
 	"training config": {
-		"batch size": 16,
+		"batch size": 32,
 		"batch count": 1000,
 		"auto save": {
 			"saveEvery": 2000,
@@ -30,7 +30,7 @@
 			"output size": 16,
 			"output activation": 4,
 			"layers": [
-				{ "size": 30, "activationType": 1 },
+				{ "size": 100, "activationType": 1 },
 				{ "size": 30, "activationType": 1 }
 			]
 		}
