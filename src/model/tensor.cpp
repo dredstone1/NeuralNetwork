@@ -3,7 +3,6 @@
 #include <numeric>
 #include <stdexcept>
 #include <tensor.hpp>
-#include <vector>
 
 namespace nn::global {
 Tensor::Tensor(const std::vector<size_t> &shape_, float init) {
@@ -23,6 +22,7 @@ Tensor::Tensor(const std::vector<size_t> &shape_, float init) {
 	} else {
 		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
 		gpu_data_size = totalSize;
+        fill(init);
 	}
 
 	computeStrides();
