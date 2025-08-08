@@ -157,7 +157,9 @@ void ModelPanel::renderSubNetwork(const size_t index) {
 }
 
 void ModelPanel::setPrediction(const global::Prediction &pre) {
-	global::Tensor output({predictionLayer.size()});
+	static global::Tensor output({predictionLayer.size()});
+	output.zero();
+
 	output.setValue({pre.index}, 1);
 	predictionLayer.setValues(output);
 

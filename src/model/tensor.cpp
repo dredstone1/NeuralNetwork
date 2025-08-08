@@ -145,6 +145,18 @@ ValueType Tensor::getValue(const std::vector<size_t> &indices) const {
 	return tensor_gpu::getValueAt(gpu_data, flattenIndex(indices));
 }
 
+void Tensor::insertRange(const Tensor &other,
+                         const size_t startO, const size_t startT,
+                         const size_t length) {
+	if (isGpu) {
+		tensor_gpu::copyDeviceToDevice(gpu_data + startT, other.gpu_data + startO, length * sizeof(ValueType));
+	} else {
+		for (size_t i = 0; i < length; ++i) {
+			cpu_data[i + startT] = other.cpu_data[i + startO];
+		}
+	}
+}
+
 void Tensor::setValue(const std::vector<size_t> &indices, const ValueType value) {
 	if (!isGpu) {
 		cpu_data[flattenIndex(indices)] = value;

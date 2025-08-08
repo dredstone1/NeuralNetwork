@@ -1,9 +1,8 @@
 #ifndef DENSELAYER
 #define DENSELAYER
 
-#include "../../model/config.hpp"
 #include "../src/model/optimizers.hpp"
-#include "tensor.hpp"
+#include <Globals.hpp>
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
@@ -14,7 +13,6 @@ struct LayerParams {
 
 	size_t size_;
 	size_t prevSize_;
-
 
 	LayerParams(size_t out_dim, size_t in_dim)
 	    : weights({out_dim, in_dim}), biases({out_dim}),
@@ -34,10 +32,11 @@ class DenseLayer {
 	LayerParams parameters;
 	LayerParams gradients;
 
+	global::Tensor deltaL;
+
 	Activation activationFunction;
 
 	bool isTraining{false};
-	global::Tensor deltaL;
 
 	void fillParamRandom();
 
@@ -72,7 +71,7 @@ class DenseLayer {
 	size_t getParamCount() const;
 
 	const global::Tensor getData() const;
-	void setData(const global::Tensor newParam);
+	void setData(const global::Tensor newParam, const size_t offset);
 
 	void setTraining(const bool state) { isTraining = state; }
 };

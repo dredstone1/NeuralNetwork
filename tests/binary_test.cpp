@@ -66,7 +66,7 @@ void print_database(int actual_size, int input_size, int database_size) {
 }
 
 void printVector(const nn::global::Tensor &vec) {
-	for (size_t i =0; i < vec.numElements(); ++i) {
+	for (size_t i = 0; i < vec.numElements(); ++i) {
 		std::cout << vec.getValue({i}) << ' ';
 	}
 
@@ -77,20 +77,23 @@ int main(int argc, char *argv[]) {
 	size_t input_size = 10;
 
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
-    // nn::global::Tensor give_me_a_name({5, 3});
-    // printf("test: \n");
-    // give_me_a_name.setValue({2, 1}, 5);
-    // return 0;
+	// nn::global::Tensor give_me_a_name({5, 3});
+	// printf("test: \n");
+	// give_me_a_name.setValue({2, 1}, 5);
+	// return 0;
 
 	nn::model::Model model(config_FN);
 
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-        std::vector<std::string> files {"../tests/data/test1", "../tests/data/test2"};
+		model.load("test.txt");
+		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");
+		std::cout << "training result: " << result.percentage << "%\n";
+		std::vector<std::string> files{"../tests/data/test1", "../tests/data/test2"};
 		model.train(files);
 
-		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");
+		result = model.evaluateModel("../tests/data/database-binary_test");
 		std::cout << "training result: " << result.percentage << "%\n";
 
 		model.save("test.txt");

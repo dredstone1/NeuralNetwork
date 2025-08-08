@@ -1,4 +1,5 @@
 #include "DenseLayer.hpp"
+#include <cstddef>
 #include <random>
 #include <vector>
 
@@ -12,8 +13,8 @@ DenseLayer::DenseLayer(
       out({size}),
       parameters(size, prevSize),
       gradients(size, prevSize),
-      activationFunction(activation),
-      deltaL({size}) {
+      deltaL({size}),
+      activationFunction(activation) {
 	if (randomInit) {
 		fillParamRandom();
 	}
@@ -29,9 +30,12 @@ void Hidden_Layer::CreateDropoutMask() {
 	static thread_local std::mt19937 rng{std::random_device{}()};
 	std::bernoulli_distribution bernoulli(keepProb);
 
+	static std::vector<global::ValueType> temp(dropoutMask.numElements(), 0);
 	for (size_t i = 0; i < dropoutMask.numElements(); ++i) {
-		dropoutMask.setValue({i}, static_cast<uint8_t>(bernoulli(rng)));
+		temp[i] = static_cast<uint8_t>(bernoulli(rng));
 	}
+
+	dropoutMask = temp;
 }
 
 void Output_Layer::forward(const global::Tensor &metrix) {
@@ -125,41 +129,29 @@ void DenseLayer::updateWeight(nn::model::IOptimizer &optimizer) {
 }
 
 const global::Tensor DenseLayer::getData() const {
-	global::Tensor matrix({parameters.paramSize()});
+	size_t weightsSize = parameters.weights.numElements();
+	size_t biasesSize = parameters.biases.numElements();
 
-	size_t currentI = 0;
-	for (size_t i = 0; i < size(); ++i) {
-		for (size_t j = 0; j < prevSize(); ++j) {
-			matrix.setValue({currentI}, parameters.weights.getValue({i, j}));
+	global::Tensor matrix({weightsSize + biasesSize});
 
-			++currentI;
-		}
-	}
+	// Copy weights
+	matrix.insertRange(parameters.weights, 0, 0, weightsSize);
 
-	for (size_t i = 0; i < size(); ++i) {
-		matrix.setValue({currentI}, parameters.biases.getValue({i}));
-
-		++currentI;
-	}
+	// Copy biases
+	matrix.insertRange(parameters.biases, 0, weightsSize, biasesSize);
 
 	return matrix;
 }
 
-void DenseLayer::setData(const global::Tensor newParam) {
-	size_t currentI = 0;
-	for (size_t i = 0; i < size(); ++i) {
-		for (size_t j = 0; j < prevSize(); ++j) {
-			parameters.weights.setValue({i, j}, newParam.getValue({currentI}));
+void DenseLayer::setData(const global::Tensor newParam, const size_t offset) {
+	size_t weightsSize = parameters.weights.numElements();
+	size_t biasesSize = parameters.biases.numElements();
 
-			++currentI;
-		}
-	}
+	// Copy into weights
+	parameters.weights.insertRange(newParam, offset, 0, weightsSize);
 
-	for (size_t i = 0; i < size(); ++i) {
-		parameters.biases.setValue({i}, newParam.getValue({currentI}));
-
-		++currentI;
-	}
+	// Copy into biases
+	parameters.biases.insertRange(newParam, offset + weightsSize, 0, biasesSize);
 }
 
 void DenseLayer::fillParamRandom() {
@@ -168,11 +160,11 @@ void DenseLayer::fillParamRandom() {
 	global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prevSize()));
 	std::normal_distribution<> dist(0.0, std_dev);
 
-    std::vector<global::ValueType> temp(parameters.weights.numElements());
+	std::vector<global::ValueType> temp(parameters.weights.numElements());
 	for (size_t i = 0; i < temp.size(); ++i) {
-            temp[i] = dist(gen);
+		temp[i] = dist(gen);
 	}
-    parameters.weights = temp;
+	parameters.weights = temp;
 }
 
 void DenseLayer::resetDots() {

@@ -157,10 +157,8 @@ global::Tensor FNNetwork::getParams() const {
 	for (size_t i = 0; i < layers.size(); ++i) {
 		global::Tensor params = layers[i]->getData();
 
-		for (size_t j = 0; j < params.numElements(); ++j) {
-			matrix.setValue({matrixI}, params.getValue({j}));
-			++matrixI;
-		}
+		matrix.insertRange(params, 0, matrixI, params.numElements());
+		matrixI += params.numElements();
 	}
 
 	return matrix;
@@ -169,14 +167,8 @@ global::Tensor FNNetwork::getParams() const {
 void FNNetwork::setParams(const global::Tensor params) {
 	size_t j = 0;
 	for (size_t i = 0; i < layers.size(); ++i) {
-		global::Tensor newParam({layers[i]->getParamCount()});
-
-		for (size_t k = 0; k < newParam.numElements(); ++k) {
-			newParam.setValue({k}, params.getValue({j}));
-			++j;
-		}
-
-		layers[i]->setData(newParam);
+		layers[i]->setData(params, j);
+        j += layers[i]->getParamCount();
 
 		if (visual) {
 			visual->setParam(i, layers[i]->getParms());

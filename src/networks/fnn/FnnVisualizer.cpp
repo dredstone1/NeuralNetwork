@@ -254,7 +254,6 @@ void VisualDenseLayer::setGrad(const model::fnn::LayerParams &newGrad) {
 }
 
 void FnnVisualier::setWidth(const std::uint32_t newWidth) {
-
 	visualWidth = newWidth;
 	if (networkRender.resize({newWidth, networkRender.getSize().y})) {
 	}

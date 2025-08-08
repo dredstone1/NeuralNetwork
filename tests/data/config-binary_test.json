@@ -8,11 +8,11 @@
 		]
 	},
 	"training config": {
-		"batch size": 32,
+		"batch size": 16,
 		"batch count": 1000,
 		"optimizer": {
 			"type": "const",
-			"lr": 0.1
+			"lr": 0.5
 		}
 	},
 	"network config": [
@@ -23,7 +23,7 @@
 			"output activation": 4,
 			"layers": [
 				{ "size": 1000, "activationType": 1 },
-				{ "size": 3000, "activationType": 1 }
+				{ "size": 300, "activationType": 1 }
 			]
 		}
 	]
