@@ -26,7 +26,6 @@ void copyToDevice(void* deviceDst, const void * hostSrc, std::size_t size) {
     cudaMemcpy(deviceDst, hostSrc, size, cudaMemcpyHostToDevice);
 }
 
-
 void copyDeviceToDevice(void *deviceDst, const void *deviceSrc, std::size_t size) {
     cudaMemcpy(deviceDst, deviceSrc, size, cudaMemcpyDeviceToDevice);
 }
@@ -171,19 +170,6 @@ void multiply_scalar(const ValueType* A, const ValueType B, ValueType* C, std::s
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     multiplyKernel<<<numBlocks, blockSize>>>(A, B, C, count);
-}
-
-__global__ void computeStrides(const size_t *shape, size_t *strides, size_t ndim) {
-    size_t stride = 1;
-    for (int i = ndim - 1; i >= 0; --i) {
-        strides[i] = stride;
-        stride *= shape[i];
-    }
-}
-
-void computeStridesDevice(const size_t *gpu_shape, size_t *gpu_strides, std::size_t ndim) {
-    computeStrides<<<1, 1>>>(gpu_shape, gpu_strides, ndim);
-    cudaDeviceSynchronize();
 }
 
 // Kernel to apply ReLU activation: max(0, x)
@@ -381,31 +367,6 @@ __global__ void flattenIndexKernel(const size_t* indices, const size_t* shape,
     *outIndex = idx;
 }
 
-// Host function to launch kernel
-size_t flattenIndexGpu(const size_t* h_indices, const size_t* d_shape,
-                       const size_t* d_strides, size_t ndim) {
-    size_t *d_indices,  *d_outIndex;
-    cudaMalloc(&d_indices, ndim * sizeof(size_t));
-    cudaMalloc(&d_outIndex, sizeof(size_t));
-
-    cudaMemcpy(d_indices, h_indices, ndim * sizeof(size_t), cudaMemcpyHostToDevice);
-
-    flattenIndexKernel<<<1, 1>>>(d_indices, d_shape, d_strides, ndim, d_outIndex);
-    cudaDeviceSynchronize();
-
-    size_t result;
-    cudaMemcpy(&result, d_outIndex, sizeof(size_t), cudaMemcpyDeviceToHost);
-
-    cudaFree(d_indices);
-    cudaFree(d_outIndex);
-
-    if (result == size_t(-1)) {
-        throw std::out_of_range("Flattened index out of bounds.");
-    }
-
-    return result;
-}
-
 __global__ void computeFlatIndexKernel(
     const size_t* indices, const size_t* strides,
     size_t rank, size_t* outIndex
@@ -415,86 +376,6 @@ __global__ void computeFlatIndexKernel(
         flatIndex += indices[i] * strides[i];
     }
     *outIndex = flatIndex;
-}
-
-ValueType getValueAtIndices(
-    const ValueType* deviceData,
-    const size_t* hostIndices,
-    const size_t* deviceStrides,
-    size_t size
-) {
-    // Copy host indices to device
-    size_t* deviceIndices;
-    cudaMalloc(&deviceIndices, sizeof(size_t) * size);
-    cudaMemcpy(deviceIndices, hostIndices, sizeof(size_t) * size, cudaMemcpyHostToDevice);
-
-    // Allocate output for index
-    size_t* deviceFlatIndex;
-    cudaMalloc(&deviceFlatIndex, sizeof(size_t));
-
-    // Launch kernel to compute flat index
-    computeFlatIndexKernel<<<1, 1>>>(
-        deviceIndices, deviceStrides, size, deviceFlatIndex
-    );
-    cudaDeviceSynchronize();
-
-    // Copy back flat index
-    size_t flatIndex;
-    cudaMemcpy(&flatIndex, deviceFlatIndex, sizeof(size_t), cudaMemcpyDeviceToHost);
-
-    // Get value at that index
-    ValueType value;
-    cudaMemcpy(&value, deviceData + flatIndex, sizeof(ValueType), cudaMemcpyDeviceToHost);
-
-    // Cleanup
-    cudaFree(deviceIndices);
-    cudaFree(deviceFlatIndex);
-
-    return value;
-}
-
-__global__ void setValueAtIndexKernel(ValueType* data, size_t flatIndex, ValueType value) {
-    data[flatIndex] = value;
-}
-
-void setValueAtIndices(
-    ValueType* deviceData,
-    const size_t* hostIndices,
-    const size_t* deviceStrides,
-    size_t ndim,
-    ValueType value
-) {
-    // Step 1: Allocate and copy indices to GPU
-    size_t* deviceIndices;
-    cudaMalloc(&deviceIndices, ndim * sizeof(size_t));
-    cudaMemcpy(deviceIndices, hostIndices, ndim * sizeof(size_t), cudaMemcpyHostToDevice);
-
-    // Step 2: Allocate memory to store computed flat index
-    size_t* deviceFlatIndex;
-    cudaMalloc(&deviceFlatIndex, sizeof(size_t));
-
-    // Step 3: Launch kernel to compute flat index
-    computeFlatIndexKernel<<<1, 1>>>(deviceIndices, deviceStrides, ndim, deviceFlatIndex);
-    cudaDeviceSynchronize();
-
-    // Step 4: Copy flat index to host
-    size_t flatIndex;
-    cudaMemcpy(&flatIndex, deviceFlatIndex, sizeof(size_t), cudaMemcpyDeviceToHost);
-
-    // Step 5: Validate flat index
-    if (flatIndex == size_t(-1)) {
-        cudaFree(deviceIndices);
-        cudaFree(deviceFlatIndex);
-        throw std::out_of_range("Invalid indices in setValueAtIndices");
-    }
-
-    // Step 6: Launch kernel to set value at computed flat index
-    setValueAtIndexKernel<<<1, 1>>>(deviceData, flatIndex, value);
-    cudaDeviceSynchronize();
-
-    // Cleanup
-    cudaFree(deviceIndices);
-    cudaFree(deviceFlatIndex);
 }
 
 __global__ void matmulKernel(const ValueType *A, const ValueType *B, ValueType *R, size_t M, size_t K) {
@@ -528,8 +409,6 @@ __global__ void matmulTKernel(const ValueType *W, const ValueType *V, ValueType 
         R[col] = sum;
     }
 }
-
-// Wrapper functions to launch kernels
 
 void matmul(const ValueType *A, const ValueType *B, ValueType *R, size_t M, size_t K) {
     const int blockSize = 256;

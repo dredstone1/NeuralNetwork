@@ -23,6 +23,7 @@ void copyToDevice(void *deviceDst, const void *hostSrc, std::size_t count);
 /// Copy data from GPU to CPU.
 void copyToHost(void *hostDst, const void *deviceSrc, std::size_t count);
 
+/// Copy data from GPU to GPU.
 void copyDeviceToDevice(void *deviceDst, const void *deviceSrc, std::size_t count);
 
 /// Set all elements to zero (on GPU).
@@ -52,8 +53,6 @@ void division_scalar(const ValueType *A, const ValueType B, ValueType *C, std::s
 /// Element-wise multiply: C = A * B
 void multiply_scalar(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
 
-void computeStridesDevice(const size_t *gpu_shape, size_t *gpu_strides, std::size_t ndim);
-
 // ---------------- ReLU ----------------
 void relu(const ValueType *input, ValueType *output, std::size_t count);
 void relu_derivative(const ValueType *input, ValueType *output, std::size_t count);
@@ -74,23 +73,7 @@ void leaky_relu_derivative(const ValueType *input, ValueType *output, std::size_
 void softmax(const ValueType *net, ValueType *out, std::size_t size);
 
 ValueType getValueAt(const ValueType *devicePtr, std::size_t index);
-
 void setValueAt(ValueType *devicePtr, std::size_t index, ValueType value);
-
-size_t flattenIndexGpu(const size_t *indices, const size_t *d_shape, const size_t *d_strides, size_t ndim);
-
-ValueType getValueAtIndices(
-    const ValueType *deviceData,
-    const size_t *hostIndices,
-    const size_t *deviceStrides,
-    size_t size);
-
-void setValueAtIndices(
-    ValueType *deviceData,
-    const size_t *hostIndices,
-    const size_t *deviceStrides,
-    size_t ndim,
-    ValueType value);
 
 void matmul(const ValueType *A, const ValueType *B, ValueType *R, size_t M, size_t K);
 void outer(const ValueType *a, const ValueType *b, ValueType *result, size_t m, size_t n);

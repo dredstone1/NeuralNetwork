@@ -2,7 +2,6 @@
 #include <numeric>
 #include <stdexcept>
 #include <tensor.hpp>
-#include <vector>
 
 namespace nn::global {
 Tensor::Tensor(const std::vector<size_t> &shape_, float init) {
