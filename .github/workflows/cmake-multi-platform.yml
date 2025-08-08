@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -29,23 +26,14 @@ jobs:
           libgl1-mesa-dev \
           libegl1-mesa-dev \
           libxi-dev \
-          libfreetype6-dev \
-          wget
+          libfreetype6-dev
 
-    - name: Install NVIDIA CUDA Toolkit
-      run: |
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
-        sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
-        sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
-        sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
-        sudo apt-get update
-        sudo apt-get -y install cuda-toolkit-12-4  # Or latest version you support
-        echo "/usr/local/cuda/bin" >> $GITHUB_PATH
-        echo "/usr/local/cuda/lib64" | sudo tee /etc/ld.so.conf.d/cuda.conf
-        sudo ldconfig
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Configure
-      run: cmake -B build -DBUILD_SHARED_LIBS=TRUE -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc
+      run: cmake -B build -DBUILD_SHARED_LIBS=TRUE
 
     - name: Build
       run: cmake --build build --config Release
+
