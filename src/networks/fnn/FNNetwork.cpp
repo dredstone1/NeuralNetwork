@@ -72,12 +72,10 @@ void FNNetwork::vUpdate() {
 	visual->attempPause();
 }
 
-void FNNetwork::backward(const global::Tensor &outputDeltas) {
-	global::Tensor deltas = outputDeltas;
-
+void FNNetwork::backward(global::Tensor **outputDeltas) {
 	resetGradient();
 
-	layers.back()->backward(deltas, layers[layers.size() - 2]->getOut());
+	layers.back()->backward(outputDeltas, layers[layers.size() - 2]->getOut());
 
 	if (visual) {
 		visual->setGrad(layers.size() - 1, layers[layers.size() - 1]->getGrad());
@@ -85,7 +83,7 @@ void FNNetwork::backward(const global::Tensor &outputDeltas) {
 
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
 		const global::Tensor &prev = (i == 0) ? input : layers[i - 1]->getOut();
-		layers[i]->backward(deltas, prev, &layers[i + 1]->getParms());
+		layers[i]->backward(outputDeltas, prev, &layers[i + 1]->getParms());
 
 		if (visual) {
 			visual->setGrad(i, layers[i]->getGrad());
@@ -94,7 +92,7 @@ void FNNetwork::backward(const global::Tensor &outputDeltas) {
 		vUpdate();
 	}
 
-	calculateInputDelta(deltas);
+	calculateInputDelta(outputDeltas);
 }
 
 global::ValueType FNNetwork::getLoss(const global::Prediction &pre) const {
@@ -137,8 +135,8 @@ void FNNetwork::updateWeights(IOptimizer &optimizer) {
 	}
 }
 
-void FNNetwork::calculateInputDelta(const global::Tensor &deltas) {
-	input = layers[0]->getParms().weights.matmulT(deltas);
+void FNNetwork::calculateInputDelta(global::Tensor **deltas) {
+	layers[0]->getParms().weights.matmulT(**deltas, input);
 }
 
 size_t FNNetwork::getParamCount() const {

@@ -42,6 +42,8 @@ class Tensor {
 
 	// Shape and size
 	size_t numElements() const;
+	const std::vector<size_t> &getShape() const { return shape; }
+	const std::vector<size_t> &getStrides() const { return strides; }
 	void getData(std::vector<ValueType> &dest) const;
 	void fill(const ValueType &value);
 
@@ -57,7 +59,7 @@ class Tensor {
 
 	Tensor matmul(const Tensor &other) const;
 	static Tensor outer(const Tensor &a, const Tensor &b);
-	Tensor matmulT(const Tensor &vec) const;
+	void matmulT(const Tensor &vec, Tensor &result) const;
 };
 } // namespace nn::global
 

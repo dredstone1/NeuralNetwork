@@ -22,7 +22,7 @@ Tensor::Tensor(const std::vector<size_t> &shape_, float init) {
 	} else {
 		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
 		gpu_data_size = totalSize;
-        fill(init);
+		fill(init);
 	}
 
 	computeStrides();
@@ -73,17 +73,25 @@ Tensor &Tensor::operator=(const Tensor &other) {
 	if (this == &other)
 		return *this;
 
-	shape = other.shape;
-	strides = other.strides;
 	if (!isGpu) {
 		cpu_data = other.cpu_data;
 	} else {
-		ValueType *temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
-		gpu_data_size = other.gpu_data_size;
+		ValueType *temp = gpu_data;
+		if (gpu_data_size != other.gpu_data_size) {
+			temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
+
+			gpu_data_size = other.gpu_data_size;
+		}
 		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
-		tensor_gpu::deallocate(gpu_data);
-		gpu_data = temp;
+
+		if (gpu_data_size != other.gpu_data_size) {
+			tensor_gpu::deallocate(gpu_data);
+			gpu_data = temp;
+		}
 	}
+
+	shape = other.shape;
+	strides = other.strides;
 	return *this;
 }
 
@@ -276,36 +284,22 @@ Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
 	return result;
 }
 
-Tensor Tensor::matmulT(const Tensor &vec) const {
-	const auto &wShape = shape;
-	const auto &vShape = vec.shape;
-
-	if (wShape.size() != 2 || vShape.size() != 1)
+void Tensor::matmulT(const Tensor &vec, Tensor &result) const {
+	if (shape.size() != 2 || vec.shape.size() != 1)
 		throw std::runtime_error("matmulT: bad dimensions");
-
-	size_t M = wShape[0];
-	size_t N = wShape[1];
-	if (vShape[0] != M)
+	if (vec.shape[0] != shape[0])
 		throw std::runtime_error("matmulT: incompatible");
 
-	Tensor result({N}, 0.0f);
-
 	if (!isGpu) {
-		const float *W = cpu_data.data();
-		const float *V = vec.cpu_data.data();
-		float *R = result.cpu_data.data();
-
-		for (size_t i = 0; i < N; ++i) {
-			float sum = 0.0f;
-			for (size_t j = 0; j < M; ++j) {
-				sum += W[j * N + i] * V[j];
+        result.fill(0);
+		for (size_t i = 0; i < shape[1]; ++i) {
+			for (size_t j = 0; j < shape[0]; ++j) {
+				result.cpu_data[i] += cpu_data[j * shape[1] + i] * vec.cpu_data[j];
 			}
-			R[i] = sum;
 		}
-		return result;
+	} else {
+		tensor_gpu::matmulT(gpu_data, vec.gpu_data, result.gpu_data, shape[0], shape[1]);
 	}
-	tensor_gpu::matmulT(gpu_data, vec.gpu_data, result.gpu_data, M, N);
-	return result;
 }
 
 Tensor::~Tensor() {

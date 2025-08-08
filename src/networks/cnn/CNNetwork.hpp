@@ -24,7 +24,7 @@ class CNNetwork : public INetwork {
 	~CNNetwork() override = default;
 
 	void forward(const global::Tensor &newInput) override;
-	void backward(const global::Tensor &outputDeltas) override;
+	void backward(global::Tensor **outputDeltas) override;
 	void updateWeights(IOptimizer &optimizer) override;
 	void resetGradient() override;
 

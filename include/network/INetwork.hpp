@@ -11,7 +11,7 @@ class INetwork {
 	virtual ~INetwork() = default;
 
 	virtual void forward(const global::Tensor &input) = 0;
-	virtual void backward(const global::Tensor &outputDeltas) = 0;
+	virtual void backward(global::Tensor **outputDeltas) = 0;
 	virtual void updateWeights(IOptimizer &optimizer) = 0;
 	virtual void resetGradient() = 0;
 

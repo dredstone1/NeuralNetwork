@@ -11,7 +11,8 @@ DenseLayer::DenseLayer(
       out({size}),
       parameters(size, prevSize),
       gradients(size, prevSize),
-      activationFunction(activation) {
+      activationFunction(activation),
+      deltaL({size}) {
 	if (randomInit) {
 		fillParamRandom();
 	}
@@ -40,25 +41,25 @@ void Output_Layer::forward(const global::Tensor &metrix) {
 	activationFunction.activate(net, out);
 }
 
-global::Tensor Output_Layer::getDelta(const global::Tensor &output) {
-	global::Tensor deltas = out;
-	deltas -= output;
-
-	return deltas;
+void Output_Layer::getDelta(const global::Tensor &output) {
+	deltaL = out;
+	deltaL -= output;
 }
 
 void Output_Layer::backward(
-    global::Tensor &deltas,
+    global::Tensor **deltas,
     const global::Tensor &prevLayer,
     const LayerParams *) {
 	if (activationFunction.getType() == ActivationType::Softmax) {
-		deltas = getDelta(deltas);
+		getDelta(**deltas);
 	} else {
-		activationFunction.derivativeActivate(out, deltas);
+		activationFunction.derivativeActivate(out, **deltas);
+		deltaL = **deltas;
 	}
 
-	gradients.biases += deltas;
-	gradients.weights += global::Tensor::outer(deltas, prevLayer);
+	gradients.biases += deltaL;
+	gradients.weights += global::Tensor::outer(deltaL, prevLayer);
+	*deltas = &deltaL;
 }
 
 global::ValueType Output_Layer::getCrossEntropyLoss(
@@ -87,32 +88,31 @@ void Hidden_Layer::forward(const global::Tensor &metrix) {
 }
 
 void Hidden_Layer::backward(
-    global::Tensor &deltas,
+    global::Tensor **deltas,
     const global::Tensor &prevLayer,
     const LayerParams *nextLayer) {
 
 	if (!nextLayer)
 		return;
 
-	deltas = getDelta(deltas, *nextLayer);
+	calculateDelta(**deltas, *nextLayer);
 
 	if (isTraining && config.dropoutRate) {
-		deltas *= dropoutMask;
+		deltaL *= dropoutMask;
 	}
 
-	gradients.biases += deltas;
+	gradients.biases += deltaL;
 
-	gradients.weights += global::Tensor::outer(deltas, prevLayer);
+	gradients.weights += global::Tensor::outer(deltaL, prevLayer);
+	*deltas = &deltaL;
 }
 
-global::Tensor Hidden_Layer::getDelta(
+void Hidden_Layer::calculateDelta(
     const global::Tensor &output,
     const LayerParams &nextLayer) {
 
-	auto deltas = nextLayer.weights.matmulT(output);
-	activationFunction.derivativeActivate(out, deltas);
-
-	return deltas;
+	nextLayer.weights.matmulT(output, deltaL);
+	activationFunction.derivativeActivate(out, deltaL);
 }
 
 size_t DenseLayer::getParamCount() const {

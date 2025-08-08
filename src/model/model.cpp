@@ -1,6 +1,7 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "dataBase.hpp"
+#include "tensor.hpp"
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -159,9 +160,10 @@ void Model::updateWeights(const int batchSize) {
 
 void Model::Backward(const global::Tensor &output) {
 	global::Tensor deltas = output;
+    global::Tensor *delta = &deltas;
 
 	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
-		network[i]->backward(deltas);
+		network[i]->backward(&delta);
 		deltas = network[i]->getInput();
 	}
 }

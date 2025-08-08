@@ -3,6 +3,7 @@
 
 #include "../../model/config.hpp"
 #include "../src/model/optimizers.hpp"
+#include "tensor.hpp"
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
@@ -13,6 +14,7 @@ struct LayerParams {
 
 	size_t size_;
 	size_t prevSize_;
+
 
 	LayerParams(size_t out_dim, size_t in_dim)
 	    : weights({out_dim, in_dim}), biases({out_dim}),
@@ -35,6 +37,7 @@ class DenseLayer {
 	Activation activationFunction;
 
 	bool isTraining{false};
+	global::Tensor deltaL;
 
 	void fillParamRandom();
 
@@ -49,7 +52,7 @@ class DenseLayer {
 	virtual void forward(const global::Tensor &metrix) = 0;
 	void updateWeight(IOptimizer &optimizer);
 	virtual void backward(
-	    global::Tensor &deltas,
+	    global::Tensor **deltas,
 	    const global::Tensor &prevLayer,
 	    const LayerParams *nextLayer = nullptr) = 0;
 	virtual global::ValueType getLoss(const global::Prediction &) { return 0; };
@@ -77,7 +80,7 @@ class DenseLayer {
 class Hidden_Layer : public DenseLayer {
   private:
 	const DenseLayerConfig &config;
-	global::Tensor getDelta(
+	void calculateDelta(
 	    const global::Tensor &output,
 	    const LayerParams &nextLayer);
 
@@ -97,7 +100,7 @@ class Hidden_Layer : public DenseLayer {
 
 	void forward(const global::Tensor &metrix) override;
 	void backward(
-	    global::Tensor &deltas,
+	    global::Tensor **deltas,
 	    const global::Tensor &prevLayer,
 	    const LayerParams *nextLayer) override;
 };
@@ -106,7 +109,7 @@ class Output_Layer : public DenseLayer {
   private:
 	const FNNConfig &config;
 
-	global::Tensor getDelta(const global::Tensor &output);
+	void getDelta(const global::Tensor &output);
 	static global::ValueType getCrossEntropyLoss(
 	    const global::Tensor &prediction,
 	    const size_t target);
@@ -126,7 +129,7 @@ class Output_Layer : public DenseLayer {
 
 	void forward(const global::Tensor &metrix) override;
 	void backward(
-	    global::Tensor &deltas,
+	    global::Tensor **deltas,
 	    const global::Tensor &prevLayer,
 	    const LayerParams *) override;
 
