@@ -24,8 +24,6 @@ class Tensor {
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
 
-	void loadTempGpu() const;
-
 	friend model::Activation;
 
   public:
