@@ -512,7 +512,7 @@ __global__ void outerKernel(const ValueType *a, const ValueType *b, ValueType *r
     if (idx < total) {
         size_t i = idx / n;
         size_t j = idx % n;
-        result[i * n + j] = a[i] * b[j];
+        result[i * n + j] += a[i] * b[j];
     }
 }
 

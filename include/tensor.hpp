@@ -19,7 +19,7 @@ class Tensor {
 	ValueType *gpu_data = nullptr;
 	std::size_t gpu_data_size{0};
 
-	static const bool isGpu{true};
+	static const bool isGpu{false};
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
@@ -46,6 +46,7 @@ class Tensor {
 	const std::vector<size_t> &getStrides() const { return strides; }
 	void getData(std::vector<ValueType> &dest) const;
 	void fill(const ValueType &value);
+	void zero();
 
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);
@@ -57,8 +58,8 @@ class Tensor {
 	Tensor &operator+=(ValueType scalar);
 	Tensor &operator-=(ValueType scalar);
 
-	Tensor matmul(const Tensor &other) const;
-	static Tensor outer(const Tensor &a, const Tensor &b);
+	void matmul(const Tensor &other, Tensor &result) const;
+	static void outer(const Tensor &a, const Tensor &b, Tensor &result);
 	void matmulT(const Tensor &vec, Tensor &result) const;
 };
 } // namespace nn::global

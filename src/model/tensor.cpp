@@ -50,12 +50,9 @@ size_t Tensor::numElements() const {
 void Tensor::getData(std::vector<ValueType> &dest) const {
 	if (!isGpu) {
 		dest = cpu_data;
+	} else {
+		tensor_gpu::copyToHost(dest.data(), gpu_data, gpu_data_size * sizeof(ValueType));
 	}
-
-	ValueType *newV = nullptr;
-	tensor_gpu::copyToHost(newV, gpu_data, gpu_data_size * sizeof(ValueType));
-
-	std::copy(newV, newV + gpu_data_size, dest.begin());
 }
 
 void Tensor::fill(const ValueType &value) {
@@ -66,6 +63,14 @@ void Tensor::fill(const ValueType &value) {
 		for (auto &n : cpu_data) {
 			n = value;
 		}
+	}
+}
+
+void Tensor::zero() {
+	if (isGpu) {
+		tensor_gpu::zero(gpu_data, gpu_data_size);
+	} else {
+		fill(0);
 	}
 }
 
@@ -106,7 +111,6 @@ void Tensor::computeStrides() {
 }
 
 inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
-	// CPU version, same as before
 	if (indices.size() != shape.size()) {
 		throw std::invalid_argument("Incorrect number of indices.");
 	}
@@ -227,7 +231,7 @@ Tensor &Tensor::operator/=(ValueType scalar) {
 	return *this;
 }
 
-Tensor Tensor::matmul(const Tensor &other) const {
+void Tensor::matmul(const Tensor &other, Tensor &result) const {
 	const auto &aShape = shape;
 	const auto &bShape = other.shape;
 	if (aShape.size() != 2 || bShape.size() != 1)
@@ -237,7 +241,8 @@ Tensor Tensor::matmul(const Tensor &other) const {
 	size_t K = aShape[1];
 	if (K != bShape[0])
 		throw std::runtime_error("matmul: shape mismatch.");
-	Tensor result({M});
+
+	result.zero();
 
 	if (!isGpu) {
 		const float *A = cpu_data.data();
@@ -252,13 +257,12 @@ Tensor Tensor::matmul(const Tensor &other) const {
 			}
 			R[i] = sum;
 		}
-		return result;
+	} else {
+		tensor_gpu::matmul(gpu_data, other.gpu_data, result.gpu_data, M, K);
 	}
-	tensor_gpu::matmul(gpu_data, other.gpu_data, result.gpu_data, M, K);
-	return result;
 }
 
-Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
+void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
 	if (a.shape.size() != 1 || b.shape.size() != 1) {
 		throw std::runtime_error("outer: both tensors must be 1D vectors");
 	}
@@ -266,7 +270,7 @@ Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
 	size_t m = a.shape[0];
 	size_t n = b.shape[0];
 
-	Tensor result({m, n});
+	result.zero();
 
 	if (!isGpu) {
 		float *r = result.cpu_data.data();
@@ -275,13 +279,12 @@ Tensor Tensor::outer(const Tensor &a, const Tensor &b) {
 
 		for (size_t i = 0; i < m; ++i) {
 			for (size_t j = 0; j < n; ++j) {
-				r[i * n + j] = A[i] * B[j];
+				r[i * n + j] += A[i] * B[j];
 			}
 		}
-		return result;
+	} else {
+		tensor_gpu::outer(a.gpu_data, b.gpu_data, result.gpu_data, m, n);
 	}
-	tensor_gpu::outer(a.gpu_data, b.gpu_data, result.gpu_data, m, n);
-	return result;
 }
 
 void Tensor::matmulT(const Tensor &vec, Tensor &result) const {
@@ -290,8 +293,9 @@ void Tensor::matmulT(const Tensor &vec, Tensor &result) const {
 	if (vec.shape[0] != shape[0])
 		throw std::runtime_error("matmulT: incompatible");
 
+	result.zero();
+
 	if (!isGpu) {
-        result.fill(0);
 		for (size_t i = 0; i < shape[1]; ++i) {
 			for (size_t j = 0; j < shape[0]; ++j) {
 				result.cpu_data[i] += cpu_data[j * shape[1] + i] * vec.cpu_data[j];

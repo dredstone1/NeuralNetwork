@@ -34,8 +34,7 @@ void Hidden_Layer::CreateDropoutMask() {
 }
 
 void Output_Layer::forward(const global::Tensor &metrix) {
-
-	net = parameters.weights.matmul(metrix);
+	parameters.weights.matmul(metrix, net);
 	net += parameters.biases;
 
 	activationFunction.activate(net, out);
@@ -58,7 +57,7 @@ void Output_Layer::backward(
 	}
 
 	gradients.biases += deltaL;
-	gradients.weights += global::Tensor::outer(deltaL, prevLayer);
+	global::Tensor::outer(deltaL, prevLayer, gradients.weights);
 	*deltas = &deltaL;
 }
 
@@ -76,7 +75,7 @@ void Hidden_Layer::forward(const global::Tensor &metrix) {
 	if (isTraining)
 		CreateDropoutMask();
 
-	net = parameters.weights.matmul(metrix);
+	parameters.weights.matmul(metrix, net);
 	net += parameters.biases;
 
 	if (isTraining && config.dropoutRate > 0.0f) {
@@ -103,7 +102,7 @@ void Hidden_Layer::backward(
 
 	gradients.biases += deltaL;
 
-	gradients.weights += global::Tensor::outer(deltaL, prevLayer);
+	global::Tensor::outer(deltaL, prevLayer, gradients.weights);
 	*deltas = &deltaL;
 }
 
