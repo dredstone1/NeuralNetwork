@@ -10,6 +10,8 @@ class Activation;
 
 namespace nn::global {
 
+constexpr bool GPU_MODE = true;
+
 class Tensor {
   private:
 	std::vector<ValueType> cpu_data;
@@ -17,9 +19,9 @@ class Tensor {
 	std::vector<size_t> strides;
 
 	ValueType *gpu_data = nullptr;
-	std::size_t gpu_data_size{0};
+	std::size_t gpu_data_size;
 
-	static const bool isGpu{false};
+	static const bool isGpu{GPU_MODE};
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
@@ -34,6 +36,7 @@ class Tensor {
 	~Tensor();
 
 	Tensor &operator=(const Tensor &other);
+	Tensor &operator=(const std::vector<ValueType> &other);
 
 	ValueType getValue(const std::vector<size_t> &newShape) const;
 	void setValue(const std::vector<size_t> &newShape, const ValueType value);

@@ -60,7 +60,7 @@ __global__ void addKernel(const ValueType* A, const ValueType* B, ValueType* C, 
 }
 
 // Element-wise addition: C = A + B
-void add(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+void add_vec(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     addKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -76,7 +76,7 @@ __global__ void subtractionKernel(const ValueType* A, const ValueType* B, ValueT
 }
 
 // Element-wise addition: C = A + B
-void subtraction(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+void subtraction_vec(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     subtractionKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -91,7 +91,7 @@ __global__ void divisionKernel(const ValueType* A, const ValueType* B, ValueType
 }
 
 // Element-wise addition: C = A / B
-void division(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+void division_vec(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     divisionKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -106,7 +106,7 @@ __global__ void multiplyKernel(const ValueType* A, const ValueType* B, ValueType
 }
 
 // Element-wise multiply: C = A * B
-void multiply(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
+void multiply_vec(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     multiplyKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -121,7 +121,7 @@ __global__ void addKernel(const ValueType* A, const ValueType B, ValueType* C, s
 }
 
 // Element-wise addition: C = A + B
-void add(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+void add_scalar(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     addKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -137,7 +137,7 @@ __global__ void subtractionKernel(const ValueType* A, const ValueType B, ValueTy
 }
 
 // Element-wise addition: C = A + B
-void subtraction(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+void subtraction_scalar(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     subtractionKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -152,7 +152,7 @@ __global__ void divisionKernel(const ValueType* A, const ValueType B, ValueType*
 }
 
 // Element-wise addition: C = A / B
-void division(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+void division_scalar(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     divisionKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -167,7 +167,7 @@ __global__ void multiplyKernel(const ValueType* A, const ValueType B, ValueType*
 }
 
 // Element-wise multiply: C = A * B
-void multiply(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
+void multiply_scalar(const ValueType* A, const ValueType B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     multiplyKernel<<<numBlocks, blockSize>>>(A, B, C, count);
@@ -321,7 +321,9 @@ __global__ void softmaxKernel(const ValueType* input, ValueType* output, std::si
     if (idx >= count) return;
 
     // Load input into shared memory
-    shared[tid] = input[idx];
+    if (idx < count) shared[tid] = input[idx];
+    else shared[tid] = -INFINITY; // or 0
+
     __syncthreads();
 
     // Step 1: Find max value for numerical stability
@@ -512,16 +514,15 @@ __global__ void outerKernel(const ValueType *a, const ValueType *b, ValueType *r
     if (idx < total) {
         size_t i = idx / n;
         size_t j = idx % n;
-        result[i * n + j] += a[i] * b[j];
+        result[i * n + j] = a[i] * b[j];  // Use '=' since result is zeroed before
     }
 }
 
 __global__ void matmulTKernel(const ValueType *W, const ValueType *V, ValueType *R, size_t M, size_t N) {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     if (col < N) {
-        ValueType sum = 0;
+        ValueType sum = 0.0f;
         for (size_t i = 0; i < M; ++i) {
-            // W is M x N, access element at (i, col)
             sum += W[i * N + col] * V[i];
         }
         R[col] = sum;

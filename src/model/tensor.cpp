@@ -1,8 +1,8 @@
 #include "tensor_gpu.hpp"
-#include <algorithm>
 #include <numeric>
 #include <stdexcept>
 #include <tensor.hpp>
+#include <vector>
 
 namespace nn::global {
 Tensor::Tensor(const std::vector<size_t> &shape_, float init) {
@@ -58,7 +58,7 @@ void Tensor::getData(std::vector<ValueType> &dest) const {
 void Tensor::fill(const ValueType &value) {
 	if (isGpu) {
 		tensor_gpu::zero(gpu_data, gpu_data_size);
-		tensor_gpu::add(gpu_data, value, gpu_data, gpu_data_size);
+		tensor_gpu::add_scalar(gpu_data, value, gpu_data, gpu_data_size);
 	} else {
 		for (auto &n : cpu_data) {
 			n = value;
@@ -97,6 +97,20 @@ Tensor &Tensor::operator=(const Tensor &other) {
 
 	shape = other.shape;
 	strides = other.strides;
+	return *this;
+}
+
+Tensor &Tensor::operator=(const std::vector<ValueType> &other) {
+	if (other.size() != numElements()) {
+		throw std::invalid_argument("");
+	}
+
+	if (!isGpu) {
+		cpu_data = other;
+	} else {
+		tensor_gpu::copyToDevice(gpu_data, other.data(), gpu_data_size * sizeof(ValueType));
+	}
+
 	return *this;
 }
 
@@ -147,7 +161,7 @@ Tensor &Tensor::operator+=(const Tensor &other) {
 		for (size_t i = 0; i < N; ++i)
 			cpu_data[i] += other.cpu_data[i];
 	} else {
-		tensor_gpu::add(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
+		tensor_gpu::add_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 	}
 	return *this;
 }
@@ -160,7 +174,7 @@ Tensor &Tensor::operator-=(const Tensor &other) {
 		for (size_t i = 0; i < N; ++i)
 			cpu_data[i] -= other.cpu_data[i];
 	} else {
-		tensor_gpu::subtraction(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
+		tensor_gpu::subtraction_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 	}
 	return *this;
 }
@@ -173,7 +187,7 @@ Tensor &Tensor::operator*=(const Tensor &other) {
 		for (size_t i = 0; i < N; ++i)
 			cpu_data[i] *= other.cpu_data[i];
 	} else {
-		tensor_gpu::multiply(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
+		tensor_gpu::multiply_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 	}
 	return *this;
 }
@@ -186,7 +200,7 @@ Tensor &Tensor::operator/=(const Tensor &other) {
 		for (size_t i = 0; i < N; ++i)
 			cpu_data[i] /= other.cpu_data[i];
 	} else {
-		tensor_gpu::division(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
+		tensor_gpu::division_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 	}
 	return *this;
 }
@@ -196,7 +210,7 @@ Tensor &Tensor::operator*=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x *= scalar;
 	} else {
-		tensor_gpu::multiply(gpu_data, scalar, gpu_data, gpu_data_size);
+		tensor_gpu::multiply_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 	}
 	return *this;
 }
@@ -206,7 +220,7 @@ Tensor &Tensor::operator-=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x -= scalar;
 	} else {
-		tensor_gpu::subtraction(gpu_data, scalar, gpu_data, gpu_data_size);
+		tensor_gpu::subtraction_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 	}
 	return *this;
 }
@@ -216,7 +230,7 @@ Tensor &Tensor::operator+=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x += scalar;
 	} else {
-		tensor_gpu::add(gpu_data, scalar, gpu_data, gpu_data_size);
+		tensor_gpu::add_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 	}
 	return *this;
 }
@@ -226,7 +240,7 @@ Tensor &Tensor::operator/=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x /= scalar;
 	} else {
-		tensor_gpu::division(gpu_data, scalar, gpu_data, gpu_data_size);
+		tensor_gpu::division_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 	}
 	return *this;
 }

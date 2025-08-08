@@ -1,6 +1,7 @@
 #include "activations.hpp"
 #include "tensor.hpp"
 #include "tensor_gpu.hpp"
+#include <cstdio>
 
 namespace nn::model {
 void Activation::activate(const global::Tensor &net, global::Tensor &out) const {

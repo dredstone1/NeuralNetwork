@@ -160,7 +160,7 @@ void Model::updateWeights(const int batchSize) {
 
 void Model::Backward(const global::Tensor &output) {
 	global::Tensor deltas = output;
-    global::Tensor *delta = &deltas;
+	global::Tensor *delta = &deltas;
 
 	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
 		network[i]->backward(&delta);
@@ -179,16 +179,18 @@ global::ValueType Model::runBackPropagation(
 	}
 
 	resetNetworkGradient();
+	global::Tensor output({outputSize()});
 	for (size_t i = 0; i < batch.size(); ++i) {
 		TrainSample *current_sample_ptr = batch.samples.at(i);
-		visual.updatePrediction(current_sample_ptr->pre);
+		output.zero();
+		// visual.updatePrediction(current_sample_ptr->pre);
 
-		runModel(transformation(current_sample_ptr->input));
+		// runModel(transformation(current_sample_ptr->input));
 
-		global::Tensor output({outputSize()});
-		output.setValue({current_sample_ptr->pre.index}, 1);
+		runModel(current_sample_ptr->input);
 
 		if (doBackward) {
+			output.setValue({current_sample_ptr->pre.index}, 1);
 			Backward(output);
 			updateWeights(batch.size());
 		}

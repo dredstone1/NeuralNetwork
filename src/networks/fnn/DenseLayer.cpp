@@ -1,5 +1,6 @@
 #include "DenseLayer.hpp"
 #include <random>
+#include <vector>
 
 namespace nn::model::fnn {
 DenseLayer::DenseLayer(
@@ -167,11 +168,11 @@ void DenseLayer::fillParamRandom() {
 	global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prevSize()));
 	std::normal_distribution<> dist(0.0, std_dev);
 
-	for (size_t i = 0; i < parameters.size(); ++i) {
-		for (size_t j = 0; j < parameters.prevSize(); ++j) {
-			parameters.weights.setValue({i, j}, dist(gen));
-		}
+    std::vector<global::ValueType> temp(parameters.weights.numElements());
+	for (size_t i = 0; i < temp.size(); ++i) {
+            temp[i] = dist(gen);
 	}
+    parameters.weights = temp;
 }
 
 void DenseLayer::resetDots() {

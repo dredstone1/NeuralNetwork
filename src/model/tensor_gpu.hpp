@@ -29,28 +29,28 @@ void copyDeviceToDevice(void *deviceDst, const void *deviceSrc, std::size_t coun
 void zero(ValueType *deviceData, std::size_t count);
 
 /// Element-wise addition: C = A + B
-void add(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
+void add_vec(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
 
 /// Element-wise addition: C = A - B
-void subtraction(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
+void subtraction_vec(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
 
 /// Element-wise addition: C = A / B
-void division(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
+void division_vec(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
 
 /// Element-wise multiply: C = A * B
-void multiply(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
+void multiply_vec(const ValueType *A, const ValueType *B, ValueType *C, std::size_t count);
 
 /// Element-wise addition: C = A + B
-void add(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
+void add_scalar(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
 
 /// Element-wise addition: C = A - B
-void subtraction(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
+void subtraction_scalar(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
 
 /// Element-wise addition: C = A / B
-void division(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
+void division_scalar(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
 
 /// Element-wise multiply: C = A * B
-void multiply(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
+void multiply_scalar(const ValueType *A, const ValueType B, ValueType *C, std::size_t count);
 
 void computeStridesDevice(const size_t *gpu_shape, size_t *gpu_strides, std::size_t ndim);
 

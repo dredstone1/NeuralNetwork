@@ -3,7 +3,6 @@
 
 namespace nn::visualizer {
 VisualManager::VisualManager(const model::Config &_config) : config(_config) {
-	printf("start Visualizer\n");
 }
 
 void VisualManager::initState() {
@@ -44,6 +43,7 @@ void VisualManager::start() {
 }
 
 void VisualManager::startVisuals() {
+	printf("start Visualizer\n");
 	Vstate = std::make_shared<StateManager>(config);
 	if (!Vstate) {
 		return;
