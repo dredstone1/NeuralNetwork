@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install dependencies
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -28,11 +31,15 @@ jobs:
           libxi-dev \
           libfreetype6-dev
 
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Install CUDA Toolkit
+      uses: Jimver/cuda-toolkit@v0.2.26
+      with:
+        cuda: "12.4.1"
+        method: network
+        sub-packages: '["nvcc"]'
 
-    - name: Configure
-      run: cmake -B build -DBUILD_SHARED_LIBS=TRUE
+    - name: Configure CMake
+      run: cmake -B build -DBUILD_SHARED_LIBS=TRUE -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc
 
     - name: Build
       run: cmake --build build --config Release
