@@ -4,6 +4,13 @@
 #include <stdexcept>
 
 namespace nn::global::tensor_gpu {
+#define CUDA_CHECK(call) do { \
+  cudaError_t e = (call); \
+  if (e != cudaSuccess) { \
+    fprintf(stderr, "CUDA error %s:%d: %s\n", __FILE__, __LINE__, cudaGetErrorString(e)); \
+    throw std::runtime_error(cudaGetErrorString(e)); \
+  } \
+} while(0)
 
 // ==================================================
 // Memory Management
@@ -23,24 +30,24 @@ void deallocate(void* devicePtr) {
 }
 
 void copyToDevice(void* deviceDst, const void* hostSrc, std::size_t size) {
-    cudaMemcpy(deviceDst, hostSrc, size, cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaMemcpy(deviceDst, hostSrc, size, cudaMemcpyHostToDevice));
 }
 
 void copyDeviceToDevice(void* deviceDst, const void* deviceSrc, std::size_t size) {
-    cudaMemcpy(deviceDst, deviceSrc, size, cudaMemcpyDeviceToDevice);
+    CUDA_CHECK(cudaMemcpy(deviceDst, deviceSrc, size, cudaMemcpyDeviceToDevice));
 }
 
 void copyToHost(void* hostDst, const void* deviceSrc, std::size_t size) {
-    cudaMemcpy(hostDst, deviceSrc, size, cudaMemcpyDeviceToHost);
+    CUDA_CHECK(cudaMemcpy(hostDst, deviceSrc, size, cudaMemcpyDeviceToHost));
 }
 
 void setValueAt(ValueType* devicePtr, std::size_t index, ValueType value) {
-    cudaMemcpy(devicePtr + index, &value, sizeof(ValueType), cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaMemcpy(devicePtr + index, &value, sizeof(ValueType), cudaMemcpyHostToDevice));
 }
 
 ValueType getValueAt(const ValueType* devicePtr, std::size_t index) {
     ValueType value;
-    cudaMemcpy(&value, devicePtr + index, sizeof(ValueType), cudaMemcpyDeviceToHost);
+    CUDA_CHECK(cudaMemcpy(&value, devicePtr + index, sizeof(ValueType), cudaMemcpyDeviceToHost));
     return value;
 }
 
@@ -56,6 +63,8 @@ void zero(ValueType* deviceData, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     zeroKernel<<<numBlocks, blockSize>>>(deviceData, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 // ==================================================
@@ -85,24 +94,32 @@ void add_vec(const ValueType* A, const ValueType* B, ValueType* C, std::size_t c
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     addVecKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void subtraction_vec(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     subVecKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void multiply_vec(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     mulVecKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void division_vec(const ValueType* A, const ValueType* B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     divVecKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 // ==================================================
@@ -132,24 +149,32 @@ void add_scalar(const ValueType* A, ValueType B, ValueType* C, std::size_t count
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     addScalarKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void subtraction_scalar(const ValueType* A, ValueType B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     subScalarKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void multiply_scalar(const ValueType* A, ValueType B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     mulScalarKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void division_scalar(const ValueType* A, ValueType B, ValueType* C, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     divScalarKernel<<<numBlocks, blockSize>>>(A, B, C, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 // ==================================================
@@ -169,12 +194,16 @@ void relu(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     reluKernel<<<numBlocks, blockSize>>>(input, output, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void relu_derivative(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     reluDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 __global__ void sigmoidKernel(const ValueType* input, ValueType* output, std::size_t count) {
@@ -198,12 +227,16 @@ void sigmoid(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     sigmoidKernel<<<numBlocks, blockSize>>>(input, output, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void sigmoid_derivative(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     sigmoidDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 __global__ void tanhKernel(const ValueType* input, ValueType* output, std::size_t count) {
@@ -223,12 +256,16 @@ void tanh_activation(const ValueType* input, ValueType* output, std::size_t coun
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     tanhKernel<<<numBlocks, blockSize>>>(input, output, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void tanh_derivative(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     tanhDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 __global__ void leakyReluKernel(const ValueType* input, ValueType* output, std::size_t count, ValueType alpha) {
@@ -245,12 +282,16 @@ void leaky_relu(const ValueType* input, ValueType* output, std::size_t count, Va
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     leakyReluKernel<<<numBlocks, blockSize>>>(input, output, count, alpha);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void leaky_relu_derivative(const ValueType* input, ValueType* output, std::size_t count, ValueType alpha) {
     std::size_t blockSize = 256;
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     leakyReluDerivativeKernel<<<numBlocks, blockSize>>>(input, output, count, alpha);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 // ==================================================
@@ -258,31 +299,35 @@ void leaky_relu_derivative(const ValueType* input, ValueType* output, std::size_
 // ==================================================
 __global__ void softmaxKernel(const ValueType* input, ValueType* output, std::size_t count) {
     extern __shared__ ValueType shared[];
-
     std::size_t tid = threadIdx.x;
-    std::size_t idx = blockIdx.x * blockDim.x + tid;
-    if (idx >= count) return;
+    std::size_t blockStart = blockIdx.x * blockDim.x;
+    std::size_t idx = blockStart + tid;
 
+    // always write shared for every thread in block
     shared[tid] = (idx < count) ? input[idx] : -INFINITY;
     __syncthreads();
 
+    // compute max (naive per-thread loop)
     ValueType max_val = shared[0];
-    for (std::size_t i = 1; i < blockDim.x && (blockIdx.x * blockDim.x + i) < count; ++i) {
-        max_val = fmaxf(max_val, shared[i]);
+    for (unsigned int i = 1; i < blockDim.x; ++i) {
+        std::size_t curIdx = blockStart + i;
+        if (curIdx < count) max_val = fmaxf(max_val, shared[i]);
     }
     __syncthreads();
 
-    ValueType e = expf(shared[tid] - max_val);
+    ValueType e = (idx < count) ? expf(shared[tid] - max_val) : 0.0f;
     shared[tid] = e;
     __syncthreads();
 
+    // compute sum (naive)
     ValueType sum = 0.0f;
-    for (std::size_t i = 0; i < blockDim.x && (blockIdx.x * blockDim.x + i) < count; ++i) {
-        sum += shared[i];
+    for (unsigned int i = 0; i < blockDim.x; ++i) {
+        std::size_t curIdx = blockStart + i;
+        if (curIdx < count) sum += shared[i];
     }
     __syncthreads();
 
-    output[idx] = shared[tid] / sum;
+    if (idx < count) output[idx] = shared[tid] / (sum == 0.0f ? 1.0f : sum);
 }
 
 void softmax(const ValueType* input, ValueType* output, std::size_t count) {
@@ -290,6 +335,8 @@ void softmax(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t numBlocks = (count + blockSize - 1) / blockSize;
     std::size_t sharedMemSize = blockSize * sizeof(ValueType);
     softmaxKernel<<<numBlocks, blockSize, sharedMemSize>>>(input, output, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 // ==================================================
@@ -357,6 +404,8 @@ void matmul(const ValueType* A, const ValueType* B, ValueType* R, size_t M, size
     int gridSize = (M + blockSize - 1) / blockSize;
     matmulKernel<<<gridSize, blockSize>>>(A, B, R, M, K);
     cudaDeviceSynchronize();
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void outer(const ValueType* a, const ValueType* b, ValueType* result, size_t m, size_t n) {
@@ -364,6 +413,8 @@ void outer(const ValueType* a, const ValueType* b, ValueType* result, size_t m, 
     int gridSize = (m * n + blockSize - 1) / blockSize;
     outerKernel<<<gridSize, blockSize>>>(a, b, result, m, n);
     cudaDeviceSynchronize();
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void matmulT(const ValueType* W, const ValueType* V, ValueType* R, size_t M, size_t N) {
@@ -371,6 +422,8 @@ void matmulT(const ValueType* W, const ValueType* V, ValueType* R, size_t M, siz
     int gridSize = (N + blockSize - 1) / blockSize;
     matmulTKernel<<<gridSize, blockSize>>>(W, V, R, M, N);
     cudaDeviceSynchronize();
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 } // namespace nn::global::tensor_gpu

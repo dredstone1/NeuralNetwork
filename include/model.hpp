@@ -4,6 +4,9 @@
 #include "../src/model/dataBase.hpp"
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
+#include "Globals.hpp"
+#include "tensor.hpp"
+#include <cstddef>
 #include <network/INetwork.hpp>
 
 namespace nn::visualizer {
@@ -65,7 +68,7 @@ class Model {
 	global::ValueType runBackPropagation(
 	    const Batch &batch,
 	    const bool updateWeights,
-	    global::Transformation transformation = dt);
+	    global::Transformation transformation = nullptr);
 
 	void printTrainingResult(
 	    const std::chrono::high_resolution_clock::time_point &start,
@@ -81,12 +84,12 @@ class Model {
 	    DataBase &dataBase,
 	    const bool cancleOnError = false,
 	    const bool showProgressbar = true,
-	    global::Transformation transformation = dt);
+	    global::Transformation transformation = nullptr);
 	void trainModel(
 	    DataBase &trainedDataBase,
 	    DataBase &evaluateDataBase,
-	    global::Transformation transformationB = dt,
-	    global::Transformation transformationE = dt);
+	    global::Transformation transformationB = nullptr,
+	    global::Transformation transformationE = nullptr);
 
 	size_t outputSize() const;
 	size_t inputSize() const;
@@ -103,10 +106,13 @@ class Model {
 
 	void autoSave(const int i);
 
-    void addFNN(const std::uint32_t width, ISubNetworkConfig &_config);
-    void addCNN(const std::uint32_t width, ISubNetworkConfig &_config);
+	void addFNN(const std::uint32_t width, ISubNetworkConfig &_config);
+	void addCNN(const std::uint32_t width, ISubNetworkConfig &_config);
 
-    std::uint32_t calculateSubNetWidth() const;
+	std::uint32_t calculateSubNetWidth() const;
+
+	void runModel(const global::Tensor &input,
+	              global::Transformation transformation);
 
   public:
 	Model(const std::string &config_filepath);
@@ -115,16 +121,16 @@ class Model {
 	void runModel(const global::Tensor &input);
 	void train(
 	    const std::string &db_filename,
-	    global::Transformation transformationB = dt,
-	    global::Transformation transformationE = dt);
+	    global::Transformation transformationB = nullptr,
+	    global::Transformation transformationE = nullptr);
 	void train(
 	    const std::vector<std::string> &db_filename,
-	    global::Transformation transformationB = dt,
-	    global::Transformation transformationE = dt);
+	    global::Transformation transformationB = nullptr,
+	    global::Transformation transformationE = nullptr);
 	modelResult evaluateModel(
 	    const std::string &db_filename,
 	    const bool cancleOnError = false,
-	    global::Transformation transformation = dt);
+	    global::Transformation transformation = nullptr);
 
 	void save(const std::string &file);
 	void load(const std::string &file);

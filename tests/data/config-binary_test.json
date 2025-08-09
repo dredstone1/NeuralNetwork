@@ -8,7 +8,7 @@
 		]
 	},
 	"training config": {
-		"batch size": 16,
+		"batch size": 64,
 		"batch count": 1000,
 		"optimizer": {
 			"type": "const",

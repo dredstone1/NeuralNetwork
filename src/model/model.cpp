@@ -1,5 +1,6 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
+#include "Globals.hpp"
 #include "dataBase.hpp"
 #include "tensor.hpp"
 #include <chrono>
@@ -182,14 +183,12 @@ global::ValueType Model::runBackPropagation(
 	global::Tensor output({outputSize()});
 	for (size_t i = 0; i < batch.size(); ++i) {
 		TrainSample *current_sample_ptr = batch.samples.at(i);
-		output.zero();
-		// visual.updatePrediction(current_sample_ptr->pre);
+		visual.updatePrediction(current_sample_ptr->pre);
 
-		// runModel(transformation(current_sample_ptr->input));
-
-		runModel(current_sample_ptr->input);
+		runModel(current_sample_ptr->input, transformation);
 
 		if (doBackward) {
+			output.zero();
 			output.setValue({current_sample_ptr->pre.index}, 1);
 			Backward(output);
 			updateWeights(batch.size());
@@ -333,6 +332,15 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
 }
 
+void Model::runModel(const global::Tensor &input,
+                     global::Transformation transformation) {
+	if (transformation) {
+		runModel(transformation(input));
+	} else {
+		runModel(input);
+	}
+}
+
 modelResult Model::evaluateModel(
     DataBase &dataBase,
     const bool cancleOnError,
@@ -352,7 +360,7 @@ modelResult Model::evaluateModel(
 	for (int i = 0; i < result.dbSize; ++i) {
 		TrainSample &sample = dataBase.getSample(i);
 
-		runModel(transformation(sample.input));
+		runModel(sample.input, transformation);
 
 		size_t predicted_index = 0;
 		float max_value = getOutput().getValue({0});
