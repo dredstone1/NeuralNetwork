@@ -1,7 +1,7 @@
 {
 	"visual config": {
 		"enableVisuals": true,
-		"enableNetwrokVisual": false,
+		"enableNetwrokVisual": true,
 		"modes": [
 			{ "state": "pause", "mode": true },
 			{ "state": "precise mode", "mode": false },

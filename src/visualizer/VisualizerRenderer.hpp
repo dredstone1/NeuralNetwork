@@ -6,6 +6,7 @@
 #include "graph.hpp"
 #include "tensor.hpp"
 #include "visualModel.hpp"
+#include <SFML/System/Vector2.hpp>
 #include <memory>
 
 namespace nn::visualizer {
@@ -18,9 +19,10 @@ constexpr std::string_view WINDOW_TITLE = "Visualizer";
 
 class VisualRender {
   private:
-	sf::RenderWindow window;
-    std::unique_ptr<ModelPanel> visualModel;
 	std::shared_ptr<StateManager> Vstate;
+	sf::Vector2u winSize;
+	sf::RenderWindow window;
+	std::unique_ptr<ModelPanel> visualModel;
 	InterfacePanel interface;
 	StatusPanel statusV;
 	GraphUIPanel Vgraph;
@@ -28,6 +30,8 @@ class VisualRender {
 	float fps;
 	float bps;
 	bool need_resize{false};
+
+	sf::Vector2u getWinSize(bool enableNetwork);
 
 	void renderLoop();
 	void processEvents();
