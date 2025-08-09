@@ -1,5 +1,6 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
+#include "dataBase.hpp"
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -77,6 +78,9 @@ void Model::initOptimizer() {
 void Model::initVisual() {
 	visual.start();
 
+	if (!config.visualConfig.enableNetwrokVisual)
+		return;
+
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		visual.addVisualSubNetwork(network[i]->getVisual());
 		network[i]->getVisual()->setVstate(visual.Vstate);
@@ -89,6 +93,7 @@ std::uint32_t Model::calculateSubNetWidth() const {
 
 void Model::initModel() {
 	const std::uint32_t WIDTH = calculateSubNetWidth();
+	size_t param_amount = 0;
 
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		ISubNetworkConfig &_config = *config.networkConfig.SubNetworksConfig[i];
@@ -98,13 +103,20 @@ void Model::initModel() {
 		} else if (_config.NNLable() == cnn::CNN_LABLE) {
 			addCNN(WIDTH, _config);
 		}
+
+		param_amount += network[i]->getParams().numElements();
 	}
+
+	std::cout << "initialize model - "
+	          << param_amount << " parameters, "
+	          << config.networkConfig.SubNetworksConfig.size() << " sub networks"
+	          << std::endl;
 }
 
 void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	fnn::FNNConfig &sub_ = (fnn::FNNConfig &)(_config);
 
-	if (config.visualConfig.enableVisuals) {
+	if (config.visualConfig.enableVisuals && config.visualConfig.enableNetwrokVisual) {
 		std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ =
 		    std::make_shared<visualizer::fnn::FnnVisualier>(
 		        visual.Vstate,
@@ -120,7 +132,7 @@ void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	cnn::CNNConfig &sub_ = (cnn::CNNConfig &)(_config);
 
-	if (config.visualConfig.enableVisuals) {
+	if (config.visualConfig.enableVisuals && config.visualConfig.enableNetwrokVisual) {
 		std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =
 		    std::make_shared<visualizer::cnn::CnnVisualier>(
 		        visual.Vstate,
@@ -158,9 +170,10 @@ void Model::updateWeights(const int batchSize) {
 
 void Model::Backward(const global::Tensor &output) {
 	global::Tensor deltas = output;
+	global::Tensor *delta = &deltas;
 
 	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
-		network[i]->backward(deltas);
+		network[i]->backward(&delta);
 		deltas = network[i]->getInput();
 	}
 }
@@ -176,16 +189,16 @@ global::ValueType Model::runBackPropagation(
 	}
 
 	resetNetworkGradient();
+	global::Tensor output({outputSize()});
 	for (size_t i = 0; i < batch.size(); ++i) {
-		auto current_sample_ptr = batch.samples.at(i);
+		TrainSample *current_sample_ptr = batch.samples.at(i);
 		visual.updatePrediction(current_sample_ptr->pre);
 
-		runModel(transformation(current_sample_ptr->input));
-
-		global::Tensor output({outputSize()});
-		output[current_sample_ptr->pre.index] = 1;
+		runModel(current_sample_ptr->input, transformation);
 
 		if (doBackward) {
+			output.zero();
+			output.setValue({current_sample_ptr->pre.index}, 1);
 			Backward(output);
 			updateWeights(batch.size());
 		}
@@ -280,7 +293,7 @@ bool Model::autoEvaluating(
 
 void Model::autoSave(const int i) {
 	if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
-		save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
+		save(config.trainingConfig.getAutoSave().dataFilenameAutoSave, false);
 	}
 }
 
@@ -328,6 +341,15 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
 }
 
+void Model::runModel(const global::Tensor &input,
+                     global::Transformation transformation) {
+	if (transformation) {
+		runModel(transformation(input));
+	} else {
+		runModel(input);
+	}
+}
+
 modelResult Model::evaluateModel(
     DataBase &dataBase,
     const bool cancleOnError,
@@ -347,11 +369,17 @@ modelResult Model::evaluateModel(
 	for (int i = 0; i < result.dbSize; ++i) {
 		TrainSample &sample = dataBase.getSample(i);
 
-		runModel(transformation(sample.input));
+		runModel(sample.input, transformation);
 
-		size_t predicted_index = std::distance(
-		    getOutput().begin(),
-		    std::max_element(getOutput().begin(), getOutput().end()));
+		size_t predicted_index = 0;
+		float max_value = getOutput().getValue({0});
+
+		for (size_t j = 1; j < getOutput().numElements(); ++j) {
+			if (getOutput().getValue({j}) > max_value) {
+				max_value = getOutput().getValue({j});
+				predicted_index = j;
+			}
+		}
 
 		if (showProgressbar) {
 			bar++;
@@ -396,28 +424,40 @@ size_t Model::inputSize() const {
 	return network[0]->inputSize();
 }
 
-void Model::save(const std::string &file) {
+void Model::save(const std::string &file, bool print) {
 	std::ofstream outFile(file);
+
+	if (print) {
+		std::cout << "Start saving" << std::endl;
+	}
 
 	for (size_t i = 0; i < network.size(); ++i) {
 		global::Tensor params = network[i]->getParams();
 
 		outFile << params.numElements() << " ";
 		for (size_t j = 0; j < params.numElements(); ++j) {
-			outFile << params[j] << " ";
+			outFile << params.getValue({j}) << " ";
 		}
-
 		outFile << std::endl;
+	}
+
+	if (print) {
+		std::cout << " saving complete" << std::endl;
 	}
 
 	outFile.close();
 }
 
-void Model::load(const std::string &file) {
+void Model::load(const std::string &file, bool print) {
 	std::ifstream inFile(file);
 
 	std::string line;
 	int networkI = 0;
+
+	if (print) {
+		std::cout << "Start loading" << std::endl;
+	}
+
 	while (std::getline(inFile, line)) {
 		std::istringstream iss(line);
 
@@ -426,15 +466,17 @@ void Model::load(const std::string &file) {
 		global::Tensor numbers({ParamSize});
 
 		float num;
-
 		for (size_t i = 0; i < ParamSize; ++i) {
 			iss >> num;
-			numbers[i] = num;
+			numbers.setValue({i}, num);
 		}
 
 		network[networkI]->setParams(numbers);
-
 		networkI++;
+	}
+
+	if (print) {
+		std::cout << " loading complete" << std::endl;
 	}
 
 	inFile.close();
@@ -444,12 +486,12 @@ global::Prediction Model::getPrediction() const {
 	size_t max = 0;
 
 	for (size_t i = 1; i < outputSize(); ++i) {
-		if (getOutput()[i] > getOutput()[max]) {
+		if (getOutput().getValue({i}) > getOutput().getValue({max})) {
 			max = i;
 		}
 	}
 
-	return global::Prediction(max, getOutput()[max]);
+	return global::Prediction(max, getOutput().getValue({max}));
 }
 
 void Model::setTraining() {

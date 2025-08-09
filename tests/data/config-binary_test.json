@@ -1,18 +1,19 @@
 {
 	"visual config": {
 		"enableVisuals": true,
+		"enableNetwrokVisual": false,
 		"modes": [
-			{ "state": "pause", "mode": true },
+			{ "state": "pause", "mode": false },
 			{ "state": "precise mode", "mode": false },
 			{ "state": "auto pause", "mode": false }
 		]
 	},
 	"training config": {
-		"batch size": 16,
-		"batch count": 1000,
+		"batch size": 64,
+		"batch count": 100000,
 		"auto save": {
-			"saveEvery": 2000,
-			"dataFilenameAutoSave": "mode.txt"
+			"saveEvery": 500,
+			"dataFilenameAutoSave": "test.txt"
 		},
 		"auto evaluating": {
 			"evaluateEvery": 10,
@@ -20,18 +21,20 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 0.1
+			"lr": 0
 		}
 	},
 	"network config": [
 		{
 			"type": "FNN",
-			"input size": 100,
-			"output size": 100,
+			"input size": 10,
+			"output size": 16,
 			"output activation": 4,
 			"layers": [
-				{ "size": 30, "activationType": 1 },
-				{ "size": 30, "activationType": 1 }
+				{ "size": 784, "activationType": 1 },
+				{ "size": 500, "activationType": 1 },
+				{ "size": 500, "activationType": 1 },
+				{ "size": 500, "activationType": 1 }
 			]
 		}
 	]

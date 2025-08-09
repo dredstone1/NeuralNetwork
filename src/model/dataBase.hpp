@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include <random>
 #include <vector>
+#include <Globals.hpp>
 
 namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";

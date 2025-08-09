@@ -1,36 +1,9 @@
 #include "activations.hpp"
+#include "tensor.hpp"
+#include "tensor_gpu.hpp"
+#include <cstdio>
 
 namespace nn::model {
-global::ValueType Activation::activate(const global::ValueType z) const {
-	switch (activationType) {
-	case ActivationType::Relu:
-		return relu(z);
-	case ActivationType::LeakyRelu:
-		return leakyRelu(z);
-	case ActivationType::Sigmoid:
-		return sigmoid(z);
-	case ActivationType::Tanh:
-		return tanh(z);
-	default:
-		return z;
-	}
-}
-
-global::ValueType Activation::derivativeActivate(const global::ValueType z) const {
-	switch (activationType) {
-	case ActivationType::Relu:
-		return derivativeRelu(z);
-	case ActivationType::LeakyRelu:
-		return derivativeLeakyRelu(z);
-	case ActivationType::Sigmoid:
-		return derivativeSigmoid(z);
-	case ActivationType::Tanh:
-		return derivativeTanh(z);
-	default:
-		return z;
-	}
-}
-
 void Activation::activate(const global::Tensor &net, global::Tensor &out) const {
 	switch (activationType) {
 	case ActivationType::Relu:
@@ -73,14 +46,17 @@ void Activation::derivativeActivate(const global::Tensor &net, global::Tensor &o
 }
 
 global::ValueType Activation::maxVector(const global::Tensor &metrix) {
-	global::ValueType max = metrix[0];
-	for (auto &value : metrix) {
-		if (value > max) {
-			max = value;
+	if (!metrix.isGpu) {
+		global::ValueType max = metrix.cpu_data[0];
+		for (size_t i = 0; i < metrix.numElements(); ++i) {
+			if (metrix.getValue({i}) > max) {
+				max = metrix.getValue({i});
+			}
 		}
-	}
 
-	return max;
+		return max;
+	}
+	return 0;
 }
 
 global::ValueType Activation::relu(const global::ValueType z) {
@@ -114,61 +90,105 @@ global::ValueType Activation::derivativeTanh(const global::ValueType z) {
 }
 
 void Activation::relu(const global::Tensor &net, global::Tensor &out) {
-	for (size_t i = 0; i < net.numElements(); ++i)
-		out[i] = relu(net[i]);
+	if (net.isGpu) {
+		global::tensor_gpu::relu(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			out.cpu_data[i] = relu(net.cpu_data[i]);
+		}
+	}
 }
 
 void Activation::derivativeRelu(const global::Tensor &net, global::Tensor &out) {
-	for (size_t i = 0; i < net.numElements(); ++i)
-		out[i] *= derivativeRelu(net[i]);
+	if (net.isGpu) {
+		global::tensor_gpu::relu_derivative(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			out.cpu_data[i] *= derivativeRelu(net.cpu_data[i]);
+		}
+	}
 }
 
 void Activation::leakyRelu(const global::Tensor &net, global::Tensor &out) {
-	for (size_t i = 0; i < net.numElements(); ++i)
-		out[i] = leakyRelu(net[i]);
+	if (net.isGpu) {
+		global::tensor_gpu::leaky_relu(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			out.cpu_data[i] = leakyRelu(net.cpu_data[i]);
+		}
+	}
 }
 
 void Activation::derivativeLeakyRelu(const global::Tensor &net, global::Tensor &out) {
-	for (size_t i = 0; i < net.numElements(); ++i)
-		out[i] *= derivativeLeakyRelu(net[i]);
+	if (net.isGpu) {
+		global::tensor_gpu::leaky_relu_derivative(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			out.cpu_data[i] *= derivativeLeakyRelu(net.cpu_data[i]);
+		}
+	}
 }
 
 void Activation::sigmoid(const global::Tensor &net, global::Tensor &out) {
-	for (size_t i = 0; i < net.numElements(); ++i)
-		out[i] = sigmoid(net[i]);
+	if (net.isGpu) {
+		global::tensor_gpu::sigmoid(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			out.cpu_data[i] = sigmoid(net.cpu_data[i]);
+		}
+	}
 }
 
 void Activation::derivativeSigmoid(const global::Tensor &net, global::Tensor &out) {
-	for (size_t i = 0; i < net.numElements(); ++i)
-		out[i] *= derivativeSigmoid(net[i]);
+	if (net.isGpu) {
+		global::tensor_gpu::sigmoid_derivative(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			out.cpu_data[i] *= derivativeSigmoid(net.cpu_data[i]);
+		}
+	}
 }
 
 void Activation::tanh(const global::Tensor &net, global::Tensor &out) {
-	for (size_t i = 0; i < net.numElements(); ++i)
-		out[i] = tanh(net[i]);
+	if (net.isGpu) {
+		global::tensor_gpu::tanh_activation(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			out.cpu_data[i] = tanh(net.cpu_data[i]);
+		}
+	}
 }
 
 void Activation::derivativeTanh(const global::Tensor &net, global::Tensor &out) {
-	for (size_t i = 0; i < net.numElements(); ++i)
-		out[i] *= derivativeTanh(net[i]);
+	if (net.isGpu) {
+		global::tensor_gpu::tanh_derivative(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			out.cpu_data[i] *= derivativeTanh(net.cpu_data[i]);
+		}
+	}
 }
 
 void Activation::softmax(const global::Tensor &net, global::Tensor &out) {
-	global::ValueType max = maxVector(net);
-	global::ValueType sum = 0.0;
+	if (net.isGpu) {
+		global::tensor_gpu::softmax(net.gpu_data, out.gpu_data, net.gpu_data_size);
+	} else {
+		global::ValueType max = maxVector(net);
+		global::ValueType sum = 0.0;
 
-	for (size_t i = 0; i < net.numElements(); ++i) {
-		global::ValueType x = net[i] - max;
-		if (x < -700.0)
-			x = -700.0;
-		if (x > 700.0)
-			x = 700.0;
-		out[i] = std::exp(x);
-		sum += out[i];
+		for (size_t i = 0; i < net.numElements(); ++i) {
+			global::ValueType x = net.cpu_data[i] - max;
+			if (x < -700.0)
+				x = -700.0;
+			if (x > 700.0)
+				x = 700.0;
+			out.cpu_data[i] = std::exp(x);
+			sum += out.cpu_data[i];
+		}
+
+		sum = maxValue(sum, 1e-10);
+
+		out /= sum;
 	}
-
-	sum = maxValue(sum, 1e-10);
-
-	out /= sum;
 }
 } // namespace nn::model

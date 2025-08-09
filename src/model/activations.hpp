@@ -2,10 +2,10 @@
 #define ACTIVATIONSP
 
 #include "tensor.hpp"
-#include <Globals.hpp>
 #include <cmath>
 
 namespace nn::model {
+
 constexpr global::ValueType RELU_LEAKY_ALPHA = 0.01;
 
 constexpr global::ValueType maxValue(const global::ValueType &a, const float &b) {
@@ -38,16 +38,13 @@ class Activation {
 	static global::ValueType derivativeTanh(const global::ValueType z);
 
 	static void relu(const global::Tensor &net, global::Tensor &out);
-	static void derivativeRelu(const global::Tensor &net,
-	                           global::Tensor &out);
+	static void derivativeRelu(const global::Tensor &net, global::Tensor &out);
 
-	static void leakyRelu(const global::Tensor &net,
-	                      global::Tensor &out);
+	static void leakyRelu(const global::Tensor &net, global::Tensor &out);
 	static void derivativeLeakyRelu(const global::Tensor &net,
 	                                global::Tensor &out);
 
-	static void sigmoid(const global::Tensor &net,
-	                    global::Tensor &out);
+	static void sigmoid(const global::Tensor &net, global::Tensor &out);
 	static void derivativeSigmoid(const global::Tensor &net,
 	                              global::Tensor &out);
 
@@ -55,8 +52,7 @@ class Activation {
 	static void derivativeTanh(const global::Tensor &net,
 	                           global::Tensor &out);
 
-	static void softmax(const global::Tensor &net,
-	                    global::Tensor &out);
+	static void softmax(const global::Tensor &net, global::Tensor &out);
 
 	static global::ValueType maxVector(const global::Tensor &metrix);
 
@@ -66,9 +62,6 @@ class Activation {
 	Activation(const Activation &other)
 	    : activationType(other.activationType) {}
 	~Activation() = default;
-
-	global::ValueType activate(const global::ValueType x) const;
-	global::ValueType derivativeActivate(const global::ValueType x) const;
 
 	void activate(const global::Tensor &net,
 	              global::Tensor &out) const;

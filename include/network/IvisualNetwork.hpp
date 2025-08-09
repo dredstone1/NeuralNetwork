@@ -3,8 +3,7 @@
 
 #include "../../src/visualizer/panel.hpp"
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <Globals.hpp>
 
 namespace nn::visualizer {
 constexpr std::uint32_t MODEL_HEIGHT = 770u;

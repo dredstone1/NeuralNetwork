@@ -98,7 +98,7 @@ void VisualDenseLayer::drawWeights(const size_t neuron_i, sf::RenderTexture &tar
 		line_[2].position = to;
 
 		line_[0].color = LINE_COLOR;
-		line_[0].color.a = parameters.weights({neuron_i, neuronP}) * 50;
+		line_[0].color.a = parameters.weights.getValue({neuron_i, neuronP}) * 50;
 		line_[1].color = line_[0].color;
 		line_[2].color = getColorFromTextT(getTextT(neuron_i, neuronP));
 		target.draw(line_);
@@ -162,7 +162,7 @@ void VisualDenseLayer::renderNeuron(const size_t index, sf::RenderTexture &targe
 		drawWeights(index, target);
 	}
 
-	drawNeuron(cacheNeurons[index], net[index], out[index], target);
+	drawNeuron(cacheNeurons[index], net.getValue({index}), out.getValue({index}), target);
 }
 
 void VisualDenseLayer::drawNeurons(sf::RenderTexture &target) {
@@ -198,10 +198,10 @@ float VisualDenseLayer::calculateGap(const int size, const float scale) {
 }
 
 textType VisualDenseLayer::getTextT(const size_t layer_i, const size_t layer_p) {
-	if (gradients.weights({layer_i, layer_p}) < 0)
+	if (gradients.weights.getValue({layer_i, layer_p}) < 0)
 		return textType::DOWN;
 
-	if (gradients.weights({layer_i, layer_p}) > 0)
+	if (gradients.weights.getValue({layer_i, layer_p}) > 0)
 		return textType::UP;
 
 	return textType::NORMAL;
@@ -254,7 +254,6 @@ void VisualDenseLayer::setGrad(const model::fnn::LayerParams &newGrad) {
 }
 
 void FnnVisualier::setWidth(const std::uint32_t newWidth) {
-
 	visualWidth = newWidth;
 	if (networkRender.resize({newWidth, networkRender.getSize().y})) {
 	}

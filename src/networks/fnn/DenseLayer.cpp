@@ -1,5 +1,7 @@
 #include "DenseLayer.hpp"
+#include <cstddef>
 #include <random>
+#include <vector>
 
 namespace nn::model::fnn {
 DenseLayer::DenseLayer(
@@ -11,6 +13,7 @@ DenseLayer::DenseLayer(
       out({size}),
       parameters(size, prevSize),
       gradients(size, prevSize),
+      deltaL({size}),
       activationFunction(activation) {
 	if (randomInit) {
 		fillParamRandom();
@@ -27,43 +30,46 @@ void Hidden_Layer::CreateDropoutMask() {
 	static thread_local std::mt19937 rng{std::random_device{}()};
 	std::bernoulli_distribution bernoulli(keepProb);
 
+	static std::vector<global::ValueType> temp(dropoutMask.numElements(), 0);
 	for (size_t i = 0; i < dropoutMask.numElements(); ++i) {
-		dropoutMask[i] = static_cast<uint8_t>(bernoulli(rng));
+		temp[i] = static_cast<uint8_t>(bernoulli(rng));
 	}
+
+	dropoutMask = temp;
 }
 
 void Output_Layer::forward(const global::Tensor &metrix) {
-	net = parameters.weights.matmul(metrix);
+	parameters.weights.matmul(metrix, net);
 	net += parameters.biases;
 
 	activationFunction.activate(net, out);
 }
 
-global::Tensor Output_Layer::getDelta(const global::Tensor &output) {
-	global::Tensor deltas = out;
-	deltas -= output;
-
-	return deltas;
+void Output_Layer::getDelta(const global::Tensor &output) {
+	deltaL = out;
+	deltaL -= output;
 }
 
 void Output_Layer::backward(
-    global::Tensor &deltas,
+    global::Tensor **deltas,
     const global::Tensor &prevLayer,
     const LayerParams *) {
 	if (activationFunction.getType() == ActivationType::Softmax) {
-		deltas = getDelta(deltas);
+		getDelta(**deltas);
 	} else {
-		activationFunction.derivativeActivate(out, deltas);
+		activationFunction.derivativeActivate(out, **deltas);
+		deltaL = **deltas;
 	}
 
-	gradients.biases += deltas;
-	gradients.weights += global::Tensor::outer(deltas, prevLayer);
+	gradients.biases += deltaL;
+	global::Tensor::outer(deltaL, prevLayer, gradients.weights);
+	*deltas = &deltaL;
 }
 
 global::ValueType Output_Layer::getCrossEntropyLoss(
     const global::Tensor &prediction,
     const size_t target) {
-	return -std::log(std::max(prediction[target], MIN_LOSS_VALUE));
+	return -std::log(std::max(prediction.getValue({target}), MIN_LOSS_VALUE));
 }
 
 global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
@@ -73,8 +79,8 @@ global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
 void Hidden_Layer::forward(const global::Tensor &metrix) {
 	if (isTraining)
 		CreateDropoutMask();
-    
-	net = parameters.weights.matmul(metrix);
+
+	parameters.weights.matmul(metrix, net);
 	net += parameters.biases;
 
 	if (isTraining && config.dropoutRate > 0.0f) {
@@ -86,32 +92,31 @@ void Hidden_Layer::forward(const global::Tensor &metrix) {
 }
 
 void Hidden_Layer::backward(
-    global::Tensor &deltas,
+    global::Tensor **deltas,
     const global::Tensor &prevLayer,
     const LayerParams *nextLayer) {
 
 	if (!nextLayer)
 		return;
 
-	deltas = getDelta(deltas, *nextLayer);
+	calculateDelta(**deltas, *nextLayer);
 
 	if (isTraining && config.dropoutRate) {
-		deltas *= dropoutMask;
+		deltaL *= dropoutMask;
 	}
 
-	gradients.biases += deltas;
+	gradients.biases += deltaL;
 
-	gradients.weights += global::Tensor::outer(deltas, prevLayer);
+	global::Tensor::outer(deltaL, prevLayer, gradients.weights);
+	*deltas = &deltaL;
 }
 
-global::Tensor Hidden_Layer::getDelta(
+void Hidden_Layer::calculateDelta(
     const global::Tensor &output,
     const LayerParams &nextLayer) {
 
-	auto deltas = nextLayer.weights.matmulT(output);
-	activationFunction.derivativeActivate(out, deltas);
-
-	return deltas;
+	nextLayer.weights.matmulT(output, deltaL);
+	activationFunction.derivativeActivate(out, deltaL);
 }
 
 size_t DenseLayer::getParamCount() const {
@@ -124,41 +129,29 @@ void DenseLayer::updateWeight(nn::model::IOptimizer &optimizer) {
 }
 
 const global::Tensor DenseLayer::getData() const {
-	global::Tensor matrix({parameters.paramSize()});
+	size_t weightsSize = parameters.weights.numElements();
+	size_t biasesSize = parameters.biases.numElements();
 
-	size_t currentI = 0;
-	for (size_t i = 0; i < size(); ++i) {
-		for (size_t j = 0; j < prevSize(); ++j) {
-			matrix[currentI] = parameters.weights({i, j});
+	global::Tensor matrix({weightsSize + biasesSize});
 
-			++currentI;
-		}
-	}
+	// Copy weights
+	matrix.insertRange(parameters.weights, 0, 0, weightsSize);
 
-	for (size_t i = 0; i < size(); ++i) {
-		matrix[currentI] = parameters.biases[i];
-
-		++currentI;
-	}
+	// Copy biases
+	matrix.insertRange(parameters.biases, 0, weightsSize, biasesSize);
 
 	return matrix;
 }
 
-void DenseLayer::setData(const global::Tensor newParam) {
-	size_t currentI = 0;
-	for (size_t i = 0; i < size(); ++i) {
-		for (size_t j = 0; j < prevSize(); ++j) {
-			parameters.weights({i, j}) = newParam[currentI];
+void DenseLayer::setData(const global::Tensor newParam, const size_t offset) {
+	size_t weightsSize = parameters.weights.numElements();
+	size_t biasesSize = parameters.biases.numElements();
 
-			++currentI;
-		}
-	}
+	// Copy into weights
+	parameters.weights.insertRange(newParam, offset, 0, weightsSize);
 
-	for (size_t i = 0; i < size(); ++i) {
-		parameters.biases[i] = newParam[currentI];
-
-		++currentI;
-	}
+	// Copy into biases
+	parameters.biases.insertRange(newParam, offset + weightsSize, 0, biasesSize);
 }
 
 void DenseLayer::fillParamRandom() {
@@ -167,18 +160,20 @@ void DenseLayer::fillParamRandom() {
 	global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prevSize()));
 	std::normal_distribution<> dist(0.0, std_dev);
 
-	for (auto &value : parameters.weights) {
-		value = dist(gen);
+	std::vector<global::ValueType> temp(parameters.weights.numElements());
+	for (size_t i = 0; i < temp.size(); ++i) {
+		temp[i] = dist(gen);
 	}
+	parameters.weights = temp;
 }
 
 void DenseLayer::resetDots() {
-	net.fill(0);
-	out.fill(0);
+	net.zero();
+	out.zero();
 }
 
 void DenseLayer::resetGradient() {
-	gradients.biases.fill(0);
-	gradients.weights.fill(0);
+	gradients.biases.zero();
+	gradients.weights.zero();
 }
 } // namespace nn::model::fnn

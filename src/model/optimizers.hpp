@@ -13,7 +13,7 @@ class IOptimizer {
   public:
 	virtual ~IOptimizer() = default;
 
-	virtual void step(global::Tensor &weight, const global::Tensor &grad) = 0;
+	virtual void step(global::Tensor &weight, global::Tensor &grad) = 0;
 	virtual void reset() = 0;
 
 	void setOfset(const int batchSize_) { batchSize = batchSize_; }
@@ -27,7 +27,7 @@ class ConstantOptimizer : public IOptimizer {
 	ConstantOptimizer(const ConstantOptimizerConfig &config_)
 	    : config(config_) {}
 
-	void step(global::Tensor &weight, const global::Tensor &grad) override;
+	void step(global::Tensor &weight, global::Tensor &grad) override;
 
 	void reset() override {}
 };

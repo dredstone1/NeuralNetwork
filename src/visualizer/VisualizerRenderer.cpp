@@ -1,15 +1,31 @@
 #include "VisualizerRenderer.hpp"
+#include "network/IvisualNetwork.hpp"
 #include "tensor.hpp"
+#include "visualModel.hpp"
+#include <SFML/System/Vector2.hpp>
+#include <memory>
 
 namespace nn::visualizer {
 constexpr std::uint32_t NN_WIDTH = 1055u;
 VisualRender::VisualRender(std::shared_ptr<StateManager> vstate)
-    : window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), WINDOW_TITLE.data()),
-      visualModel(vstate),
-      Vstate(vstate),
+    : Vstate(vstate),
+      winSize(getWinSize(Vstate->config.visualConfig.enableNetwrokVisual)),
+      window(sf::VideoMode(winSize), WINDOW_TITLE.data()),
       interface(vstate),
       statusV(vstate),
-      Vgraph(vstate) {}
+      Vgraph(vstate) {
+	if (Vstate->config.visualConfig.enableNetwrokVisual) {
+		visualModel = std::make_unique<ModelPanel>(vstate);
+	}
+}
+
+sf::Vector2u VisualRender::getWinSize(bool enableNetwork) {
+	winSize = sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT);
+	if (!enableNetwork) {
+		winSize -= sf::Vector2u(MODEL_WIDTH + UI_GAP, 0);
+	}
+	return winSize;
+}
 
 void VisualRender::processEvents() {
 	while (const std::optional event = window.pollEvent()) {
@@ -18,7 +34,12 @@ void VisualRender::processEvents() {
 		} else if (event->is<sf::Event::MouseButtonPressed>()) {
 			interface.handleNoClick();
 		} else if (event->is<sf::Event::MouseButtonReleased>()) {
-			interface.handleClick(sf::Mouse::getPosition(window), {NN_WIDTH + UI_GAP * 2, UI_GAP});
+			float x = UI_GAP;
+			if (Vstate->config.visualConfig.enableNetwrokVisual) {
+				x += NN_WIDTH + UI_GAP * 2;
+			}
+
+			interface.handleClick(sf::Mouse::getPosition(window), {x, UI_GAP});
 		} else if (event->is<sf::Event::Resized>()) {
 			need_resize = true;
 		} else if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()) {
@@ -32,31 +53,35 @@ void VisualRender::processEvents() {
 
 void VisualRender::resetSize() {
 	if (need_resize) {
-		window.setSize({WINDOW_WIDTH, WINDOW_HEIGHT});
+		window.setSize(winSize);
 	}
 
 	need_resize = false;
 }
 
 void VisualRender::renderPanels() {
-	visualModel.render();
-	sf::Sprite visualNetworkSprite = visualModel.getSprite();
-	visualNetworkSprite.setPosition({UI_GAP, UI_GAP});
-	window.draw(visualNetworkSprite);
+	float networkOffset = 0;
+	if (visualModel) {
+		visualModel->render();
+		sf::Sprite visualNetworkSprite = visualModel->getSprite();
+		visualNetworkSprite.setPosition({UI_GAP, UI_GAP});
+		window.draw(visualNetworkSprite);
+		networkOffset += visualNetworkSprite.getGlobalBounds().size.x + UI_GAP;
+	}
 
 	interface.render();
 	sf::Sprite interfaceSprite = interface.getSprite();
-	interfaceSprite.setPosition({NN_WIDTH + UI_GAP * 2, UI_GAP});
+	interfaceSprite.setPosition({networkOffset + UI_GAP, UI_GAP});
 	window.draw(interfaceSprite);
 
 	statusV.render();
 	sf::Sprite statusSprite = statusV.getSprite();
-	statusSprite.setPosition({NN_WIDTH + UI_GAP * 2, UI_GAP * 2 + VINTERFACE_HEIGHT});
+	statusSprite.setPosition({networkOffset + UI_GAP, UI_GAP * 2 + VINTERFACE_HEIGHT});
 	window.draw(statusSprite);
 
 	Vgraph.render();
 	sf::Sprite graphSprite = Vgraph.getSprite();
-	graphSprite.setPosition({NN_WIDTH + UI_GAP * 2, UI_GAP * 3 + VINTERFACE_HEIGHT + VSTATUS_HEIGHT});
+	graphSprite.setPosition({networkOffset + UI_GAP, UI_GAP * 3 + VINTERFACE_HEIGHT + VSTATUS_HEIGHT});
 	window.draw(graphSprite);
 }
 
@@ -65,7 +90,9 @@ void VisualRender::fullUpdate() {
 
 	statusV.setUpdate();
 	interface.setUpdate();
-	visualModel.setUpdate();
+	if (visualModel) {
+		visualModel->setUpdate();
+	}
 	Vgraph.setUpdate();
 }
 
@@ -118,7 +145,9 @@ void VisualRender::close() {
 }
 
 bool VisualRender::updateStatus() {
-	return interface.updateStatus() || statusV.updateStatus() || visualModel.updateStatus();
+	return interface.updateStatus() ||
+	       statusV.updateStatus() ||
+	       (visualModel && visualModel->updateStatus());
 }
 
 void VisualRender::start() {
@@ -148,11 +177,15 @@ void VisualRender::setNewPhaseMode(const NnMode nn_mode) {
 }
 
 void VisualRender::updatePrediction(const global::Prediction &pre) {
-	visualModel.setPrediction(pre);
+	if (visualModel) {
+		visualModel->setPrediction(pre);
+	}
 }
 
 void VisualRender::updateInput(const global::Tensor &input) {
-	visualModel.setInput(input);
+	if (visualModel) {
+		visualModel->setInput(input);
+	}
 }
 
 void VisualRender::updateLearningRate(const global::ValueType lr) {
@@ -160,6 +193,8 @@ void VisualRender::updateLearningRate(const global::ValueType lr) {
 }
 
 void VisualRender::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
-	visualModel.addVisualSubNetwork(newVisual);
+	if (visualModel) {
+		visualModel->addVisualSubNetwork(newVisual);
+	}
 }
 } // namespace nn::visualizer

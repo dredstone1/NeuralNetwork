@@ -13,7 +13,7 @@ class FNNetwork : public INetwork {
 
 	const std::shared_ptr<visualizer::fnn::FnnVisualier> visual;
 
-	void calculateInputDelta(const global::Tensor &deltas);
+	void calculateInputDelta(global::Tensor **deltas);
 
 	void vUpdate();
 
@@ -28,7 +28,7 @@ class FNNetwork : public INetwork {
 	~FNNetwork() override = default;
 
 	void forward(const global::Tensor &newInput) override;
-	void backward(const global::Tensor &outputDeltas) override;
+	void backward(global::Tensor **outputDeltas) override;
 	void updateWeights(IOptimizer &optimizer) override;
 	void resetGradient() override;
 

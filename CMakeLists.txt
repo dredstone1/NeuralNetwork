@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.28)
-project(NeuralNetwork LANGUAGES CXX)
+set(CMAKE_CUDA_ARCHITECTURES 86)  # For RTX 3060
+project(NeuralNetwork LANGUAGES CXX CUDA)  # Add CUDA here
 
 # ------------------------------------------------------------------
 # Configuration
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CUDA_STANDARD 17)                    # Add CUDA standard
+set(CMAKE_CUDA_STANDARD_REQUIRED ON)           # Enforce it
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+enable_language(CUDA)
 
 # Default to Debug build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -40,20 +45,21 @@ FetchContent_Declare(nlohmann_json
 FetchContent_MakeAvailable(SFML nlohmann_json)
 
 # ------------------------------------------------------------------
-# Function: Apply sanitizers
-function(apply_sanitizers target)
-    target_compile_options(${target} PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
-    target_link_libraries(${target} PRIVATE -fsanitize=address)
-endfunction()
-
-# ------------------------------------------------------------------
 # Main library
+
+# Add both C++ and CUDA sources
 file(GLOB_RECURSE NN_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu"   # Include CUDA source files
 )
 
 add_library(NeuralNetwork STATIC ${NN_SOURCES})
 set_target_properties(NeuralNetwork PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# Enable separable compilation for CUDA files
+set_target_properties(NeuralNetwork PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+)
 
 target_include_directories(NeuralNetwork
     PUBLIC
@@ -71,20 +77,18 @@ target_link_libraries(NeuralNetwork
         SFML::Window
         SFML::System
         nlohmann_json::nlohmann_json
+        cuda
 )
 
 target_compile_options(NeuralNetwork PRIVATE -Wall -Wextra -Wpedantic)
 
 # ------------------------------------------------------------------
-# Tests (with sanitizers)
+# Tests
 option(BUILD_NN_TESTS "Build NeuralNetwork tests" OFF)
 
 if(BUILD_NN_TESTS)
     enable_testing()
     include(CTest)
-
-    # Apply sanitizers only for test builds
-    apply_sanitizers(NeuralNetwork)
 
     file(GLOB TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
 
@@ -95,8 +99,6 @@ if(BUILD_NN_TESTS)
             add_executable(${test_name} ${test_file})
             target_link_libraries(${test_name} PRIVATE NeuralNetwork)
             target_include_directories(${test_name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-            apply_sanitizers(${test_name})
 
             add_test(NAME ${test_name} COMMAND ${test_name})
         endforeach()
@@ -109,3 +111,4 @@ endif()
 # Install
 install(TARGETS NeuralNetwork ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
+

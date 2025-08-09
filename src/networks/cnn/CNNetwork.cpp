@@ -16,7 +16,7 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	input = newInput;
 }
 
-void CNNetwork::backward(const global::Tensor &) {
+void CNNetwork::backward(global::Tensor **) {
 }
 
 global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
