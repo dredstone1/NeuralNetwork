@@ -34,14 +34,15 @@ void VisualRender::processEvents() {
 		} else if (event->is<sf::Event::MouseButtonPressed>()) {
 			interface.handleNoClick();
 		} else if (event->is<sf::Event::MouseButtonReleased>()) {
-			interface.handleClick(sf::Mouse::getPosition(window), {NN_WIDTH + UI_GAP * 2, UI_GAP});
+			float x = UI_GAP;
+			if (Vstate->config.visualConfig.enableNetwrokVisual) {
+				x += NN_WIDTH + UI_GAP * 2;
+			}
+
+			interface.handleClick(sf::Mouse::getPosition(window), {x, UI_GAP});
 		} else if (event->is<sf::Event::Resized>()) {
 			need_resize = true;
 		} else if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-			if (!Vstate->config.visualConfig.enableNetwrokVisual) {
-				continue;
-			}
-
 			if (keyPressed->scancode == sf::Keyboard::Scancode::Space) {
 				Vstate->toggle(SettingType::Pause);
 				interface.setUpdate();

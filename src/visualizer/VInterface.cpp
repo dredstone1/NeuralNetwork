@@ -31,6 +31,7 @@ void InterfacePanel::createVInterface() {
 		    set));
 	}
 }
+
 void InterfacePanel::display() {
 	VRender.display();
 }
