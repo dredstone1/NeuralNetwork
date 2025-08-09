@@ -187,7 +187,10 @@ __global__ void reluKernel(const ValueType* input, ValueType* output, std::size_
 
 __global__ void reluDerivativeKernel(const ValueType* input, ValueType* output, std::size_t count) {
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < count) output[idx] = input[idx] > 0.0f ? 1.0f : 0.0f;
+    if (idx < count) {
+        ValueType derivative = (input[idx] > 0.0f) ? 1.0f : 0.0f;
+        output[idx] *= derivative; // FIX: Changed = to *=
+    }
 }
 
 void relu(const ValueType* input, ValueType* output, std::size_t count) {
@@ -219,7 +222,8 @@ __global__ void sigmoidDerivativeKernel(const ValueType* input, ValueType* outpu
     if (idx < count) {
         ValueType x = input[idx];
         ValueType s = 1.0f / (1.0f + expf(-x));
-        output[idx] = s * (1.0f - s);
+        ValueType derivative = s * (1.0f - s);
+        output[idx] *= derivative;
     }
 }
 
@@ -248,7 +252,8 @@ __global__ void tanhDerivativeKernel(const ValueType* input, ValueType* output, 
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < count) {
         ValueType t = tanhf(input[idx]);
-        output[idx] = 1.0f - t * t;
+        ValueType derivative = 1.0f - t * t;
+        output[idx] *= derivative;
     }
 }
 
@@ -275,7 +280,10 @@ __global__ void leakyReluKernel(const ValueType* input, ValueType* output, std::
 
 __global__ void leakyReluDerivativeKernel(const ValueType* input, ValueType* output, std::size_t count, ValueType alpha) {
     std::size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < count) output[idx] = (input[idx] > 0.0f) ? 1.0f : alpha;
+    if (idx < count) {
+        ValueType derivative = (input[idx] > 0.0f) ? 1.0f : alpha;
+        output[idx] *= derivative; // FIX: Changed = to *=
+    }
 }
 
 void leaky_relu(const ValueType* input, ValueType* output, std::size_t count, ValueType alpha) {
@@ -384,7 +392,7 @@ __global__ void outerKernel(const ValueType* a, const ValueType* b, ValueType* r
     if (idx < total) {
         size_t i = idx / n;
         size_t j = idx % n;
-        result[i * n + j] = a[i] * b[j];
+        result[i * n + j] += a[i] * b[j];
     }
 }
 
