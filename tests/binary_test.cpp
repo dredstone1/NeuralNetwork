@@ -77,18 +77,6 @@ int main(int argc, char *argv[]) {
 	size_t input_size = 10;
 
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
-	// nn::global::Tensor give_me_a_name({5, 3});
-	// printf("test: \n");
-	//    give_me_a_name.fill(5);
-	// give_me_a_name.setValue({2, 1}, 5);
-	//
-	// nn::global::Tensor give_me_a_name1({5, 3});
-	// printf("test: \n");
-	//    give_me_a_name1.fill(3);
-	// give_me_a_name1.setValue({2, 1}, 10);
-	//    give_me_a_name1 += give_me_a_name;
-	//    printf("test: %f\n", give_me_a_name1.getValue({2,1}));
-	// return 0;
 
 	nn::model::Model model(config_FN);
 

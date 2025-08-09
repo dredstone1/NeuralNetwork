@@ -1,6 +1,6 @@
 {
 	"visual config": {
-		"enableVisuals": false,
+		"enableVisuals": true,
 		"modes": [
 			{ "state": "pause", "mode": true },
 			{ "state": "precise mode", "mode": false },
@@ -22,7 +22,10 @@
 			"output size": 16,
 			"output activation": 4,
 			"layers": [
-				{ "size": 1000, "activationType": 1 },
+				{ "size": 10, "activationType": 1 },
+				{ "size": 10, "activationType": 1 },
+				{ "size": 10, "activationType": 1 },
+				{ "size": 10, "activationType": 1 },
 				{ "size": 300, "activationType": 1 }
 			]
 		}

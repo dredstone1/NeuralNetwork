@@ -168,12 +168,12 @@ void DenseLayer::fillParamRandom() {
 }
 
 void DenseLayer::resetDots() {
-	net.fill(0);
-	out.fill(0);
+	net.zero();
+	out.zero();
 }
 
 void DenseLayer::resetGradient() {
-	gradients.biases.fill(0);
-	gradients.weights.fill(0);
+	gradients.biases.zero();
+	gradients.weights.zero();
 }
 } // namespace nn::model::fnn

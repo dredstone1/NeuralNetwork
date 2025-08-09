@@ -32,11 +32,11 @@ static const std::array<sf::Color, 3> color_lookup = {
 
 class VisualDenseLayer {
   private:
-	global::Tensor net{{0}};
-	global::Tensor out{{0}};
+	global::Tensor net{{1}};
+	global::Tensor out{{1}};
 
-	model::fnn::LayerParams parameters{0, 0};
-	model::fnn::LayerParams gradients{0, 0};
+	model::fnn::LayerParams parameters{1, 1};
+	model::fnn::LayerParams gradients{1, 1};
 
 	sf::Vector2f pos;
 

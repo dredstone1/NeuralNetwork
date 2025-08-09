@@ -33,6 +33,7 @@ Tensor::Tensor(const Tensor &other) {
 	if (isGpu) {
 		gpu_data_size = other.gpu_data_size;
 		gpu_data = (ValueType *)tensor_gpu::allocate(gpu_data_size * sizeof(ValueType));
+
 		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
 	} else {
 		cpu_data = other.cpu_data;
@@ -80,18 +81,18 @@ Tensor &Tensor::operator=(const Tensor &other) {
 	if (!isGpu) {
 		cpu_data = other.cpu_data;
 	} else {
-		ValueType *temp = gpu_data;
 		if (gpu_data_size != other.gpu_data_size) {
+		ValueType *temp = gpu_data;
 			temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
 
 			gpu_data_size = other.gpu_data_size;
-		}
-		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
+			tensor_gpu::copyDeviceToDevice(temp, other.gpu_data, gpu_data_size * sizeof(ValueType));
 
-		if (gpu_data_size != other.gpu_data_size) {
 			tensor_gpu::deallocate(gpu_data);
 			gpu_data = temp;
-		}
+		} else {
+			tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
+        }
 	}
 
 	shape = other.shape;

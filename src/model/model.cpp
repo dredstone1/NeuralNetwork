@@ -1,8 +1,6 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
-#include "Globals.hpp"
 #include "dataBase.hpp"
-#include "tensor.hpp"
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -92,6 +90,7 @@ std::uint32_t Model::calculateSubNetWidth() const {
 
 void Model::initModel() {
 	const std::uint32_t WIDTH = calculateSubNetWidth();
+	size_t param_amount = 0;
 
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		ISubNetworkConfig &_config = *config.networkConfig.SubNetworksConfig[i];
@@ -101,7 +100,14 @@ void Model::initModel() {
 		} else if (_config.NNLable() == cnn::CNN_LABLE) {
 			addCNN(WIDTH, _config);
 		}
+
+		param_amount += network[i]->getParams().numElements();
 	}
+
+	std::cout << "initialize model - "
+	          << param_amount << " parameters, "
+	          << config.networkConfig.SubNetworksConfig.size() << " sub networks"
+	          << std::endl;
 }
 
 void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
@@ -284,7 +290,7 @@ bool Model::autoEvaluating(
 
 void Model::autoSave(const int i) {
 	if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
-		save(config.trainingConfig.getAutoSave().dataFilenameAutoSave);
+		save(config.trainingConfig.getAutoSave().dataFilenameAutoSave, false);
 	}
 }
 
@@ -415,8 +421,12 @@ size_t Model::inputSize() const {
 	return network[0]->inputSize();
 }
 
-void Model::save(const std::string &file) {
+void Model::save(const std::string &file, bool print) {
 	std::ofstream outFile(file);
+
+	if (print) {
+		std::cout << "Start saving" << std::endl;
+	}
 
 	for (size_t i = 0; i < network.size(); ++i) {
 		global::Tensor params = network[i]->getParams();
@@ -425,18 +435,26 @@ void Model::save(const std::string &file) {
 		for (size_t j = 0; j < params.numElements(); ++j) {
 			outFile << params.getValue({j}) << " ";
 		}
-
 		outFile << std::endl;
+	}
+
+	if (print) {
+		std::cout << " saving complete" << std::endl;
 	}
 
 	outFile.close();
 }
 
-void Model::load(const std::string &file) {
+void Model::load(const std::string &file, bool print) {
 	std::ifstream inFile(file);
 
 	std::string line;
 	int networkI = 0;
+
+	if (print) {
+		std::cout << "Start loading" << std::endl;
+	}
+
 	while (std::getline(inFile, line)) {
 		std::istringstream iss(line);
 
@@ -445,15 +463,17 @@ void Model::load(const std::string &file) {
 		global::Tensor numbers({ParamSize});
 
 		float num;
-
 		for (size_t i = 0; i < ParamSize; ++i) {
 			iss >> num;
 			numbers.setValue({i}, num);
 		}
 
 		network[networkI]->setParams(numbers);
-
 		networkI++;
+	}
+
+	if (print) {
+		std::cout << " loading complete" << std::endl;
 	}
 
 	inFile.close();
