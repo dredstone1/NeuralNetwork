@@ -76,6 +76,8 @@ void printVector(const nn::global::Tensor &vec) {
 int main(int argc, char *argv[]) {
 	size_t input_size = 10;
 
+    nn::global::Tensor::toGpu();
+
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
 
 	nn::model::Model model(config_FN);

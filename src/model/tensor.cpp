@@ -1,9 +1,13 @@
 #include "tensor_gpu.hpp"
+#include <cstddef>
 #include <numeric>
 #include <stdexcept>
 #include <tensor.hpp>
 
 namespace nn::global {
+bool Tensor::isGpu = false;
+size_t Tensor::tensorCount = 0;
+
 Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 	if (shape_.empty()) {
 		throw std::invalid_argument("Tensor shape cannot be empty.");
@@ -25,6 +29,28 @@ Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 	}
 
 	computeStrides();
+
+	tensorCount++;
+}
+
+void Tensor::toGpu() {
+	if (isGpu)
+		return;
+
+	if (tensorCount > 0)
+		throw std::runtime_error("Cannot switch to GPU mode: tensors already exist in CPU mode.");
+
+	isGpu = true;
+}
+
+void Tensor::toCpu() {
+	if (!isGpu)
+		return;
+
+	if (tensorCount > 0)
+		throw std::runtime_error("Cannot switch to CPU mode: tensors already exist in GPU mode.");
+
+	isGpu = false;
 }
 
 Tensor::Tensor(const Tensor &other) {
@@ -328,5 +354,6 @@ Tensor::~Tensor() {
 	if (isGpu) {
 		tensor_gpu::deallocate(gpu_data);
 	}
+	tensorCount--;
 }
 } // namespace nn::global

@@ -6,11 +6,10 @@
 
 namespace nn::model {
 class Activation;
-}
+void enableGpuMode();
+} // namespace nn::model
 
 namespace nn::global {
-
-constexpr bool GPU_MODE = true;
 
 class Tensor {
   private:
@@ -21,7 +20,8 @@ class Tensor {
 	ValueType *gpu_data = nullptr;
 	std::size_t gpu_data_size;
 
-	static const bool isGpu{GPU_MODE};
+	static bool isGpu;
+    static size_t tensorCount;
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
@@ -64,7 +64,11 @@ class Tensor {
 	void matmul(const Tensor &other, Tensor &result) const;
 	static void outer(const Tensor &a, const Tensor &b, Tensor &result);
 	void matmulT(const Tensor &vec, Tensor &result) const;
+
+	static void toGpu();
+	static void toCpu();
 };
+
 } // namespace nn::global
 
 #endif // TENSOR
