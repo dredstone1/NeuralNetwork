@@ -78,6 +78,9 @@ void Model::initOptimizer() {
 void Model::initVisual() {
 	visual.start();
 
+	if (!config.visualConfig.enableNetwrokVisual)
+		return;
+
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		visual.addVisualSubNetwork(network[i]->getVisual());
 		network[i]->getVisual()->setVstate(visual.Vstate);
@@ -113,7 +116,7 @@ void Model::initModel() {
 void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	fnn::FNNConfig &sub_ = (fnn::FNNConfig &)(_config);
 
-	if (config.visualConfig.enableVisuals) {
+	if (config.visualConfig.enableVisuals && config.visualConfig.enableNetwrokVisual) {
 		std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ =
 		    std::make_shared<visualizer::fnn::FnnVisualier>(
 		        visual.Vstate,
@@ -129,7 +132,7 @@ void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	cnn::CNNConfig &sub_ = (cnn::CNNConfig &)(_config);
 
-	if (config.visualConfig.enableVisuals) {
+	if (config.visualConfig.enableVisuals && config.visualConfig.enableNetwrokVisual) {
 		std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =
 		    std::make_shared<visualizer::cnn::CnnVisualier>(
 		        visual.Vstate,

@@ -148,9 +148,10 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
 
 struct VisualConfig {
 	bool enableVisuals{true};
+	bool enableNetwrokVisual{true};
 	std::vector<VisualMode> modes;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualConfig, enableVisuals, modes);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualConfig, enableVisuals, enableNetwrokVisual, modes);
 
 class Config {
   public:

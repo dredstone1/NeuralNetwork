@@ -30,7 +30,7 @@ class Tensor {
 
   public:
 	// Constructors
-	Tensor(const std::vector<size_t> &shape, float init = 0.0f);
+	Tensor(const std::vector<size_t> &shape, ValueType init = 0.0f);
 	Tensor(const Tensor &other);
 
 	~Tensor();
@@ -40,9 +40,8 @@ class Tensor {
 
 	ValueType getValue(const std::vector<size_t> &newShape) const;
 	void setValue(const std::vector<size_t> &newShape, const ValueType value);
-	void insertRange(const Tensor &other,
-	                 const size_t startO, const size_t startT,
-	                 const size_t length);
+	void insertRange(const Tensor &other, const size_t startO,
+	                 const size_t startT, const size_t length);
 
 	// Shape and size
 	size_t numElements() const;

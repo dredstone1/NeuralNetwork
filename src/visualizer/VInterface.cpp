@@ -1,30 +1,45 @@
 #include "VInterface.hpp"
+#include "state.hpp"
 
 namespace nn::visualizer {
-IntefacePanel::IntefacePanel(const std::shared_ptr<StateManager> vstate)
+InterfacePanel::InterfacePanel(const std::shared_ptr<StateManager> vstate)
     : Panel(vstate),
       VRender({VINTERFACE_WIDTH, VINTERFACE_HEIGHT}) {
 	createVInterface();
 }
 
-void IntefacePanel::createVInterface() {
+void InterfacePanel::createVInterface() {
 	VRender.clear(INTERFACE_PANEL_COLOR);
 	buttons.reserve(STATES_COUNT);
 
+	constexpr std::array<SettingType, 3> skipWhenDisabled = {
+	    SettingType::AutoPause,
+	    SettingType::Pause,
+	    SettingType::PreciseMode};
+
 	for (int i = 0; i < STATES_COUNT; ++i) {
-		buttons.push_back(std::make_unique<Button>(vstate, vstate->getStateString((SettingType)i), (SettingType)i));
+		SettingType set = static_cast<SettingType>(i);
+
+		if (!vstate->config.visualConfig.enableNetwrokVisual &&
+		    std::find(skipWhenDisabled.begin(), skipWhenDisabled.end(), set) != skipWhenDisabled.end()) {
+			continue;
+		}
+
+		buttons.push_back(std::make_unique<Button>(
+		    vstate,
+		    vstate->getStateString(set),
+		    set));
 	}
 }
-
-void IntefacePanel::display() {
+void InterfacePanel::display() {
 	VRender.display();
 }
 
-sf::Sprite IntefacePanel::getSprite() {
+sf::Sprite InterfacePanel::getSprite() {
 	return sf::Sprite(VRender.getTexture());
 }
 
-void IntefacePanel::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
+void InterfacePanel::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
 	if (needHandlePress) {
 		return;
 	}
@@ -34,12 +49,12 @@ void IntefacePanel::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f
 	handleKeyPresed(mousePos_, boxPos);
 }
 
-void IntefacePanel::handleNoClick() {
+void InterfacePanel::handleNoClick() {
 	needHandlePress = false;
 	setUpdate();
 }
 
-void IntefacePanel::doRender() {
+void InterfacePanel::doRender() {
 	int row = 0, column = -1;
 
 	for (size_t button_ = 0; button_ < buttons.size(); ++button_) {
@@ -60,7 +75,7 @@ void IntefacePanel::doRender() {
 	display();
 }
 
-void IntefacePanel::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
+void InterfacePanel::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
 	int row = 0, column = -1;
 	sf::Vector2f mousePos(static_cast<float>(mousePos_.x), static_cast<float>(mousePos_.y));
 
