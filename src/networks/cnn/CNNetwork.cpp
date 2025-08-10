@@ -1,7 +1,4 @@
 #include "CNNetwork.hpp"
-#include "tensor.hpp"
-#include <cstddef>
-#include <vector>
 
 namespace nn::model::cnn {
 CNNetwork::CNNetwork(
