@@ -28,6 +28,8 @@ class INetwork {
 	virtual void setParams(const global::Tensor params) = 0;
 
 	virtual void setTraining(const bool state) = 0;
+
+	virtual size_t getParamCount() const = 0;
 };
 } // namespace nn::model
 

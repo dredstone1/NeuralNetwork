@@ -108,7 +108,7 @@ void Model::initModel() {
 			addCNN(WIDTH, _config);
 		}
 
-		// param_amount += network[i]->getParams().numElements();
+		param_amount += network[i]->getParamCount();
 	}
 
 	std::cout << "initialize model - "

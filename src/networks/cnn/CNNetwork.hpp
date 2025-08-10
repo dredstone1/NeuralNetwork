@@ -42,6 +42,8 @@ class CNNetwork : public INetwork {
     std::vector<global::ValueType> getParams() const override;
 	void setParams(const global::Tensor params) override;
 
+	size_t getParamCount() const override;
+
 	void setTraining(const bool state) override;
 };
 } // namespace nn::model::cnn

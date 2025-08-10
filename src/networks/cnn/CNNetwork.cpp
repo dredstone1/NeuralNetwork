@@ -56,6 +56,10 @@ std::vector<global::ValueType> CNNetwork::getParams() const {
 void CNNetwork::setParams(const global::Tensor) {
 }
 
+size_t CNNetwork::getParamCount() const {
+	return 0;
+}
+
 void CNNetwork::setTraining(const bool) {
 }
 } // namespace nn::model::cnn
