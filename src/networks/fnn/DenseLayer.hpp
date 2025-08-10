@@ -72,7 +72,7 @@ class DenseLayer {
 	size_t getParamCount() const;
 
 	const std::vector<global::ValueType> getData() const;
-	void setData(const global::Tensor newParam, const size_t offset);
+	void setData(const global::Tensor &newParam, const size_t offset);
 
 	void setTraining(const bool state) { isTraining = state; }
 };

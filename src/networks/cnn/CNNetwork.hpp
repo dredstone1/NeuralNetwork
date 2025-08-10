@@ -40,7 +40,7 @@ class CNNetwork : public INetwork {
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
 
     std::vector<global::ValueType> getParams() const override;
-	void setParams(const global::Tensor params) override;
+	void setParams(const global::Tensor &params) override;
 
 	size_t getParamCount() const override;
 

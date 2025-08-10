@@ -154,7 +154,7 @@ const std::vector<global::ValueType> DenseLayer::getData() const {
 	return matrix;
 }
 
-void DenseLayer::setData(const global::Tensor newParam, const size_t offset) {
+void DenseLayer::setData(const global::Tensor &newParam, const size_t offset) {
 	size_t weightsSize = parameters.weights.numElements();
 	size_t biasesSize = parameters.biases.numElements();
 

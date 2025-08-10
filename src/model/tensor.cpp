@@ -1,16 +1,30 @@
 #include "tensor_gpu.hpp"
 #include <cstddef>
 #include <numeric>
-#include <stdexcept>
+#include <sstream>
 #include <tensor.hpp>
 
 namespace nn::global {
+
+static std::string shapeToString(const std::vector<size_t> &shape) {
+	if (shape.empty()) {
+		return "{}";
+	}
+	std::stringstream ss;
+	ss << "{";
+	for (size_t i = 0; i < shape.size() - 1; ++i) {
+		ss << shape[i] << ", ";
+	}
+	ss << shape.back() << "}";
+	return ss.str();
+}
+
 bool Tensor::isGpu = false;
 size_t Tensor::tensorCount = 0;
 
 Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 	if (shape_.empty()) {
-		throw std::invalid_argument("Tensor shape cannot be empty.");
+		throw std::invalid_argument("Invalid argument: Tensor shape cannot be empty.");
 	}
 
 	size_t totalSize = std::accumulate(
@@ -128,7 +142,9 @@ Tensor &Tensor::operator=(const Tensor &other) {
 
 Tensor &Tensor::operator=(const std::vector<ValueType> &other) {
 	if (other.size() != numElements()) {
-		throw std::length_error("Tensor assignment size mismatch");
+		throw std::length_error(
+		    "Tensor assignment size mismatch: Tensor has " + std::to_string(numElements()) +
+		    " elements, but input vector has " + std::to_string(other.size()) + " elements.");
 	}
 
 	if (isGpu) {
@@ -153,13 +169,18 @@ void Tensor::computeStrides() {
 
 inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 	if (indices.size() != shape.size()) {
-		throw std::invalid_argument("Incorrect number of indices.");
+		throw std::invalid_argument(
+		    "Incorrect number of indices provided. Tensor has " + std::to_string(shape.size()) +
+		    " dimensions, but " + std::to_string(indices.size()) + " indices were given.");
 	}
 
 	size_t index = 0;
 	for (size_t i = 0; i < shape.size(); ++i) {
 		if (indices[i] >= shape[i])
-			throw std::out_of_range("Index out of bounds.");
+			throw std::out_of_range(
+			    "Index out of bounds. Index " + std::to_string(indices[i]) +
+			    " is invalid for dimension " + std::to_string(i) + " which has size " +
+			    std::to_string(shape[i]) + ".");
 		index += indices[i] * strides[i];
 	}
 
@@ -196,7 +217,9 @@ void Tensor::setValue(const std::vector<size_t> &indices, const ValueType value)
 
 Tensor &Tensor::operator+=(const Tensor &other) {
 	if (shape != other.shape)
-		throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
+		throw std::invalid_argument(
+		    "Shape mismatch in Tensor::operator+=. Left-hand side shape: " +
+		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
 
 	if (isGpu) {
 		tensor_gpu::add_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
@@ -210,7 +233,9 @@ Tensor &Tensor::operator+=(const Tensor &other) {
 
 Tensor &Tensor::operator-=(const Tensor &other) {
 	if (shape != other.shape)
-		throw std::invalid_argument("Shape mismatch in Tensor::operator-=.");
+		throw std::invalid_argument(
+		    "Shape mismatch in Tensor::operator-=. Left-hand side shape: " +
+		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
 
 	if (isGpu) {
 		tensor_gpu::subtraction_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
@@ -224,7 +249,9 @@ Tensor &Tensor::operator-=(const Tensor &other) {
 
 Tensor &Tensor::operator*=(const Tensor &other) {
 	if (shape != other.shape)
-		throw std::invalid_argument("Shape mismatch in Tensor::operator*=.");
+		throw std::invalid_argument(
+		    "Shape mismatch in Tensor::operator*=. Left-hand side shape: " +
+		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
 
 	if (isGpu) {
 		tensor_gpu::multiply_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
@@ -238,7 +265,9 @@ Tensor &Tensor::operator*=(const Tensor &other) {
 
 Tensor &Tensor::operator/=(const Tensor &other) {
 	if (shape != other.shape)
-		throw std::invalid_argument("Shape mismatch in Tensor::operator/=.");
+		throw std::invalid_argument(
+		    "Shape mismatch in Tensor::operator/=. Left-hand side shape: " +
+		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
 
 	if (isGpu) {
 		tensor_gpu::division_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
@@ -298,12 +327,19 @@ void Tensor::matmul(const Tensor &other, Tensor &result) const {
 	const auto &aShape = shape;
 	const auto &bShape = other.shape;
 	if (aShape.size() != 2 || bShape.size() != 1)
-		throw std::runtime_error("matmul: unsupported shapes.");
+		throw std::runtime_error(
+		    "matmul: Unsupported shapes. This operation currently supports a 2D matrix "
+		    "multiplied by a 1D vector. Got shapes: " +
+		    shapeToString(aShape) + " and " + shapeToString(bShape) + ".");
 
 	size_t M = aShape[0];
 	size_t K = aShape[1];
 	if (K != bShape[0])
-		throw std::runtime_error("matmul: shape mismatch.");
+		throw std::runtime_error(
+		    "matmul: Incompatible shapes for matrix-vector multiplication. The number of "
+		    "columns in the matrix (" +
+		    std::to_string(K) + ") must match the size of the vector (" +
+		    std::to_string(bShape[0]) + ").");
 
 	result.zero();
 
@@ -327,7 +363,9 @@ void Tensor::matmul(const Tensor &other, Tensor &result) const {
 
 void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
 	if (a.shape.size() != 1 || b.shape.size() != 1) {
-		throw std::runtime_error("outer: both tensors must be 1D vectors");
+		throw std::runtime_error(
+		    "outer: Both input tensors must be 1D vectors. Got shapes " +
+		    shapeToString(a.shape) + " and " + shapeToString(b.shape) + ".");
 	}
 
 	size_t m = a.shape[0];
@@ -352,10 +390,17 @@ void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
 
 void Tensor::matmulT(const Tensor &vec, Tensor &result) const {
 	if (shape.size() != 2 || vec.shape.size() != 1)
-		throw std::runtime_error("matmulT: bad dimensions");
+		throw std::runtime_error(
+		    "matmulT: Unsupported shapes. This operation requires a 2D matrix (this) and a "
+		    "1D vector. Got shapes " +
+		    shapeToString(shape) + " and " + shapeToString(vec.shape) + ".");
 
 	if (vec.shape[0] != shape[0])
-		throw std::runtime_error("matmulT: incompatible");
+		throw std::runtime_error(
+		    "matmulT: Incompatible shapes for transposed matrix-vector multiplication. "
+		    "The vector size (" +
+		    std::to_string(vec.shape[0]) + ") must match the number of rows in the matrix (" +
+		    std::to_string(shape[0]) + ").");
 
 	result.zero();
 

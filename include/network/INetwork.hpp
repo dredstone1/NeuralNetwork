@@ -24,7 +24,7 @@ class INetwork {
 	virtual std::shared_ptr<visualizer::IVisualNetwork> getVisual() = 0;
 
 	virtual std::vector<global::ValueType> getParams() const = 0;
-	virtual void setParams(const global::Tensor params) = 0;
+	virtual void setParams(const global::Tensor &params) = 0;
 
 	virtual void setTraining(const bool state) = 0;
 

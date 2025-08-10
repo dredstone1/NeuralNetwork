@@ -1,9 +1,12 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
+#include "tensor.hpp"
+#include "tensor_gpu.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
+#include <vector>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
@@ -406,15 +409,17 @@ void Model::load(const std::string &file, bool print) {
 
 		size_t ParamSize;
 		iss >> ParamSize;
-		global::Tensor numbers({ParamSize});
+        std::vector<global::ValueType> numbers(ParamSize);
 
 		float num;
 		for (size_t i = 0; i < ParamSize; ++i) {
 			iss >> num;
-			numbers.setValue({i}, num);
+            numbers[i] = num;
 		}
 
-		network[networkI]->setParams(numbers);
+        global::Tensor data({ParamSize});
+        data = numbers;
+		network[networkI]->setParams(data);
 		networkI++;
 	}
 

@@ -167,7 +167,7 @@ std::vector<global::ValueType> FNNetwork::getParams() const {
 	return matrix;
 }
 
-void FNNetwork::setParams(const global::Tensor params) {
+void FNNetwork::setParams(const global::Tensor &params) {
 	size_t j = 0;
 	for (size_t i = 0; i < layers.size(); ++i) {
 		layers[i]->setData(params, j);

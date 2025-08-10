@@ -53,7 +53,7 @@ std::vector<global::ValueType> CNNetwork::getParams() const {
 	return std::vector<global::ValueType>();
 }
 
-void CNNetwork::setParams(const global::Tensor) {
+void CNNetwork::setParams(const global::Tensor &) {
 }
 
 size_t CNNetwork::getParamCount() const {

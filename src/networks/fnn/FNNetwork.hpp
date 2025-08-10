@@ -46,7 +46,7 @@ class FNNetwork : public INetwork {
 	}
 
     std::vector<global::ValueType> getParams() const override;
-	void setParams(const global::Tensor params) override;
+	void setParams(const global::Tensor &params) override;
 
 	size_t getParamCount() const override;
 
