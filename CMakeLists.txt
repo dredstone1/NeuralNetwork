@@ -59,6 +59,7 @@ set_target_properties(NeuralNetwork PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Enable separable compilation for CUDA files
 set_target_properties(NeuralNetwork PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
+      CUDA_RESOLVE_DEVICE_SYMBOLS ON       # <--- important for static libs
 )
 
 target_include_directories(NeuralNetwork
