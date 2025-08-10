@@ -73,7 +73,6 @@ int DataBase::loadData(const std::string &db_filename) {
 		samples.add(new_sample);
 
 		bar++;
-        bar = 5;
 		bar.printBar();
 	}
 
