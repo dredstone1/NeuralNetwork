@@ -5,6 +5,7 @@
 #include "tensor.hpp"
 #include <memory>
 #include <network/INetwork.hpp>
+#include <vector>
 
 namespace nn::model::cnn {
 class CNNetwork : public INetwork {
@@ -38,7 +39,7 @@ class CNNetwork : public INetwork {
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
 
-	global::Tensor getParams() const override;
+    std::vector<global::ValueType> getParams() const override;
 	void setParams(const global::Tensor params) override;
 
 	void setTraining(const bool state) override;

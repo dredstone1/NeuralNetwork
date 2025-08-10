@@ -3,6 +3,7 @@
 
 #include "../src/model/optimizers.hpp"
 #include <Globals.hpp>
+#include <vector>
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
@@ -70,7 +71,7 @@ class DenseLayer {
 
 	size_t getParamCount() const;
 
-	const global::Tensor getData() const;
+	const std::vector<global::ValueType> getData() const;
 	void setData(const global::Tensor newParam, const size_t offset);
 
 	void setTraining(const bool state) { isTraining = state; }

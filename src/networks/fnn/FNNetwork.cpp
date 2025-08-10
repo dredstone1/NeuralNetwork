@@ -1,5 +1,6 @@
 #include "FNNetwork.hpp"
 #include "tensor.hpp"
+#include <vector>
 
 namespace nn::model::fnn {
 FNNetwork::FNNetwork(
@@ -149,16 +150,18 @@ size_t FNNetwork::getParamCount() const {
 	return count;
 }
 
-global::Tensor FNNetwork::getParams() const {
-	global::Tensor matrix({getParamCount()});
+std::vector<global::ValueType> FNNetwork::getParams() const {
+	std::vector<global::ValueType> matrix(getParamCount());
 
 	size_t matrixI = 0;
 
 	for (size_t i = 0; i < layers.size(); ++i) {
-		global::Tensor params = layers[i]->getData();
+		std::vector<global::ValueType> params = layers[i]->getData();
 
-		matrix.insertRange(params, 0, matrixI, params.numElements());
-		matrixI += params.numElements();
+		for (size_t j = 0; j < params.size(); ++j) {
+			matrix[matrixI] = params[j];
+			++matrixI;
+		}
 	}
 
 	return matrix;
@@ -168,7 +171,7 @@ void FNNetwork::setParams(const global::Tensor params) {
 	size_t j = 0;
 	for (size_t i = 0; i < layers.size(); ++i) {
 		layers[i]->setData(params, j);
-        j += layers[i]->getParamCount();
+		j += layers[i]->getParamCount();
 
 		if (visual) {
 			visual->setParam(i, layers[i]->getParms());

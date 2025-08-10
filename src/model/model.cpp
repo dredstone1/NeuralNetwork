@@ -1,10 +1,13 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "dataBase.hpp"
+#include "tensor_gpu.hpp"
 #include <chrono>
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
+#include <string>
+#include <vector>
 
 namespace nn::visualizer {
 void ProgressBar::printBar() {
@@ -104,7 +107,7 @@ void Model::initModel() {
 			addCNN(WIDTH, _config);
 		}
 
-		param_amount += network[i]->getParams().numElements();
+		// param_amount += network[i]->getParams().numElements();
 	}
 
 	std::cout << "initialize model - "
@@ -432,11 +435,11 @@ void Model::save(const std::string &file, bool print) {
 	}
 
 	for (size_t i = 0; i < network.size(); ++i) {
-		global::Tensor params = network[i]->getParams();
+        std::vector<global::ValueType> params = network[i]->getParams();
 
-		outFile << params.numElements() << " ";
-		for (size_t j = 0; j < params.numElements(); ++j) {
-			outFile << params.getValue({j}) << " ";
+		outFile << params.size() << " ";
+		for (size_t j = 0; j < params.size(); ++j) {
+			outFile << params[j] << " ";
 		}
 		outFile << std::endl;
 	}

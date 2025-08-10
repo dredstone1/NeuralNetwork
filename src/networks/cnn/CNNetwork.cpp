@@ -1,6 +1,7 @@
 #include "CNNetwork.hpp"
 #include "tensor.hpp"
 #include <cstddef>
+#include <vector>
 
 namespace nn::model::cnn {
 CNNetwork::CNNetwork(
@@ -48,8 +49,8 @@ void CNNetwork::updateWeights(IOptimizer &) {
 void CNNetwork::calculateInputDelta(const global::Tensor &) {
 }
 
-global::Tensor CNNetwork::getParams() const {
-	return input;
+std::vector<global::ValueType> CNNetwork::getParams() const {
+	return std::vector<global::ValueType>();
 }
 
 void CNNetwork::setParams(const global::Tensor) {

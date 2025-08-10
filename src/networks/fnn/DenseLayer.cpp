@@ -128,17 +128,28 @@ void DenseLayer::updateWeight(nn::model::IOptimizer &optimizer) {
 	optimizer.step(parameters.weights, gradients.weights);
 }
 
-const global::Tensor DenseLayer::getData() const {
+const std::vector<global::ValueType> DenseLayer::getData() const {
 	size_t weightsSize = parameters.weights.numElements();
 	size_t biasesSize = parameters.biases.numElements();
 
-	global::Tensor matrix({weightsSize + biasesSize});
+	std::vector<global::ValueType> matrix(weightsSize + biasesSize);
 
-	// Copy weights
-	matrix.insertRange(parameters.weights, 0, 0, weightsSize);
+	std::vector<global::ValueType> temp(parameters.weights.numElements());
+	parameters.weights.getData(temp);
 
-	// Copy biases
-	matrix.insertRange(parameters.biases, 0, weightsSize, biasesSize);
+	size_t j = 0;
+	for (size_t i = 0; i < temp.size(); ++i) {
+		matrix[j] = temp[i];
+		++j;
+	}
+
+	temp.resize(parameters.biases.numElements());
+	parameters.biases.getData(temp);
+
+	for (size_t i = 0; i < temp.size(); ++i) {
+		matrix[j] = temp[i];
+		++j;
+	}
 
 	return matrix;
 }

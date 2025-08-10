@@ -4,6 +4,7 @@
 #include "../src/model/optimizers.hpp"
 #include "IvisualNetwork.hpp"
 #include "tensor.hpp"
+#include <vector>
 
 namespace nn::model {
 class INetwork {
@@ -23,7 +24,7 @@ class INetwork {
 	virtual const global::Tensor &getInput() const = 0;
 	virtual std::shared_ptr<visualizer::IVisualNetwork> getVisual() = 0;
 
-	virtual global::Tensor getParams() const = 0;
+	virtual std::vector<global::ValueType> getParams() const = 0;
 	virtual void setParams(const global::Tensor params) = 0;
 
 	virtual void setTraining(const bool state) = 0;

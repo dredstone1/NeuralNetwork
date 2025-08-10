@@ -3,6 +3,7 @@
 
 #include "FnnVisualizer.hpp"
 #include <network/INetwork.hpp>
+#include <vector>
 
 namespace nn::model::fnn {
 class FNNetwork : public INetwork {
@@ -44,7 +45,7 @@ class FNNetwork : public INetwork {
 		return visual;
 	}
 
-	global::Tensor getParams() const override;
+    std::vector<global::ValueType> getParams() const override;
 	void setParams(const global::Tensor params) override;
 
 	size_t getParamCount() const;
