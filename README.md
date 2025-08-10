@@ -11,6 +11,7 @@ A work-in-progress C++ neural network library designed for building, training, a
 - **🎯 Research Focused**: Designed with experimentation and learning in mind  
 - **🧠 Integrated Visualizer**: Real-time graphical display of layers, neurons, and activations. ideal for debugging, teaching, or showcasing model behavior
 - **💾 Parameter Persistence**: Save and load trained model parameters for reuse, testing, or deployment
+- **⚙️ GPU Support**: Leverages CUDA for accelerated training and inference on compatible NVIDIA GPUs, boosting performance for large scale models.
 
 ## 🏗️ Quick Start
 
