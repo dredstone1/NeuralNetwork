@@ -17,6 +17,7 @@ constexpr std::string_view ALGORITHM_MODE_TEXT = "current algorithm mode: ";
 constexpr std::string_view CURRENT_BATCH_TEXT = "current batch: ";
 constexpr std::string_view BATCH_SIZE_TEXT = "batch size: ";
 constexpr std::string_view LEARNING_RATE_TEXT = "learning rate: ";
+constexpr std::string_view PROCCESOR_MODE_TEXT = " mode";
 constexpr std::string_view FPS_TEXT = "fps: ";
 } // namespace TextLabels
 
@@ -26,6 +27,8 @@ constexpr std::array<std::string_view, 3> algorithmName = {
     "Training",
     "Evaluating"};
 constexpr std::array<std::string_view, 2> NNmodeName = {"Forword", "Backward"};
+
+constexpr std::array<std::string_view, 2> ProccesorNmodeName = {"CPU", "GPU"};
 
 constexpr sf::Color TEXT_COLOR(0, 0, 0);
 constexpr sf::Color STATUSE_PANEL_COLOR = PANELS_BG;

@@ -1,7 +1,7 @@
 {
 	"visual config": {
-		"enableVisuals": true,
-		"enableNetwrokVisual": true,
+		"enable visual": true,
+		"enable netwrok visual": false,
 		"modes": [
 			{ "state": "pause", "mode": false },
 			{ "state": "precise mode", "mode": false },
@@ -10,9 +10,9 @@
 	},
 	"training config": {
 		"batch size": 64,
-		"batch count": 1000,
+		"batch count": 10000,
 		"auto save": {
-			"saveEvery": 500,
+			"saveEvery": 1000,
 			"dataFilenameAutoSave": "test.txt"
 		},
 		"auto evaluating": {
@@ -31,6 +31,9 @@
 			"output size": 16,
 			"output activation": 4,
 			"layers": [
+				{ "size": 500, "activationType": 1 },
+				{ "size": 500, "activationType": 1 },
+				{ "size": 500, "activationType": 1 },
 				{ "size": 500, "activationType": 1 }
 			]
 		}

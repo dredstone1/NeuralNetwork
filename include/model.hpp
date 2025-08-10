@@ -4,8 +4,6 @@
 #include "../src/model/dataBase.hpp"
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
-#include "Globals.hpp"
-#include "tensor.hpp"
 #include <cstddef>
 #include <network/INetwork.hpp>
 
@@ -41,10 +39,6 @@ struct modelResult {
 	int dbSize;
 	int currectPreSize;
 	float percentage;
-};
-
-inline nn::global::Transformation dt = [](const nn::global::Tensor &p) {
-	return p;
 };
 
 class Model {

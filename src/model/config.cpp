@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <fstream>
 #include <iostream>
+#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
 Config::Config(const std::string &config_filepath) {
@@ -18,7 +19,9 @@ Config::Config(const std::string &config_filepath) {
 
 		trainingConfig.fromJson(j.at("training config"));
 
-		visualConfig = j.at("visual config").get<VisualConfig>();
+		if (j.contains("visual config")) {
+			visualConfig.fromJson(j.at("visual config"));
+		}
 
 		networkConfig.fromJson(j.at("network config"));
 	} catch (const nlohmann::json::parse_error &e) {
@@ -122,5 +125,17 @@ void TrainingConfig::fromJson(const nlohmann::json &j) {
 
 void ConstantOptimizerConfig::fromJson(const nlohmann::json &j) {
 	learningRate = j.at("lr");
+}
+
+void VisualConfig::fromJson(const nlohmann::json &j) {
+	enableVisuals = j.at("enable visual");
+	if (!enableVisuals)
+		return;
+
+	enableNetwrokVisual = j.at("enable netwrok visual");
+
+	if (j.contains("modes")) {
+		modes = j.at("modes");
+	}
 }
 } // namespace nn::model

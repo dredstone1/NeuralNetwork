@@ -5,9 +5,6 @@
 #include <tensor.hpp>
 
 namespace nn::global {
-
-using Transformation = Tensor (*)(const Tensor &);
-
 struct Prediction {
 	size_t index;
 	global::ValueType value;

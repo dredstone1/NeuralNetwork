@@ -1,14 +1,8 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
-#include "activations.hpp"
-#include "dataBase.hpp"
-#include "tensor_gpu.hpp"
-#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
-#include <string>
-#include <vector>
 
 namespace nn::visualizer {
 void ProgressBar::printBar() {

@@ -1,5 +1,6 @@
 #include "Vstatus.hpp"
 #include "fonts.hpp"
+#include "tensor.hpp"
 
 namespace nn::visualizer {
 StatusPanel::StatusPanel(const std::shared_ptr<StateManager> vstate_)
@@ -38,11 +39,13 @@ std::string StatusPanel::getText() {
 		seconds = totalSec % 60;
 	}
 
-	ss << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << "\n";
 	if (vstate->config.visualConfig.enableNetwrokVisual) {
 		ss << TextLabels::RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << "\n";
 	}
-	ss << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->algorithmMode.load()] << "\n"
+
+	ss << ProccesorNmodeName[global::Tensor::getGpuState()] << TextLabels::PROCCESOR_MODE_TEXT << "\n"
+	   << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << "\n"
+	   << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->algorithmMode.load()] << "\n"
 	   << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << "\n"
 	   << TextLabels::CURRENT_BATCH_TEXT << currentBatch << "/" << totalBatches << " #" << batchPerSecond << "\n"
 	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.getBatchSize() << "\n"

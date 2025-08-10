@@ -146,12 +146,15 @@ struct VisualMode {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
 
-struct VisualConfig {
-	bool enableVisuals{true};
-	bool enableNetwrokVisual{true};
+class VisualConfig {
+  public:
+	~VisualConfig() = default;
+
+	bool enableVisuals{false};
+	bool enableNetwrokVisual{false};
 	std::vector<VisualMode> modes;
+	void fromJson(const nlohmann::json &j);
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualConfig, enableVisuals, enableNetwrokVisual, modes);
 
 class Config {
   public:

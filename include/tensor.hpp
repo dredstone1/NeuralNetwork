@@ -6,10 +6,11 @@
 
 namespace nn::model {
 class Activation;
-void enableGpuMode();
 } // namespace nn::model
 
 namespace nn::global {
+class Tensor;
+using Transformation = Tensor (*)(const Tensor &);
 
 class Tensor {
   private:
@@ -21,12 +22,13 @@ class Tensor {
 	std::size_t gpu_data_size;
 
 	static bool isGpu;
-    static size_t tensorCount;
+	static size_t tensorCount;
 
 	void computeStrides();
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
 
 	friend model::Activation;
+	friend nn::global::Transformation;
 
   public:
 	// Constructors
@@ -67,6 +69,7 @@ class Tensor {
 
 	static void toGpu();
 	static void toCpu();
+	static bool getGpuState() { return isGpu; }
 };
 
 } // namespace nn::global
