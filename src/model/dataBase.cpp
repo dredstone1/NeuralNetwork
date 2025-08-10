@@ -1,4 +1,5 @@
 #include "dataBase.hpp"
+#include "tensor_gpu.hpp"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -23,11 +24,13 @@ TrainSample DataBase::readLine(const std::string &line) {
 
 	new_sample.pre.index = std::stoull(token);
 
+    std::vector<global::ValueType> data(new_sample.input.numElements());
 	for (size_t i = 0; i < samples.sInputSize; ++i) {
 		iss >> token;
 
-        new_sample.input.setValue({i}, std::stod(token));
+        data[i] = std::stod(token);
 	}
+    new_sample.input = data;
 
 	return new_sample;
 }
