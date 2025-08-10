@@ -7,28 +7,6 @@
 #include <cstddef>
 #include <network/INetwork.hpp>
 
-namespace nn::visualizer {
-constexpr int BAR_WIDTH = 100;
-
-class ProgressBar {
-	const int total;
-	const std::string header;
-
-	int current{0};
-	int last_percentage{-1};
-
-  public:
-	ProgressBar(const int total_, const std::string header_)
-	    : total(total_),
-	      header(header_ + ": ") {}
-	~ProgressBar() = default;
-
-	void printBar();
-
-	ProgressBar operator++(int);
-};
-} // namespace nn::visualizer
-
 namespace nn::model {
 constexpr int SECONDS_IN_MINUTE = 60;
 

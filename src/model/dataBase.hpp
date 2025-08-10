@@ -2,12 +2,15 @@
 #define DATABASE
 
 #include "config.hpp"
+#include <Globals.hpp>
 #include <random>
 #include <vector>
-#include <Globals.hpp>
 
 namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";
+
+const std::string LOADING_DB_MESSAGE = "Loading DataBase: ";
+const std::string FILE_NOT_FOUND_MESSAGE = "File not found: ";
 
 struct TrainSample {
 	global::Prediction pre;
@@ -58,6 +61,8 @@ class DataBase {
 	void getDataBaseStatus(const std::string &line);
 	TrainSample readLine(const std::string &line);
 	void generateBatches();
+
+	int loadData(const std::string &db_filename);
 
   public:
 	DataBase(const TrainingConfig &config);

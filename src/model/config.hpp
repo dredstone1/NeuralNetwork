@@ -148,6 +148,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisualMode, state, mode);
 
 class VisualConfig {
   public:
+	VisualConfig() {}
 	~VisualConfig() = default;
 
 	bool enableVisuals{false};

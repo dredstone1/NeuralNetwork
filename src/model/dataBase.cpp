@@ -1,9 +1,7 @@
 #include "dataBase.hpp"
-#include "tensor_gpu.hpp"
+#include "ProgressBar.hpp"
 #include <fstream>
 #include <iostream>
-#include <string>
-#include <vector>
 
 namespace nn::model {
 DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
@@ -24,13 +22,13 @@ TrainSample DataBase::readLine(const std::string &line) {
 
 	new_sample.pre.index = std::stoull(token);
 
-    std::vector<global::ValueType> data(new_sample.input.numElements());
+	std::vector<global::ValueType> data(new_sample.input.numElements());
 	for (size_t i = 0; i < samples.sInputSize; ++i) {
 		iss >> token;
 
-        data[i] = std::stod(token);
+		data[i] = std::stod(token);
 	}
-    new_sample.input = data;
+	new_sample.input = data;
 
 	return new_sample;
 }
@@ -48,18 +46,18 @@ void DataBase::getDataBaseStatus(const std::string &line) {
 	samples.samples.reserve(samples.size() + dataBaseSize);
 }
 
-int DataBase::load(const std::string &db_filename) {
+int DataBase::loadData(const std::string &db_filename) {
 	std::ifstream file(db_filename + DATABASE_FILE_EXETENTION);
+
 	if (!file.is_open()) {
-		std::cout << "File not found: " << db_filename << std::endl;
+		std::cout << FILE_NOT_FOUND_MESSAGE << db_filename << std::endl;
 		return 1;
 	}
-
-	std::cout << "Start loading data base" << std::endl;
 
 	std::string line;
 	getline(file, line);
 	getDataBaseStatus(line);
+	ProgressBar bar(samples.size(), LOADING_DB_MESSAGE + db_filename);
 
 	while (getline(file, line)) {
 		if (line.empty() ||
@@ -73,13 +71,15 @@ int DataBase::load(const std::string &db_filename) {
 		}
 
 		samples.add(new_sample);
+
+		bar++;
+        bar = 5;
+		bar.printBar();
 	}
 
 	if (samples.samples.capacity() > samples.size()) {
 		samples.samples.shrink_to_fit();
 	}
-
-	std::cout << "Loaded " << samples.size() << " samples." << "\n";
 
 	file.close();
 
@@ -90,15 +90,21 @@ int DataBase::load(const std::string &db_filename) {
 	return 0;
 }
 
-int DataBase::load(const std::vector<std::string> &db_filenames) {
-	for (auto name : db_filenames) {
-		int error = load(name);
+int DataBase::load(const std::string &db_filenames) {
+	std::cout << "Start loading data base" << std::endl;
+	return loadData(db_filenames);
+	std::cout << "Loaded " << samples.size() << " samples." << "\n";
+}
 
-		if (error) {
-			return error;
+int DataBase::load(const std::vector<std::string> &db_filenames) {
+	std::cout << "Start loading data base" << std::endl;
+
+	for (auto name : db_filenames) {
+		if (loadData(name)) {
+			return 1;
 		}
 	}
-
+	std::cout << "Loaded " << samples.size() << " samples." << "\n";
 	return 0;
 }
 
