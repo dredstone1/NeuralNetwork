@@ -16,7 +16,7 @@
 			"dataFilenameAutoSave": "test.txt"
 		},
 		"auto evaluating": {
-			"evaluateEvery": 10,
+			"evaluateEvery": 1000,
 			"dataBaseFilename": "../tests/data/database-binary_test"
 		},
 		"optimizer": {
@@ -31,9 +31,6 @@
 			"output size": 16,
 			"output activation": 4,
 			"layers": [
-				{ "size": 784, "activationType": 1 },
-				{ "size": 500, "activationType": 1 },
-				{ "size": 500, "activationType": 1 },
 				{ "size": 500, "activationType": 1 }
 			]
 		}

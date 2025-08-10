@@ -69,6 +69,8 @@ class Activation {
 	                        global::Tensor &out) const;
 
 	ActivationType getType() { return activationType; }
+
+    static size_t getMaxElementIndex(const global::Tensor &metrix);
 };
 } // namespace nn::model
 

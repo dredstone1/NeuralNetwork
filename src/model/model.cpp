@@ -1,5 +1,6 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
+#include "activations.hpp"
 #include "dataBase.hpp"
 #include "tensor_gpu.hpp"
 #include <chrono>
@@ -374,15 +375,7 @@ modelResult Model::evaluateModel(
 
 		runModel(sample.input, transformation);
 
-		size_t predicted_index = 0;
-		float max_value = getOutput().getValue({0});
-
-		for (size_t j = 1; j < getOutput().numElements(); ++j) {
-			if (getOutput().getValue({j}) > max_value) {
-				max_value = getOutput().getValue({j});
-				predicted_index = j;
-			}
-		}
+		size_t predicted_index = Activation::getMaxElementIndex(getOutput());
 
 		if (showProgressbar) {
 			bar++;
@@ -435,7 +428,7 @@ void Model::save(const std::string &file, bool print) {
 	}
 
 	for (size_t i = 0; i < network.size(); ++i) {
-        std::vector<global::ValueType> params = network[i]->getParams();
+		std::vector<global::ValueType> params = network[i]->getParams();
 
 		outFile << params.size() << " ";
 		for (size_t j = 0; j < params.size(); ++j) {

@@ -45,18 +45,23 @@ void Activation::derivativeActivate(const global::Tensor &net, global::Tensor &o
 	}
 }
 
-global::ValueType Activation::maxVector(const global::Tensor &metrix) {
-	if (!metrix.isGpu) {
-		global::ValueType max = metrix.cpu_data[0];
-		for (size_t i = 0; i < metrix.numElements(); ++i) {
-			if (metrix.getValue({i}) > max) {
-				max = metrix.getValue({i});
-			}
-		}
-
-		return max;
+size_t Activation::getMaxElementIndex(const global::Tensor &metrix) {
+	if (metrix.isGpu) {
+		return global::tensor_gpu::getMaxElementIndex(metrix.gpu_data, metrix.gpu_data_size);
 	}
-	return 0;
+
+	global::ValueType max = 0;
+	for (size_t i = 0; i < metrix.numElements(); ++i) {
+		if (metrix.getValue({i}) > max) {
+			max = i;
+		}
+	}
+
+	return max;
+}
+
+global::ValueType Activation::maxVector(const global::Tensor &metrix) {
+	return metrix.getValue({getMaxElementIndex(metrix)});
 }
 
 global::ValueType Activation::relu(const global::ValueType z) {

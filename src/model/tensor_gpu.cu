@@ -2,6 +2,7 @@
 #include "tensor_gpu.hpp"
 #include <cstddef>
 #include <stdexcept>
+#include <vector>
 
 namespace nn::global::tensor_gpu {
 #define CUDA_CHECK(call) do { \
@@ -434,4 +435,70 @@ void matmulT(const ValueType* W, const ValueType* V, ValueType* R, size_t M, siz
     CUDA_CHECK(cudaDeviceSynchronize());
 }
 
+
+__device__ MaxIndex maxIndexOp(MaxIndex a, MaxIndex b) {
+    return (a.value >= b.value) ? a : b;
+}
+
+__global__ void maxIndexReduceKernel(const ValueType* input, MaxIndex* blockResults, std::size_t count) {
+    extern __shared__ MaxIndex sdata[];
+    std::size_t tid = threadIdx.x;
+    std::size_t i = blockIdx.x * blockDim.x + tid;
+
+    // Load input and index or default if out of range
+    MaxIndex local;
+    if (i < count) {
+        local.value = input[i];
+        local.index = i;
+    } else {
+        local.value = -INFINITY;
+        local.index = size_t(-1);
+    }
+    sdata[tid] = local;
+    __syncthreads();
+
+    // Reduction in shared memory
+    for (std::size_t s = blockDim.x / 2; s > 0; s >>= 1) {
+        if (tid < s) {
+            sdata[tid] = maxIndexOp(sdata[tid], sdata[tid + s]);
+        }
+        __syncthreads();
+    }
+
+    if (tid == 0) {
+        blockResults[blockIdx.x] = sdata[0];
+    }
+}
+
+std::size_t getMaxElementIndex(const ValueType* deviceData, std::size_t count) {
+    if (count == 0) {
+        throw std::runtime_error("getMaxElementIndex: empty array");
+    }
+
+    const std::size_t blockSize = 256;
+    std::size_t numBlocks = (count + blockSize - 1) / blockSize;
+
+    MaxIndex* d_blockResults = nullptr;
+    CUDA_CHECK(cudaMalloc(&d_blockResults, numBlocks * sizeof(MaxIndex)));
+
+    maxIndexReduceKernel<<<numBlocks, blockSize, blockSize * sizeof(MaxIndex)>>>(deviceData, d_blockResults, count);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    // Copy block results to host
+    std::vector<MaxIndex> h_blockResults(numBlocks);
+    CUDA_CHECK(cudaMemcpy(h_blockResults.data(), d_blockResults, numBlocks * sizeof(MaxIndex), cudaMemcpyDeviceToHost));
+
+    CUDA_CHECK(cudaFree(d_blockResults));
+
+    // Final reduction on host
+    MaxIndex maxRes = h_blockResults[0];
+    for (std::size_t i = 1; i < numBlocks; ++i) {
+        if (h_blockResults[i].value > maxRes.value) {
+            maxRes = h_blockResults[i];
+        }
+    }
+
+    return maxRes.index;
+}
 } // namespace nn::global::tensor_gpu
