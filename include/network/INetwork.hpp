@@ -4,7 +4,6 @@
 #include "../src/model/optimizers.hpp"
 #include "IvisualNetwork.hpp"
 #include "tensor.hpp"
-#include <vector>
 
 namespace nn::model {
 class INetwork {

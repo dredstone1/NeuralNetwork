@@ -20,6 +20,7 @@ Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 	    std::multiplies<>());
 
 	shape = shape_;
+
 	if (isGpu) {
 		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
 		gpu_data_size = totalSize;
@@ -56,6 +57,7 @@ void Tensor::toCpu() {
 Tensor::Tensor(const Tensor &other) {
 	shape = other.shape;
 	strides = other.strides;
+
 	if (isGpu) {
 		gpu_data_size = other.gpu_data_size;
 		gpu_data = (ValueType *)tensor_gpu::allocate(gpu_data_size * sizeof(ValueType));
@@ -69,6 +71,7 @@ size_t Tensor::numElements() const {
 	if (isGpu) {
 		return gpu_data_size;
 	}
+
 	return cpu_data.size();
 }
 
@@ -119,6 +122,7 @@ Tensor &Tensor::operator=(const Tensor &other) {
 
 	shape = other.shape;
 	strides = other.strides;
+
 	return *this;
 }
 
@@ -140,6 +144,7 @@ void Tensor::computeStrides() {
 	const size_t dim = shape.size();
 	strides.resize(dim);
 	size_t stride = 1;
+
 	for (size_t i = dim; i-- > 0;) {
 		strides[i] = stride;
 		stride *= shape[i];
@@ -150,12 +155,14 @@ inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 	if (indices.size() != shape.size()) {
 		throw std::invalid_argument("Incorrect number of indices.");
 	}
+
 	size_t index = 0;
 	for (size_t i = 0; i < shape.size(); ++i) {
 		if (indices[i] >= shape[i])
 			throw std::out_of_range("Index out of bounds.");
 		index += indices[i] * strides[i];
 	}
+
 	return index;
 }
 
@@ -190,48 +197,56 @@ void Tensor::setValue(const std::vector<size_t> &indices, const ValueType value)
 Tensor &Tensor::operator+=(const Tensor &other) {
 	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch in Tensor::operator+=.");
+
 	if (isGpu) {
 		tensor_gpu::add_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
 			cpu_data[i] += other.cpu_data[i];
 	}
+
 	return *this;
 }
 
 Tensor &Tensor::operator-=(const Tensor &other) {
 	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch in Tensor::operator-=.");
+
 	if (isGpu) {
 		tensor_gpu::subtraction_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
 			cpu_data[i] -= other.cpu_data[i];
 	}
+
 	return *this;
 }
 
 Tensor &Tensor::operator*=(const Tensor &other) {
 	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch in Tensor::operator*=.");
+
 	if (isGpu) {
 		tensor_gpu::multiply_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
 			cpu_data[i] *= other.cpu_data[i];
 	}
+
 	return *this;
 }
 
 Tensor &Tensor::operator/=(const Tensor &other) {
 	if (shape != other.shape)
 		throw std::invalid_argument("Shape mismatch in Tensor::operator/=.");
+
 	if (isGpu) {
 		tensor_gpu::division_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
 			cpu_data[i] /= other.cpu_data[i];
 	}
+
 	return *this;
 }
 
@@ -242,6 +257,7 @@ Tensor &Tensor::operator*=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x *= scalar;
 	}
+
 	return *this;
 }
 
@@ -252,6 +268,7 @@ Tensor &Tensor::operator-=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x -= scalar;
 	}
+
 	return *this;
 }
 
@@ -262,6 +279,7 @@ Tensor &Tensor::operator+=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x += scalar;
 	}
+
 	return *this;
 }
 
@@ -272,6 +290,7 @@ Tensor &Tensor::operator/=(ValueType scalar) {
 		for (auto &x : cpu_data)
 			x /= scalar;
 	}
+
 	return *this;
 }
 
@@ -334,6 +353,7 @@ void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
 void Tensor::matmulT(const Tensor &vec, Tensor &result) const {
 	if (shape.size() != 2 || vec.shape.size() != 1)
 		throw std::runtime_error("matmulT: bad dimensions");
+
 	if (vec.shape[0] != shape[0])
 		throw std::runtime_error("matmulT: incompatible");
 
@@ -354,6 +374,7 @@ Tensor::~Tensor() {
 	if (isGpu) {
 		tensor_gpu::deallocate(gpu_data);
 	}
+
 	tensorCount--;
 }
 } // namespace nn::global
