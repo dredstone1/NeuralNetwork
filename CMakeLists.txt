@@ -71,13 +71,15 @@ target_compile_definitions(NeuralNetwork
     PRIVATE "RESOURCE_DIR=\"${NN_RESOURCE_DIR_PATH}\""
 )
 
+find_package(CUDAToolkit REQUIRED)
+
 target_link_libraries(NeuralNetwork
     PUBLIC
         SFML::Graphics
         SFML::Window
         SFML::System
         nlohmann_json::nlohmann_json
-        cuda
+        CUDA::cudart
 )
 
 target_compile_options(NeuralNetwork PRIVATE -Wall -Wextra -Wpedantic)
