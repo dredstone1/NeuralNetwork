@@ -1,7 +1,7 @@
 {
 	"visual config": {
 		"enableVisuals": true,
-		"enableNetwrokVisual": false,
+		"enableNetwrokVisual": true,
 		"modes": [
 			{ "state": "pause", "mode": false },
 			{ "state": "precise mode", "mode": false },
@@ -10,7 +10,7 @@
 	},
 	"training config": {
 		"batch size": 64,
-		"batch count": 100000,
+		"batch count": 1000,
 		"auto save": {
 			"saveEvery": 500,
 			"dataFilenameAutoSave": "test.txt"
@@ -21,7 +21,7 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 0
+			"lr": 0.5
 		}
 	},
 	"network config": [
