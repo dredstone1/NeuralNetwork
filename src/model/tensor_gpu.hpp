@@ -17,9 +17,9 @@ namespace nn::global::tensor_gpu {
 void *allocate(std::size_t size);
 void deallocate(void *devicePtr);
 
-void copyToDevice(void *deviceDst, const void *hostSrc, std::size_t count);
-void copyToHost(void *hostDst, const void *deviceSrc, std::size_t count);
-void copyDeviceToDevice(void *deviceDst, const void *deviceSrc, std::size_t count);
+void copyToDevice(void *deviceDst, const void *hostSrc, std::size_t sizeBytes);
+void copyToHost(void *hostDst, const void *deviceSrc, std::size_t sizeBytes);
+void copyDeviceToDevice(void *deviceDst, const void *deviceSrc, std::size_t sizeBytes);
 
 void zero(ValueType *deviceData, std::size_t count);
 
@@ -79,7 +79,13 @@ struct MaxIndex {
 	ValueType value;
 	std::size_t index;
 };
-std::size_t getMaxElementIndex(const ValueType* deviceData, std::size_t count);
+std::size_t getMaxElementIndex(const ValueType *deviceData, std::size_t count);
+
+// ============================
+// Cleanup
+// ============================
+void cleanupCublas();
+
 } // namespace nn::global::tensor_gpu
 
 #endif // TENSOR_GPU
