@@ -50,14 +50,16 @@ size_t Activation::getMaxElementIndex(const global::Tensor &metrix) {
 		return global::tensor_gpu::getMaxElementIndex(metrix.gpu_data, metrix.gpu_data_size);
 	}
 
-	global::ValueType max = 0;
-	for (size_t i = 0; i < metrix.numElements(); ++i) {
-		if (metrix.getValue({i}) > max) {
-			max = i;
+	global::ValueType max_val = metrix.cpu_data[0];
+	size_t max_index = 0;
+	for (size_t i = 1; i < metrix.numElements(); ++i) {
+		if (metrix.cpu_data[i] > max_val) {
+			max_val = metrix.cpu_data[i];
+			max_index = i;
 		}
 	}
 
-	return max;
+	return max_index;
 }
 
 global::ValueType Activation::maxVector(const global::Tensor &metrix) {

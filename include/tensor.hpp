@@ -53,6 +53,9 @@ class Tensor {
 	void fill(const ValueType &value);
 	void zero();
 
+	// GPU access for testing
+	ValueType *getGpuData() const { return gpu_data; }
+
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);
 	Tensor &operator*=(const Tensor &other);
