@@ -24,8 +24,8 @@ class ProgressBar {
 
 	ProgressBar operator++(int);
 	ProgressBar operator=(int value);
-    
-    void reset();
+
+	void reset();
 };
 } // namespace nn
 

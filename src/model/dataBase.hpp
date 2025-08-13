@@ -3,6 +3,7 @@
 
 #include "config.hpp"
 #include <Globals.hpp>
+#include <cstddef>
 #include <random>
 #include <vector>
 
@@ -24,16 +25,21 @@ struct TrainSample {
 	      input({0}) {}
 };
 
+struct databaseStatus {
+	size_t dataBaseSize;
+	size_t sampleInputSize;
+	size_t sampleOutputSize;
+};
+
 struct Samples {
-	size_t sInputSize;
-	size_t sOutputSize;
+	databaseStatus status;
 
 	std::vector<TrainSample> samples;
 
 	Samples() {}
 	~Samples() = default;
 
-	size_t size() const { return samples.size(); }
+	size_t size() const { return status.dataBaseSize; }
 	void add(TrainSample sample) { samples.push_back(sample); }
 };
 
@@ -58,7 +64,7 @@ class DataBase {
 
 	const TrainingConfig &config;
 
-	void getDataBaseStatus(const std::string &line);
+	databaseStatus getDataBaseStatus(const std::string &line);
 	TrainSample readLine(const std::string &line);
 	void generateBatches();
 

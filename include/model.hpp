@@ -10,8 +10,8 @@
 namespace nn::model {
 constexpr int SECONDS_IN_MINUTE = 60;
 
-const std::string TRAINING_HEADER = "Training";
-const std::string EVALUATING_HEADER = "Evaluating";
+const std::string TRAINING_HEADER = "Training Model";
+const std::string EVALUATING_HEADER = "Evaluating Model";
 
 struct modelResult {
 	int dbSize;

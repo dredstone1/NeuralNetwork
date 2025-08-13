@@ -100,9 +100,7 @@ struct AutoEvaluating {
 	int evaluateEvery{-1};
 	std::string dataBaseFilename{"dataBase"};
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoEvaluating,
-                                   evaluateEvery,
-                                   dataBaseFilename);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoEvaluating, dataBaseFilename);
 
 class TrainingConfig {
   private:
@@ -121,7 +119,7 @@ class TrainingConfig {
 
 	void fromJson(const nlohmann::json &j);
 
-	bool isAutoSave() const { return (autoSave.saveEvery > 0); }
+	bool isAutoSave() const { return autoSave.saveEvery > 0; }
 	const AutoSave &getAutoSave() const { return autoSave; }
 
 	bool isAutoEvaluating() const { return autoEvaluating.evaluateEvery > 0; }

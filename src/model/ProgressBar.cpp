@@ -1,5 +1,6 @@
 #include "ProgressBar.hpp"
 #include <iostream>
+#include <ostream>
 
 namespace nn {
 void ProgressBar::printBar() {
@@ -7,12 +8,10 @@ void ProgressBar::printBar() {
 		return;
 
 	int percentage = 100.0 * current / total;
-
 	if (percentage == last_percentage)
 		return;
 
 	last_percentage = percentage;
-
 	const int pos = BAR_WIDTH * current / total;
 
 	char bar[BAR_WIDTH + 64];
@@ -37,7 +36,11 @@ void ProgressBar::printBar() {
 	bar[index++] = (percentage == 100) ? '\n' : '\r';
 	bar[index] = '\0';
 
-	std::cout << header << bar << std::flush;
+	if (percentage == 0) {
+		std::cout << header << std::endl;
+	}
+
+	std::cout << bar;
 }
 
 ProgressBar ProgressBar::operator++(int) {

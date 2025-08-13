@@ -193,8 +193,6 @@ void Model::train(
 		    config.trainingConfig.getAutoEvaluating().dataBaseFilename);
 	}
 
-	std::cout << "Training AI" << std::endl;
-
 	trainedDataBase.load(db_filename);
 
 	trainModel(
@@ -215,8 +213,6 @@ void Model::train(
 		evaluateDataBase.load(
 		    config.trainingConfig.getAutoEvaluating().dataBaseFilename);
 	}
-
-	std::cout << "Training AI" << std::endl;
 
 	trainedDataBase.load(db_filename);
 
@@ -311,10 +307,6 @@ modelResult Model::evaluateModel(
     global::Transformation transformation) {
 	modelResult result{0, 0, 0};
 
-	if (showProgressbar) {
-		std::cout << "Evaluating AI" << std::endl;
-	}
-
 	result.dbSize = dataBase.DataBaseLength();
 	ProgressBar bar(result.dbSize, EVALUATING_HEADER);
 
@@ -351,7 +343,7 @@ modelResult Model::evaluateModel(
     global::Transformation transformation) {
 	DataBase dataBase(config.trainingConfig);
 	dataBase.load(db_filename);
-	return evaluateModel(dataBase, cancleOnError, transformation);
+	return evaluateModel(dataBase, cancleOnError, true, transformation);
 }
 
 const global::Tensor &Model::getOutput() const {
@@ -409,16 +401,16 @@ void Model::load(const std::string &file, bool print) {
 
 		size_t ParamSize;
 		iss >> ParamSize;
-        std::vector<global::ValueType> numbers(ParamSize);
+		std::vector<global::ValueType> numbers(ParamSize);
 
 		float num;
 		for (size_t i = 0; i < ParamSize; ++i) {
 			iss >> num;
-            numbers[i] = num;
+			numbers[i] = num;
 		}
 
-        global::Tensor data({ParamSize});
-        data = numbers;
+		global::Tensor data({ParamSize});
+		data = numbers;
 		network[networkI]->setParams(data);
 		networkI++;
 	}

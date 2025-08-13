@@ -1,3 +1,4 @@
+#include "Globals.hpp"
 #include "tensor.hpp"
 #include "tests.hpp"
 #include <iostream>
@@ -76,7 +77,7 @@ void printVector(const nn::global::Tensor &vec) {
 int main(int argc, char *argv[]) {
 	size_t input_size = 10;
 
-    nn::global::Tensor::toGpu();
+	nn::global::Tensor::toGpu();
 
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
 
@@ -85,12 +86,10 @@ int main(int argc, char *argv[]) {
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-		nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");
-		std::cout << "training result: " << result.percentage << "%\n";
 		std::vector<std::string> files{"../tests/data/test1", "../tests/data/test2"};
 		model.train(files);
 
-		result = model.evaluateModel("../tests/data/database-binary_test");
+        nn::model::modelResult result = model.evaluateModel("../tests/data/database-binary_test");
 		std::cout << "training result: " << result.percentage << "%\n";
 
 		model.save("test.txt");

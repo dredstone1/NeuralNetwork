@@ -111,6 +111,7 @@ void TrainingConfig::fromJson(const nlohmann::json &j) {
 
 	if (j.contains("auto evaluating")) {
 		autoEvaluating = j.at("auto evaluating").get<AutoEvaluating>();
+		autoEvaluating.evaluateEvery = batchCount / 100;
 	}
 
 	if (j.contains("optimizer")) {
@@ -138,4 +139,5 @@ void VisualConfig::fromJson(const nlohmann::json &j) {
 		modes = j.at("modes");
 	}
 }
+
 } // namespace nn::model
