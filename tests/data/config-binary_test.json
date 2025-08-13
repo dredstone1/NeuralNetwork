@@ -16,7 +16,6 @@
 			"dataFilenameAutoSave": "test.txt"
 		},
 		"auto evaluating": {
-			"evaluateEvery": 1000,
 			"dataBaseFilename": "../tests/data/database-binary_test"
 		},
 		"optimizer": {

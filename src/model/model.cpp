@@ -456,4 +456,10 @@ void Model::setEvaluating() {
 		sub->setTraining(false);
 	}
 }
+
+std::vector<global::ValueType> Model::getOut() const {
+	std::vector<global::ValueType> temp(outputSize());
+	getOutput().getData(temp);
+	return temp;
+}
 } // namespace nn::model

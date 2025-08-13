@@ -6,6 +6,7 @@
 #include "../src/visualizer/VisualizerController.hpp"
 #include <cstddef>
 #include <network/INetwork.hpp>
+#include <vector>
 
 namespace nn::model {
 constexpr int SECONDS_IN_MINUTE = 60;
@@ -108,6 +109,7 @@ class Model {
 	void load(const std::string &file, bool print = true);
 
 	global::Prediction getPrediction() const;
+    std::vector<global::ValueType> getOut() const;
 };
 } // namespace nn::model
 
