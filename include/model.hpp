@@ -65,7 +65,6 @@ class Model {
 	    global::Transformation transformationE = nullptr);
 
 	size_t outputSize() const;
-	size_t inputSize() const;
 	const global::Tensor &getOutput() const;
 
 	void setTraining();

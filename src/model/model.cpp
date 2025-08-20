@@ -358,10 +358,6 @@ size_t Model::outputSize() const {
 	return network[network.size() - 1]->outputSize();
 }
 
-size_t Model::inputSize() const {
-	return network[0]->inputSize();
-}
-
 void Model::save(const std::string &file, bool print) {
 	std::ofstream outFile(file);
 
