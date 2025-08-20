@@ -90,6 +90,7 @@ CNNConfig::CNNConfig(const nlohmann::json &j) {
 
 void CNNConfig::fromJson(const nlohmann::json &j) {
 	for (auto i : j.at("input shape")) {
+        printf("t\n");
 		inputShape.push_back(i);
 	}
 	outputSize = j.at("output size");

@@ -13,6 +13,7 @@ Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       visual(config),
       learningRate(config.trainingConfig.getLearningRate()) {
+          printf("size: %zu\n", config.networkConfig.inputShape().size());
 	initOptimizer();
 	initModel();
 	if (config.visualConfig.enableVisuals) {
@@ -152,7 +153,7 @@ global::ValueType Model::runBackPropagation(
 
 		if (doBackward) {
 			output.zero();
-			output.setValue({current_sample_ptr->pre.index}, 1);
+			output.setValue(current_sample_ptr->pre.index, 1);
 			Backward(output);
 			updateWeights(batch.size());
 		}
@@ -422,12 +423,12 @@ global::Prediction Model::getPrediction() const {
 	size_t max = 0;
 
 	for (size_t i = 1; i < outputSize(); ++i) {
-		if (getOutput().getValue({i}) > getOutput().getValue({max})) {
+		if (getOutput().getValue(i) > getOutput().getValue(max)) {
 			max = i;
 		}
 	}
 
-	return global::Prediction(max, getOutput().getValue({max}));
+	return global::Prediction(max, getOutput().getValue(max));
 }
 
 void Model::setTraining() {

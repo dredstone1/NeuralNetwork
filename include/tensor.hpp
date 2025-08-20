@@ -44,6 +44,10 @@ class Tensor {
 
 	ValueType getValue(const std::vector<size_t> &newShape) const;
 	void setValue(const std::vector<size_t> &newShape, const ValueType value);
+
+	ValueType getValue(const size_t newShape) const;
+	void setValue(const size_t newShape, const ValueType value);
+
 	void insertRange(const Tensor &other, const size_t startO,
 	                 const size_t startT, const size_t length);
 

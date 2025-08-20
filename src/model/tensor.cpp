@@ -199,11 +199,15 @@ inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 }
 
 ValueType Tensor::getValue(const std::vector<size_t> &indices) const {
+	return getValue(flattenIndex(indices));
+}
+
+ValueType Tensor::getValue(const size_t indices) const {
 	if (isGpu) {
-		return tensor_gpu::getValueAt(gpu_data, flattenIndex(indices));
+		return tensor_gpu::getValueAt(gpu_data, indices);
 	}
 
-	return cpu_data[flattenIndex(indices)];
+	return cpu_data[indices];
 }
 
 void Tensor::insertRange(const Tensor &other,
@@ -219,10 +223,14 @@ void Tensor::insertRange(const Tensor &other,
 }
 
 void Tensor::setValue(const std::vector<size_t> &indices, const ValueType value) {
+	setValue(flattenIndex(indices), value);
+}
+
+void Tensor::setValue(const size_t indices, const ValueType value) {
 	if (isGpu) {
-		tensor_gpu::setValueAt(gpu_data, flattenIndex(indices), value);
+		tensor_gpu::setValueAt(gpu_data, indices, value);
 	} else {
-		cpu_data[flattenIndex(indices)] = value;
+		cpu_data[indices] = value;
 	}
 }
 

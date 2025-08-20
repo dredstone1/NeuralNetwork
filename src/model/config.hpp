@@ -31,7 +31,7 @@ class ConstantOptimizerConfig : public IOptimizerConfig {
 
 class ISubNetworkConfig {
   protected:
-	std::vector<size_t> inputShape{0};
+	std::vector<size_t> inputShape;
 	size_t outputSize{0};
 
   public:
