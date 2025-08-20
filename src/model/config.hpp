@@ -6,6 +6,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <vector>
 
 namespace nn::model {
 class IOptimizerConfig {
@@ -30,14 +31,14 @@ class ConstantOptimizerConfig : public IOptimizerConfig {
 
 class ISubNetworkConfig {
   protected:
-	size_t inputSize{0};
+	std::vector<size_t> inputShape{0};
 	size_t outputSize{0};
 
   public:
 	virtual void fromJson(const nlohmann::json &j) = 0;
 	virtual const std::string NNLable() const = 0;
 
-	size_t getInputSize() const { return inputSize; }
+	std::vector<size_t> getInputShape() const { return inputShape; }
 	size_t getOutputSize() const { return outputSize; }
 
 	virtual ~ISubNetworkConfig() = default;
@@ -83,7 +84,7 @@ class CNNConfig : public ISubNetworkConfig {
 
 class NetworkConfig {
   public:
-	size_t inputSize() const;
+	std::vector<size_t> inputShape() const;
 	size_t outputSize() const;
 
 	std::vector<std::shared_ptr<ISubNetworkConfig>> SubNetworksConfig;

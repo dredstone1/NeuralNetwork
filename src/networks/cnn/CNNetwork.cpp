@@ -6,7 +6,7 @@ CNNetwork::CNNetwork(
     const bool,
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
-      input({_config.getInputSize()}, 0.0),
+      input({_config.getInputShape()}, 0.0),
       visual(visual_) {
 }
 
@@ -22,10 +22,6 @@ global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
 }
 
 void CNNetwork::resetGradient() {
-}
-
-size_t CNNetwork::inputSize() const {
-	return config.getInputSize();
 }
 
 size_t CNNetwork::outputSize() const {

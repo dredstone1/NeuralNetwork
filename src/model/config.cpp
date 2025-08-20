@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json_fwd.hpp>
+#include <vector>
 
 namespace nn::model {
 Config::Config(const std::string &config_filepath) {
@@ -54,7 +55,9 @@ FNNConfig::FNNConfig(const nlohmann::json &j) {
 }
 
 void FNNConfig::fromJson(const nlohmann::json &j) {
-	inputSize = j.at("input size");
+	for (auto i : j.at("input shape")) {
+		inputShape.push_back(i);
+	}
 	outputSize = j.at("output size");
 
 	for (auto &layer_ : j.at("layers")) {
@@ -86,15 +89,17 @@ CNNConfig::CNNConfig(const nlohmann::json &j) {
 }
 
 void CNNConfig::fromJson(const nlohmann::json &j) {
-	inputSize = j.at("input size");
+	for (auto i : j.at("input shape")) {
+		inputShape.push_back(i);
+	}
 	outputSize = j.at("output size");
 
 	outputActivation = (ActivationType)j.at("output activation");
 }
 } // namespace cnn
 
-size_t NetworkConfig::inputSize() const {
-	return SubNetworksConfig[0]->getInputSize();
+std::vector<size_t> NetworkConfig::inputShape() const {
+	return SubNetworksConfig[0]->getInputShape();
 }
 
 size_t NetworkConfig::outputSize() const {

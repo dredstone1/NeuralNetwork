@@ -6,6 +6,17 @@
 
 namespace nn::global {
 
+size_t computeTensorSize(const std::vector<size_t> &shape) {
+	if (shape.empty())
+		return 0;
+
+	size_t size = 1;
+	for (size_t dim : shape) {
+		size *= dim;
+	}
+	return size;
+}
+
 static std::string shapeToString(const std::vector<size_t> &shape) {
 	if (shape.empty()) {
 		return "{}";

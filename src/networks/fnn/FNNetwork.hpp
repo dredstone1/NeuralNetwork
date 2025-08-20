@@ -36,7 +36,6 @@ class FNNetwork : public INetwork {
 	global::ValueType getLoss(const global::Prediction &index) const override;
 
 	size_t outputSize() const override;
-	size_t inputSize() const override;
 
 	const global::Tensor &getOutput() const override;
 	const global::Tensor &getInput() const override;

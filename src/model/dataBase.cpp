@@ -2,7 +2,6 @@
 #include "ProgressBar.hpp"
 #include <fstream>
 #include <iostream>
-#include <iterator>
 #include <ostream>
 
 namespace nn::model {

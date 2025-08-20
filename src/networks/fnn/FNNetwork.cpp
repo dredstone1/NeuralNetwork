@@ -8,9 +8,9 @@ FNNetwork::FNNetwork(
     const bool randomInit,
     const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_)
     : config(_config),
-      input({_config.getInputSize()}),
+      input({_config.getInputShape()}),
       visual(visual_) {
-	int prevSize_ = _config.getInputSize();
+	int prevSize_ = nn::global::computeTensorSize(_config.getInputShape());
 	size_t i = 0;
 
 	for (; i < _config.layersConfig.size(); ++i) {
@@ -108,10 +108,6 @@ void FNNetwork::resetGradient() {
 			visual->setGrad(i, layers[i]->getGrad());
 		}
 	}
-}
-
-size_t FNNetwork::inputSize() const {
-	return config.getInputSize();
 }
 
 size_t FNNetwork::outputSize() const {

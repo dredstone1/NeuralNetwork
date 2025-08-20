@@ -4,6 +4,7 @@
 #include "fonts.hpp"
 #include "network/IvisualNetwork.hpp"
 #include "panel.hpp"
+#include "tensor.hpp"
 #include <cstdint>
 #include <memory>
 
@@ -100,7 +101,7 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 ModelPanel::ModelPanel(const std::shared_ptr<StateManager> state_)
     : Panel(state_),
       predictionLayer(state_->config.networkConfig.outputSize()),
-      inputLayer(state_->config.networkConfig.inputSize()),
+      inputLayer(nn::global::computeTensorSize(state_->config.networkConfig.inputShape())),
       modelRender({MODEL_WIDTH, MODEL_HEIGHT}) {
 	predictionLayer.setPos({MODEL_WIDTH - (float)predictionLayer.getWidth(), 0});
 

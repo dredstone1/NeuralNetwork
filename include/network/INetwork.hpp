@@ -16,7 +16,6 @@ class INetwork {
 	virtual void resetGradient() = 0;
 
 	virtual size_t outputSize() const = 0;
-	virtual size_t inputSize() const = 0;
 
 	virtual global::ValueType getLoss(const global::Prediction &index) const = 0;
 	virtual const global::Tensor &getOutput() const = 0;

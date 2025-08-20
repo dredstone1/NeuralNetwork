@@ -12,6 +12,8 @@ namespace nn::global {
 class Tensor;
 using Transformation = Tensor (*)(const Tensor &);
 
+size_t computeTensorSize(const std::vector<size_t> &shape);
+
 class Tensor {
   private:
 	std::vector<ValueType> cpu_data;
