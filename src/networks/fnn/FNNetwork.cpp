@@ -10,7 +10,7 @@ FNNetwork::FNNetwork(
     : config(_config),
       input({_config.getInputShape()}),
       visual(visual_) {
-	int prevSize_ = nn::global::computeTensorSize(_config.getInputShape());
+	size_t prevSize_ = nn::global::computeTensorSize(_config.getInputShape());
 	size_t i = 0;
 
 	for (; i < _config.layersConfig.size(); ++i) {

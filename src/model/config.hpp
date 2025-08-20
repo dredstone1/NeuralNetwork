@@ -2,7 +2,6 @@
 #define CONFIG
 
 #include "activations.hpp"
-#include <cstddef>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>

@@ -1,8 +1,10 @@
 #include "dataBase.hpp"
 #include "ProgressBar.hpp"
+#include "tensor.hpp"
 #include <fstream>
 #include <iostream>
 #include <ostream>
+#include <vector>
 
 namespace nn::model {
 DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
@@ -19,12 +21,14 @@ TrainSample DataBase::readLine(const std::string &line) {
 		return TrainSample();
 	}
 
-	TrainSample new_sample(samples.status.sampleOutputSize, samples.status.sampleInputSize);
+	TrainSample new_sample(
+	    samples.status.sampleOutputSize,
+	    samples.status.sampleInputShape);
 
 	new_sample.pre.index = std::stoull(token);
 
 	std::vector<global::ValueType> data(new_sample.input.numElements());
-	for (size_t i = 0; i < samples.status.sampleInputSize; ++i) {
+	for (size_t i = 0; i < nn::global::computeTensorSize(samples.status.sampleInputShape); ++i) {
 		iss >> token;
 
 		data[i] = std::stod(token);
@@ -37,12 +41,23 @@ TrainSample DataBase::readLine(const std::string &line) {
 databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
 	std::istringstream iss(line);
 
-	databaseStatus status{0, 0, 0};
+	databaseStatus status{0, {}, 0};
 
 	iss >> status.dataBaseSize;
-	iss >> status.sampleInputSize;
 
 	return status;
+}
+
+std::vector<size_t> DataBase::getDataBaseInputShape(const std::string &line) {
+	std::vector<size_t> newShape;
+	std::istringstream iss(line);
+	size_t value;
+
+	while (iss >> value) {
+		newShape.push_back(value);
+	}
+
+	return newShape;
 }
 
 int DataBase::loadData(const std::string &db_filename) {
@@ -59,6 +74,9 @@ int DataBase::loadData(const std::string &db_filename) {
 	size_t tempSize = samples.status.dataBaseSize;
 
 	samples.status = getDataBaseStatus(line);
+	getline(file, line);
+	samples.status.sampleInputShape = getDataBaseInputShape(line);
+
 	samples.samples.reserve(samples.size() + samples.status.dataBaseSize);
 
 	ProgressBar bar(samples.size() - tempSize, LOADING_DB_MESSAGE + db_filename);

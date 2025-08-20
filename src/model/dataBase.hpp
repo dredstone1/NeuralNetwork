@@ -3,7 +3,6 @@
 
 #include "config.hpp"
 #include <Globals.hpp>
-#include <cstddef>
 #include <random>
 #include <vector>
 
@@ -17,9 +16,9 @@ struct TrainSample {
 	global::Prediction pre;
 	global::Tensor input;
 
-	TrainSample(const size_t sampleOutputSize, const size_t sampleInputSize)
+	TrainSample(const size_t sampleOutputSize, const std::vector<size_t> sampleInputShape)
 	    : pre(sampleOutputSize, 0),
-	      input({sampleInputSize}, 0) {}
+	      input(sampleInputShape, 0) {}
 	TrainSample()
 	    : pre(0, 0),
 	      input({0}) {}
@@ -27,7 +26,7 @@ struct TrainSample {
 
 struct databaseStatus {
 	size_t dataBaseSize;
-	size_t sampleInputSize;
+	std::vector<size_t> sampleInputShape;
 	size_t sampleOutputSize;
 };
 
@@ -65,6 +64,7 @@ class DataBase {
 	const TrainingConfig &config;
 
 	databaseStatus getDataBaseStatus(const std::string &line);
+	std::vector<size_t> getDataBaseInputShape(const std::string &line);
 	TrainSample readLine(const std::string &line);
 	void generateBatches();
 
