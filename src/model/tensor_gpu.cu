@@ -603,9 +603,9 @@ std::size_t getMaxElementIndex(const ValueType* deviceData, std::size_t count) {
 __global__ void conv2dKernel(const ValueType* input, const ValueType* filters,
                              ValueType* output,
                              int H, int W, int F, int K) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x; // output row
-    int y = blockIdx.y * blockDim.y + threadIdx.y; // output col
-    int f = blockIdx.z;                             // filter index
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    int f = blockIdx.z;
 
     if (x >= H - K + 1 || y >= W - K + 1) return;
 
@@ -619,7 +619,7 @@ __global__ void conv2dKernel(const ValueType* input, const ValueType* filters,
 
 void conv2d(const ValueType* input, const ValueType* filters, ValueType* output,
             int H, int W, int F, int K) {
-    dim3 blockSize(16, 16); // each block computes 16x16 output pixels
+    dim3 blockSize(16, 16);
     dim3 gridSize(
         (W - K + 1 + blockSize.x - 1) / blockSize.x,
         (H - K + 1 + blockSize.y - 1) / blockSize.y,

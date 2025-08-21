@@ -68,9 +68,7 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 
 	if (nn::global::Tensor::getGpuState()) {
 		nn::global::tensor_gpu::conv2d(
-		    input.gpu_data,
-		    filters.gpu_data,
-		    activationMapN.gpu_data,
+		    input.gpu_data, filters.gpu_data, activationMapN.gpu_data,
 		    input.getShape()[0], input.getShape()[1],
 		    config.filterCount, config.filterSize);
 	} else {
@@ -83,6 +81,11 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 }
 
 void CNNetwork::backward(global::Tensor **outputDeltas) {
+	resetGradient();
+
+	if (nn::global::Tensor::getGpuState()) {
+	} else {
+	}
 }
 
 global::ValueType CNNetwork::getLoss(const global::Prediction &) const {

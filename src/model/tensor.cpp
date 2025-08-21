@@ -108,6 +108,11 @@ void Tensor::getData(std::vector<ValueType> &dest) const {
 	}
 }
 
+void Tensor::setShape(const std::vector<size_t> &newShape) {
+    shape = newShape;
+    computeStrides();
+}
+
 void Tensor::fill(const ValueType &value) {
 	if (isGpu) {
 		tensor_gpu::zero(gpu_data, gpu_data_size);

@@ -65,6 +65,7 @@ class Tensor {
 	void zero();
 
     void flatten();
+    void setShape(const std::vector<size_t> &newShape);
 
 	// GPU access for testing
 	ValueType *getGpuData() const { return gpu_data; }
