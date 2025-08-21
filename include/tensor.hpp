@@ -64,6 +64,8 @@ class Tensor {
 	void fill(const ValueType &value);
 	void zero();
 
+    void flatten();
+
 	// GPU access for testing
 	ValueType *getGpuData() const { return gpu_data; }
 

@@ -13,7 +13,6 @@ Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       visual(config),
       learningRate(config.trainingConfig.getLearningRate()) {
-          printf("size: %zu\n", config.networkConfig.inputShape().size());
 	initOptimizer();
 	initModel();
 	if (config.visualConfig.enableVisuals) {

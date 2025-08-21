@@ -9,22 +9,17 @@
 
 namespace nn::model::cnn {
 
-class Filter {
-
-};
-
 class CNNetwork : public INetwork {
   private:
 	const CNNConfig &config;
 	global::Tensor input;
 
-    global::Tensor activationMapN;
-    global::Tensor activationMapO;
+	global::Tensor filters;
 
-	global::Tensor outputN;
-	global::Tensor outputO;
+	global::Tensor activationMapN;
+	global::Tensor activationMapO;
 
-    global::Tensor filters;
+	global::Tensor output;
 
 	Activation activationFunction;
 
@@ -32,7 +27,7 @@ class CNNetwork : public INetwork {
 
 	const std::shared_ptr<visualizer::cnn::CnnVisualier> visual;
 
-    std::vector<size_t> makeActivationMapShape();
+	std::vector<size_t> makeActivationMapShape();
 
   public:
 	CNNetwork(

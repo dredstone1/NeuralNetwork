@@ -167,6 +167,11 @@ Tensor &Tensor::operator=(const std::vector<ValueType> &other) {
 	return *this;
 }
 
+void Tensor::flatten() {
+	shape = {numElements()};
+	computeStrides();
+}
+
 void Tensor::computeStrides() {
 	const size_t dim = shape.size();
 	strides.resize(dim);
@@ -343,22 +348,8 @@ Tensor &Tensor::operator/=(ValueType scalar) {
 }
 
 void Tensor::matmul(const Tensor &other, Tensor &result) const {
-	const auto &aShape = shape;
-	const auto &bShape = other.shape;
-	if (aShape.size() != 2 || bShape.size() != 1)
-		throw std::runtime_error(
-		    "matmul: Unsupported shapes. This operation currently supports a 2D matrix "
-		    "multiplied by a 1D vector. Got shapes: " +
-		    shapeToString(aShape) + " and " + shapeToString(bShape) + ".");
-
-	size_t M = aShape[0];
-	size_t K = aShape[1];
-	if (K != bShape[0])
-		throw std::runtime_error(
-		    "matmul: Incompatible shapes for matrix-vector multiplication. The number of "
-		    "columns in the matrix (" +
-		    std::to_string(K) + ") must match the size of the vector (" +
-		    std::to_string(bShape[0]) + ").");
+	size_t M = shape[0];
+	size_t K = shape[1];
 
 	result.zero();
 
@@ -381,12 +372,6 @@ void Tensor::matmul(const Tensor &other, Tensor &result) const {
 }
 
 void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
-	if (a.shape.size() != 1 || b.shape.size() != 1) {
-		throw std::runtime_error(
-		    "outer: Both input tensors must be 1D vectors. Got shapes " +
-		    shapeToString(a.shape) + " and " + shapeToString(b.shape) + ".");
-	}
-
 	size_t m = a.shape[0];
 	size_t n = b.shape[0];
 
@@ -408,19 +393,6 @@ void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
 }
 
 void Tensor::matmulT(const Tensor &vec, Tensor &result) const {
-	if (shape.size() != 2 || vec.shape.size() != 1)
-		throw std::runtime_error(
-		    "matmulT: Unsupported shapes. This operation requires a 2D matrix (this) and a "
-		    "1D vector. Got shapes " +
-		    shapeToString(shape) + " and " + shapeToString(vec.shape) + ".");
-
-	if (vec.shape[0] != shape[0])
-		throw std::runtime_error(
-		    "matmulT: Incompatible shapes for transposed matrix-vector multiplication. "
-		    "The vector size (" +
-		    std::to_string(vec.shape[0]) + ") must match the number of rows in the matrix (" +
-		    std::to_string(shape[0]) + ").");
-
 	result.zero();
 
 	if (isGpu) {

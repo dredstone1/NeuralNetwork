@@ -1,4 +1,5 @@
 #include "CNNetwork.hpp"
+#include "tensor.hpp"
 #include <vector>
 
 namespace nn::model::cnn {
@@ -8,18 +9,17 @@ CNNetwork::CNNetwork(
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
       input(_config.getInputShape()),
+      filters({3, 3, 1, 2}),
       activationMapN(makeActivationMapShape()),
       activationMapO(makeActivationMapShape()),
-      outputN(_config.getInputShape()),
-      outputO(_config.getInputShape()),
-      filters({3, 3, 1}),
+      output({nn::global::computeTensorSize(_config.getInputShape())}),
       activationFunction(_config.activation),
       visual(visual_) {
 }
 
 std::vector<size_t> CNNetwork::makeActivationMapShape() {
 	std::vector<size_t> newShape = config.getInputShape();
-	newShape.push_back(filters.getShape()[2]);
+	newShape.push_back(filters.getShape()[filters.getShape().size() - 1]);
 	return newShape;
 }
 
@@ -33,6 +33,8 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	    1, 3);
 
 	activationFunction.activate(activationMapN, activationMapO);
+
+    output = activationMapO;
 }
 
 void CNNetwork::backward(global::Tensor **) {
@@ -50,7 +52,7 @@ size_t CNNetwork::outputSize() const {
 }
 
 const global::Tensor &CNNetwork::getOutput() const {
-	return outputO;
+	return output;
 }
 
 const global::Tensor &CNNetwork::getInput() const {
