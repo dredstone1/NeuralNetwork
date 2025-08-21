@@ -17,6 +17,10 @@ class CNNetwork : public INetwork {
   private:
 	const CNNConfig &config;
 	global::Tensor input;
+
+    global::Tensor activationMapN;
+    global::Tensor activationMapO;
+
 	global::Tensor outputN;
 	global::Tensor outputO;
 
@@ -27,6 +31,8 @@ class CNNetwork : public INetwork {
 	void calculateInputDelta(const global::Tensor &deltas);
 
 	const std::shared_ptr<visualizer::cnn::CnnVisualier> visual;
+
+    std::vector<size_t> makeActivationMapShape();
 
   public:
 	CNNetwork(

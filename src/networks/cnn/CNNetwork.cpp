@@ -1,4 +1,5 @@
 #include "CNNetwork.hpp"
+#include <vector>
 
 namespace nn::model::cnn {
 CNNetwork::CNNetwork(
@@ -6,12 +7,20 @@ CNNetwork::CNNetwork(
     const bool,
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
-      input(_config.getInputShape(), 0.0),
-      outputN(_config.getInputShape(), 0.0),
-      outputO(_config.getInputShape(), 0.0),
-      filters({3, 3}),
+      input(_config.getInputShape()),
+      activationMapN(makeActivationMapShape()),
+      activationMapO(makeActivationMapShape()),
+      outputN(_config.getInputShape()),
+      outputO(_config.getInputShape()),
+      filters({3, 3, 1}),
       activationFunction(_config.activation),
       visual(visual_) {
+}
+
+std::vector<size_t> CNNetwork::makeActivationMapShape() {
+	std::vector<size_t> newShape = config.getInputShape();
+	newShape.push_back(filters.getShape()[2]);
+	return newShape;
 }
 
 void CNNetwork::forward(const global::Tensor &newInput) {
@@ -19,11 +28,11 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	nn::global::tensor_gpu::conv2d(
 	    input.gpu_data,
 	    filters.gpu_data,
-	    outputN.gpu_data,
+	    activationMapN.gpu_data,
 	    28, 28,
 	    1, 3);
 
-    activationFunction.activate(outputN, outputO);
+	activationFunction.activate(activationMapN, activationMapO);
 }
 
 void CNNetwork::backward(global::Tensor **) {
