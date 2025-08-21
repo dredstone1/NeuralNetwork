@@ -25,16 +25,20 @@ std::vector<size_t> CNNetwork::makeActivationMapShape() {
 
 void CNNetwork::forward(const global::Tensor &newInput) {
 	input = newInput;
-	nn::global::tensor_gpu::conv2d(
-	    input.gpu_data,
-	    filters.gpu_data,
-	    activationMapN.gpu_data,
-	    28, 28,
-	    1, 3);
+
+	if (nn::global::Tensor::getGpuState()) {
+		nn::global::tensor_gpu::conv2d(
+		    input.gpu_data,
+		    filters.gpu_data,
+		    activationMapN.gpu_data,
+		    28, 28,
+		    1, 3);
+	} else {
+	}
 
 	activationFunction.activate(activationMapN, activationMapO);
 
-    output = activationMapO;
+	output = activationMapO;
 }
 
 void CNNetwork::backward(global::Tensor **) {
