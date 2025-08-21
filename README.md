@@ -5,13 +5,16 @@ A work-in-progress C++ neural network library designed for building, training, a
 ## ✨ Key Features
 
 - **🚀 Modern C++**: Built with C++17 for optimal performance and clean code  
-- **🔧 Modular Architecture**: Easily extensible design for adding custom Network Architectures as well as custom activations  
-- **⚡ Neural Network Components**: Complete support for sub-networks, activation functions, loss computations, and more...  
+- **🔧 Modular Architecture**: Easily extensible design for adding custom network architectures as well as custom activations  
+- **⚡ Neural Network Components**: Complete support for sub-networks, activation functions, loss computations, and more  
 - **📦 CMake Ready**: Seamless build system integration  
 - **🎯 Research Focused**: Designed with experimentation and learning in mind  
-- **🧠 Integrated Visualizer**: Real-time graphical display of layers, neurons, and activations. ideal for debugging, teaching, or showcasing model behavior
-- **💾 Parameter Persistence**: Save and load trained model parameters for reuse, testing, or deployment
-- **⚙️ GPU Support**: Leverages CUDA for accelerated training and inference on compatible NVIDIA GPUs, boosting performance for large scale models.
+- **🧠 Integrated Visualizer**:
+    - **Full Live Network**: Real-time display of all layers, neurons, and activations for a complete live view of the model  
+    - **Status Only**: Lightweight view showing just the current network status, ideal for fast debugging or monitoring  
+- **💾 Parameter Persistence**: Save and load trained model parameters for reuse, testing, or deployment  
+- **⚙️ GPU Support**: Leverages CUDA for accelerated training and inference on compatible NVIDIA GPUs, boosting performance for large-scale models  
+- **💻 Flexible Device Support**: Simple to switch between CPU and GPU for training and inference
 
 ## 🏗️ Quick Start
 
