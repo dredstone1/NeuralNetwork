@@ -8,10 +8,16 @@
 #include <vector>
 
 namespace nn::model::cnn {
+
+class Filter {
+
+};
+
 class CNNetwork : public INetwork {
   private:
 	const CNNConfig &config;
 	global::Tensor input;
+	global::Tensor output;
 
 	void calculateInputDelta(const global::Tensor &deltas);
 
@@ -38,7 +44,7 @@ class CNNetwork : public INetwork {
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
 
-    std::vector<global::ValueType> getParams() const override;
+	std::vector<global::ValueType> getParams() const override;
 	void setParams(const global::Tensor &params) override;
 
 	size_t getParamCount() const override;

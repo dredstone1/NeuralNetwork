@@ -607,4 +607,22 @@ void cleanupCublas() {
     // No-op since we're not using cuBLAS for now
 }
 
+
+__global__ void conv2dKernel(const ValueType* input, const ValueType* filters,
+                             ValueType* output,
+                             int H, int W, int F, int K) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x; // output row
+    int y = blockIdx.y * blockDim.y + threadIdx.y; // output col
+    int f = blockIdx.z;                             // filter index
+
+    if (x >= H - K + 1 || y >= W - K + 1) return;
+
+    ValueType sum = 0.0f;
+    for (int i = 0; i < K; ++i)
+        for (int j = 0; j < K; ++j)
+            sum += input[(x+i)*W + (y+j)] * filters[f*K*K + i*K + j];
+
+    output[(f*(H-K+1) + x)*(W-K+1) + y] = sum;
+}
+
 } // namespace nn::global::tensor_gpu

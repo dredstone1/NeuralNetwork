@@ -7,6 +7,7 @@ CNNetwork::CNNetwork(
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
       input({_config.getInputShape()}, 0.0),
+      output({_config.getInputShape()}, 0.0),
       visual(visual_) {
 }
 
@@ -29,7 +30,7 @@ size_t CNNetwork::outputSize() const {
 }
 
 const global::Tensor &CNNetwork::getOutput() const {
-	return input;
+	return output;
 }
 
 const global::Tensor &CNNetwork::getInput() const {
