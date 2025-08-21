@@ -16,6 +16,7 @@ class CNNetwork : public INetwork {
 	global::Tensor input;
 
 	global::Tensor filters;
+	global::Tensor filtersGradient;
 
 	global::Tensor activationMapN;
 	global::Tensor activationMapO;
@@ -31,6 +32,11 @@ class CNNetwork : public INetwork {
 	std::vector<size_t> makeActivationMapShape();
 
 	std::vector<global::ValueType> randomFilters() const;
+
+	void conv2d_cpu(const global::ValueType *input,
+	                const global::ValueType *filters,
+	                global::ValueType *output,
+	                int H, int W, int F, int K);
 
   public:
 	CNNetwork(

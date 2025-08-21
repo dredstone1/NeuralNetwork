@@ -600,14 +600,6 @@ std::size_t getMaxElementIndex(const ValueType* deviceData, std::size_t count) {
     return maxRes.index;
 }
 
-// ==================================================
-// Cleanup (dummy function for compatibility)
-// ==================================================
-void cleanupCublas() {
-    // No-op since we're not using cuBLAS for now
-}
-
-
 __global__ void conv2dKernel(const ValueType* input, const ValueType* filters,
                              ValueType* output,
                              int H, int W, int F, int K) {
@@ -627,18 +619,15 @@ __global__ void conv2dKernel(const ValueType* input, const ValueType* filters,
 
 void conv2d(const ValueType* input, const ValueType* filters, ValueType* output,
             int H, int W, int F, int K) {
-    // Define CUDA thread/block layout
     dim3 blockSize(16, 16); // each block computes 16x16 output pixels
     dim3 gridSize(
         (W - K + 1 + blockSize.x - 1) / blockSize.x,
         (H - K + 1 + blockSize.y - 1) / blockSize.y,
-        F  // one block per filter along z-dimension
+        F
     );
 
-    // Launch kernel
     conv2dKernel<<<gridSize, blockSize>>>(input, filters, output, H, W, F, K);
 
-    // Check for errors
     CUDA_CHECK(cudaGetLastError());
 }
 

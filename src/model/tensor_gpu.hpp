@@ -81,11 +81,6 @@ struct MaxIndex {
 };
 std::size_t getMaxElementIndex(const ValueType *deviceData, std::size_t count);
 
-// ============================
-// Cleanup
-// ============================
-void cleanupCublas();
-
 void conv2d(const ValueType *input, const ValueType *filters, ValueType *output,
             int H, int W, int F, int K);
 
