@@ -6,13 +6,24 @@ CNNetwork::CNNetwork(
     const bool,
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
-      input({_config.getInputShape()}, 0.0),
-      output({_config.getInputShape()}, 0.0),
+      input(_config.getInputShape(), 0.0),
+      outputN(_config.getInputShape(), 0.0),
+      outputO(_config.getInputShape(), 0.0),
+      filters({3, 3}),
+      activationFunction(_config.activation),
       visual(visual_) {
 }
 
 void CNNetwork::forward(const global::Tensor &newInput) {
 	input = newInput;
+	nn::global::tensor_gpu::conv2d(
+	    input.gpu_data,
+	    filters.gpu_data,
+	    outputN.gpu_data,
+	    28, 28,
+	    1, 3);
+
+    activationFunction.activate(outputN, outputO);
 }
 
 void CNNetwork::backward(global::Tensor **) {
@@ -30,7 +41,7 @@ size_t CNNetwork::outputSize() const {
 }
 
 const global::Tensor &CNNetwork::getOutput() const {
-	return output;
+	return outputO;
 }
 
 const global::Tensor &CNNetwork::getInput() const {

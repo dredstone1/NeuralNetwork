@@ -625,4 +625,21 @@ __global__ void conv2dKernel(const ValueType* input, const ValueType* filters,
     output[(f*(H-K+1) + x)*(W-K+1) + y] = sum;
 }
 
+void conv2d(const ValueType* input, const ValueType* filters, ValueType* output,
+            int H, int W, int F, int K) {
+    // Define CUDA thread/block layout
+    dim3 blockSize(16, 16); // each block computes 16x16 output pixels
+    dim3 gridSize(
+        (W - K + 1 + blockSize.x - 1) / blockSize.x,
+        (H - K + 1 + blockSize.y - 1) / blockSize.y,
+        F  // one block per filter along z-dimension
+    );
+
+    // Launch kernel
+    conv2dKernel<<<gridSize, blockSize>>>(input, filters, output, H, W, F, K);
+
+    // Check for errors
+    CUDA_CHECK(cudaGetLastError());
+}
+
 } // namespace nn::global::tensor_gpu

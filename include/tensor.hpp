@@ -6,6 +6,10 @@
 
 namespace nn::model {
 class Activation;
+
+namespace cnn {
+class CNNetwork;
+}
 } // namespace nn::model
 
 namespace nn::global {
@@ -31,6 +35,7 @@ class Tensor {
 
 	friend model::Activation;
 	friend nn::global::Transformation;
+	friend nn::model::cnn::CNNetwork;
 
   public:
 	// Constructors

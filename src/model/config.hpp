@@ -77,7 +77,7 @@ class CNNConfig : public ISubNetworkConfig {
 	const std::string NNLable() const override { return CNN_LABLE; }
 	void fromJson(const nlohmann::json &j) override;
 
-	ActivationType outputActivation;
+	ActivationType activation;
 };
 } // namespace cnn
 

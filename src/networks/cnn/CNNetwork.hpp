@@ -17,7 +17,12 @@ class CNNetwork : public INetwork {
   private:
 	const CNNConfig &config;
 	global::Tensor input;
-	global::Tensor output;
+	global::Tensor outputN;
+	global::Tensor outputO;
+
+    global::Tensor filters;
+
+	Activation activationFunction;
 
 	void calculateInputDelta(const global::Tensor &deltas);
 

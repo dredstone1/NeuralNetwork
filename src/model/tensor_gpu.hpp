@@ -86,6 +86,9 @@ std::size_t getMaxElementIndex(const ValueType *deviceData, std::size_t count);
 // ============================
 void cleanupCublas();
 
+void conv2d(const ValueType *input, const ValueType *filters, ValueType *output,
+            int H, int W, int F, int K);
+
 } // namespace nn::global::tensor_gpu
 
 #endif // TENSOR_GPU
