@@ -35,27 +35,23 @@ std::vector<global::ValueType> CNNetwork::randomFilters() const {
 	return filtersTemp;
 }
 
-void CNNetwork::conv2d_cpu(const global::ValueType *input,
-                const global::ValueType *filters,
-                global::ValueType *output,
-                int H, int W, int F, int K) {
-	int outH = H - K + 1;
-	int outW = W - K + 1;
+void CNNetwork::conv2d_cpu() {
+	size_t outH = input.getShape()[0] - config.filterSize + 1;
+	size_t outW = input.getShape()[1] - config.filterSize + 1;
 
-	for (int f = 0; f < F; ++f) {
-		for (int x = 0; x < outH; ++x) {
-			for (int y = 0; y < outW; ++y) {
+	for (size_t f = 0; f < config.filterCount; ++f) {
+		for (size_t x = 0; x < outH; ++x) {
+			for (size_t y = 0; y < outW; ++y) {
 				global::ValueType sum = 0.0f;
 
-				// apply filter KxK
-				for (int i = 0; i < K; ++i) {
-					for (int j = 0; j < K; ++j) {
-						sum += input[(x + i) * W + (y + j)] *
-						       filters[f * K * K + i * K + j];
+				for (size_t i = 0; i < config.filterSize; ++i) {
+					for (size_t j = 0; j < config.filterSize; ++j) {
+						sum += input.cpu_data[(x + i) * input.getShape()[1] + (y + j)] *
+						       filters.cpu_data[f * config.filterSize * config.filterSize + i * config.filterSize + j];
 					}
 				}
 
-				output[(f * outH + x) * outW + y] = sum;
+				activationMapN.cpu_data[(f * outH + x) * outW + y] = sum;
 			}
 		}
 	}
@@ -78,12 +74,7 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 		    input.getShape()[0], input.getShape()[1],
 		    config.filterCount, config.filterSize);
 	} else {
-		conv2d_cpu(
-		    input.cpu_data.data(),
-		    filters.cpu_data.data(),
-		    activationMapN.cpu_data.data(),
-		    input.getShape()[0], input.getShape()[1],
-		    config.filterCount, config.filterSize);
+		conv2d_cpu();
 	}
 
 	activationFunction.activate(activationMapN, activationMapO);

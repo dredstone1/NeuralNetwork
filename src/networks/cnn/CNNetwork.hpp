@@ -33,10 +33,7 @@ class CNNetwork : public INetwork {
 
 	std::vector<global::ValueType> randomFilters() const;
 
-	void conv2d_cpu(const global::ValueType *input,
-	                const global::ValueType *filters,
-	                global::ValueType *output,
-	                int H, int W, int F, int K);
+	void conv2d_cpu();
 
   public:
 	CNNetwork(
