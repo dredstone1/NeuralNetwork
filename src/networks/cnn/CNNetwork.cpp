@@ -1,5 +1,6 @@
 #include "CNNetwork.hpp"
 #include "tensor.hpp"
+#include <random>
 #include <vector>
 
 namespace nn::model::cnn {
@@ -8,13 +9,29 @@ CNNetwork::CNNetwork(
     const bool,
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
-      input(_config.getInputShape()),
-      filters({3, 3, 1, 2}),
+      input(config.getInputShape()),
+      filters({config.filterSize, config.filterSize, 1, config.filterCount}),
       activationMapN(makeActivationMapShape()),
       activationMapO(makeActivationMapShape()),
       output({nn::global::computeTensorSize(_config.getInputShape())}),
       activationFunction(_config.activation),
       visual(visual_) {
+	std::vector<global::ValueType> tempFIlters = randomFilters();
+
+	filters = tempFIlters;
+}
+
+std::vector<global::ValueType> CNNetwork::randomFilters() const {
+	std::vector<global::ValueType> filtersTemp(filters.numElements());
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> dist(-0.1, 0.1); // uniform initialization
+
+	for (size_t i = 0; i < filtersTemp.size(); ++i)
+		filtersTemp[i] = dist(gen);
+
+	return filtersTemp;
 }
 
 std::vector<size_t> CNNetwork::makeActivationMapShape() {
@@ -31,8 +48,8 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 		    input.gpu_data,
 		    filters.gpu_data,
 		    activationMapN.gpu_data,
-		    28, 28,
-		    1, 3);
+		    input.getShape()[0], input.getShape()[1],
+		    config.filterCount, config.filterSize);
 	} else {
 	}
 

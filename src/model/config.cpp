@@ -95,6 +95,13 @@ void CNNConfig::fromJson(const nlohmann::json &j) {
 	outputSize = j.at("output size");
 
 	activation = (ActivationType)j.at("output activation");
+
+	if (j.contains("filter count")) {
+		filterCount = j.at("filter count");
+	}
+	if (j.contains("filter size")) {
+		filterCount = j.at("filter size");
+	}
 }
 } // namespace cnn
 

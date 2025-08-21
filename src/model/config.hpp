@@ -78,6 +78,8 @@ class CNNConfig : public ISubNetworkConfig {
 	void fromJson(const nlohmann::json &j) override;
 
 	ActivationType activation;
+    size_t filterCount{1};
+    size_t filterSize{3};
 };
 } // namespace cnn
 

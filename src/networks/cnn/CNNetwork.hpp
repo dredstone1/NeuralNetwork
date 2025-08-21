@@ -3,6 +3,7 @@
 
 #include "CnnVisualizer.hpp"
 #include "tensor.hpp"
+#include <cstddef>
 #include <memory>
 #include <network/INetwork.hpp>
 #include <vector>
@@ -28,6 +29,8 @@ class CNNetwork : public INetwork {
 	const std::shared_ptr<visualizer::cnn::CnnVisualier> visual;
 
 	std::vector<size_t> makeActivationMapShape();
+
+	std::vector<global::ValueType> randomFilters() const;
 
   public:
 	CNNetwork(
