@@ -3,6 +3,7 @@
 
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
+#include <vector>
 
 namespace nn::model {
 class IOptimizerConfig {
@@ -75,8 +76,7 @@ class CNNConfig : public ISubNetworkConfig {
 	void fromJson(const nlohmann::json &j) override;
 
 	ActivationType activation;
-	size_t filterCount{1};
-	size_t filterSize{3};
+	std::vector<size_t> filterShape{3, 3, 1, 1}; // {w, h, f, c}
 };
 } // namespace cnn
 

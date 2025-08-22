@@ -88,15 +88,18 @@ void CNNConfig::fromJson(const nlohmann::json &j) {
 	for (auto i : j.at("input shape")) {
 		inputShape.push_back(i);
 	}
+
 	outputSize = j.at("output size");
 
 	activation = (ActivationType)j.at("output activation");
 
-	if (j.contains("filter count")) {
-		filterCount = j.at("filter count");
-	}
-	if (j.contains("filter size")) {
-		filterSize = j.at("filter size");
+	if (j.contains("filter shape")) {
+		size_t k = 0;
+		for (const auto &val : j.at("filter shape")) {
+			if (k < filterShape.size()) {
+				filterShape[k++] = val.get<size_t>();
+			}
+		}
 	}
 }
 } // namespace cnn
