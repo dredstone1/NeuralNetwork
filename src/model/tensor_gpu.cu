@@ -631,4 +631,76 @@ void conv2d(const ValueType* input, const ValueType* filters, ValueType* output,
     CUDA_CHECK(cudaGetLastError());
 }
 
+__global__ void conv2d_backward_dataKernel(const ValueType *deltas, const ValueType *filters, ValueType *inputDelta,
+                                         int H_out, int W_out, int F, int K, int H_in, int W_in) {
+    int x_in = blockIdx.x * blockDim.x + threadIdx.x;
+    int y_in = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x_in >= H_in || y_in >= W_in) return;
+
+    ValueType delta_sum = 0.0f;
+    for (int f = 0; f < F; ++f) {
+        for (int i = 0; i < K; ++i) {
+            for (int j = 0; j < K; ++j) {
+                int x_out = x_in - i;
+                int y_out = y_in - j;
+
+                if (x_out >= 0 && x_out < H_out && y_out >= 0 && y_out < W_out) {
+                    delta_sum += deltas[(f * H_out + x_out) * W_out + y_out] * filters[(f * K + i) * K + j];
+                }
+            }
+        }
+    }
+    inputDelta[x_in * W_in + y_in] = delta_sum;
+}
+
+void conv2d_backward_data(const ValueType *deltas, const ValueType *filters, ValueType *inputDelta,
+                          int H_out, int W_out, int F, int K, int H_in, int W_in) {
+    dim3 blockSize(16, 16);
+    dim3 gridSize(
+        (W_in + blockSize.x - 1) / blockSize.x,
+        (H_in + blockSize.y - 1) / blockSize.y
+    );
+
+    conv2d_backward_dataKernel<<<gridSize, blockSize>>>(deltas, filters, inputDelta,
+                                                     H_out, W_out, F, K, H_in, W_in);
+    CUDA_CHECK(cudaGetLastError());
+}
+
+__global__ void conv2d_backward_filterKernel(const ValueType *input, const ValueType *deltas, ValueType *filterGradient,
+                                          int H_in, int W_in, int F, int K, int H_out, int W_out) {
+    int f = blockIdx.z;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (i >= K || j >= K) return;
+
+    ValueType gradient_sum = 0.0f;
+    for (int x_out = 0; x_out < H_out; ++x_out) {
+        for (int y_out = 0; y_out < W_out; ++y_out) {
+            int x_in = x_out + i;
+            int y_in = y_out + j;
+            if (x_in < H_in && y_in < W_in) {
+                gradient_sum += input[x_in * W_in + y_in] * deltas[(f * H_out + x_out) * W_out + y_out];
+            }
+        }
+    }
+    filterGradient[(f * K + i) * K + j] = gradient_sum;
+}
+
+void conv2d_backward_filter(const ValueType *input, const ValueType *deltas, ValueType *filterGradient,
+                            int H_in, int W_in, int F, int K, int H_out, int W_out) {
+    dim3 blockSize(16, 16);
+    dim3 gridSize(
+        (K + blockSize.x - 1) / blockSize.x,
+        (K + blockSize.y - 1) / blockSize.y,
+        F
+    );
+
+    conv2d_backward_filterKernel<<<gridSize, blockSize>>>(input, deltas, filterGradient,
+                                                        H_in, W_in, F, K, H_out, W_out);
+    CUDA_CHECK(cudaGetLastError());
+}
+
 } // namespace nn::global::tensor_gpu
+

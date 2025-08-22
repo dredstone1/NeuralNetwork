@@ -84,6 +84,12 @@ std::size_t getMaxElementIndex(const ValueType *deviceData, std::size_t count);
 void conv2d(const ValueType *input, const ValueType *filters, ValueType *output,
             int H, int W, int F, int K);
 
+void conv2d_backward_data(const ValueType *deltas, const ValueType *filters, ValueType *inputDelta,
+                          int H_out, int W_out, int F, int K, int H_in, int W_in);
+void conv2d_backward_filter(const ValueType *input, const ValueType *deltas, ValueType *filterGradient,
+                            int H_in, int W_in, int F, int K, int H_out, int W_out);
+
 } // namespace nn::global::tensor_gpu
 
 #endif // TENSOR_GPU
+

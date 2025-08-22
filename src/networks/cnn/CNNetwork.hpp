@@ -11,8 +11,8 @@
 namespace nn::model::cnn {
 
 struct Size {
-    size_t w;
-    size_t h;
+	size_t w;
+	size_t h;
 };
 
 class CNNetwork : public INetwork {
@@ -28,9 +28,14 @@ class CNNetwork : public INetwork {
 
 	global::Tensor output;
 
+	// For backpropagation
+	global::Tensor inputDelta;
+	global::Tensor activationDelta;
+
 	Activation activationFunction;
 
 	void calculateInputDelta(const global::Tensor &deltas);
+	void calculateFilterGradients();
 
 	const std::shared_ptr<visualizer::cnn::CnnVisualier> visual;
 
@@ -40,7 +45,7 @@ class CNNetwork : public INetwork {
 
 	void conv2d_cpu();
 
-    Size getFeatureMapSize();
+	Size getFeatureMapSize();
 
   public:
 	CNNetwork(
@@ -60,6 +65,7 @@ class CNNetwork : public INetwork {
 
 	const global::Tensor &getOutput() const override;
 	const global::Tensor &getInput() const override;
+	const global::Tensor &getInputDelta() const { return inputDelta; }
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
 

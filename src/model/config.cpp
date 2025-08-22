@@ -96,7 +96,7 @@ void CNNConfig::fromJson(const nlohmann::json &j) {
 		filterCount = j.at("filter count");
 	}
 	if (j.contains("filter size")) {
-		filterCount = j.at("filter size");
+		filterSize = j.at("filter size");
 	}
 }
 } // namespace cnn
