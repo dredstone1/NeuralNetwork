@@ -141,7 +141,7 @@ void VisualConfig::fromJson(const nlohmann::json &j) {
 	if (!enableVisuals)
 		return;
 
-	enableNetwrokVisual = j.at("enable netwrok visual");
+	enableNetwrokVisual = j.at("enable network visual");
 
 	if (j.contains("modes")) {
 		modes = j.at("modes");

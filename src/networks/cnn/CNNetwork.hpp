@@ -2,11 +2,7 @@
 #define CNNNETWORK
 
 #include "CnnVisualizer.hpp"
-#include "tensor.hpp"
-#include <cstddef>
-#include <memory>
 #include <network/INetwork.hpp>
-#include <vector>
 
 namespace nn::model::cnn {
 
@@ -76,6 +72,7 @@ class CNNetwork : public INetwork {
 
 	void setTraining(const bool state) override;
 };
+
 } // namespace nn::model::cnn
 
 #endif // CNNNETWORK
