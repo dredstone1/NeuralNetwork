@@ -3,7 +3,6 @@
 
 #include "FnnVisualizer.hpp"
 #include <network/INetwork.hpp>
-#include <vector>
 
 namespace nn::model::fnn {
 class FNNetwork : public INetwork {

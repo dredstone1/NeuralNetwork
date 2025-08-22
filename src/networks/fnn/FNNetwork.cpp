@@ -1,6 +1,4 @@
 #include "FNNetwork.hpp"
-#include "tensor.hpp"
-#include <vector>
 
 namespace nn::model::fnn {
 FNNetwork::FNNetwork(
@@ -88,9 +86,8 @@ void FNNetwork::backward(global::Tensor **outputDeltas) {
 
 		if (visual) {
 			visual->setGrad(i, layers[i]->getGrad());
+			vUpdate();
 		}
-
-		vUpdate();
 	}
 
 	calculateInputDelta(outputDeltas);

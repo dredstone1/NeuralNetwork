@@ -2,8 +2,6 @@
 #define FNNVISUALNETWORK
 
 #include "DenseLayer.hpp"
-#include "tensor.hpp"
-#include <cstddef>
 #include <network/IvisualNetwork.hpp>
 
 namespace nn::visualizer::fnn {

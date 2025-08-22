@@ -1,7 +1,5 @@
 #include "DenseLayer.hpp"
-#include <cstddef>
 #include <random>
-#include <vector>
 
 namespace nn::model::fnn {
 DenseLayer::DenseLayer(
