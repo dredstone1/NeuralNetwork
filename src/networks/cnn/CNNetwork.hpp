@@ -27,7 +27,6 @@ class CNNetwork : public INetwork {
 
 	global::Tensor output;
 
-	// For backpropagation
 	global::Tensor inputDelta;
 	global::Tensor activationDelta;
 

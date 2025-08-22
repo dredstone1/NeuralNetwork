@@ -56,7 +56,7 @@ void CNNetwork::conv2d_cpu() {
 	for (size_t f = 0; f < filterCount; ++f) {
 		for (size_t x = 0; x < size.h; ++x) {
 			for (size_t y = 0; y < size.w; ++y) {
-				global::ValueType sum = 0.0f;
+				global::ValueType sum = filtersB.getValue(f);
 
 				for (size_t c = 0; c < filterChannel; ++c) {
 					for (size_t i = 0; i < filterW; ++i) {
@@ -66,8 +66,6 @@ void CNNetwork::conv2d_cpu() {
 						}
 					}
 				}
-
-				sum += filtersB.getValue(f);
 
 				activationMapN.setValue({x, y, f}, sum);
 			}
