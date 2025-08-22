@@ -10,6 +10,11 @@
 
 namespace nn::model::cnn {
 
+struct Size {
+    size_t w;
+    size_t h;
+};
+
 class CNNetwork : public INetwork {
   private:
 	const CNNConfig &config;
@@ -34,6 +39,8 @@ class CNNetwork : public INetwork {
 	std::vector<global::ValueType> randomFilters() const;
 
 	void conv2d_cpu();
+
+    Size getFeatureMapSize();
 
   public:
 	CNNetwork(

@@ -10,12 +10,12 @@ CNNetwork::CNNetwork(
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
       input(config.getInputShape()),
-      filters({config.filterSize, config.filterSize, 1, config.filterCount}),
-      filtersGradient({config.filterSize, config.filterSize, 1, config.filterCount}),
+      filters({config.filterSize, config.filterSize, config.filterCount}),
+      filtersGradient({config.filterSize, config.filterSize, config.filterCount}),
       activationMapN(makeActivationMapShape()),
       activationMapO(makeActivationMapShape()),
-      output({nn::global::computeTensorSize(_config.getInputShape())}),
-      activationFunction(_config.activation),
+      output(config.getInputShape()),
+      activationFunction(config.activation),
       visual(visual_) {
 	std::vector<global::ValueType> tempFilters = randomFilters();
 	filters = tempFilters;
@@ -36,35 +36,44 @@ std::vector<global::ValueType> CNNetwork::randomFilters() const {
 }
 
 void CNNetwork::conv2d_cpu() {
-	size_t outH = input.getShape()[0] - config.filterSize + 1;
-	size_t outW = input.getShape()[1] - config.filterSize + 1;
+	Size size = getFeatureMapSize();
 
 	for (size_t f = 0; f < config.filterCount; ++f) {
-		for (size_t x = 0; x < outH; ++x) {
-			for (size_t y = 0; y < outW; ++y) {
+		for (size_t x = 0; x < size.h; ++x) {
+			for (size_t y = 0; y < size.w; ++y) {
 				global::ValueType sum = 0.0f;
 
 				for (size_t i = 0; i < config.filterSize; ++i) {
 					for (size_t j = 0; j < config.filterSize; ++j) {
-						sum += input.cpu_data[(x + i) * input.getShape()[1] + (y + j)] *
-						       filters.cpu_data[f * config.filterSize * config.filterSize + i * config.filterSize + j];
+						global::ValueType value = input.getValue({x + i, y + j});
+						value *= filters.getValue({i, j, f});
+						sum += value;
 					}
 				}
 
-				activationMapN.cpu_data[(f * outH + x) * outW + y] = sum;
+				activationMapN.setValue({x, y, f}, sum);
 			}
 		}
 	}
 }
 
 std::vector<size_t> CNNetwork::makeActivationMapShape() {
-	std::vector<size_t> newShape = config.getInputShape();
+	Size featureMapSize = getFeatureMapSize();
+
+	std::vector<size_t> newShape = {featureMapSize.w, featureMapSize.h};
 	newShape.push_back(config.filterCount);
 	return newShape;
 }
 
+Size CNNetwork::getFeatureMapSize() {
+	return {input.getShape()[0] - config.filterSize + 1,
+	        input.getShape()[1] - config.filterSize + 1};
+}
+
 void CNNetwork::forward(const global::Tensor &newInput) {
+	std::vector<size_t> tempShape = input.getShape();
 	input = newInput;
+	input.setShape(tempShape);
 
 	if (nn::global::Tensor::getGpuState()) {
 		nn::global::tensor_gpu::conv2d(
@@ -80,7 +89,7 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	output = activationMapO;
 }
 
-void CNNetwork::backward(global::Tensor **outputDeltas) {
+void CNNetwork::backward(global::Tensor **) {
 	resetGradient();
 
 	if (nn::global::Tensor::getGpuState()) {
@@ -109,7 +118,6 @@ const global::Tensor &CNNetwork::getInput() const {
 }
 
 void CNNetwork::updateWeights(IOptimizer &optimizer) {
-	// Use the provided optimizer to update the filters using the calculated gradients.
 	optimizer.step(filters, filtersGradient);
 }
 

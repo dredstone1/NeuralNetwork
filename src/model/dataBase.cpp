@@ -23,12 +23,12 @@ TrainSample DataBase::readLine(const std::string &line) {
 
 	TrainSample new_sample(
 	    samples.status.sampleOutputSize,
-	    samples.status.sampleInputShape);
+	    samples.status.sampleInputSize);
 
 	new_sample.pre.index = std::stoull(token);
 
 	std::vector<global::ValueType> data(new_sample.input.numElements());
-	for (size_t i = 0; i < nn::global::computeTensorSize(samples.status.sampleInputShape); ++i) {
+	for (size_t i = 0; i < samples.status.sampleInputSize; ++i) {
 		iss >> token;
 
 		data[i] = std::stod(token);
@@ -41,23 +41,12 @@ TrainSample DataBase::readLine(const std::string &line) {
 databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
 	std::istringstream iss(line);
 
-	databaseStatus status{0, {}, 0};
+	databaseStatus status{0, 0, 0};
 
 	iss >> status.dataBaseSize;
+	iss >> status.sampleInputSize;
 
 	return status;
-}
-
-std::vector<size_t> DataBase::getDataBaseInputShape(const std::string &line) {
-	std::vector<size_t> newShape;
-	std::istringstream iss(line);
-	size_t value;
-
-	while (iss >> value) {
-		newShape.push_back(value);
-	}
-
-	return newShape;
 }
 
 int DataBase::loadData(const std::string &db_filename) {
@@ -75,7 +64,6 @@ int DataBase::loadData(const std::string &db_filename) {
 
 	samples.status = getDataBaseStatus(line);
 	getline(file, line);
-	samples.status.sampleInputShape = getDataBaseInputShape(line);
 
 	samples.samples.reserve(samples.size() + samples.status.dataBaseSize);
 

@@ -16,9 +16,9 @@ struct TrainSample {
 	global::Prediction pre;
 	global::Tensor input;
 
-	TrainSample(const size_t sampleOutputSize, const std::vector<size_t> sampleInputShape)
+	TrainSample(const size_t sampleOutputSize, const size_t sampleInputSize)
 	    : pre(sampleOutputSize, 0),
-	      input(sampleInputShape, 0) {}
+	      input({sampleInputSize}, 0) {}
 	TrainSample()
 	    : pre(0, 0),
 	      input({0}) {}
@@ -26,7 +26,7 @@ struct TrainSample {
 
 struct databaseStatus {
 	size_t dataBaseSize;
-	std::vector<size_t> sampleInputShape;
+	size_t sampleInputSize;
 	size_t sampleOutputSize;
 };
 
