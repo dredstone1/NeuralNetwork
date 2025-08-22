@@ -63,8 +63,6 @@ int DataBase::loadData(const std::string &db_filename) {
 	size_t tempSize = samples.status.dataBaseSize;
 
 	samples.status = getDataBaseStatus(line);
-	getline(file, line);
-
 	samples.samples.reserve(samples.size() + samples.status.dataBaseSize);
 
 	ProgressBar bar(samples.size() - tempSize, LOADING_DB_MESSAGE + db_filename);
