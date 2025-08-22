@@ -108,9 +108,28 @@ void Tensor::getData(std::vector<ValueType> &dest) const {
 	}
 }
 
+void Tensor::setData(const Tensor &other) {
+	if (this == &other)
+		return;
+
+	if (isGpu) {
+		if (gpu_data_size != other.gpu_data_size) {
+			ValueType *temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
+			gpu_data_size = other.gpu_data_size;
+			tensor_gpu::copyDeviceToDevice(temp, other.gpu_data, gpu_data_size * sizeof(ValueType));
+			tensor_gpu::deallocate(gpu_data);
+			gpu_data = temp;
+		} else {
+			tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
+		}
+	} else {
+		cpu_data = other.cpu_data;
+	}
+}
+
 void Tensor::setShape(const std::vector<size_t> &newShape) {
-    shape = newShape;
-    computeStrides();
+	shape = newShape;
+	computeStrides();
 }
 
 void Tensor::fill(const ValueType &value) {

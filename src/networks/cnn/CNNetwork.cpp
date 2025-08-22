@@ -71,9 +71,7 @@ Size CNNetwork::getFeatureMapSize() {
 }
 
 void CNNetwork::forward(const global::Tensor &newInput) {
-	std::vector<size_t> tempShape = input.getShape();
-	input = newInput;
-	input.setShape(tempShape);
+    input.setData(newInput);
 
 	if (nn::global::Tensor::getGpuState()) {
 		nn::global::tensor_gpu::conv2d(

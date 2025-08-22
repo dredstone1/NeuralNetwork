@@ -61,11 +61,12 @@ class Tensor {
 	const std::vector<size_t> &getShape() const { return shape; }
 	const std::vector<size_t> &getStrides() const { return strides; }
 	void getData(std::vector<ValueType> &dest) const;
+	void setData(const Tensor &other);
 	void fill(const ValueType &value);
 	void zero();
 
-    void flatten();
-    void setShape(const std::vector<size_t> &newShape);
+	void flatten();
+	void setShape(const std::vector<size_t> &newShape);
 
 	// GPU access for testing
 	ValueType *getGpuData() const { return gpu_data; }
