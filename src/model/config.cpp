@@ -1,10 +1,6 @@
 #include "config.hpp"
-#include "activations.hpp"
-#include <cstddef>
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json_fwd.hpp>
-#include <vector>
 
 namespace nn::model {
 Config::Config(const std::string &config_filepath) {
@@ -55,9 +51,9 @@ FNNConfig::FNNConfig(const nlohmann::json &j) {
 }
 
 void FNNConfig::fromJson(const nlohmann::json &j) {
-	for (auto i : j.at("input shape")) {
-		inputShape.push_back(i);
-	}
+	inputShape.resize(1);
+	inputShape[0] = j.at("input size");
+
 	outputSize = j.at("output size");
 
 	for (auto &layer_ : j.at("layers")) {

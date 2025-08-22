@@ -2,10 +2,7 @@
 #define CONFIG
 
 #include "activations.hpp"
-#include <memory>
 #include <nlohmann/json.hpp>
-#include <string>
-#include <vector>
 
 namespace nn::model {
 class IOptimizerConfig {
@@ -78,8 +75,8 @@ class CNNConfig : public ISubNetworkConfig {
 	void fromJson(const nlohmann::json &j) override;
 
 	ActivationType activation;
-    size_t filterCount{1};
-    size_t filterSize{3};
+	size_t filterCount{1};
+	size_t filterSize{3};
 };
 } // namespace cnn
 

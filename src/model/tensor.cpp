@@ -30,7 +30,7 @@ static std::string shapeToString(const std::vector<size_t> &shape) {
 	return ss.str();
 }
 
-bool Tensor::isGpu = false;
+bool Tensor::isGpu = DEFAULT_GPU_MODE;
 size_t Tensor::tensorCount = 0;
 
 Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
