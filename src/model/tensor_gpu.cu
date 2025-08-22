@@ -705,7 +705,9 @@ void conv2d_backward_filter(const ValueType *input, const ValueType *deltas, Val
 // ==================================================
 // Multi-channel 2D Convolution (for CNN)
 // ==================================================
-__global__ void conv2d_multi_channelKernel(const ValueType* input, const ValueType* filters,
+__global__ void conv2d_multi_channelKernel(const ValueType* input,
+        const ValueType* filtersW,
+        const ValueType* filtersB,
                                            ValueType* output,
                                            int H, int W, int C, int F, int K) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -720,14 +722,15 @@ __global__ void conv2d_multi_channelKernel(const ValueType* input, const ValueTy
             for (int j = 0; j < K; ++j) {
                 int input_idx = (x + i) * W * C + (y + j) * C + c;
                 int filter_idx = f * K * K * C + i * K * C + j * C + c;
-                sum += input[input_idx] * filters[filter_idx];
+                sum += input[input_idx] * filtersW[filter_idx] + filtersB[filter_idx];
             }
         }
     }
     output[f * (H - K + 1) * (W - K + 1) + x * (W - K + 1) + y] = sum;
 }
 
-void conv2d_multi_channel(const ValueType* input, const ValueType* filters, ValueType* output,
+void conv2d_multi_channel(const ValueType *input, const ValueType *filtersW,
+                            const ValueType *filtersB, ValueType *output,
                           int H, int W, int C, int F, int K) {
     dim3 blockSize(16, 16);
     dim3 gridSize(
@@ -736,11 +739,11 @@ void conv2d_multi_channel(const ValueType* input, const ValueType* filters, Valu
         F
     );
 
-    conv2d_multi_channelKernel<<<gridSize, blockSize>>>(input, filters, output, H, W, C, F, K);
+    conv2d_multi_channelKernel<<<gridSize, blockSize>>>(input, filtersW, filtersB, output, H, W, C, F, K);
     CUDA_CHECK(cudaGetLastError());
 }
 
-__global__ void conv2d_multi_channel_backward_dataKernel(const ValueType *deltas, const ValueType *filters, ValueType *inputDelta,
+__global__ void conv2d_multi_channel_backward_dataKernel(const ValueType *deltas, const ValueType *filtersW, const ValueType *filtersB, ValueType *inputDelta,
                                                          int H_out, int W_out, int F, int K, int H_in, int W_in, int C) {
     int x_in = blockIdx.x * blockDim.x + threadIdx.x;
     int y_in = blockIdx.y * blockDim.y + threadIdx.y;
@@ -758,7 +761,7 @@ __global__ void conv2d_multi_channel_backward_dataKernel(const ValueType *deltas
                 if (x_out >= 0 && x_out < H_out && y_out >= 0 && y_out < W_out) {
                     int delta_idx = f * H_out * W_out + x_out * W_out + y_out;
                     int filter_idx = f * K * K * C + i * K * C + j * C + c;
-                    delta_sum += deltas[delta_idx] * filters[filter_idx];
+                    delta_sum += deltas[delta_idx] * filtersW[filter_idx] + filtersB[filter_idx];
                 }
             }
         }
@@ -766,7 +769,7 @@ __global__ void conv2d_multi_channel_backward_dataKernel(const ValueType *deltas
     inputDelta[x_in * W_in * C + y_in * C + c] = delta_sum;
 }
 
-void conv2d_multi_channel_backward_data(const ValueType *deltas, const ValueType *filters, ValueType *inputDelta,
+void conv2d_multi_channel_backward_data(const ValueType *deltas, const ValueType *filtersW, const ValueType *filtersB, ValueType *inputDelta,
                                         int H_out, int W_out, int F, int K, int H_in, int W_in, int C) {
     dim3 blockSize(16, 16);
     dim3 gridSize(
@@ -775,7 +778,7 @@ void conv2d_multi_channel_backward_data(const ValueType *deltas, const ValueType
         C
     );
 
-    conv2d_multi_channel_backward_dataKernel<<<gridSize, blockSize>>>(deltas, filters, inputDelta,
+    conv2d_multi_channel_backward_dataKernel<<<gridSize, blockSize>>>(deltas, filtersW, filtersB, inputDelta,
                                                                       H_out, W_out, F, K, H_in, W_in, C);
     CUDA_CHECK(cudaGetLastError());
 }

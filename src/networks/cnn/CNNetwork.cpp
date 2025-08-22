@@ -9,8 +9,10 @@ CNNetwork::CNNetwork(
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
       input(config.getInputShape()),
-      filters(config.filterShape),
-      filtersGradient(config.filterShape),
+      filtersW(config.filterShape),
+      filtersWGradient(config.filterShape),
+      filtersB(config.filterShape),
+      filtersBGradient(config.filterShape),
       activationMapN(makeActivationMapShape()),
       activationMapO(makeActivationMapShape()),
       output(config.getInputShape()),
@@ -19,11 +21,11 @@ CNNetwork::CNNetwork(
       activationFunction(config.activation),
       visual(visual_) {
 	std::vector<global::ValueType> tempFilters = randomFilters();
-	filters = tempFilters;
+	filtersW = tempFilters;
 }
 
 std::vector<global::ValueType> CNNetwork::randomFilters() const {
-	std::vector<global::ValueType> filtersTemp(filters.numElements());
+	std::vector<global::ValueType> filtersTemp(filtersW.numElements());
 
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -52,9 +54,9 @@ void CNNetwork::conv2d_cpu() {
 				for (size_t c = 0; c < filterChannle; ++c) {
 					for (size_t i = 0; i < filterW; ++i) {
 						for (size_t j = 0; j < filterH; ++j) {
-							global::ValueType value = input.getValue({x + i, y + j, c});
-							value *= filters.getValue({i, j, f, c});
-							sum += value;
+							sum += input.getValue({x + i, y + j, c}) *
+							           filtersW.getValue({i, j, f, c}) +
+							       filtersB.getValue({i, j, f, c});
 						}
 					}
 				}
@@ -88,13 +90,9 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 		size_t F = config.filterShape[2];
 		size_t K = config.filterShape[0];
 
-		if (input.gpu_data && filters.gpu_data && activationMapN.gpu_data) {
-			nn::global::tensor_gpu::conv2d_multi_channel(
-			    input.gpu_data, filters.gpu_data, activationMapN.gpu_data,
-			    H, W, C, F, K);
-		} else {
-			conv2d_cpu();
-		}
+		nn::global::tensor_gpu::conv2d_multi_channel(
+		    input.gpu_data, filtersW.gpu_data, filtersB.gpu_data, activationMapN.gpu_data,
+		    H, W, C, F, K);
 	} else {
 		conv2d_cpu();
 	}
@@ -113,41 +111,21 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 
 			global::Tensor outputDelta = **outputDeltas;
 
-			// Ensure GPU data is available for element-wise multiplication
-			if (activationDelta.gpu_data && outputDelta.gpu_data) {
-				nn::global::tensor_gpu::multiply_vec(
-				    activationDelta.gpu_data, outputDelta.gpu_data, activationDelta.gpu_data,
-				    activationDelta.numElements());
-			} else {
-				// Fallback to CPU
-				for (size_t i = 0; i < activationDelta.numElements(); ++i) {
-					activationDelta.setValue(i, activationDelta.getValue(i) * outputDelta.getValue(i));
-				}
-			}
+			nn::global::tensor_gpu::multiply_vec(
+			    activationDelta.gpu_data, outputDelta.gpu_data, activationDelta.gpu_data,
+			    activationDelta.numElements());
 
 			Size featureMapSize = getFeatureMapSize();
 
-			// Calculate filter gradients using GPU
-			if (input.gpu_data && activationDelta.gpu_data && filtersGradient.gpu_data) {
-				nn::global::tensor_gpu::conv2d_multi_channel_backward_filter(
-				    input.gpu_data, activationDelta.gpu_data, filtersGradient.gpu_data,
-				    input.getShape()[0], input.getShape()[1], config.filterShape[2], config.filterShape[0],
-				    featureMapSize.h, featureMapSize.w, input.getShape()[2]);
-			} else {
-				// Fallback to CPU
-				calculateFilterGradients();
-			}
+			nn::global::tensor_gpu::conv2d_multi_channel_backward_filter(
+			    input.gpu_data, activationDelta.gpu_data, filtersWGradient.gpu_data,
+			    input.getShape()[0], input.getShape()[1], config.filterShape[2], config.filterShape[0],
+			    featureMapSize.h, featureMapSize.w, input.getShape()[2]);
 
-			// Calculate input deltas using GPU
-			if (activationDelta.gpu_data && filters.gpu_data && inputDelta.gpu_data) {
-				nn::global::tensor_gpu::conv2d_multi_channel_backward_data(
-				    activationDelta.gpu_data, filters.gpu_data, inputDelta.gpu_data,
-				    featureMapSize.h, featureMapSize.w, config.filterShape[2], config.filterShape[0],
-				    input.getShape()[0], input.getShape()[1], input.getShape()[2]);
-			} else {
-				// Fallback to CPU
-				calculateInputDelta(activationDelta);
-			}
+			nn::global::tensor_gpu::conv2d_multi_channel_backward_data(
+			    activationDelta.gpu_data, filtersW.gpu_data, filtersB.gpu_data, inputDelta.gpu_data,
+			    featureMapSize.h, featureMapSize.w, config.filterShape[2], config.filterShape[0],
+			    input.getShape()[0], input.getShape()[1], input.getShape()[2]);
 		}
 	} else {
 		if (outputDeltas && *outputDeltas) {
@@ -174,7 +152,7 @@ global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
 }
 
 void CNNetwork::resetGradient() {
-	filtersGradient.fill(0.0);
+	filtersWGradient.fill(0.0);
 }
 
 const global::Tensor &CNNetwork::getOutput() const {
@@ -186,7 +164,7 @@ const global::Tensor &CNNetwork::getInput() const {
 }
 
 void CNNetwork::updateWeights(IOptimizer &optimizer) {
-	optimizer.step(filters, filtersGradient);
+	optimizer.step(filtersW, filtersWGradient);
 }
 
 void CNNetwork::calculateFilterGradients() {
@@ -211,7 +189,7 @@ void CNNetwork::calculateFilterGradients() {
 						}
 					}
 
-					filtersGradient.setValue({i, j, f, c}, gradient);
+					filtersWGradient.setValue({i, j, f, c}, gradient);
 				}
 			}
 		}
@@ -243,7 +221,7 @@ void CNNetwork::calculateInputDelta(const global::Tensor &deltas) {
 							size_t fm_y = y - j;
 
 							if (fm_x < size.h && fm_y < size.w) {
-								global::ValueType filterValue = filters.getValue({i, j, f, c});
+								global::ValueType filterValue = filtersW.getValue({i, j, f, c});
 								global::ValueType deltaValue = deltas.getValue({fm_x, fm_y, f});
 								delta += filterValue * deltaValue;
 							}
@@ -258,25 +236,25 @@ void CNNetwork::calculateInputDelta(const global::Tensor &deltas) {
 }
 std::vector<global::ValueType> CNNetwork::getParams() const {
 	std::vector<global::ValueType> params;
-	params.reserve(filters.numElements());
+	params.reserve(filtersW.numElements());
 
-	for (size_t i = 0; i < filters.numElements(); ++i) {
-		params.push_back(filters.getValue(i));
+	for (size_t i = 0; i < filtersW.numElements(); ++i) {
+		params.push_back(filtersW.getValue(i));
 	}
 
 	return params;
 }
 
 void CNNetwork::setParams(const global::Tensor &params) {
-	if (params.numElements() == filters.numElements()) {
-		for (size_t i = 0; i < filters.numElements(); ++i) {
-			filters.setValue(i, params.getValue(i));
+	if (params.numElements() == filtersW.numElements() + filtersB.numElements()) {
+		for (size_t i = 0; i < filtersW.numElements(); ++i) {
+			filtersW.setValue(i, params.getValue(i));
 		}
 	}
 }
 
 size_t CNNetwork::getParamCount() const {
-	return filters.numElements();
+	return filtersW.numElements();
 }
 
 void CNNetwork::setTraining(const bool) {

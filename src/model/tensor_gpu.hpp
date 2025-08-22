@@ -90,10 +90,10 @@ void conv2d_backward_filter(const ValueType *input, const ValueType *deltas, Val
                             int H_in, int W_in, int F, int K, int H_out, int W_out);
 
 // Multi-channel 2D Convolution (for CNN)
-void conv2d_multi_channel(const ValueType *input, const ValueType *filters, ValueType *output,
+void conv2d_multi_channel(const ValueType *input, const ValueType *filtersW, const ValueType *filtersB, ValueType *output,
                           int H, int W, int C, int F, int K);
 
-void conv2d_multi_channel_backward_data(const ValueType *deltas, const ValueType *filters, ValueType *inputDelta,
+void conv2d_multi_channel_backward_data(const ValueType *deltas, const ValueType *filtersW, const ValueType *filtersB, ValueType *inputDelta,
                                         int H_out, int W_out, int F, int K, int H_in, int W_in, int C);
 void conv2d_multi_channel_backward_filter(const ValueType *input, const ValueType *deltas, ValueType *filterGradient,
                                           int H_in, int W_in, int F, int K, int H_out, int W_out, int C);
@@ -101,5 +101,3 @@ void conv2d_multi_channel_backward_filter(const ValueType *input, const ValueTyp
 } // namespace nn::global::tensor_gpu
 
 #endif // TENSOR_GPU
-
-

@@ -16,8 +16,11 @@ class CNNetwork : public INetwork {
 	const CNNConfig &config;
 	global::Tensor input;
 
-	global::Tensor filters;
-	global::Tensor filtersGradient;
+	global::Tensor filtersW;
+	global::Tensor filtersWGradient;
+
+	global::Tensor filtersB;
+	global::Tensor filtersBGradient;
 
 	global::Tensor activationMapN;
 	global::Tensor activationMapO;
