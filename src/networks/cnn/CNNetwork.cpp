@@ -11,8 +11,8 @@ CNNetwork::CNNetwork(
       input(config.getInputShape()),
       filtersW(config.filterShape),
       filtersWGradient(config.filterShape),
-      filtersB({config.filterShape[2]}), // Biases: one per filter
-      filtersBGradient({config.filterShape[2]}), // Bias gradients: one per filter
+      filtersB({config.filterShape[2]}),
+      filtersBGradient({config.filterShape[2]}),
       activationMapN(makeActivationMapShape()),
       activationMapO(makeActivationMapShape()),
       output(config.getInputShape()),
@@ -28,7 +28,7 @@ CNNetwork::CNNetwork(
 void CNNetwork::initializeParameters() {
 	std::vector<global::ValueType> tempFilters = randomFilters();
 	filtersW = tempFilters;
-	
+
 	filtersB.fill(0.0f);
 }
 
@@ -63,11 +63,11 @@ void CNNetwork::conv2d_cpu() {
 					for (size_t i = 0; i < filterW; ++i) {
 						for (size_t j = 0; j < filterH; ++j) {
 							sum += input.getValue({x + i, y + j, c}) *
-							           filtersW.getValue({i, j, f, c});
+							       filtersW.getValue({i, j, f, c});
 						}
 					}
 				}
-				
+
 				sum += filtersB.getValue(f);
 
 				activationMapN.setValue({x, y, f}, sum);
@@ -219,13 +219,13 @@ void CNNetwork::calculateBiasGradients() {
 	// Calculate bias gradients: sum all deltas for each filter
 	for (size_t f = 0; f < filterCount; ++f) {
 		global::ValueType biasGradient = 0.0f;
-		
+
 		for (size_t x = 0; x < size.h; ++x) {
 			for (size_t y = 0; y < size.w; ++y) {
 				biasGradient += activationDelta.getValue({x, y, f});
 			}
 		}
-		
+
 		filtersBGradient.setValue(f, biasGradient);
 	}
 }
@@ -287,13 +287,13 @@ std::vector<global::ValueType> CNNetwork::getParams() const {
 
 void CNNetwork::setParams(const global::Tensor &params) {
 	size_t totalParams = filtersW.numElements() + filtersB.numElements();
-	
+
 	if (params.numElements() == totalParams) {
 		// Set weights
 		for (size_t i = 0; i < filtersW.numElements(); ++i) {
 			filtersW.setValue(i, params.getValue(i));
 		}
-		
+
 		// Set biases
 		for (size_t i = 0; i < filtersB.numElements(); ++i) {
 			filtersB.setValue(i, params.getValue(filtersW.numElements() + i));
@@ -309,4 +309,3 @@ void CNNetwork::setTraining(const bool) {
 }
 
 } // namespace nn::model::cnn
-
