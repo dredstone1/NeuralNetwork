@@ -82,10 +82,19 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	input.setData(newInput);
 
 	if (nn::global::Tensor::getGpuState()) {
-		// nn::global::tensor_gpu::conv2d(
-		//     input.gpu_data, filters.gpu_data, activationMapN.gpu_data,
-		//     input.getShape()[0], input.getShape()[1],
-		//     config.filterCount, config.filterSize);
+		size_t H = input.getShape()[0];
+		size_t W = input.getShape()[1];
+		size_t C = input.getShape()[2];
+		size_t F = config.filterShape[2];
+		size_t K = config.filterShape[0];
+
+		if (input.gpu_data && filters.gpu_data && activationMapN.gpu_data) {
+			nn::global::tensor_gpu::conv2d_multi_channel(
+			    input.gpu_data, filters.gpu_data, activationMapN.gpu_data,
+			    H, W, C, F, K);
+		} else {
+			conv2d_cpu();
+		}
 	} else {
 		conv2d_cpu();
 	}
@@ -99,26 +108,47 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 	resetGradient();
 
 	if (nn::global::Tensor::getGpuState()) {
-		// if (outputDeltas && *outputDeltas) {
-		// 	activationFunction.derivativeActivate(activationMapN, activationDelta);
-		//
-		// 	global::Tensor outputDelta = **outputDeltas;
-		// 	nn::global::tensor_gpu::multiply_vec(
-		// 	    activationDelta.gpu_data, outputDelta.gpu_data, activationDelta.gpu_data,
-		// 	    activationDelta.numElements());
-		//
-		// 	Size featureMapSize = getFeatureMapSize();
-		// 	nn::global::tensor_gpu::conv2d_backward_filter(
-		// 	    input.gpu_data, activationDelta.gpu_data, filtersGradient.gpu_data,
-		// 	    input.getShape()[0], input.getShape()[1], config.filterCount, config.filterSize,
-		// 	    featureMapSize.h, featureMapSize.w);
-		// for (size_t x = 0; x < size.h; ++x) {
-		//
-		// 	nn::global::tensor_gpu::conv2d_backward_data(
-		// 	    activationDelta.gpu_data, filters.gpu_data, inputDelta.gpu_data,
-		// 	    featureMapSize.h, featureMapSize.w, config.filterCount, config.filterSize,
-		// 	    input.getShape()[0], input.getShape()[1]);
-		// }
+		if (outputDeltas && *outputDeltas) {
+			activationFunction.derivativeActivate(activationMapN, activationDelta);
+
+			global::Tensor outputDelta = **outputDeltas;
+
+			// Ensure GPU data is available for element-wise multiplication
+			if (activationDelta.gpu_data && outputDelta.gpu_data) {
+				nn::global::tensor_gpu::multiply_vec(
+				    activationDelta.gpu_data, outputDelta.gpu_data, activationDelta.gpu_data,
+				    activationDelta.numElements());
+			} else {
+				// Fallback to CPU
+				for (size_t i = 0; i < activationDelta.numElements(); ++i) {
+					activationDelta.setValue(i, activationDelta.getValue(i) * outputDelta.getValue(i));
+				}
+			}
+
+			Size featureMapSize = getFeatureMapSize();
+
+			// Calculate filter gradients using GPU
+			if (input.gpu_data && activationDelta.gpu_data && filtersGradient.gpu_data) {
+				nn::global::tensor_gpu::conv2d_multi_channel_backward_filter(
+				    input.gpu_data, activationDelta.gpu_data, filtersGradient.gpu_data,
+				    input.getShape()[0], input.getShape()[1], config.filterShape[2], config.filterShape[0],
+				    featureMapSize.h, featureMapSize.w, input.getShape()[2]);
+			} else {
+				// Fallback to CPU
+				calculateFilterGradients();
+			}
+
+			// Calculate input deltas using GPU
+			if (activationDelta.gpu_data && filters.gpu_data && inputDelta.gpu_data) {
+				nn::global::tensor_gpu::conv2d_multi_channel_backward_data(
+				    activationDelta.gpu_data, filters.gpu_data, inputDelta.gpu_data,
+				    featureMapSize.h, featureMapSize.w, config.filterShape[2], config.filterShape[0],
+				    input.getShape()[0], input.getShape()[1], input.getShape()[2]);
+			} else {
+				// Fallback to CPU
+				calculateInputDelta(activationDelta);
+			}
+		}
 	} else {
 		if (outputDeltas && *outputDeltas) {
 			activationFunction.derivativeActivate(activationMapN, activationDelta);

@@ -702,5 +702,124 @@ void conv2d_backward_filter(const ValueType *input, const ValueType *deltas, Val
     CUDA_CHECK(cudaGetLastError());
 }
 
+// ==================================================
+// Multi-channel 2D Convolution (for CNN)
+// ==================================================
+__global__ void conv2d_multi_channelKernel(const ValueType* input, const ValueType* filters,
+                                           ValueType* output,
+                                           int H, int W, int C, int F, int K) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    int f = blockIdx.z;
+
+    if (x >= H - K + 1 || y >= W - K + 1 || f >= F) return;
+
+    ValueType sum = 0.0f;
+    for (int c = 0; c < C; ++c) {
+        for (int i = 0; i < K; ++i) {
+            for (int j = 0; j < K; ++j) {
+                int input_idx = (x + i) * W * C + (y + j) * C + c;
+                int filter_idx = f * K * K * C + i * K * C + j * C + c;
+                sum += input[input_idx] * filters[filter_idx];
+            }
+        }
+    }
+    output[f * (H - K + 1) * (W - K + 1) + x * (W - K + 1) + y] = sum;
+}
+
+void conv2d_multi_channel(const ValueType* input, const ValueType* filters, ValueType* output,
+                          int H, int W, int C, int F, int K) {
+    dim3 blockSize(16, 16);
+    dim3 gridSize(
+        (W - K + 1 + blockSize.x - 1) / blockSize.x,
+        (H - K + 1 + blockSize.y - 1) / blockSize.y,
+        F
+    );
+
+    conv2d_multi_channelKernel<<<gridSize, blockSize>>>(input, filters, output, H, W, C, F, K);
+    CUDA_CHECK(cudaGetLastError());
+}
+
+__global__ void conv2d_multi_channel_backward_dataKernel(const ValueType *deltas, const ValueType *filters, ValueType *inputDelta,
+                                                         int H_out, int W_out, int F, int K, int H_in, int W_in, int C) {
+    int x_in = blockIdx.x * blockDim.x + threadIdx.x;
+    int y_in = blockIdx.y * blockDim.y + threadIdx.y;
+    int c = blockIdx.z;
+
+    if (x_in >= H_in || y_in >= W_in || c >= C) return;
+
+    ValueType delta_sum = 0.0f;
+    for (int f = 0; f < F; ++f) {
+        for (int i = 0; i < K; ++i) {
+            for (int j = 0; j < K; ++j) {
+                int x_out = x_in - i;
+                int y_out = y_in - j;
+
+                if (x_out >= 0 && x_out < H_out && y_out >= 0 && y_out < W_out) {
+                    int delta_idx = f * H_out * W_out + x_out * W_out + y_out;
+                    int filter_idx = f * K * K * C + i * K * C + j * C + c;
+                    delta_sum += deltas[delta_idx] * filters[filter_idx];
+                }
+            }
+        }
+    }
+    inputDelta[x_in * W_in * C + y_in * C + c] = delta_sum;
+}
+
+void conv2d_multi_channel_backward_data(const ValueType *deltas, const ValueType *filters, ValueType *inputDelta,
+                                        int H_out, int W_out, int F, int K, int H_in, int W_in, int C) {
+    dim3 blockSize(16, 16);
+    dim3 gridSize(
+        (W_in + blockSize.x - 1) / blockSize.x,
+        (H_in + blockSize.y - 1) / blockSize.y,
+        C
+    );
+
+    conv2d_multi_channel_backward_dataKernel<<<gridSize, blockSize>>>(deltas, filters, inputDelta,
+                                                                      H_out, W_out, F, K, H_in, W_in, C);
+    CUDA_CHECK(cudaGetLastError());
+}
+
+__global__ void conv2d_multi_channel_backward_filterKernel(const ValueType *input, const ValueType *deltas, ValueType *filterGradient,
+                                                           int H_in, int W_in, int F, int K, int H_out, int W_out, int C) {
+    int f = blockIdx.z;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (i >= K || j >= K || f >= F) return;
+
+    // Process all channels for this filter position
+    for (int c = 0; c < C; ++c) {
+        ValueType gradient_sum = 0.0f;
+        for (int x_out = 0; x_out < H_out; ++x_out) {
+            for (int y_out = 0; y_out < W_out; ++y_out) {
+                int x_in = x_out + i;
+                int y_in = y_out + j;
+                if (x_in < H_in && y_in < W_in) {
+                    int input_idx = x_in * W_in * C + y_in * C + c;
+                    int delta_idx = f * H_out * W_out + x_out * W_out + y_out;
+                    gradient_sum += input[input_idx] * deltas[delta_idx];
+                }
+            }
+        }
+        filterGradient[f * K * K * C + i * K * C + j * C + c] = gradient_sum;
+    }
+}
+
+void conv2d_multi_channel_backward_filter(const ValueType *input, const ValueType *deltas, ValueType *filterGradient,
+                                          int H_in, int W_in, int F, int K, int H_out, int W_out, int C) {
+    dim3 blockSize(16, 16);
+    dim3 gridSize(
+        (K + blockSize.x - 1) / blockSize.x,
+        (K + blockSize.y - 1) / blockSize.y,
+        F
+    );
+
+    conv2d_multi_channel_backward_filterKernel<<<gridSize, blockSize>>>(input, deltas, filterGradient,
+                                                                        H_in, W_in, F, K, H_out, W_out, C);
+    CUDA_CHECK(cudaGetLastError());
+}
+
 } // namespace nn::global::tensor_gpu
+
 
