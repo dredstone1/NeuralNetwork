@@ -722,10 +722,12 @@ __global__ void conv2d_multi_channelKernel(const ValueType* input,
             for (int j = 0; j < K; ++j) {
                 int input_idx = (x + i) * W * C + (y + j) * C + c;
                 int filter_idx = f * K * K * C + i * K * C + j * C + c;
-                sum += input[input_idx] * filtersW[filter_idx] + filtersB[filter_idx];
+                sum += input[input_idx] * filtersW[filter_idx];
             }
         }
     }
+    // Add bias for this filter (one bias per filter)
+    sum += filtersB[f];
     output[f * (H - K + 1) * (W - K + 1) + x * (W - K + 1) + y] = sum;
 }
 
@@ -761,7 +763,7 @@ __global__ void conv2d_multi_channel_backward_dataKernel(const ValueType *deltas
                 if (x_out >= 0 && x_out < H_out && y_out >= 0 && y_out < W_out) {
                     int delta_idx = f * H_out * W_out + x_out * W_out + y_out;
                     int filter_idx = f * K * K * C + i * K * C + j * C + c;
-                    delta_sum += deltas[delta_idx] * filtersW[filter_idx] + filtersB[filter_idx];
+                    delta_sum += deltas[delta_idx] * filtersW[filter_idx];
                 }
             }
         }
@@ -823,6 +825,30 @@ void conv2d_multi_channel_backward_filter(const ValueType *input, const ValueTyp
     CUDA_CHECK(cudaGetLastError());
 }
 
-} // namespace nn::global::tensor_gpu
+__global__ void conv2d_multi_channel_backward_biasKernel(const ValueType *deltas, ValueType *biasGradient,
+                                                        int H_out, int W_out, int F) {
+    int f = blockIdx.x;
 
+    if (f >= F) return;
+
+    ValueType bias_gradient = 0.0f;
+    for (int x = 0; x < H_out; ++x) {
+        for (int y = 0; y < W_out; ++y) {
+            int delta_idx = f * H_out * W_out + x * W_out + y;
+            bias_gradient += deltas[delta_idx];
+        }
+    }
+    biasGradient[f] = bias_gradient;
+}
+
+void conv2d_multi_channel_backward_bias(const ValueType *deltas, ValueType *biasGradient,
+                                       int H_out, int W_out, int F) {
+    dim3 blockSize(256);
+    dim3 gridSize((F + blockSize.x - 1) / blockSize.x);
+
+    conv2d_multi_channel_backward_biasKernel<<<gridSize, blockSize>>>(deltas, biasGradient, H_out, W_out, F);
+    CUDA_CHECK(cudaGetLastError());
+}
+
+} // namespace nn::global::tensor_gpu
 

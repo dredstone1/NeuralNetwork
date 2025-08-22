@@ -162,7 +162,7 @@ void VisualDenseLayer::renderNeuron(const size_t index, sf::RenderTexture &targe
 		drawWeights(index, target);
 	}
 
-	drawNeuron(cacheNeurons[index], net.getValue({index}), out.getValue({index}), target);
+	drawNeuron(cacheNeurons[index], net.getValue(index), out.getValue(index), target);
 }
 
 void VisualDenseLayer::drawNeurons(sf::RenderTexture &target) {

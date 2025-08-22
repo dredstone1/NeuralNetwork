@@ -5,14 +5,14 @@ namespace nn::model::cnn {
 
 CNNetwork::CNNetwork(
     const CNNConfig &_config,
-    const bool,
+    const bool randomInit,
     const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_)
     : config(_config),
       input(config.getInputShape()),
       filtersW(config.filterShape),
       filtersWGradient(config.filterShape),
-      filtersB(config.filterShape),
-      filtersBGradient(config.filterShape),
+      filtersB({config.filterShape[2]}), // Biases: one per filter
+      filtersBGradient({config.filterShape[2]}), // Bias gradients: one per filter
       activationMapN(makeActivationMapShape()),
       activationMapO(makeActivationMapShape()),
       output(config.getInputShape()),
@@ -20,8 +20,16 @@ CNNetwork::CNNetwork(
       activationDelta(makeActivationMapShape()),
       activationFunction(config.activation),
       visual(visual_) {
+	if (randomInit) {
+		initializeParameters();
+	}
+}
+
+void CNNetwork::initializeParameters() {
 	std::vector<global::ValueType> tempFilters = randomFilters();
 	filtersW = tempFilters;
+	
+	filtersB.fill(0.0f);
 }
 
 std::vector<global::ValueType> CNNetwork::randomFilters() const {
@@ -44,22 +52,23 @@ void CNNetwork::conv2d_cpu() {
 	size_t filterCount = config.filterShape[2];
 	size_t filterW = config.filterShape[0];
 	size_t filterH = config.filterShape[1];
-	size_t filterChannle = config.filterShape[3];
+	size_t filterChannel = config.filterShape[3];
 
 	for (size_t f = 0; f < filterCount; ++f) {
 		for (size_t x = 0; x < size.h; ++x) {
 			for (size_t y = 0; y < size.w; ++y) {
 				global::ValueType sum = 0.0f;
 
-				for (size_t c = 0; c < filterChannle; ++c) {
+				for (size_t c = 0; c < filterChannel; ++c) {
 					for (size_t i = 0; i < filterW; ++i) {
 						for (size_t j = 0; j < filterH; ++j) {
 							sum += input.getValue({x + i, y + j, c}) *
-							           filtersW.getValue({i, j, f, c}) +
-							       filtersB.getValue({i, j, f, c});
+							           filtersW.getValue({i, j, f, c});
 						}
 					}
 				}
+				
+				sum += filtersB.getValue(f);
 
 				activationMapN.setValue({x, y, f}, sum);
 			}
@@ -126,6 +135,10 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 			    activationDelta.gpu_data, filtersW.gpu_data, filtersB.gpu_data, inputDelta.gpu_data,
 			    featureMapSize.h, featureMapSize.w, config.filterShape[2], config.filterShape[0],
 			    input.getShape()[0], input.getShape()[1], input.getShape()[2]);
+
+			nn::global::tensor_gpu::conv2d_multi_channel_backward_bias(
+			    activationDelta.gpu_data, filtersBGradient.gpu_data,
+			    featureMapSize.h, featureMapSize.w, config.filterShape[2]);
 		}
 	} else {
 		if (outputDeltas && *outputDeltas) {
@@ -137,6 +150,7 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 			}
 
 			calculateFilterGradients();
+			calculateBiasGradients();
 
 			calculateInputDelta(activationDelta);
 		}
@@ -153,6 +167,7 @@ global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
 
 void CNNetwork::resetGradient() {
 	filtersWGradient.fill(0.0);
+	filtersBGradient.fill(0.0);
 }
 
 const global::Tensor &CNNetwork::getOutput() const {
@@ -165,6 +180,7 @@ const global::Tensor &CNNetwork::getInput() const {
 
 void CNNetwork::updateWeights(IOptimizer &optimizer) {
 	optimizer.step(filtersW, filtersWGradient);
+	optimizer.step(filtersB, filtersBGradient);
 }
 
 void CNNetwork::calculateFilterGradients() {
@@ -193,6 +209,24 @@ void CNNetwork::calculateFilterGradients() {
 				}
 			}
 		}
+	}
+}
+
+void CNNetwork::calculateBiasGradients() {
+	Size size = getFeatureMapSize();
+	size_t filterCount = config.filterShape[2];
+
+	// Calculate bias gradients: sum all deltas for each filter
+	for (size_t f = 0; f < filterCount; ++f) {
+		global::ValueType biasGradient = 0.0f;
+		
+		for (size_t x = 0; x < size.h; ++x) {
+			for (size_t y = 0; y < size.w; ++y) {
+				biasGradient += activationDelta.getValue({x, y, f});
+			}
+		}
+		
+		filtersBGradient.setValue(f, biasGradient);
 	}
 }
 
@@ -236,28 +270,43 @@ void CNNetwork::calculateInputDelta(const global::Tensor &deltas) {
 }
 std::vector<global::ValueType> CNNetwork::getParams() const {
 	std::vector<global::ValueType> params;
-	params.reserve(filtersW.numElements());
+	params.reserve(filtersW.numElements() + filtersB.numElements());
 
+	// Add weights
 	for (size_t i = 0; i < filtersW.numElements(); ++i) {
 		params.push_back(filtersW.getValue(i));
+	}
+
+	// Add biases
+	for (size_t i = 0; i < filtersB.numElements(); ++i) {
+		params.push_back(filtersB.getValue(i));
 	}
 
 	return params;
 }
 
 void CNNetwork::setParams(const global::Tensor &params) {
-	if (params.numElements() == filtersW.numElements() + filtersB.numElements()) {
+	size_t totalParams = filtersW.numElements() + filtersB.numElements();
+	
+	if (params.numElements() == totalParams) {
+		// Set weights
 		for (size_t i = 0; i < filtersW.numElements(); ++i) {
 			filtersW.setValue(i, params.getValue(i));
+		}
+		
+		// Set biases
+		for (size_t i = 0; i < filtersB.numElements(); ++i) {
+			filtersB.setValue(i, params.getValue(filtersW.numElements() + i));
 		}
 	}
 }
 
 size_t CNNetwork::getParamCount() const {
-	return filtersW.numElements();
+	return filtersW.numElements() + filtersB.numElements();
 }
 
 void CNNetwork::setTraining(const bool) {
 }
 
 } // namespace nn::model::cnn
+

@@ -35,6 +35,8 @@ class CNNetwork : public INetwork {
 
 	void calculateInputDelta(const global::Tensor &deltas);
 	void calculateFilterGradients();
+	void calculateBiasGradients();
+	void initializeParameters();
 
 	const std::shared_ptr<visualizer::cnn::CnnVisualier> visual;
 
@@ -79,3 +81,4 @@ class CNNetwork : public INetwork {
 } // namespace nn::model::cnn
 
 #endif // CNNNETWORK
+

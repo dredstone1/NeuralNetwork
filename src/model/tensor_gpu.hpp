@@ -97,6 +97,8 @@ void conv2d_multi_channel_backward_data(const ValueType *deltas, const ValueType
                                         int H_out, int W_out, int F, int K, int H_in, int W_in, int C);
 void conv2d_multi_channel_backward_filter(const ValueType *input, const ValueType *deltas, ValueType *filterGradient,
                                           int H_in, int W_in, int F, int K, int H_out, int W_out, int C);
+void conv2d_multi_channel_backward_bias(const ValueType *deltas, ValueType *biasGradient,
+                                        int H_out, int W_out, int F);
 
 } // namespace nn::global::tensor_gpu
 
