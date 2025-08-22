@@ -75,10 +75,9 @@ class CNNetwork : public INetwork {
 
 	size_t getParamCount() const override;
 
-	void setTraining(const bool state) override;
+	void setTraining(const bool) override {}
 };
 
 } // namespace nn::model::cnn
 
 #endif // CNNNETWORK
-
