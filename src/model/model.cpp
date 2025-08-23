@@ -6,7 +6,6 @@
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
-#include <vector>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
