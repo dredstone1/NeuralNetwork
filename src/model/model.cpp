@@ -32,8 +32,9 @@ void Model::initOptimizer() {
 void Model::initVisual() {
 	visual.start();
 
-	if (!config.visualConfig.enableNetwrokVisual)
+	if (!config.visualConfig.enableNetwrokVisual) {
 		return;
+	}
 
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		visual.addVisualSubNetwork(network[i]->getVisual());
@@ -288,8 +289,10 @@ void Model::trainModel(
 }
 
 float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
-	if (totalSize == 0)
+	if (totalSize == 0) {
 		return 0.0f;
+	}
+
 	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
 }
 
@@ -364,12 +367,10 @@ size_t Model::outputSize() const {
 	return network[network.size() - 1]->outputSize();
 }
 
-void Model::save(const std::string &file, bool print) {
+void Model::save(const std::string &file, const bool print) {
 	std::ofstream outFile(file);
 
-	if (print) {
-		std::cout << "Start saving" << std::endl;
-	}
+	ProgressBar bar(network.size(), "Saving Params to: " + file);
 
 	for (size_t i = 0; i < network.size(); ++i) {
 		std::vector<global::ValueType> params = network[i]->getParams();
@@ -379,24 +380,27 @@ void Model::save(const std::string &file, bool print) {
 			outFile << params[j] << " ";
 		}
 		outFile << std::endl;
+
+		if (print) {
+			bar++;
+			bar.printBar();
+		}
 	}
 
 	if (print) {
-		std::cout << " saving complete" << std::endl;
+		bar.endPrint();
 	}
 
 	outFile.close();
 }
 
-void Model::load(const std::string &file, bool print) {
+void Model::load(const std::string &file, const bool print) {
 	std::ifstream inFile(file);
 
 	std::string line;
 	int networkI = 0;
 
-	if (print) {
-		std::cout << "Start loading" << std::endl;
-	}
+	ProgressBar bar(network.size(), "Loading Params from: " + file);
 
 	while (std::getline(inFile, line)) {
 		std::istringstream iss(line);
@@ -415,10 +419,15 @@ void Model::load(const std::string &file, bool print) {
 		data = numbers;
 		network[networkI]->setParams(data);
 		networkI++;
+
+		if (print) {
+			bar++;
+			bar.printBar();
+		}
 	}
 
 	if (print) {
-		std::cout << " loading complete" << std::endl;
+		bar.endPrint();
 	}
 
 	inFile.close();
@@ -451,6 +460,7 @@ void Model::setNormal() {
 		sub->setTraining(false);
 	}
 }
+
 void Model::setEvaluating() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Evaluating);
 

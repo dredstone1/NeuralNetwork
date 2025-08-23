@@ -1,10 +1,7 @@
 #include "dataBase.hpp"
 #include "ProgressBar.hpp"
-#include "tensor.hpp"
 #include <fstream>
 #include <iostream>
-#include <ostream>
-#include <vector>
 
 namespace nn::model {
 DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
@@ -63,7 +60,7 @@ int DataBase::loadData(const std::string &db_filename) {
 	samples.status = getDataBaseStatus(line);
 	samples.samples.reserve(samples.size() + samples.status.dataBaseSize);
 
-	ProgressBar bar(samples.size(), LOADING_DB_MESSAGE + db_filename);
+	ProgressBar bar(samples.size(), LOADING_DB_MESSAGE + db_filename + DATABASE_FILE_EXETENTION);
 
 	while (getline(file, line)) {
 		if (line.empty() ||
@@ -86,7 +83,7 @@ int DataBase::loadData(const std::string &db_filename) {
 		samples.samples.shrink_to_fit();
 		samples.status.dataBaseSize = samples.samples.size();
 	}
-    bar.endPrint();
+	bar.endPrint();
 
 	file.close();
 
@@ -122,8 +119,9 @@ void DataBase::generateBatches() {
 	for (size_t i = 0; i < samples.size(); i += config.getBatchSize()) {
 		size_t current_batch_actual_size = std::min(config.getBatchSize(), samples.size() - i);
 
-		if (current_batch_actual_size == 0)
+		if (current_batch_actual_size == 0) {
 			break;
+		}
 
 		batches.emplace_back(current_batch_actual_size);
 		Batch &new_batch = batches.back();

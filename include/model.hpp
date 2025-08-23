@@ -104,8 +104,8 @@ class Model {
 	    const bool cancleOnError = false,
 	    global::Transformation transformation = nullptr);
 
-	void save(const std::string &file, bool print = true);
-	void load(const std::string &file, bool print = true);
+	void save(const std::string &file, const bool print = true);
+	void load(const std::string &file, const bool print = true);
 
 	global::Prediction getPrediction() const;
     std::vector<global::ValueType> getOut() const;
