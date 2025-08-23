@@ -60,12 +60,10 @@ int DataBase::loadData(const std::string &db_filename) {
 	std::string line;
 	getline(file, line);
 
-	size_t tempSize = samples.status.dataBaseSize;
-
 	samples.status = getDataBaseStatus(line);
 	samples.samples.reserve(samples.size() + samples.status.dataBaseSize);
 
-	ProgressBar bar(samples.size() - tempSize, LOADING_DB_MESSAGE + db_filename);
+	ProgressBar bar(samples.size(), LOADING_DB_MESSAGE + db_filename);
 
 	while (getline(file, line)) {
 		if (line.empty() ||
@@ -85,9 +83,6 @@ int DataBase::loadData(const std::string &db_filename) {
 	}
 
 	if (samples.samples.capacity() > samples.size()) {
-		// bar = samples.samples.capacity();
-		// bar.printBar();
-
 		samples.samples.shrink_to_fit();
 		samples.status.dataBaseSize = samples.samples.size();
 	}
