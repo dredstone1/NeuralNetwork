@@ -1,7 +1,6 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
-#include "tensor.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
@@ -41,7 +40,11 @@ void Model::initVisual() {
 }
 
 std::uint32_t Model::calculateSubNetWidth() const {
-	return visualizer::SUB_NETWORKS_WIDTH / config.networkConfig.SubNetworksConfig.size();
+	const auto count = config.networkConfig.SubNetworksConfig.size();
+	if (count == 0) {
+		return 0;
+	}
+	return visualizer::SUB_NETWORKS_WIDTH / static_cast<std::uint32_t>(count);
 }
 
 void Model::initModel() {
@@ -163,26 +166,25 @@ global::ValueType Model::runBackPropagation(
 }
 
 void Model::printTrainingResult(
-    const std::chrono::high_resolution_clock::time_point &start,
-    const double error) {
-
+    const std::chrono::high_resolution_clock::time_point &start, double error) {
 	const auto end = std::chrono::high_resolution_clock::now();
-	const int time_taken = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-	const int minutes = time_taken / SECONDS_IN_MINUTE;
-	const int seconds = time_taken % SECONDS_IN_MINUTE;
-	const int time_taken_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	const auto diff = end - start;
+	const auto duration_ms =
+	    std::chrono::duration_cast<std::chrono::milliseconds>(diff);
 
-	std::cout << "Training Done!" << "\n"
-	          << "Training time: "
-	          << minutes << " minutes "
-	          << seconds << " seconds" << " ("
-	          << time_taken_milliseconds << " ms)" << "\n"
-	          << "final score: " << error << "\n";
+	const auto total_seconds = duration_ms.count() / 1000;
+	const auto minutes = total_seconds / 60;
+	const auto seconds = total_seconds % 60;
+
+	std::cout << "Training Done!\n";
+	std::cout << "Training time: " << minutes << " minutes "
+	          << seconds << " seconds ("
+	          << duration_ms.count() << " ms)\n";
+	std::cout << "Final score: " << error << "\n";
 }
 
 void Model::train(
-    const std::string &db_filename,
-    global::Transformation transformationB,
+    const std::string &db_filename, global::Transformation transformationB,
     global::Transformation transformationE) {
 	DataBase trainedDataBase(config.trainingConfig);
 	DataBase evaluateDataBase(config.trainingConfig);
@@ -194,11 +196,8 @@ void Model::train(
 
 	trainedDataBase.load(db_filename);
 
-	trainModel(
-	    trainedDataBase,
-	    evaluateDataBase,
-	    transformationB,
-	    transformationE);
+	trainModel(trainedDataBase, evaluateDataBase, transformationB,
+	           transformationE);
 }
 
 void Model::train(
@@ -215,11 +214,8 @@ void Model::train(
 
 	trainedDataBase.load(db_filename);
 
-	trainModel(
-	    trainedDataBase,
-	    evaluateDataBase,
-	    transformationB,
-	    transformationE);
+	trainModel(trainedDataBase, evaluateDataBase, transformationB,
+	           transformationE);
 }
 
 bool Model::autoEvaluating(
@@ -240,15 +236,21 @@ bool Model::autoEvaluating(
 	return false;
 }
 
-void Model::autoSave(const int i) {
-	if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
-		save(config.trainingConfig.getAutoSave().dataFilenameAutoSave, false);
+void Model::autoSave(int i) {
+	if (i <= 0) {
+		return;
 	}
+
+	const auto &autoSaveCfg = config.trainingConfig.getAutoSave();
+	if (!config.trainingConfig.isAutoSave() || i % autoSaveCfg.saveEvery != 0) {
+		return;
+	}
+
+	save(autoSaveCfg.dataFilenameAutoSave, false);
 }
 
 void Model::trainModel(
-    DataBase &trainedDataBase,
-    DataBase &evaluateDataBase,
+    DataBase &trainedDataBase, DataBase &evaluateDataBase,
     global::Transformation transformationB,
     global::Transformation transformationE) {
 	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
