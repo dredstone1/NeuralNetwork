@@ -3,7 +3,6 @@
 
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
-#include <vector>
 
 namespace nn::model {
 class IOptimizerConfig {

@@ -20,6 +20,7 @@ using Transformation = Tensor (*)(const Tensor &);
 size_t computeTensorSize(const std::vector<size_t> &shape);
 
 constexpr bool DEFAULT_GPU_MODE = false;
+constexpr ValueType DEFAULT_INIT_VALUE = 0.0f;
 
 class Tensor {
   private:
@@ -42,7 +43,7 @@ class Tensor {
 
   public:
 	// Constructors
-	Tensor(const std::vector<size_t> &shape, ValueType init = 0.0f);
+	Tensor(const std::vector<size_t> &shape, ValueType init = DEFAULT_INIT_VALUE);
 	Tensor(const Tensor &other);
 
 	~Tensor();
@@ -71,8 +72,9 @@ class Tensor {
 	void flatten();
 	void setShape(const std::vector<size_t> &newShape);
 
-	// GPU access for testing
+	// Data access for testing
 	ValueType *getGpuData() const { return gpu_data; }
+	std::vector<ValueType> &getCpuData() { return cpu_data; }
 
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);

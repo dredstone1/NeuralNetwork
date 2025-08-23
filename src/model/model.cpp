@@ -253,15 +253,17 @@ void Model::trainModel(
     DataBase &trainedDataBase, DataBase &evaluateDataBase,
     global::Transformation transformationB,
     global::Transformation transformationE) {
-	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 
+	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
 
 	visual.updateLearningRate(learningRate);
-
 	setTraining();
 	for (size_t i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
+		bar++;
+		bar.printBar();
+
 		visual.updateBatchCounter(i);
 
 		Batch &batch = trainedDataBase.getBatch();
@@ -270,21 +272,17 @@ void Model::trainModel(
 
 		autoSave(i);
 
-		if (visual.exitTraining() || autoEvaluating(i, evaluateDataBase, transformationE)) {
+		if (visual.exitTraining() ||
+		    autoEvaluating(i, evaluateDataBase, transformationE)) {
 			break;
 		}
 
 		setTraining();
 
-		bar++;
-		bar.printBar();
-
 		visual.updateLearningRate(learningRate);
 	}
 	setNormal();
-
 	bar.endPrint();
-
 	printTrainingResult(start, error);
 }
 
@@ -370,7 +368,7 @@ size_t Model::outputSize() const {
 void Model::save(const std::string &file, const bool print) {
 	std::ofstream outFile(file);
 
-	ProgressBar bar(network.size(), "Saving Params to: " + file);
+	ProgressBar bar(network.size(), SAVING_DATA_HEADER + file);
 
 	for (size_t i = 0; i < network.size(); ++i) {
 		std::vector<global::ValueType> params = network[i]->getParams();
@@ -400,7 +398,7 @@ void Model::load(const std::string &file, const bool print) {
 	std::string line;
 	int networkI = 0;
 
-	ProgressBar bar(network.size(), "Loading Params from: " + file);
+	ProgressBar bar(network.size(), LOADING_DATA_HEADER + file);
 
 	while (std::getline(inFile, line)) {
 		std::istringstream iss(line);
@@ -445,28 +443,25 @@ global::Prediction Model::getPrediction() const {
 	return global::Prediction(max, getOutput().getValue(max));
 }
 
+void Model::setTraining(const bool state) {
+	for (auto &sub : network) {
+		sub->setTraining(state);
+	}
+}
+
 void Model::setTraining() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
-
-	for (auto &sub : network) {
-		sub->setTraining(true);
-	}
+	setTraining(true);
 }
 
 void Model::setNormal() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
-
-	for (auto &sub : network) {
-		sub->setTraining(false);
-	}
+	setTraining(false);
 }
 
 void Model::setEvaluating() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Evaluating);
-
-	for (auto &sub : network) {
-		sub->setTraining(false);
-	}
+	setTraining(false);
 }
 
 std::vector<global::ValueType> Model::getOut() const {

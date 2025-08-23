@@ -141,8 +141,9 @@ void ConstantOptimizerConfig::fromJson(const nlohmann::json &j) {
 
 void VisualConfig::fromJson(const nlohmann::json &j) {
 	enableVisuals = j.at("enable visual");
-	if (!enableVisuals)
+	if (!enableVisuals) {
 		return;
+	}
 
 	enableNetwrokVisual = j.at("enable network visual");
 

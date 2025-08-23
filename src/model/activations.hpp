@@ -1,5 +1,5 @@
-#ifndef ACTIVATIONSP
-#define ACTIVATIONSP
+#ifndef ACTIVATIONS
+#define ACTIVATIONS
 
 #include "tensor.hpp"
 #include <cmath>
@@ -49,8 +49,7 @@ class Activation {
 	                              global::Tensor &out);
 
 	static void tanh(const global::Tensor &net, global::Tensor &out);
-	static void derivativeTanh(const global::Tensor &net,
-	                           global::Tensor &out);
+	static void derivativeTanh(const global::Tensor &net, global::Tensor &out);
 
 	static void softmax(const global::Tensor &net, global::Tensor &out);
 
@@ -63,14 +62,13 @@ class Activation {
 	    : activationType(other.activationType) {}
 	~Activation() = default;
 
-	void activate(const global::Tensor &net,
-	              global::Tensor &out) const;
+	void activate(const global::Tensor &net, global::Tensor &out) const;
 	void derivativeActivate(const global::Tensor &net,
 	                        global::Tensor &out) const;
 
 	ActivationType getType() { return activationType; }
 
-    static size_t getMaxElementIndex(const global::Tensor &metrix);
+	static size_t getMaxElementIndex(const global::Tensor &metrix);
 };
 } // namespace nn::model
 

@@ -27,7 +27,6 @@ TrainSample DataBase::readLine(const std::string &line) {
 	std::vector<global::ValueType> data(new_sample.input.numElements());
 	for (size_t i = 0; i < samples.status.sampleInputSize; ++i) {
 		iss >> token;
-
 		data[i] = std::stod(token);
 	}
 	new_sample.input = data;
