@@ -282,6 +282,8 @@ void Model::trainModel(
 	}
 	setNormal();
 
+	bar.endPrint();
+
 	printTrainingResult(start, error);
 }
 
@@ -329,6 +331,10 @@ modelResult Model::evaluateModel(
 		} else if (cancleOnError) {
 			break;
 		}
+	}
+
+	if (showProgressbar) {
+		bar.endPrint();
 	}
 
 	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);

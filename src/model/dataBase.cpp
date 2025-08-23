@@ -85,12 +85,13 @@ int DataBase::loadData(const std::string &db_filename) {
 	}
 
 	if (samples.samples.capacity() > samples.size()) {
-		bar = samples.samples.capacity();
-		bar.printBar();
+		// bar = samples.samples.capacity();
+		// bar.printBar();
 
 		samples.samples.shrink_to_fit();
 		samples.status.dataBaseSize = samples.samples.size();
 	}
+    bar.endPrint();
 
 	file.close();
 

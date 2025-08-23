@@ -1,46 +1,39 @@
 #include "ProgressBar.hpp"
+#include <iomanip>
 #include <iostream>
-#include <ostream>
 
 namespace nn {
+
 void ProgressBar::printBar() {
-	if (total == 0)
-		return;
+	if (!headerPrinted) {
+		std::cout << header << "\n";
+		headerPrinted = true;
+	}
 
-	int percentage = 100.0 * current / total;
-	if (percentage == last_percentage)
+	int percentage = (total > 0) ? (current * 100 / total) : 0;
+	if (percentage == last_percentage) {
 		return;
-
+	}
 	last_percentage = percentage;
-	const int pos = BAR_WIDTH * current / total;
 
-	char bar[BAR_WIDTH + 64];
-	int index = 0;
+	int filled = (BAR_WIDTH * percentage) / 100;
 
-	bar[index++] = '[';
+	std::cout << "\r[";
 	for (int i = 0; i < BAR_WIDTH; ++i) {
-		if (i < pos)
-			bar[index++] = '=';
-		else if (i == pos)
-			bar[index++] = '>';
+		if (i < filled)
+			std::cout << "=";
 		else
-			bar[index++] = ' ';
+			std::cout << " ";
 	}
-	bar[index++] = ']';
-	bar[index++] = ' ';
+	std::cout << "] " << std::setw(3) << percentage << "%" << std::flush;
+}
 
-	int written = std::snprintf(bar + index, sizeof(bar) - index, "%3d %%", percentage);
-	if (written > 0)
-		index += written;
+void ProgressBar::endPrint() {
+	current = total;
+	last_percentage = -1;
+	printBar();
 
-	bar[index++] = (percentage == 100) ? '\n' : '\r';
-	bar[index] = '\0';
-
-	if (percentage == 0) {
-		std::cout << header << std::endl;
-	}
-
-	std::cout << bar;
+	std::cout << std::endl;
 }
 
 ProgressBar ProgressBar::operator++(int) {
