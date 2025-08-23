@@ -2,7 +2,6 @@
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
 #include "tensor.hpp"
-#include "tensor_gpu.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
