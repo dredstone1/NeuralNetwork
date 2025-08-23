@@ -1,7 +1,4 @@
 #include "activations.hpp"
-#include "tensor.hpp"
-#include "tensor_gpu.hpp"
-#include <cstdio>
 
 namespace nn::model {
 void Activation::activate(const global::Tensor &net, global::Tensor &out) const {
@@ -63,7 +60,7 @@ size_t Activation::getMaxElementIndex(const global::Tensor &metrix) {
 }
 
 global::ValueType Activation::maxVector(const global::Tensor &metrix) {
-	return metrix.getValue({getMaxElementIndex(metrix)});
+	return metrix.getValue(getMaxElementIndex(metrix));
 }
 
 global::ValueType Activation::relu(const global::ValueType z) {

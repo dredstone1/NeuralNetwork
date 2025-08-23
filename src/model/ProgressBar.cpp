@@ -20,10 +20,11 @@ void ProgressBar::printBar() {
 
 	std::cout << "\r[";
 	for (int i = 0; i < BAR_WIDTH; ++i) {
-		if (i < filled)
+		if (i < filled) {
 			std::cout << "=";
-		else
+		} else {
 			std::cout << " ";
+		}
 	}
 	std::cout << "] " << std::setw(3) << percentage << "%" << std::flush;
 }
@@ -39,16 +40,18 @@ void ProgressBar::endPrint() {
 ProgressBar ProgressBar::operator++(int) {
 	ProgressBar temp = *this;
 	++current;
-	if (current > total)
+	if (current > total) {
 		current = total;
+	}
 	return temp;
 }
 
 ProgressBar ProgressBar::operator=(int value) {
 	ProgressBar temp = *this;
 	current = value;
-	if (current > total)
+	if (current > total) {
 		current = total;
+	}
 	return temp;
 }
 

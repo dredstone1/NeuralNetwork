@@ -32,7 +32,8 @@ void FnnVisualier::renderLayer(const int index) {
 	Layers[index].draw(networkRender);
 }
 
-VisualDenseLayer::VisualDenseLayer(const std::uint32_t _width, const sf::Vector2f _pos)
+VisualDenseLayer::VisualDenseLayer(const std::uint32_t _width,
+                                   const sf::Vector2f _pos)
     : pos(_pos),
       width(_width) {
 	doCache();
@@ -76,7 +77,8 @@ float VisualDenseLayer::getScaleFactor(std::size_t neuron_count) {
 	float maxNeuronSpace = MODEL_HEIGHT - (neuron_count)*global::MIN_GAP;
 
 	float neuronWidth = maxNeuronSpace / std::max<float>(neuron_count, 1);
-	neuronWidth = std::clamp(neuronWidth, global::MIN_NEURON_WIDTH, global::MAX_NEURON_WIDTH);
+	neuronWidth = std::clamp(neuronWidth, global::MIN_NEURON_WIDTH,
+	                         global::MAX_NEURON_WIDTH);
 
 	return neuronWidth / global::MAX_NEURON_WIDTH;
 }
@@ -85,7 +87,8 @@ sf::Vector2f VisualDenseLayer::getCenter(const sf::FloatRect &rect) {
 	return {rect.position.x, rect.position.y + rect.size.y / 2.f};
 }
 
-void VisualDenseLayer::drawWeights(const size_t neuron_i, sf::RenderTexture &target) {
+void VisualDenseLayer::drawWeights(const size_t neuron_i,
+                                   sf::RenderTexture &target) {
 	for (size_t neuronP = 0; neuronP < parameters.prevSize(); neuronP++) {
 		sf::VertexArray line_(sf::PrimitiveType::LineStrip, 3);
 
@@ -113,7 +116,8 @@ void VisualDenseLayer::drawGapWeight(sf::RenderTexture &target) {
 	sf::VertexArray line_(sf::PrimitiveType::LineStrip, 2);
 
 	line_[0].position = sf::Vector2f(0, MODEL_HEIGHT / 2.) + pos;
-	line_[1].position = sf::Vector2f(width - cacheNeurons[0].size.x, MODEL_HEIGHT / 2.) + pos;
+	line_[1].position =
+	    sf::Vector2f(width - cacheNeurons[0].size.x, MODEL_HEIGHT / 2.) + pos;
 
 	line_[0].color = LINE_COLOR;
 	line_[1].color = LINE_COLOR;
@@ -151,7 +155,8 @@ void VisualDenseLayer::drawNeuron(
 		text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
 		                textBounds.position.y + textBounds.size.y / 2.0f});
 
-		text.setPosition({rect.position.x + rect.size.x / 2.0f, rect.position.y + rect.size.y / 2.0f});
+		text.setPosition({rect.position.x + rect.size.x / 2.0f,
+		                  rect.position.y + rect.size.y / 2.0f});
 
 		target.draw(text);
 	}

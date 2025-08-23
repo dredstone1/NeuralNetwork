@@ -68,7 +68,7 @@ void print_database(int actual_size, int input_size, int database_size) {
 
 void printVector(const nn::global::Tensor &vec) {
 	for (size_t i = 0; i < vec.numElements(); ++i) {
-		std::cout << vec.getValue({i}) << ' ';
+		std::cout << vec.getValue(i) << ' ';
 	}
 
 	std::cout << '\n';
@@ -130,9 +130,9 @@ int main(int argc, char *argv[]) {
 		}
 
 		for (size_t i = 4 + num2; i > num2; i--) {
-			input.setValue({i - 1}, bit_by_index(num1, 4 - i + num2));
-			if (input.getValue({i - 1}) == 0) {
-				input.setValue({i - 1}, 0.5);
+			input.setValue(i - 1, bit_by_index(num1, 4 - i + num2));
+			if (input.getValue(i - 1) == 0) {
+				input.setValue(i - 1, 0.5);
 			}
 		}
 
