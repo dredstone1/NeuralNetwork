@@ -380,8 +380,8 @@ void Model::save(const std::string &file, const bool print) {
 		outFile << std::endl;
 
 		if (print) {
-			bar++;
 			bar.printBar();
+			bar++;
 		}
 	}
 
@@ -419,8 +419,8 @@ void Model::load(const std::string &file, const bool print) {
 		networkI++;
 
 		if (print) {
-			bar++;
 			bar.printBar();
+			bar++;
 		}
 	}
 
