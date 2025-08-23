@@ -63,8 +63,13 @@ void Tensor::toGpu() {
 	if (isGpu)
 		return;
 
-	if (tensorCount > 0)
+	if (!nn::global::tensor_gpu::checkCudaSupport()) {
+		throw std::runtime_error("Cannot switch to GPU mode: CUDA is not supported on this device.");
+	}
+
+	if (tensorCount > 0) {
 		throw std::runtime_error("Cannot switch to GPU mode: tensors already exist in CPU mode.");
+	}
 
 	isGpu = true;
 }

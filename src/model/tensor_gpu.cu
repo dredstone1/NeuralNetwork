@@ -6,6 +6,16 @@
 
 namespace nn::global::tensor_gpu {
 
+int checkCudaSupport() {
+	int deviceCount = 0;
+	cudaError_t error_id = cudaGetDeviceCount(&deviceCount);
+
+	if (error_id != cudaSuccess || deviceCount == 0) {
+		return 0; // No CUDA support
+	}
+	return 1; // CUDA supported
+}
+
 #define CUDA_CHECK(call)                                                                          \
 	do {                                                                                          \
 		cudaError_t e = (call);                                                                   \

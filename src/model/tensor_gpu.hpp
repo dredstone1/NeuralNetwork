@@ -11,6 +11,8 @@ class Tensor; // Forward declaration
 
 namespace nn::global::tensor_gpu {
 
+int checkCudaSupport();
+
 // ============================
 // Memory Management
 // ============================

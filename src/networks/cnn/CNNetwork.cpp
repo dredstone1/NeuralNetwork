@@ -137,6 +137,8 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_bias(
 		    activationDelta.gpu_data, filtersBGradient.gpu_data,
 		    featureMapSize.h, featureMapSize.w, config.filterShape[2]);
+
+		*outputDeltas = &inputDelta;
 	} else {
 		for (size_t i = 0; i < activationDelta.numElements(); ++i) {
 			activationDelta.setValue(i, activationDelta.getValue(i) * (**outputDeltas).getValue(i));
@@ -146,6 +148,7 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 		calculateBiasGradients();
 
 		calculateInputDelta(activationDelta);
+		*outputDeltas = &inputDelta;
 	}
 }
 
