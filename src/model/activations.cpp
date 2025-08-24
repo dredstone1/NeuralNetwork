@@ -75,7 +75,8 @@ void Activation::derivativeActivate(
 
 size_t Activation::getMaxElementIndex(const global::Tensor &metrix) {
 	if (metrix.isGpu) {
-		return global::tensor_gpu::getMaxElementIndex(metrix.gpu_data, metrix.gpu_data_size);
+		return global::tensor_gpu::getMaxElementIndex(metrix.gpu_data,
+		                                              metrix.gpu_data_size);
 	}
 
 	global::ValueType max_val = metrix.cpu_data[0];
@@ -134,9 +135,11 @@ void Activation::relu(const global::Tensor &net, global::Tensor &out) {
 	}
 }
 
-void Activation::derivativeRelu(const global::Tensor &net, global::Tensor &out) {
+void Activation::derivativeRelu(const global::Tensor &net,
+                                global::Tensor &out) {
 	if (net.isGpu) {
-		global::tensor_gpu::relu_derivative(net.gpu_data, out.gpu_data, net.gpu_data_size);
+		global::tensor_gpu::relu_derivative(net.gpu_data, out.gpu_data,
+		                                    net.gpu_data_size);
 	} else {
 		for (size_t i = 0; i < net.numElements(); ++i) {
 			out.cpu_data[i] *= derivativeRelu(net.cpu_data[i]);
@@ -146,7 +149,8 @@ void Activation::derivativeRelu(const global::Tensor &net, global::Tensor &out) 
 
 void Activation::leakyRelu(const global::Tensor &net, global::Tensor &out) {
 	if (net.isGpu) {
-		global::tensor_gpu::leaky_relu(net.gpu_data, out.gpu_data, net.gpu_data_size);
+		global::tensor_gpu::leaky_relu(net.gpu_data, out.gpu_data,
+		                               net.gpu_data_size);
 	} else {
 		for (size_t i = 0; i < net.numElements(); ++i) {
 			out.cpu_data[i] = leakyRelu(net.cpu_data[i]);
@@ -154,9 +158,11 @@ void Activation::leakyRelu(const global::Tensor &net, global::Tensor &out) {
 	}
 }
 
-void Activation::derivativeLeakyRelu(const global::Tensor &net, global::Tensor &out) {
+void Activation::derivativeLeakyRelu(const global::Tensor &net,
+                                     global::Tensor &out) {
 	if (net.isGpu) {
-		global::tensor_gpu::leaky_relu_derivative(net.gpu_data, out.gpu_data, net.gpu_data_size);
+		global::tensor_gpu::leaky_relu_derivative(net.gpu_data, out.gpu_data,
+		                                          net.gpu_data_size);
 	} else {
 		for (size_t i = 0; i < net.numElements(); ++i) {
 			out.cpu_data[i] *= derivativeLeakyRelu(net.cpu_data[i]);
@@ -166,7 +172,8 @@ void Activation::derivativeLeakyRelu(const global::Tensor &net, global::Tensor &
 
 void Activation::sigmoid(const global::Tensor &net, global::Tensor &out) {
 	if (net.isGpu) {
-		global::tensor_gpu::sigmoid(net.gpu_data, out.gpu_data, net.gpu_data_size);
+		global::tensor_gpu::sigmoid(net.gpu_data, out.gpu_data,
+		                            net.gpu_data_size);
 	} else {
 		for (size_t i = 0; i < net.numElements(); ++i) {
 			out.cpu_data[i] = sigmoid(net.cpu_data[i]);
@@ -174,9 +181,11 @@ void Activation::sigmoid(const global::Tensor &net, global::Tensor &out) {
 	}
 }
 
-void Activation::derivativeSigmoid(const global::Tensor &net, global::Tensor &out) {
+void Activation::derivativeSigmoid(const global::Tensor &net,
+                                   global::Tensor &out) {
 	if (net.isGpu) {
-		global::tensor_gpu::sigmoid_derivative(net.gpu_data, out.gpu_data, net.gpu_data_size);
+		global::tensor_gpu::sigmoid_derivative(net.gpu_data, out.gpu_data,
+		                                       net.gpu_data_size);
 	} else {
 		for (size_t i = 0; i < net.numElements(); ++i) {
 			out.cpu_data[i] *= derivativeSigmoid(net.cpu_data[i]);
@@ -186,7 +195,8 @@ void Activation::derivativeSigmoid(const global::Tensor &net, global::Tensor &ou
 
 void Activation::tanh(const global::Tensor &net, global::Tensor &out) {
 	if (net.isGpu) {
-		global::tensor_gpu::tanh_activation(net.gpu_data, out.gpu_data, net.gpu_data_size);
+		global::tensor_gpu::tanh_activation(net.gpu_data, out.gpu_data,
+		                                    net.gpu_data_size);
 	} else {
 		for (size_t i = 0; i < net.numElements(); ++i) {
 			out.cpu_data[i] = tanh(net.cpu_data[i]);
@@ -194,9 +204,11 @@ void Activation::tanh(const global::Tensor &net, global::Tensor &out) {
 	}
 }
 
-void Activation::derivativeTanh(const global::Tensor &net, global::Tensor &out) {
+void Activation::derivativeTanh(const global::Tensor &net,
+                                global::Tensor &out) {
 	if (net.isGpu) {
-		global::tensor_gpu::tanh_derivative(net.gpu_data, out.gpu_data, net.gpu_data_size);
+		global::tensor_gpu::tanh_derivative(net.gpu_data, out.gpu_data,
+		                                    net.gpu_data_size);
 	} else {
 		for (size_t i = 0; i < net.numElements(); ++i) {
 			out.cpu_data[i] *= derivativeTanh(net.cpu_data[i]);
@@ -206,7 +218,8 @@ void Activation::derivativeTanh(const global::Tensor &net, global::Tensor &out) 
 
 void Activation::softmax(const global::Tensor &net, global::Tensor &out) {
 	if (net.isGpu) {
-		global::tensor_gpu::softmax(net.gpu_data, out.gpu_data, net.gpu_data_size);
+		global::tensor_gpu::softmax(net.gpu_data, out.gpu_data,
+		                            net.gpu_data_size);
 	} else {
 		global::ValueType max = maxVector(net);
 		global::ValueType sum = 0.0;

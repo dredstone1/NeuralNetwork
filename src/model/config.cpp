@@ -6,8 +6,10 @@ namespace nn::model {
 Config::Config(const std::string &config_filepath) {
 	std::ifstream ifs(config_filepath);
 	if (!ifs.is_open()) {
-		std::cerr << "Error: Could not open config file: " << config_filepath << std::endl;
-		throw std::runtime_error("Failed to open config file: " + config_filepath);
+		std::cerr << "Error: Could not open config file: " << config_filepath
+		          << std::endl;
+		throw std::runtime_error("Failed to open config file: " +
+		                         config_filepath);
 	}
 
 	nlohmann::json j;
