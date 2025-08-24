@@ -15,7 +15,6 @@ CNNetwork::CNNetwork(
       filtersBGradient({config.filterShape[2]}),
       activationMapN(makeActivationMapShape()),
       activationMapO(makeActivationMapShape()),
-      inputDelta(config.getInputShape()),
       activationDelta(makeActivationMapShape()),
       activationFunction(config.activation),
       visual(visual_) {
@@ -110,12 +109,9 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 	resetGradient();
 
 	activationFunction.derivativeActivate(activationMapO, **outputDeltas);
+	activationDelta.setData(**outputDeltas);
 
 	if (nn::global::Tensor::getGpuState()) {
-		nn::global::tensor_gpu::multiply_vec(
-		    activationDelta.gpu_data, (**outputDeltas).gpu_data, activationDelta.gpu_data,
-		    activationDelta.numElements());
-
 		Size featureMapSize = getFeatureMapSize();
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_filter(
@@ -124,21 +120,18 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 		    featureMapSize.h, featureMapSize.w, input.getShape()[2]);
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_data(
-		    activationDelta.gpu_data, filtersW.gpu_data, filtersB.gpu_data, inputDelta.gpu_data,
+		    activationDelta.gpu_data, filtersW.gpu_data, filtersB.gpu_data, input.gpu_data,
 		    featureMapSize.h, featureMapSize.w, config.filterShape[2], config.filterShape[0],
 		    input.getShape()[0], input.getShape()[1], input.getShape()[2]);
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_bias(
 		    activationDelta.gpu_data, filtersBGradient.gpu_data,
 		    featureMapSize.h, featureMapSize.w, config.filterShape[2]);
-
-		*outputDeltas = &inputDelta;
 	} else {
 		calculateFilterGradients();
 		calculateBiasGradients();
 
 		calculateInputDelta(activationDelta);
-		*outputDeltas = &inputDelta;
 	}
 }
 
@@ -217,8 +210,6 @@ void CNNetwork::calculateBiasGradients() {
 void CNNetwork::calculateInputDelta(const global::Tensor &deltas) {
 	Size size = getFeatureMapSize();
 
-	inputDelta.fill(0.0f);
-
 	size_t filterCount = config.filterShape[2];
 	size_t filterW = config.filterShape[0];
 	size_t filterH = config.filterShape[1];
@@ -247,7 +238,7 @@ void CNNetwork::calculateInputDelta(const global::Tensor &deltas) {
 					}
 				}
 
-				inputDelta.setValue({x, y, c}, delta);
+				input.setValue({x, y, c}, delta);
 			}
 		}
 	}

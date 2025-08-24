@@ -145,6 +145,10 @@ void VisualConfig::fromJson(const nlohmann::json &j) {
 		return;
 	}
 
+    if (j.contains("show fps")) {
+        showFps = j.at("show fps");
+    }
+
 	enableNetwrokVisual = j.at("enable network visual");
 
 	if (j.contains("modes")) {

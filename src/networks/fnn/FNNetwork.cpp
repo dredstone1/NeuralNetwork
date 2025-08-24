@@ -120,7 +120,6 @@ global::Tensor *FNNetwork::getInput() {
 }
 
 void FNNetwork::updateWeights(IOptimizer &optimizer) {
-	return;
 	for (size_t i = 0; i < layers.size(); ++i) {
 		layers[i]->updateWeight(optimizer);
 

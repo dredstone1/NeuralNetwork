@@ -122,6 +122,14 @@ void Tensor::setData(const Tensor &other) {
 		return;
 	}
 
+	if (numElements() != other.numElements()) {
+		throw std::length_error(
+		    "Tensor::setData size mismatch: current tensor has " +
+		    std::to_string(numElements()) +
+		    " elements, but source tensor has " +
+		    std::to_string(other.numElements()) + " elements.");
+	}
+
 	if (isGpu) {
 		if (gpu_data_size != other.gpu_data_size) {
 			ValueType *temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));

@@ -149,6 +149,7 @@ class VisualConfig {
 
 	bool enableVisuals{false};
 	bool enableNetwrokVisual{false};
+	bool showFps{false};
 	std::vector<VisualMode> modes;
 	void fromJson(const nlohmann::json &j);
 };
