@@ -115,11 +115,12 @@ const global::Tensor &FNNetwork::getOutput() const {
 	return layers[layers.size() - 1]->getOut();
 }
 
-const global::Tensor &FNNetwork::getInput() const {
-	return input;
+global::Tensor *FNNetwork::getInput() {
+	return &input;
 }
 
 void FNNetwork::updateWeights(IOptimizer &optimizer) {
+	return;
 	for (size_t i = 0; i < layers.size(); ++i) {
 		layers[i]->updateWeight(optimizer);
 

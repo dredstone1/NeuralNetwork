@@ -18,7 +18,7 @@ size_t computeTensorSize(const std::vector<size_t> &shape) {
 	return size;
 }
 
-static std::string shapeToString(const std::vector<size_t> &shape) {
+std::string shapeToString(const std::vector<size_t> &shape) {
 	if (shape.empty()) {
 		return "{}";
 	}

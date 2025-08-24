@@ -1,6 +1,7 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
+#include "tensor.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
@@ -124,13 +125,12 @@ void Model::updateWeights(const int batchSize) {
 	}
 }
 
-void Model::Backward(const global::Tensor &output) {
-	global::Tensor deltas = output;
-	global::Tensor *delta = &deltas;
+void Model::Backward(global::Tensor &output) {
+	global::Tensor *delta = &output;
 
 	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
 		network[i]->backward(&delta);
-		deltas = network[i]->getInput();
+		delta = network[i]->getInput();
 	}
 }
 

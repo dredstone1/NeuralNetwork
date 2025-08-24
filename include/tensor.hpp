@@ -2,6 +2,7 @@
 #define TENSOR
 
 #include "../src/model/tensor_gpu.hpp"
+#include <string>
 #include <vector>
 
 namespace nn::model {
@@ -17,6 +18,7 @@ namespace nn::global {
 class Tensor;
 using Transformation = Tensor (*)(const Tensor &);
 
+std::string shapeToString(const std::vector<size_t> &shape);
 size_t computeTensorSize(const std::vector<size_t> &shape);
 
 constexpr bool DEFAULT_GPU_MODE = false;

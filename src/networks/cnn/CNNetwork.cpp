@@ -15,7 +15,6 @@ CNNetwork::CNNetwork(
       filtersBGradient({config.filterShape[2]}),
       activationMapN(makeActivationMapShape()),
       activationMapO(makeActivationMapShape()),
-      output(config.getInputShape()),
       inputDelta(config.getInputShape()),
       activationDelta(makeActivationMapShape()),
       activationFunction(config.activation),
@@ -54,8 +53,8 @@ void CNNetwork::conv2d_cpu() {
 	size_t filterChannel = config.filterShape[3];
 
 	for (size_t f = 0; f < filterCount; ++f) {
-		for (size_t x = 0; x < size.h; ++x) {
-			for (size_t y = 0; y < size.w; ++y) {
+		for (size_t x = 0; x < size.w; ++x) {
+			for (size_t y = 0; y < size.h; ++y) {
 				global::ValueType sum = filtersB.getValue(f);
 
 				for (size_t c = 0; c < filterChannel; ++c) {
@@ -75,10 +74,7 @@ void CNNetwork::conv2d_cpu() {
 
 std::vector<size_t> CNNetwork::makeActivationMapShape() {
 	Size featureMapSize = getFeatureMapSize();
-
-	std::vector<size_t> newShape = {featureMapSize.w, featureMapSize.h};
-	newShape.push_back(config.filterShape[2]);
-	return newShape;
+	return {featureMapSize.w, featureMapSize.h, config.filterShape[2]};
 }
 
 Size CNNetwork::getFeatureMapSize() {
@@ -90,8 +86,8 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	input.setData(newInput);
 
 	if (nn::global::Tensor::getGpuState()) {
-		size_t H = input.getShape()[0];
-		size_t W = input.getShape()[1];
+		size_t W = input.getShape()[0];
+		size_t H = input.getShape()[1];
 		size_t C = input.getShape()[2];
 		size_t F = config.filterShape[2];
 		size_t K = config.filterShape[0];
@@ -104,8 +100,6 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	}
 
 	activationFunction.activate(activationMapN, activationMapO);
-
-	output = activationMapO;
 }
 
 void CNNetwork::backward(global::Tensor **outputDeltas) {
@@ -115,7 +109,7 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 
 	resetGradient();
 
-	activationFunction.derivativeActivate(activationMapN, activationDelta);
+	activationFunction.derivativeActivate(activationMapO, **outputDeltas);
 
 	if (nn::global::Tensor::getGpuState()) {
 		nn::global::tensor_gpu::multiply_vec(
@@ -140,10 +134,6 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 
 		*outputDeltas = &inputDelta;
 	} else {
-		for (size_t i = 0; i < activationDelta.numElements(); ++i) {
-			activationDelta.setValue(i, activationDelta.getValue(i) * (**outputDeltas).getValue(i));
-		}
-
 		calculateFilterGradients();
 		calculateBiasGradients();
 
@@ -153,7 +143,7 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 }
 
 size_t CNNetwork::outputSize() const {
-	return output.numElements();
+	return activationMapO.numElements();
 }
 
 global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
@@ -166,11 +156,11 @@ void CNNetwork::resetGradient() {
 }
 
 const global::Tensor &CNNetwork::getOutput() const {
-	return output;
+	return activationMapO;
 }
 
-const global::Tensor &CNNetwork::getInput() const {
-	return input;
+global::Tensor *CNNetwork::getInput() {
+	return &input;
 }
 
 void CNNetwork::updateWeights(IOptimizer &optimizer) {
@@ -192,8 +182,8 @@ void CNNetwork::calculateFilterGradients() {
 				for (size_t j = 0; j < filterH; ++j) {
 					global::ValueType gradient = 0.0f;
 
-					for (size_t x = 0; x < size.h; ++x) {
-						for (size_t y = 0; y < size.w; ++y) {
+					for (size_t x = 0; x < size.w; ++x) {
+						for (size_t y = 0; y < size.h; ++y) {
 							global::ValueType inputValue = input.getValue({x + i, y + j, c});
 							global::ValueType deltaValue = activationDelta.getValue({x, y, f});
 							gradient += inputValue * deltaValue;
@@ -214,8 +204,8 @@ void CNNetwork::calculateBiasGradients() {
 	for (size_t f = 0; f < filterCount; ++f) {
 		global::ValueType biasGradient = 0.0f;
 
-		for (size_t x = 0; x < size.h; ++x) {
-			for (size_t y = 0; y < size.w; ++y) {
+		for (size_t x = 0; x < size.w; ++x) {
+			for (size_t y = 0; y < size.h; ++y) {
 				biasGradient += activationDelta.getValue({x, y, f});
 			}
 		}

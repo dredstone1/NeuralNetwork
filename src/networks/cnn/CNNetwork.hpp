@@ -25,8 +25,6 @@ class CNNetwork : public INetwork {
 	global::Tensor activationMapN;
 	global::Tensor activationMapO;
 
-	global::Tensor output;
-
 	global::Tensor inputDelta;
 	global::Tensor activationDelta;
 
@@ -64,7 +62,7 @@ class CNNetwork : public INetwork {
 	size_t outputSize() const override;
 
 	const global::Tensor &getOutput() const override;
-	const global::Tensor &getInput() const override;
+	global::Tensor *getInput() override;
 	const global::Tensor &getInputDelta() const { return inputDelta; }
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }

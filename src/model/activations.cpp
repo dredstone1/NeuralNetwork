@@ -1,7 +1,20 @@
 #include "activations.hpp"
+#include <stdexcept>
 
 namespace nn::model {
 void Activation::activate(const global::Tensor &net, global::Tensor &out) const {
+	if (net.numElements() != out.numElements()) {
+		throw std::invalid_argument(
+		    "Activation::activate: tensor size mismatch.\n"
+		    "  net shape: " +
+		    nn::global::shapeToString(net.getShape()) + "\n"
+		                                                "  out shape: " +
+		    nn::global::shapeToString(out.getShape()) + "\n"
+		                                                "  element counts: " +
+		    std::to_string(net.numElements()) +
+		    " vs " + std::to_string(out.numElements()));
+	}
+
 	switch (activationType) {
 	case ActivationType::Relu:
 		relu(net, out);
@@ -19,11 +32,27 @@ void Activation::activate(const global::Tensor &net, global::Tensor &out) const 
 		softmax(net, out);
 		break;
 	default:
-		break;
+		throw std::runtime_error(
+		    "Activation::activate: unknown activation type (" +
+		    std::to_string(static_cast<int>(activationType)) + ").");
 	}
 }
 
-void Activation::derivativeActivate(const global::Tensor &net, global::Tensor &out) const {
+void Activation::derivativeActivate(
+    const nn::global::Tensor &net,
+    nn::global::Tensor &out) const {
+	if (net.numElements() != out.numElements()) {
+		throw std::invalid_argument(
+		    "Activation::derivativeActivate: tensor size mismatch.\n"
+		    "  net shape: " +
+		    nn::global::shapeToString(net.getShape()) + "\n"
+		                                                "  out shape: " +
+		    nn::global::shapeToString(out.getShape()) + "\n"
+		                                                "  element counts: " +
+		    std::to_string(net.numElements()) +
+		    " vs " + std::to_string(out.numElements()));
+	}
+
 	switch (activationType) {
 	case ActivationType::Relu:
 		derivativeRelu(net, out);
@@ -38,7 +67,9 @@ void Activation::derivativeActivate(const global::Tensor &net, global::Tensor &o
 		derivativeTanh(net, out);
 		break;
 	default:
-		break;
+		throw std::runtime_error(
+		    "Activation::derivativeActivate: unknown activation type (" +
+		    std::to_string(static_cast<int>(activationType)) + ").");
 	}
 }
 
