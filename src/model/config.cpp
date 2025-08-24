@@ -14,13 +14,7 @@ Config::Config(const std::string &config_filepath) {
 	try {
 		ifs >> j;
 
-		trainingConfig.fromJson(j.at("training config"));
-
-		if (j.contains("visual config")) {
-			visualConfig.fromJson(j.at("visual config"));
-		}
-
-		networkConfig.fromJson(j.at("network config"));
+		initalizeJson(j);
 	} catch (const nlohmann::json::parse_error &e) {
 		std::cerr << "JSON parse error in file '" << config_filepath << "':\n"
 		          << e.what() << "\n"
@@ -33,19 +27,30 @@ Config::Config(const std::string &config_filepath) {
 	}
 }
 
+void Config::initalizeJson(const nlohmann::json &j) {
+	trainingConfig.fromJson(j.at("training config"));
+
+	if (j.contains("visual config")) {
+		visualConfig.fromJson(j.at("visual config"));
+	}
+
+	networkConfig.fromJson(j.at("network config"));
+}
+
 void NetworkConfig::fromJson(const nlohmann::json &j) {
 	for (auto &subNetworkConfig : j) {
 		std::string type = subNetworkConfig.at("type");
+
 		if (type == fnn::FNN_LABLE) {
 			SubNetworksConfig.push_back(std::make_shared<fnn::FNNConfig>(subNetworkConfig));
-		}
-		if (type == cnn::CNN_LABLE) {
+		} else if (type == cnn::CNN_LABLE) {
 			SubNetworksConfig.push_back(std::make_shared<cnn::CNNConfig>(subNetworkConfig));
 		}
 	}
 }
 
 namespace fnn {
+
 FNNConfig::FNNConfig(const nlohmann::json &j) {
 	fromJson(j);
 }
@@ -77,9 +82,11 @@ void DenseLayerConfig::fromJson(const nlohmann::json &j) {
 		activationType = j.at("activationType");
 	}
 }
+
 } // namespace fnn
 
 namespace cnn {
+
 CNNConfig::CNNConfig(const nlohmann::json &j) {
 	fromJson(j);
 }
@@ -102,6 +109,7 @@ void CNNConfig::fromJson(const nlohmann::json &j) {
 		}
 	}
 }
+
 } // namespace cnn
 
 std::vector<size_t> NetworkConfig::inputShape() const {
@@ -145,9 +153,9 @@ void VisualConfig::fromJson(const nlohmann::json &j) {
 		return;
 	}
 
-    if (j.contains("show fps")) {
-        showFps = j.at("show fps");
-    }
+	if (j.contains("show fps")) {
+		showFps = j.at("show fps");
+	}
 
 	enableNetwrokVisual = j.at("enable network visual");
 

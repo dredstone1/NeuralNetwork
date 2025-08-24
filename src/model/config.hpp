@@ -3,8 +3,10 @@
 
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
+
 class IOptimizerConfig {
   public:
 	virtual void fromJson(const nlohmann::json &j) = 0;
@@ -41,6 +43,7 @@ class ISubNetworkConfig {
 };
 
 namespace fnn {
+
 class DenseLayerConfig {
   public:
 	DenseLayerConfig(const nlohmann::json &j);
@@ -51,6 +54,7 @@ class DenseLayerConfig {
 };
 
 const std::string FNN_LABLE = "FNN";
+
 class FNNConfig : public ISubNetworkConfig {
   public:
 	FNNConfig(const nlohmann::json &j);
@@ -62,10 +66,12 @@ class FNNConfig : public ISubNetworkConfig {
 	std::vector<DenseLayerConfig> layersConfig;
 	ActivationType outputActivation;
 };
+
 } // namespace fnn
 
 namespace cnn {
 const std::string CNN_LABLE = "CNN";
+
 class CNNConfig : public ISubNetworkConfig {
   public:
 	CNNConfig(const nlohmann::json &j);
@@ -77,6 +83,7 @@ class CNNConfig : public ISubNetworkConfig {
 	ActivationType activation;
 	std::vector<size_t> filterShape{3, 3, 1, 1}; // {w, h, f, c}
 };
+
 } // namespace cnn
 
 class NetworkConfig {
@@ -155,12 +162,18 @@ class VisualConfig {
 };
 
 class Config {
+  private:
+	void initalizeJson(const nlohmann::json &j);
+
   public:
 	Config(const std::string &config_filepath);
+	~Config() = default;
+
 	VisualConfig visualConfig;
 	TrainingConfig trainingConfig;
 	NetworkConfig networkConfig;
 };
+
 } // namespace nn::model
 
 #endif // CONFIG

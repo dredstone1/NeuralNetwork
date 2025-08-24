@@ -48,7 +48,8 @@ class CNNetwork : public INetwork {
 	CNNetwork(
 	    const CNNConfig &_config,
 	    const bool randomInit,
-	    const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ = std::shared_ptr<visualizer::cnn::CnnVisualier>());
+	    const std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =
+	        std::shared_ptr<visualizer::cnn::CnnVisualier>());
 	~CNNetwork() override = default;
 
 	void forward(const global::Tensor &newInput) override;
@@ -63,7 +64,7 @@ class CNNetwork : public INetwork {
 	const global::Tensor &getOutput() const override;
 	global::Tensor *getInput() override;
 
-	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override { return visual; }
+	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override;
 
 	std::vector<global::ValueType> getParams() const override;
 	void setParams(const global::Tensor &params) override;

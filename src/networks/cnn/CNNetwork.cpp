@@ -1,5 +1,6 @@
 #include "CNNetwork.hpp"
 #include <random>
+#include <vector>
 
 namespace nn::model::cnn {
 
@@ -26,15 +27,15 @@ CNNetwork::CNNetwork(
 void CNNetwork::initializeParameters() {
 	std::vector<global::ValueType> tempFilters = randomFilters();
 	filtersW = tempFilters;
-	filtersB.fill(0.0f);
+	filtersB.zero();
 }
 
 std::vector<global::ValueType> CNNetwork::randomFilters() const {
 	std::vector<global::ValueType> filtersTemp(filtersW.numElements());
-
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::normal_distribution<float> dist(0.0, std::sqrt(2.0f / (config.filterShape[0] * config.filterShape[1])));
+	std::normal_distribution<global::ValueType> dist(
+	    0.0, std::sqrt(2.0f / (config.filterShape[0] * config.filterShape[1])));
 
 	for (size_t i = 0; i < filtersTemp.size(); ++i) {
 		filtersTemp[i] = dist(gen);
@@ -92,8 +93,8 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 		size_t K = config.filterShape[0];
 
 		nn::global::tensor_gpu::conv2d_multi_channel(
-		    input.gpu_data, filtersW.gpu_data, filtersB.gpu_data, activationMapN.gpu_data,
-		    H, W, C, F, K);
+		    input.gpu_data, filtersW.gpu_data, filtersB.gpu_data,
+		    activationMapN.gpu_data, H, W, C, F, K);
 	} else {
 		conv2d_cpu();
 	}
@@ -116,12 +117,14 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_filter(
 		    input.gpu_data, activationDelta.gpu_data, filtersWGradient.gpu_data,
-		    input.getShape()[0], input.getShape()[1], config.filterShape[2], config.filterShape[0],
+		    input.getShape()[0], input.getShape()[1], config.filterShape[2],
+		    config.filterShape[0],
 		    featureMapSize.h, featureMapSize.w, input.getShape()[2]);
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_data(
-		    activationDelta.gpu_data, filtersW.gpu_data, filtersB.gpu_data, input.gpu_data,
-		    featureMapSize.h, featureMapSize.w, config.filterShape[2], config.filterShape[0],
+		    activationDelta.gpu_data, filtersW.gpu_data, filtersB.gpu_data,
+		    input.gpu_data, featureMapSize.h, featureMapSize.w,
+		    config.filterShape[2], config.filterShape[0],
 		    input.getShape()[0], input.getShape()[1], input.getShape()[2]);
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_bias(
@@ -144,8 +147,8 @@ global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
 }
 
 void CNNetwork::resetGradient() {
-	filtersWGradient.fill(0.0);
-	filtersBGradient.fill(0.0);
+	filtersBGradient.zero();
+	filtersWGradient.zero();
 }
 
 const global::Tensor &CNNetwork::getOutput() const {
@@ -154,6 +157,10 @@ const global::Tensor &CNNetwork::getOutput() const {
 
 global::Tensor *CNNetwork::getInput() {
 	return &input;
+}
+
+std::shared_ptr<visualizer::IVisualNetwork> CNNetwork::getVisual() {
+	return visual;
 }
 
 void CNNetwork::updateWeights(IOptimizer &optimizer) {
@@ -177,8 +184,10 @@ void CNNetwork::calculateFilterGradients() {
 
 					for (size_t x = 0; x < size.w; ++x) {
 						for (size_t y = 0; y < size.h; ++y) {
-							global::ValueType inputValue = input.getValue({x + i, y + j, c});
-							global::ValueType deltaValue = activationDelta.getValue({x, y, f});
+							global::ValueType inputValue =
+							    input.getValue({x + i, y + j, c});
+							global::ValueType deltaValue =
+							    activationDelta.getValue({x, y, f});
 							gradient += inputValue * deltaValue;
 						}
 					}
@@ -230,8 +239,10 @@ void CNNetwork::calculateInputDelta(const global::Tensor &deltas) {
 							size_t fm_y = y - j;
 
 							if (fm_x < size.h && fm_y < size.w) {
-								global::ValueType filterValue = filtersW.getValue({i, j, f, c});
-								global::ValueType deltaValue = deltas.getValue({fm_x, fm_y, f});
+								global::ValueType filterValue =
+								    filtersW.getValue({i, j, f, c});
+								global::ValueType deltaValue =
+								    deltas.getValue({fm_x, fm_y, f});
 								delta += filterValue * deltaValue;
 							}
 						}
@@ -248,13 +259,13 @@ std::vector<global::ValueType> CNNetwork::getParams() const {
 	std::vector<global::ValueType> params;
 	params.reserve(filtersW.numElements() + filtersB.numElements());
 
-	for (size_t i = 0; i < filtersW.numElements(); ++i) {
-		params.push_back(filtersW.getValue(i));
-	}
+	std::vector<global::ValueType> weights(filtersW.numElements());
+	filtersW.getData(weights);
+	params.insert(params.end(), weights.begin(), weights.end());
 
-	for (size_t i = 0; i < filtersB.numElements(); ++i) {
-		params.push_back(filtersB.getValue(i));
-	}
+	std::vector<global::ValueType> bias(filtersB.numElements());
+	filtersB.getData(bias);
+	params.insert(params.end(), bias.begin(), bias.end());
 
 	return params;
 }
@@ -266,13 +277,11 @@ void CNNetwork::setParams(const global::Tensor &params) {
 		return;
 	}
 
-	for (size_t i = 0; i < filtersW.numElements(); ++i) {
-		filtersW.setValue(i, params.getValue(i));
-	}
+	// Copy into weights
+	filtersW.insertRange(params, 0, 0, filtersW.numElements());
 
-	for (size_t i = 0; i < filtersB.numElements(); ++i) {
-		filtersB.setValue(i, params.getValue(filtersW.numElements() + i));
-	}
+	// Copy into biases
+	filtersB.insertRange(params, filtersW.numElements(), 0, filtersB.numElements());
 }
 
 size_t CNNetwork::getParamCount() const {
