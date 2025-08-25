@@ -72,6 +72,9 @@ namespace cnn {
 const std::string CNN_LABLE = "CNN";
 
 class CNNConfig : public ISubNetworkConfig {
+  private:
+	size_t calculateOutputSize() const;
+
   public:
 	CNNConfig(const nlohmann::json &j);
 	~CNNConfig() = default;

@@ -93,14 +93,16 @@ CNNConfig::CNNConfig(const nlohmann::json &j) {
 	fromJson(j);
 }
 
+size_t CNNConfig::calculateOutputSize() const {
+	return (inputShape[0] - filterShape[0] + 1) * (inputShape[1] - filterShape[1] + 1) * filterShape[2];
+}
+
 void CNNConfig::fromJson(const nlohmann::json &j) {
 	for (auto i : j.at("input shape")) {
 		inputShape.push_back(i);
 	}
 
-	outputSize = j.at("output size");
-
-	activation = (ActivationType)j.at("output activation");
+	activation = j.at("output activation");
 
 	if (j.contains("filter shape")) {
 		size_t k = 0;
@@ -110,6 +112,8 @@ void CNNConfig::fromJson(const nlohmann::json &j) {
 			}
 		}
 	}
+
+    outputSize = calculateOutputSize();
 }
 
 } // namespace cnn
