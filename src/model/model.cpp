@@ -2,11 +2,9 @@
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
 #include "tensor.hpp"
-#include "tensor_gpu.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
-#include <vector>
 
 namespace nn::model {
 Model::Model(const std::string &config_filepath)
@@ -24,7 +22,8 @@ void Model::initOptimizer() {
 	const std::string &type = config.trainingConfig.getOptimizerType();
 
 	if (type == "const") {
-		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(config.trainingConfig.getOptimizer().get());
+		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(
+		    config.trainingConfig.getOptimizer().get());
 		optimizer = std::make_unique<ConstantOptimizer>(*optConfig);
 	}
 }
@@ -32,8 +31,9 @@ void Model::initOptimizer() {
 void Model::initVisual() {
 	visual.start();
 
-	if (!config.visualConfig.enableNetwrokVisual)
+	if (!config.visualConfig.enableNetwrokVisual) {
 		return;
+	}
 
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		visual.addVisualSubNetwork(network[i]->getVisual());
@@ -42,7 +42,11 @@ void Model::initVisual() {
 }
 
 std::uint32_t Model::calculateSubNetWidth() const {
-	return visualizer::SUB_NETWORKS_WIDTH / config.networkConfig.SubNetworksConfig.size();
+	const auto count = config.networkConfig.SubNetworksConfig.size();
+	if (count == 0) {
+		return 0;
+	}
+	return visualizer::SUB_NETWORKS_WIDTH / static_cast<std::uint32_t>(count);
 }
 
 void Model::initModel() {
@@ -122,13 +126,12 @@ void Model::updateWeights(const int batchSize) {
 	}
 }
 
-void Model::Backward(const global::Tensor &output) {
-	global::Tensor deltas = output;
-	global::Tensor *delta = &deltas;
+void Model::Backward(global::Tensor &output) {
+	global::Tensor *delta = &output;
 
 	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
 		network[i]->backward(&delta);
-		deltas = network[i]->getInput();
+		delta = network[i]->getInput();
 	}
 }
 
@@ -152,7 +155,7 @@ global::ValueType Model::runBackPropagation(
 
 		if (doBackward) {
 			output.zero();
-			output.setValue({current_sample_ptr->pre.index}, 1);
+			output.setValue(current_sample_ptr->pre.index, 1);
 			Backward(output);
 			updateWeights(batch.size());
 		}
@@ -164,26 +167,25 @@ global::ValueType Model::runBackPropagation(
 }
 
 void Model::printTrainingResult(
-    const std::chrono::high_resolution_clock::time_point &start,
-    const double error) {
-
+    const std::chrono::high_resolution_clock::time_point &start, double error) {
 	const auto end = std::chrono::high_resolution_clock::now();
-	const int time_taken = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-	const int minutes = time_taken / SECONDS_IN_MINUTE;
-	const int seconds = time_taken % SECONDS_IN_MINUTE;
-	const int time_taken_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	const auto diff = end - start;
+	const auto duration_ms =
+	    std::chrono::duration_cast<std::chrono::milliseconds>(diff);
 
-	std::cout << "Training Done!" << "\n"
-	          << "Training time: "
-	          << minutes << " minutes "
-	          << seconds << " seconds" << " ("
-	          << time_taken_milliseconds << " ms)" << "\n"
-	          << "final score: " << error << "\n";
+	const auto total_seconds = duration_ms.count() / 1000;
+	const auto minutes = total_seconds / 60;
+	const auto seconds = total_seconds % 60;
+
+	std::cout << "Training Done!\n";
+	std::cout << "Training time: " << minutes << " minutes "
+	          << seconds << " seconds ("
+	          << duration_ms.count() << " ms)\n";
+	std::cout << "Final score: " << error << "\n";
 }
 
 void Model::train(
-    const std::string &db_filename,
-    global::Transformation transformationB,
+    const std::string &db_filename, global::Transformation transformationB,
     global::Transformation transformationE) {
 	DataBase trainedDataBase(config.trainingConfig);
 	DataBase evaluateDataBase(config.trainingConfig);
@@ -195,11 +197,8 @@ void Model::train(
 
 	trainedDataBase.load(db_filename);
 
-	trainModel(
-	    trainedDataBase,
-	    evaluateDataBase,
-	    transformationB,
-	    transformationE);
+	trainModel(trainedDataBase, evaluateDataBase, transformationB,
+	           transformationE);
 }
 
 void Model::train(
@@ -216,11 +215,8 @@ void Model::train(
 
 	trainedDataBase.load(db_filename);
 
-	trainModel(
-	    trainedDataBase,
-	    evaluateDataBase,
-	    transformationB,
-	    transformationE);
+	trainModel(trainedDataBase, evaluateDataBase, transformationB,
+	           transformationE);
 }
 
 bool Model::autoEvaluating(
@@ -230,8 +226,11 @@ bool Model::autoEvaluating(
 	setEvaluating();
 	if (config.trainingConfig.isAutoEvaluating() &&
 	    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-		modelResult result = evaluateModel(evaluateDataBase, false, false, transformationE);
-		visual.updateEvaluate(result.percentage, i / config.trainingConfig.getAutoEvaluating().evaluateEvery);
+		modelResult result = evaluateModel(evaluateDataBase, false, false,
+		                                   transformationE);
+		visual.updateEvaluate(
+		    result.percentage,
+		    i / config.trainingConfig.getAutoEvaluating().evaluateEvery);
 
 		if (result.percentage == 100) {
 			return true;
@@ -241,26 +240,34 @@ bool Model::autoEvaluating(
 	return false;
 }
 
-void Model::autoSave(const int i) {
-	if (config.trainingConfig.isAutoSave() && i % config.trainingConfig.getAutoSave().saveEvery == 0) {
-		save(config.trainingConfig.getAutoSave().dataFilenameAutoSave, false);
+void Model::autoSave(int i) {
+	if (i <= 0) {
+		return;
 	}
+
+	const auto &autoSaveCfg = config.trainingConfig.getAutoSave();
+	if (!config.trainingConfig.isAutoSave() || i % autoSaveCfg.saveEvery != 0) {
+		return;
+	}
+
+	save(autoSaveCfg.dataFilenameAutoSave, false);
 }
 
 void Model::trainModel(
-    DataBase &trainedDataBase,
-    DataBase &evaluateDataBase,
+    DataBase &trainedDataBase, DataBase &evaluateDataBase,
     global::Transformation transformationB,
     global::Transformation transformationE) {
-	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 
+	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
 
 	visual.updateLearningRate(learningRate);
-
 	setTraining();
 	for (size_t i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
+		bar++;
+		bar.printBar();
+
 		visual.updateBatchCounter(i);
 
 		Batch &batch = trainedDataBase.getBatch();
@@ -269,26 +276,27 @@ void Model::trainModel(
 
 		autoSave(i);
 
-		if (visual.exitTraining() || autoEvaluating(i, evaluateDataBase, transformationE)) {
+		if (visual.exitTraining() ||
+		    autoEvaluating(i, evaluateDataBase, transformationE)) {
 			break;
 		}
 
 		setTraining();
 
-		bar++;
-		bar.printBar();
-
 		visual.updateLearningRate(learningRate);
 	}
 	setNormal();
-
+	bar.endPrint();
 	printTrainingResult(start, error);
 }
 
 float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
-	if (totalSize == 0)
+	if (totalSize == 0) {
 		return 0.0f;
-	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
+	}
+
+	return 100.0f * static_cast<float>(currentSize) /
+	       static_cast<float>(totalSize);
 }
 
 void Model::runModel(const global::Tensor &input,
@@ -331,7 +339,12 @@ modelResult Model::evaluateModel(
 		}
 	}
 
-	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);
+	if (showProgressbar) {
+		bar.endPrint();
+	}
+
+	result.percentage = calculatePercentage(result.currectPreSize,
+	                                        result.dbSize);
 
 	setNormal();
 	return result;
@@ -358,16 +371,10 @@ size_t Model::outputSize() const {
 	return network[network.size() - 1]->outputSize();
 }
 
-size_t Model::inputSize() const {
-	return network[0]->inputSize();
-}
-
-void Model::save(const std::string &file, bool print) {
+void Model::save(const std::string &file, const bool print) {
 	std::ofstream outFile(file);
 
-	if (print) {
-		std::cout << "Start saving" << std::endl;
-	}
+	ProgressBar bar(network.size(), SAVING_DATA_HEADER + file);
 
 	for (size_t i = 0; i < network.size(); ++i) {
 		std::vector<global::ValueType> params = network[i]->getParams();
@@ -377,24 +384,27 @@ void Model::save(const std::string &file, bool print) {
 			outFile << params[j] << " ";
 		}
 		outFile << std::endl;
+
+		if (print) {
+			bar.printBar();
+			bar++;
+		}
 	}
 
 	if (print) {
-		std::cout << " saving complete" << std::endl;
+		bar.endPrint();
 	}
 
 	outFile.close();
 }
 
-void Model::load(const std::string &file, bool print) {
+void Model::load(const std::string &file, const bool print) {
 	std::ifstream inFile(file);
 
 	std::string line;
 	int networkI = 0;
 
-	if (print) {
-		std::cout << "Start loading" << std::endl;
-	}
+	ProgressBar bar(network.size(), LOADING_DATA_HEADER + file);
 
 	while (std::getline(inFile, line)) {
 		std::istringstream iss(line);
@@ -413,10 +423,15 @@ void Model::load(const std::string &file, bool print) {
 		data = numbers;
 		network[networkI]->setParams(data);
 		networkI++;
+
+		if (print) {
+			bar.printBar();
+			bar++;
+		}
 	}
 
 	if (print) {
-		std::cout << " loading complete" << std::endl;
+		bar.endPrint();
 	}
 
 	inFile.close();
@@ -426,35 +441,33 @@ global::Prediction Model::getPrediction() const {
 	size_t max = 0;
 
 	for (size_t i = 1; i < outputSize(); ++i) {
-		if (getOutput().getValue({i}) > getOutput().getValue({max})) {
+		if (getOutput().getValue(i) > getOutput().getValue(max)) {
 			max = i;
 		}
 	}
 
-	return global::Prediction(max, getOutput().getValue({max}));
+	return global::Prediction(max, getOutput().getValue(max));
+}
+
+void Model::setTraining(const bool state) {
+	for (auto &sub : network) {
+		sub->setTraining(state);
+	}
 }
 
 void Model::setTraining() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Training);
-
-	for (auto &sub : network) {
-		sub->setTraining(true);
-	}
+	setTraining(true);
 }
 
 void Model::setNormal() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Normal);
-
-	for (auto &sub : network) {
-		sub->setTraining(false);
-	}
+	setTraining(false);
 }
+
 void Model::setEvaluating() {
 	visual.updateAlgorithmMode(visualizer::AlgorithmMode::Evaluating);
-
-	for (auto &sub : network) {
-		sub->setTraining(false);
-	}
+	setTraining(false);
 }
 
 std::vector<global::ValueType> Model::getOut() const {

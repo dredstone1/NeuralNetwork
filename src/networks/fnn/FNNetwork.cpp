@@ -1,6 +1,4 @@
 #include "FNNetwork.hpp"
-#include "tensor.hpp"
-#include <vector>
 
 namespace nn::model::fnn {
 FNNetwork::FNNetwork(
@@ -8,9 +6,9 @@ FNNetwork::FNNetwork(
     const bool randomInit,
     const std::shared_ptr<visualizer::fnn::FnnVisualier> visual_)
     : config(_config),
-      input({_config.getInputSize()}),
+      input({_config.getInputShape()}),
       visual(visual_) {
-	int prevSize_ = _config.getInputSize();
+	size_t prevSize_ = nn::global::computeTensorSize(_config.getInputShape());
 	size_t i = 0;
 
 	for (; i < _config.layersConfig.size(); ++i) {
@@ -52,8 +50,8 @@ void FNNetwork::sendNewVNeurons(const size_t i) const {
 }
 
 void FNNetwork::forward(const global::Tensor &newInput) {
-	input = newInput;
-	layers[0]->forward(newInput);
+	input.setData(newInput);
+	layers[0]->forward(input);
 	sendNewVNeurons(0);
 
 	for (size_t i = 1; i < layers.size(); ++i) {
@@ -88,9 +86,8 @@ void FNNetwork::backward(global::Tensor **outputDeltas) {
 
 		if (visual) {
 			visual->setGrad(i, layers[i]->getGrad());
+			vUpdate();
 		}
-
-		vUpdate();
 	}
 
 	calculateInputDelta(outputDeltas);
@@ -110,10 +107,6 @@ void FNNetwork::resetGradient() {
 	}
 }
 
-size_t FNNetwork::inputSize() const {
-	return config.getInputSize();
-}
-
 size_t FNNetwork::outputSize() const {
 	return config.getOutputSize();
 }
@@ -122,8 +115,8 @@ const global::Tensor &FNNetwork::getOutput() const {
 	return layers[layers.size() - 1]->getOut();
 }
 
-const global::Tensor &FNNetwork::getInput() const {
-	return input;
+global::Tensor *FNNetwork::getInput() {
+	return &input;
 }
 
 void FNNetwork::updateWeights(IOptimizer &optimizer) {

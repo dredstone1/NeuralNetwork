@@ -1,7 +1,5 @@
 #include "DenseLayer.hpp"
-#include <cstddef>
 #include <random>
-#include <vector>
 
 namespace nn::model::fnn {
 DenseLayer::DenseLayer(
@@ -69,7 +67,7 @@ void Output_Layer::backward(
 global::ValueType Output_Layer::getCrossEntropyLoss(
     const global::Tensor &prediction,
     const size_t target) {
-	return -std::log(std::max(prediction.getValue({target}), MIN_LOSS_VALUE));
+	return -std::log(std::max(prediction.getValue(target), MIN_LOSS_VALUE));
 }
 
 global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {

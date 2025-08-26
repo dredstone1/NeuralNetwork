@@ -2,15 +2,27 @@
 #define TENSOR
 
 #include "../src/model/tensor_gpu.hpp"
+#include <string>
 #include <vector>
 
 namespace nn::model {
 class Activation;
+
+namespace cnn {
+class CNNetwork;
+}
 } // namespace nn::model
 
 namespace nn::global {
+
 class Tensor;
 using Transformation = Tensor (*)(const Tensor &);
+
+std::string shapeToString(const std::vector<size_t> &shape);
+size_t computeTensorSize(const std::vector<size_t> &shape);
+
+constexpr bool DEFAULT_GPU_MODE = false;
+constexpr ValueType DEFAULT_INIT_VALUE = 0.0f;
 
 class Tensor {
   private:
@@ -29,10 +41,11 @@ class Tensor {
 
 	friend model::Activation;
 	friend nn::global::Transformation;
+	friend nn::model::cnn::CNNetwork;
 
   public:
 	// Constructors
-	Tensor(const std::vector<size_t> &shape, ValueType init = 0.0f);
+	Tensor(const std::vector<size_t> &shape, ValueType init = DEFAULT_INIT_VALUE);
 	Tensor(const Tensor &other);
 
 	~Tensor();
@@ -42,6 +55,10 @@ class Tensor {
 
 	ValueType getValue(const std::vector<size_t> &newShape) const;
 	void setValue(const std::vector<size_t> &newShape, const ValueType value);
+
+	ValueType getValue(const size_t newShape) const;
+	void setValue(const size_t newShape, const ValueType value);
+
 	void insertRange(const Tensor &other, const size_t startO,
 	                 const size_t startT, const size_t length);
 
@@ -50,11 +67,16 @@ class Tensor {
 	const std::vector<size_t> &getShape() const { return shape; }
 	const std::vector<size_t> &getStrides() const { return strides; }
 	void getData(std::vector<ValueType> &dest) const;
+	void setData(const Tensor &other);
 	void fill(const ValueType &value);
 	void zero();
 
-	// GPU access for testing
+	void flatten();
+	void setShape(const std::vector<size_t> &newShape);
+
+	// Data access for testing
 	ValueType *getGpuData() const { return gpu_data; }
+	std::vector<ValueType> &getCpuData() { return cpu_data; }
 
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);

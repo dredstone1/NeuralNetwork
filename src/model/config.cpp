@@ -1,29 +1,24 @@
 #include "config.hpp"
-#include "activations.hpp"
 #include <cstddef>
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json_fwd.hpp>
 
 namespace nn::model {
+
 Config::Config(const std::string &config_filepath) {
 	std::ifstream ifs(config_filepath);
 	if (!ifs.is_open()) {
-		std::cerr << "Error: Could not open config file: " << config_filepath << std::endl;
-		throw std::runtime_error("Failed to open config file: " + config_filepath);
+		std::cerr << "Error: Could not open config file: " << config_filepath
+		          << std::endl;
+		throw std::runtime_error("Failed to open config file: " +
+		                         config_filepath);
 	}
 
 	nlohmann::json j;
 	try {
 		ifs >> j;
 
-		trainingConfig.fromJson(j.at("training config"));
-
-		if (j.contains("visual config")) {
-			visualConfig.fromJson(j.at("visual config"));
-		}
-
-		networkConfig.fromJson(j.at("network config"));
+		initalizeJson(j);
 	} catch (const nlohmann::json::parse_error &e) {
 		std::cerr << "JSON parse error in file '" << config_filepath << "':\n"
 		          << e.what() << "\n"
@@ -36,30 +31,49 @@ Config::Config(const std::string &config_filepath) {
 	}
 }
 
+void Config::initalizeJson(const nlohmann::json &j) {
+	trainingConfig.fromJson(j.at("training config"));
+
+	if (j.contains("visual config")) {
+		visualConfig.fromJson(j.at("visual config"));
+	}
+
+	networkConfig.fromJson(j.at("network config"));
+}
+
 void NetworkConfig::fromJson(const nlohmann::json &j) {
+	size_t prevS = 0;
 	for (auto &subNetworkConfig : j) {
 		std::string type = subNetworkConfig.at("type");
+
 		if (type == fnn::FNN_LABLE) {
-			SubNetworksConfig.push_back(std::make_shared<fnn::FNNConfig>(subNetworkConfig));
+			SubNetworksConfig.push_back(
+			    std::make_shared<fnn::FNNConfig>(subNetworkConfig, prevS));
+		} else if (type == cnn::CNN_LABLE) {
+			SubNetworksConfig.push_back(
+			    std::make_shared<cnn::CNNConfig>(subNetworkConfig, prevS));
 		}
-		if (type == cnn::CNN_LABLE) {
-			SubNetworksConfig.push_back(std::make_shared<cnn::CNNConfig>(subNetworkConfig));
-		}
+
+		prevS = SubNetworksConfig[SubNetworksConfig.size()-1]->getOutputSize();
 	}
 }
 
 namespace fnn {
-FNNConfig::FNNConfig(const nlohmann::json &j) {
-	fromJson(j);
-}
 
-void FNNConfig::fromJson(const nlohmann::json &j) {
-	inputSize = j.at("input size");
+FNNConfig::FNNConfig(const nlohmann::json &j, const size_t prevS) {
+	inputShape.resize(1);
+	if (prevS == 0) {
+		inputShape[0] = j.at("input size");
+	} else {
+		inputShape[0] = prevS;
+	}
+
 	outputSize = j.at("output size");
 
 	for (auto &layer_ : j.at("layers")) {
 		layersConfig.push_back(DenseLayerConfig(layer_));
 	}
+
 	outputActivation = (ActivationType)j.at("output activation");
 }
 
@@ -78,23 +92,32 @@ void DenseLayerConfig::fromJson(const nlohmann::json &j) {
 		activationType = j.at("activationType");
 	}
 }
+
 } // namespace fnn
 
 namespace cnn {
-CNNConfig::CNNConfig(const nlohmann::json &j) {
-	fromJson(j);
+
+CNNConfig::CNNConfig(const nlohmann::json &j, const size_t) {
+	inputShape = j.at("input shape").get<std::vector<size_t>>();
+
+	activation = j.at("output activation");
+
+	if (j.contains("filter shape")) {
+		filterShape = j.at("filter shape").get<std::vector<size_t>>();
+	}
+
+	outputSize = calculateOutputSize();
 }
 
-void CNNConfig::fromJson(const nlohmann::json &j) {
-	inputSize = j.at("input size");
-	outputSize = j.at("output size");
-
-	outputActivation = (ActivationType)j.at("output activation");
+size_t CNNConfig::calculateOutputSize() const {
+	return (inputShape[0] - filterShape[0] + 1) *
+	       (inputShape[1] - filterShape[1] + 1) * filterShape[2];
 }
+
 } // namespace cnn
 
-size_t NetworkConfig::inputSize() const {
-	return SubNetworksConfig[0]->getInputSize();
+std::vector<size_t> NetworkConfig::inputShape() const {
+	return SubNetworksConfig[0]->getInputShape();
 }
 
 size_t NetworkConfig::outputSize() const {
@@ -130,10 +153,15 @@ void ConstantOptimizerConfig::fromJson(const nlohmann::json &j) {
 
 void VisualConfig::fromJson(const nlohmann::json &j) {
 	enableVisuals = j.at("enable visual");
-	if (!enableVisuals)
+	if (!enableVisuals) {
 		return;
+	}
 
-	enableNetwrokVisual = j.at("enable netwrok visual");
+	if (j.contains("show fps")) {
+		showFps = j.at("show fps");
+	}
+
+	enableNetwrokVisual = j.at("enable network visual");
 
 	if (j.contains("modes")) {
 		modes = j.at("modes");

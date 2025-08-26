@@ -39,6 +39,7 @@ class StatusPanel : public Panel {
 	float fps;
 	float batchPerSecond;
 	global::ValueType learningRate;
+	AlgorithmMode lastAlMode;
 
 	std::string getText();
 	void display();

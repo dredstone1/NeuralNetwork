@@ -3,7 +3,6 @@
 
 #include "../src/model/optimizers.hpp"
 #include <Globals.hpp>
-#include <vector>
 
 namespace nn::model::fnn {
 constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;

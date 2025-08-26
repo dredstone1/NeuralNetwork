@@ -3,7 +3,6 @@
 
 #include "FnnVisualizer.hpp"
 #include <network/INetwork.hpp>
-#include <vector>
 
 namespace nn::model::fnn {
 class FNNetwork : public INetwork {
@@ -36,16 +35,15 @@ class FNNetwork : public INetwork {
 	global::ValueType getLoss(const global::Prediction &index) const override;
 
 	size_t outputSize() const override;
-	size_t inputSize() const override;
 
 	const global::Tensor &getOutput() const override;
-	const global::Tensor &getInput() const override;
+	global::Tensor *getInput() override;
 
 	std::shared_ptr<visualizer::IVisualNetwork> getVisual() override {
 		return visual;
 	}
 
-    std::vector<global::ValueType> getParams() const override;
+	std::vector<global::ValueType> getParams() const override;
 	void setParams(const global::Tensor &params) override;
 
 	size_t getParamCount() const override;

@@ -4,6 +4,7 @@
 #include "fonts.hpp"
 #include "network/IvisualNetwork.hpp"
 #include "panel.hpp"
+#include "tensor.hpp"
 #include <cstdint>
 #include <memory>
 
@@ -25,7 +26,9 @@ void DummyLayer::createVLayer() {
 
 	for (size_t neuron = 0; neuron < size(); ++neuron) {
 		float y = neuron * (gap + neuron_width_scaled);
-		cacheNeurons[neuron] = sf::FloatRect(sf::Vector2f(x, y), {neuron_width_scaled, neuron_width_scaled});
+		cacheNeurons[neuron] = sf::FloatRect(
+		    sf::Vector2f(x, y),
+		    {neuron_width_scaled, neuron_width_scaled});
 	}
 
 	pos.x = pos.x - x;
@@ -58,7 +61,10 @@ float DummyLayer::getScaleFactor(std::size_t neuron_count) {
 	float maxNeuronSpace = MODEL_HEIGHT - (neuron_count)*global::MIN_GAP;
 
 	float neuronWidth = maxNeuronSpace / std::max<float>(neuron_count, 1);
-	neuronWidth = std::clamp(neuronWidth, global::MIN_NEURON_WIDTH, global::MAX_NEURON_WIDTH);
+	neuronWidth = std::clamp(
+	    neuronWidth,
+	    global::MIN_NEURON_WIDTH,
+	    global::MAX_NEURON_WIDTH);
 
 	return neuronWidth / global::MAX_NEURON_WIDTH;
 }
@@ -75,14 +81,14 @@ sf::Color DummyLayer::getNeuronColor(const global::ValueType value) {
 
 void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 	sf::RectangleShape shape(cacheNeurons[index].size);
-	shape.setFillColor(getNeuronColor(values.getValue({index})));
+	shape.setFillColor(getNeuronColor(values.getValue(index)));
 	shape.setPosition(cacheNeurons[index].position + pos);
 
 	target.draw(shape);
 
 	if (10 * cacheNeurons[index].size.y / global::NEURON_WIDTH > global::MIN_FONT_SIZE) {
 		std::ostringstream ss;
-		ss << std::fixed << std::setprecision(4) << values.getValue({index});
+		ss << std::fixed << std::setprecision(4) << values.getValue(index);
 
 		sf::Text text(Fonts::getFont());
 		text.setCharacterSize(10 * cacheNeurons[index].size.y / global::NEURON_WIDTH);
@@ -92,7 +98,11 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 		sf::FloatRect textBounds = text.getLocalBounds();
 		text.setOrigin({textBounds.position.x + textBounds.size.x / 2.0f,
 		                textBounds.position.y + textBounds.size.y / 2.0f});
-		text.setPosition(sf::Vector2f(cacheNeurons[index].position.x + cacheNeurons[index].size.x / 2.0f, cacheNeurons[index].position.y + cacheNeurons[index].size.y / 2.0f) + pos);
+		text.setPosition(
+		    sf::Vector2f(
+		        cacheNeurons[index].position.x + cacheNeurons[index].size.x / 2.0f,
+		        cacheNeurons[index].position.y + cacheNeurons[index].size.y / 2.0f) +
+		    pos);
 		target.draw(text);
 	}
 }
@@ -100,7 +110,7 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 ModelPanel::ModelPanel(const std::shared_ptr<StateManager> state_)
     : Panel(state_),
       predictionLayer(state_->config.networkConfig.outputSize()),
-      inputLayer(state_->config.networkConfig.inputSize()),
+      inputLayer(nn::global::computeTensorSize(state_->config.networkConfig.inputShape())),
       modelRender({MODEL_WIDTH, MODEL_HEIGHT}) {
 	predictionLayer.setPos({MODEL_WIDTH - (float)predictionLayer.getWidth(), 0});
 
@@ -160,7 +170,7 @@ void ModelPanel::setPrediction(const global::Prediction &pre) {
 	static global::Tensor output({predictionLayer.size()});
 	output.zero();
 
-	output.setValue({pre.index}, 1);
+	output.setValue(pre.index, 1);
 	predictionLayer.setValues(output);
 
 	setUpdate();

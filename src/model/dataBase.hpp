@@ -3,9 +3,7 @@
 
 #include "config.hpp"
 #include <Globals.hpp>
-#include <cstddef>
 #include <random>
-#include <vector>
 
 namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";
@@ -18,11 +16,8 @@ struct TrainSample {
 	global::Tensor input;
 
 	TrainSample(const size_t sampleOutputSize, const size_t sampleInputSize)
-	    : pre(sampleOutputSize, 0),
-	      input({sampleInputSize}, 0) {}
-	TrainSample()
-	    : pre(0, 0),
-	      input({0}) {}
+	    : pre(sampleOutputSize, 0), input({sampleInputSize}, 0) {}
+	TrainSample() : pre(0, 0), input({0}) {}
 };
 
 struct databaseStatus {
@@ -33,7 +28,6 @@ struct databaseStatus {
 
 struct Samples {
 	databaseStatus status;
-
 	std::vector<TrainSample> samples;
 
 	Samples() {}
@@ -45,12 +39,8 @@ struct Samples {
 
 struct Batch {
 	std::vector<TrainSample *> samples;
-
-	Batch(const int length) {
-		samples.resize(length, nullptr);
-	}
+	Batch(const int length) { samples.resize(length, nullptr); }
 	~Batch() = default;
-
 	size_t size() const { return samples.size(); }
 };
 
@@ -65,6 +55,7 @@ class DataBase {
 	const TrainingConfig &config;
 
 	databaseStatus getDataBaseStatus(const std::string &line);
+	std::vector<size_t> getDataBaseInputShape(const std::string &line);
 	TrainSample readLine(const std::string &line);
 	void generateBatches();
 

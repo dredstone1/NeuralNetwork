@@ -13,6 +13,7 @@ class ProgressBar {
 
 	int current{0};
 	int last_percentage{-1};
+    bool headerPrinted{false};
 
   public:
 	ProgressBar(const int total_, const std::string header_)
@@ -21,6 +22,7 @@ class ProgressBar {
 	~ProgressBar() = default;
 
 	void printBar();
+	void endPrint();
 
 	ProgressBar operator++(int);
 	ProgressBar operator=(int value);

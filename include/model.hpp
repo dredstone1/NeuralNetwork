@@ -4,15 +4,16 @@
 #include "../src/model/dataBase.hpp"
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
-#include <cstddef>
 #include <network/INetwork.hpp>
-#include <vector>
 
 namespace nn::model {
 constexpr int SECONDS_IN_MINUTE = 60;
 
 const std::string TRAINING_HEADER = "Training Model";
 const std::string EVALUATING_HEADER = "Evaluating Model";
+
+const std::string SAVING_DATA_HEADER = "Saving parameters from: ";
+const std::string LOADING_DATA_HEADER = "Loading parameters from: ";
 
 struct modelResult {
 	int dbSize;
@@ -31,16 +32,13 @@ class Model {
 	std::unique_ptr<IOptimizer> optimizer;
 
 	void Forword(const global::Tensor &input, const int modelIndex);
-
-	void Backward(const global::Tensor &output);
+	void Backward(global::Tensor &output);
 	void updateWeights(const int batch_size);
-
 	void resetNetworkGradient();
 	global::ValueType getLoss(const global::Prediction &pre);
 
 	global::ValueType runBackPropagation(
-	    const Batch &batch,
-	    const bool updateWeights,
+	    const Batch &batch, const bool updateWeights,
 	    global::Transformation transformation = nullptr);
 
 	void printTrainingResult(
@@ -59,24 +57,20 @@ class Model {
 	    const bool showProgressbar = true,
 	    global::Transformation transformation = nullptr);
 	void trainModel(
-	    DataBase &trainedDataBase,
-	    DataBase &evaluateDataBase,
+	    DataBase &trainedDataBase, DataBase &evaluateDataBase,
 	    global::Transformation transformationB = nullptr,
 	    global::Transformation transformationE = nullptr);
 
 	size_t outputSize() const;
-	size_t inputSize() const;
 	const global::Tensor &getOutput() const;
 
+	void setTraining(const bool state);
 	void setTraining();
 	void setNormal();
 	void setEvaluating();
 
-	bool autoEvaluating(
-	    const int i,
-	    DataBase &evaluateDataBase,
-	    global::Transformation transformationE);
-
+	bool autoEvaluating(const int i, DataBase &evaluateDataBase,
+	                    global::Transformation transformationE);
 	void autoSave(const int i);
 
 	void addFNN(const std::uint32_t width, ISubNetworkConfig &_config);
@@ -105,11 +99,11 @@ class Model {
 	    const bool cancleOnError = false,
 	    global::Transformation transformation = nullptr);
 
-	void save(const std::string &file, bool print = true);
-	void load(const std::string &file, bool print = true);
+	void save(const std::string &file, const bool print = true);
+	void load(const std::string &file, const bool print = true);
 
 	global::Prediction getPrediction() const;
-    std::vector<global::ValueType> getOut() const;
+	std::vector<global::ValueType> getOut() const;
 };
 } // namespace nn::model
 

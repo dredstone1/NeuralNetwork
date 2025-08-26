@@ -1,8 +1,10 @@
 #include "Vstatus.hpp"
 #include "fonts.hpp"
+#include "state.hpp"
 #include "tensor.hpp"
 
 namespace nn::visualizer {
+
 StatusPanel::StatusPanel(const std::shared_ptr<StateManager> vstate_)
     : Panel(vstate_),
       VRender({VSTATUS_WIDTH, VSTATUS_HEIGHT}) {}
@@ -42,11 +44,12 @@ std::string StatusPanel::getText() {
 	if (vstate->config.visualConfig.enableNetwrokVisual) {
 		ss << TextLabels::RUNNING_MODE_TEXT << NNRunningModeName[vstate->settings.pause.load()] << "\n";
 	}
-
+	if (vstate->config.visualConfig.showFps) {
+		ss << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << "\n";
+	}
 	ss << ProccesorNmodeName[global::Tensor::getGpuState()] << TextLabels::PROCCESOR_MODE_TEXT << "\n"
 	   << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << "\n"
 	   << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->algorithmMode.load()] << "\n"
-	   << TextLabels::FPS_TEXT << fps << "/" << FPS_LIMIT << "\n"
 	   << TextLabels::CURRENT_BATCH_TEXT << currentBatch << "/" << totalBatches << " #" << batchPerSecond << "\n"
 	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.getBatchSize() << "\n"
 	   << TextLabels::LEARNING_RATE_TEXT << learningRate << "\n"
@@ -89,4 +92,5 @@ void StatusPanel::updateLerningRate(const global::ValueType newLerningRate) {
 	learningRate = newLerningRate;
 	setUpdate();
 }
+
 } // namespace nn::visualizer

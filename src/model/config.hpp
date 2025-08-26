@@ -2,12 +2,11 @@
 #define CONFIG
 
 #include "activations.hpp"
-#include <cstddef>
-#include <memory>
 #include <nlohmann/json.hpp>
-#include <string>
+#include <vector>
 
 namespace nn::model {
+
 class IOptimizerConfig {
   public:
 	virtual void fromJson(const nlohmann::json &j) = 0;
@@ -30,20 +29,20 @@ class ConstantOptimizerConfig : public IOptimizerConfig {
 
 class ISubNetworkConfig {
   protected:
-	size_t inputSize{0};
+	std::vector<size_t> inputShape;
 	size_t outputSize{0};
 
   public:
-	virtual void fromJson(const nlohmann::json &j) = 0;
 	virtual const std::string NNLable() const = 0;
 
-	size_t getInputSize() const { return inputSize; }
+	std::vector<size_t> getInputShape() const { return inputShape; }
 	size_t getOutputSize() const { return outputSize; }
 
 	virtual ~ISubNetworkConfig() = default;
 };
 
 namespace fnn {
+
 class DenseLayerConfig {
   public:
 	DenseLayerConfig(const nlohmann::json &j);
@@ -54,36 +53,42 @@ class DenseLayerConfig {
 };
 
 const std::string FNN_LABLE = "FNN";
+
 class FNNConfig : public ISubNetworkConfig {
   public:
-	FNNConfig(const nlohmann::json &j);
+	FNNConfig(const nlohmann::json &j, const size_t prevS = 0);
 	~FNNConfig() = default;
 
 	const std::string NNLable() const override { return FNN_LABLE; }
-	void fromJson(const nlohmann::json &j) override;
 
 	std::vector<DenseLayerConfig> layersConfig;
 	ActivationType outputActivation;
 };
+
 } // namespace fnn
 
 namespace cnn {
 const std::string CNN_LABLE = "CNN";
+
 class CNNConfig : public ISubNetworkConfig {
+  private:
+	size_t calculateOutputSize() const;
+
   public:
-	CNNConfig(const nlohmann::json &j);
+	CNNConfig(const nlohmann::json &j, const size_t prevS = -1);
 	~CNNConfig() = default;
 
 	const std::string NNLable() const override { return CNN_LABLE; }
-	void fromJson(const nlohmann::json &j) override;
 
-	ActivationType outputActivation;
+	ActivationType activation;
+	std::vector<size_t> filterShape{3, 3, 1, 1}; // {w, h, f, c}
 };
+
 } // namespace cnn
 
 class NetworkConfig {
   public:
-	size_t inputSize() const;
+	std::vector<size_t> inputShape() const;
 	size_t outputSize() const;
 
 	std::vector<std::shared_ptr<ISubNetworkConfig>> SubNetworksConfig;
@@ -98,7 +103,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoSave, saveEvery, dataFilenameAutoSave);
 
 struct AutoEvaluating {
 	int evaluateEvery{-1};
-	std::string dataBaseFilename{"dataBase"};
+	std::vector<std::string> dataBaseFilename{"dataBase"};
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoEvaluating, dataBaseFilename);
 
@@ -151,17 +156,24 @@ class VisualConfig {
 
 	bool enableVisuals{false};
 	bool enableNetwrokVisual{false};
+	bool showFps{false};
 	std::vector<VisualMode> modes;
 	void fromJson(const nlohmann::json &j);
 };
 
 class Config {
+  private:
+	void initalizeJson(const nlohmann::json &j);
+
   public:
 	Config(const std::string &config_filepath);
+	~Config() = default;
+
 	VisualConfig visualConfig;
 	TrainingConfig trainingConfig;
 	NetworkConfig networkConfig;
 };
+
 } // namespace nn::model
 
 #endif // CONFIG

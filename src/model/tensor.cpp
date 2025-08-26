@@ -6,7 +6,19 @@
 
 namespace nn::global {
 
-static std::string shapeToString(const std::vector<size_t> &shape) {
+size_t computeTensorSize(const std::vector<size_t> &shape) {
+	if (shape.empty()) {
+		return 0;
+	}
+
+	size_t size = 1;
+	for (size_t dim : shape) {
+		size *= dim;
+	}
+	return size;
+}
+
+std::string shapeToString(const std::vector<size_t> &shape) {
 	if (shape.empty()) {
 		return "{}";
 	}
@@ -19,24 +31,23 @@ static std::string shapeToString(const std::vector<size_t> &shape) {
 	return ss.str();
 }
 
-bool Tensor::isGpu = false;
+bool Tensor::isGpu = DEFAULT_GPU_MODE;
 size_t Tensor::tensorCount = 0;
 
 Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 	if (shape_.empty()) {
-		throw std::invalid_argument("Invalid argument: Tensor shape cannot be empty.");
+		throw std::invalid_argument(
+		    "Invalid argument: Tensor shape cannot be empty.");
 	}
 
-	size_t totalSize = std::accumulate(
-	    shape_.begin(),
-	    shape_.end(),
-	    size_t(1),
-	    std::multiplies<>());
+	size_t totalSize = std::accumulate(shape_.begin(), shape_.end(), 1,
+	                                   std::multiplies<>());
 
 	shape = shape_;
 
 	if (isGpu) {
-		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
+		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize *
+		                                             sizeof(ValueType));
 		gpu_data_size = totalSize;
 		fill(init);
 	} else {
@@ -49,21 +60,32 @@ Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 }
 
 void Tensor::toGpu() {
-	if (isGpu)
+	if (isGpu) {
 		return;
+	}
 
-	if (tensorCount > 0)
-		throw std::runtime_error("Cannot switch to GPU mode: tensors already exist in CPU mode.");
+	if (!nn::global::tensor_gpu::checkCudaSupport()) {
+		throw std::runtime_error(
+		    "Cannot switch to GPU mode: CUDA is not supported on this device.");
+	}
+
+	if (tensorCount > 0) {
+		throw std::runtime_error(
+		    "Cannot switch to GPU mode: tensors already exist");
+	}
 
 	isGpu = true;
 }
 
 void Tensor::toCpu() {
-	if (!isGpu)
+	if (!isGpu) {
 		return;
+	}
 
-	if (tensorCount > 0)
-		throw std::runtime_error("Cannot switch to CPU mode: tensors already exist in GPU mode.");
+	if (tensorCount > 0) {
+		throw std::runtime_error(
+		    "Cannot switch to CPU mode: tensors already exist");
+	}
 
 	isGpu = false;
 }
@@ -74,8 +96,10 @@ Tensor::Tensor(const Tensor &other) {
 
 	if (isGpu) {
 		gpu_data_size = other.gpu_data_size;
-		gpu_data = (ValueType *)tensor_gpu::allocate(gpu_data_size * sizeof(ValueType));
-		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
+		gpu_data = (ValueType *)tensor_gpu::allocate(
+		    gpu_data_size * sizeof(ValueType));
+		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data,
+		                               gpu_data_size * sizeof(ValueType));
 	} else {
 		cpu_data = other.cpu_data;
 	}
@@ -91,10 +115,47 @@ size_t Tensor::numElements() const {
 
 void Tensor::getData(std::vector<ValueType> &dest) const {
 	if (isGpu) {
-		tensor_gpu::copyToHost(dest.data(), gpu_data, gpu_data_size * sizeof(ValueType));
+		tensor_gpu::copyToHost(dest.data(), gpu_data,
+		                       gpu_data_size * sizeof(ValueType));
 	} else {
 		dest = cpu_data;
 	}
+}
+
+void Tensor::setData(const Tensor &other) {
+	if (this == &other) {
+		return;
+	}
+
+	if (numElements() != other.numElements()) {
+		throw std::length_error(
+		    "Tensor::setData size mismatch: current tensor has " +
+		    std::to_string(numElements()) +
+		    " elements, but source tensor has " +
+		    std::to_string(other.numElements()) + " elements.");
+	}
+
+	if (isGpu) {
+		if (gpu_data_size != other.gpu_data_size) {
+			ValueType *temp = (ValueType *)tensor_gpu::allocate(
+			    other.gpu_data_size * sizeof(ValueType));
+			gpu_data_size = other.gpu_data_size;
+			tensor_gpu::copyDeviceToDevice(temp, other.gpu_data,
+			                               gpu_data_size * sizeof(ValueType));
+			tensor_gpu::deallocate(gpu_data);
+			gpu_data = temp;
+		} else {
+			tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data,
+			                               gpu_data_size * sizeof(ValueType));
+		}
+	} else {
+		cpu_data = other.cpu_data;
+	}
+}
+
+void Tensor::setShape(const std::vector<size_t> &newShape) {
+	shape = newShape;
+	computeStrides();
 }
 
 void Tensor::fill(const ValueType &value) {
@@ -117,18 +178,22 @@ void Tensor::zero() {
 }
 
 Tensor &Tensor::operator=(const Tensor &other) {
-	if (this == &other)
+	if (this == &other) {
 		return *this;
+	}
 
 	if (isGpu) {
 		if (gpu_data_size != other.gpu_data_size) {
-			ValueType *temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
+			ValueType *temp = (ValueType *)tensor_gpu::allocate(
+			    other.gpu_data_size * sizeof(ValueType));
 			gpu_data_size = other.gpu_data_size;
-			tensor_gpu::copyDeviceToDevice(temp, other.gpu_data, gpu_data_size * sizeof(ValueType));
+			tensor_gpu::copyDeviceToDevice(temp, other.gpu_data,
+			                               gpu_data_size * sizeof(ValueType));
 			tensor_gpu::deallocate(gpu_data);
 			gpu_data = temp;
 		} else {
-			tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
+			tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data,
+			                               gpu_data_size * sizeof(ValueType));
 		}
 	} else {
 		cpu_data = other.cpu_data;
@@ -143,17 +208,25 @@ Tensor &Tensor::operator=(const Tensor &other) {
 Tensor &Tensor::operator=(const std::vector<ValueType> &other) {
 	if (other.size() != numElements()) {
 		throw std::length_error(
-		    "Tensor assignment size mismatch: Tensor has " + std::to_string(numElements()) +
-		    " elements, but input vector has " + std::to_string(other.size()) + " elements.");
+		    "Tensor assignment size mismatch: Tensor has " +
+		    std::to_string(numElements()) +
+		    " elements, but input vector has " + std::to_string(other.size()) +
+		    " elements.");
 	}
 
 	if (isGpu) {
-		tensor_gpu::copyToDevice(gpu_data, other.data(), gpu_data_size * sizeof(ValueType));
+		tensor_gpu::copyToDevice(gpu_data, other.data(),
+		                         gpu_data_size * sizeof(ValueType));
 	} else {
 		cpu_data = other;
 	}
 
 	return *this;
+}
+
+void Tensor::flatten() {
+	shape = {numElements()};
+	computeStrides();
 }
 
 void Tensor::computeStrides() {
@@ -170,17 +243,20 @@ void Tensor::computeStrides() {
 inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 	if (indices.size() != shape.size()) {
 		throw std::invalid_argument(
-		    "Incorrect number of indices provided. Tensor has " + std::to_string(shape.size()) +
-		    " dimensions, but " + std::to_string(indices.size()) + " indices were given.");
+		    "Incorrect number of indices provided. Tensor has " +
+		    std::to_string(shape.size()) +
+		    " dimensions, but " + std::to_string(indices.size()) +
+		    " indices were given.");
 	}
 
 	size_t index = 0;
 	for (size_t i = 0; i < shape.size(); ++i) {
-		if (indices[i] >= shape[i])
+		if (indices[i] >= shape[i]) {
 			throw std::out_of_range(
 			    "Index out of bounds. Index " + std::to_string(indices[i]) +
-			    " is invalid for dimension " + std::to_string(i) + " which has size " +
-			    std::to_string(shape[i]) + ".");
+			    " is invalid for dimension " + std::to_string(i) +
+			    " which has size " + std::to_string(shape[i]) + ".");
+		}
 		index += indices[i] * strides[i];
 	}
 
@@ -188,18 +264,23 @@ inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 }
 
 ValueType Tensor::getValue(const std::vector<size_t> &indices) const {
-	if (isGpu) {
-		return tensor_gpu::getValueAt(gpu_data, flattenIndex(indices));
-	}
-
-	return cpu_data[flattenIndex(indices)];
+	return getValue(flattenIndex(indices));
 }
 
-void Tensor::insertRange(const Tensor &other,
-                         const size_t startO, const size_t startT,
-                         const size_t length) {
+ValueType Tensor::getValue(const size_t indices) const {
 	if (isGpu) {
-		tensor_gpu::copyDeviceToDevice(gpu_data + startT, other.gpu_data + startO, length * sizeof(ValueType));
+		return tensor_gpu::getValueAt(gpu_data, indices);
+	}
+
+	return cpu_data[indices];
+}
+
+void Tensor::insertRange(const Tensor &other, const size_t startO,
+                         const size_t startT, const size_t length) {
+	if (isGpu) {
+		tensor_gpu::copyDeviceToDevice(
+		    gpu_data + startT, other.gpu_data + startO,
+		    length * sizeof(ValueType));
 	} else {
 		for (size_t i = 0; i < length; ++i) {
 			cpu_data[i + startT] = other.cpu_data[i + startO];
@@ -207,73 +288,94 @@ void Tensor::insertRange(const Tensor &other,
 	}
 }
 
-void Tensor::setValue(const std::vector<size_t> &indices, const ValueType value) {
+void Tensor::setValue(const std::vector<size_t> &indices,
+                      const ValueType value) {
+	setValue(flattenIndex(indices), value);
+}
+
+void Tensor::setValue(const size_t indices, const ValueType value) {
 	if (isGpu) {
-		tensor_gpu::setValueAt(gpu_data, flattenIndex(indices), value);
+		tensor_gpu::setValueAt(gpu_data, indices, value);
 	} else {
-		cpu_data[flattenIndex(indices)] = value;
+		cpu_data[indices] = value;
 	}
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {
-	if (shape != other.shape)
+	if (shape != other.shape) {
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator+=. Left-hand side shape: " +
-		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
+		    shapeToString(shape) + ", right-hand side shape: " +
+		    shapeToString(other.shape) + ".");
+	}
 
 	if (isGpu) {
-		tensor_gpu::add_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
+		tensor_gpu::add_vec(gpu_data, other.gpu_data, gpu_data,
+		                    gpu_data_size);
 	} else {
-		for (size_t i = 0; i < cpu_data.size(); ++i)
+		for (size_t i = 0; i < cpu_data.size(); ++i) {
 			cpu_data[i] += other.cpu_data[i];
+		}
 	}
 
 	return *this;
 }
 
 Tensor &Tensor::operator-=(const Tensor &other) {
-	if (shape != other.shape)
+	if (shape != other.shape) {
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator-=. Left-hand side shape: " +
-		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
+		    shapeToString(shape) + ", right-hand side shape: " +
+		    shapeToString(other.shape) + ".");
+	}
 
 	if (isGpu) {
-		tensor_gpu::subtraction_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
+		tensor_gpu::subtraction_vec(gpu_data, other.gpu_data, gpu_data,
+		                            gpu_data_size);
 	} else {
-		for (size_t i = 0; i < cpu_data.size(); ++i)
+		for (size_t i = 0; i < cpu_data.size(); ++i) {
 			cpu_data[i] -= other.cpu_data[i];
+		}
 	}
 
 	return *this;
 }
 
 Tensor &Tensor::operator*=(const Tensor &other) {
-	if (shape != other.shape)
+	if (shape != other.shape) {
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator*=. Left-hand side shape: " +
-		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
+		    shapeToString(shape) + ", right-hand side shape: " +
+		    shapeToString(other.shape) + ".");
+	}
 
 	if (isGpu) {
-		tensor_gpu::multiply_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
+		tensor_gpu::multiply_vec(gpu_data, other.gpu_data, gpu_data,
+		                         gpu_data_size);
 	} else {
-		for (size_t i = 0; i < cpu_data.size(); ++i)
+		for (size_t i = 0; i < cpu_data.size(); ++i) {
 			cpu_data[i] *= other.cpu_data[i];
+		}
 	}
 
 	return *this;
 }
 
 Tensor &Tensor::operator/=(const Tensor &other) {
-	if (shape != other.shape)
+	if (shape != other.shape) {
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator/=. Left-hand side shape: " +
-		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
+		    shapeToString(shape) + ", right-hand side shape: " +
+		    shapeToString(other.shape) + ".");
+	}
 
 	if (isGpu) {
-		tensor_gpu::division_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
+		tensor_gpu::division_vec(gpu_data, other.gpu_data, gpu_data,
+		                         gpu_data_size);
 	} else {
-		for (size_t i = 0; i < cpu_data.size(); ++i)
+		for (size_t i = 0; i < cpu_data.size(); ++i) {
 			cpu_data[i] /= other.cpu_data[i];
+		}
 	}
 
 	return *this;
@@ -292,10 +394,12 @@ Tensor &Tensor::operator*=(ValueType scalar) {
 
 Tensor &Tensor::operator-=(ValueType scalar) {
 	if (isGpu) {
-		tensor_gpu::subtraction_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
+		tensor_gpu::subtraction_scalar(gpu_data, scalar, gpu_data,
+		                               gpu_data_size);
 	} else {
-		for (auto &x : cpu_data)
+		for (auto &x : cpu_data) {
 			x -= scalar;
+		}
 	}
 
 	return *this;
@@ -305,8 +409,9 @@ Tensor &Tensor::operator+=(ValueType scalar) {
 	if (isGpu) {
 		tensor_gpu::add_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 	} else {
-		for (auto &x : cpu_data)
+		for (auto &x : cpu_data) {
 			x += scalar;
+		}
 	}
 
 	return *this;
@@ -316,30 +421,17 @@ Tensor &Tensor::operator/=(ValueType scalar) {
 	if (isGpu) {
 		tensor_gpu::division_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 	} else {
-		for (auto &x : cpu_data)
+		for (auto &x : cpu_data) {
 			x /= scalar;
+		}
 	}
 
 	return *this;
 }
 
 void Tensor::matmul(const Tensor &other, Tensor &result) const {
-	const auto &aShape = shape;
-	const auto &bShape = other.shape;
-	if (aShape.size() != 2 || bShape.size() != 1)
-		throw std::runtime_error(
-		    "matmul: Unsupported shapes. This operation currently supports a 2D matrix "
-		    "multiplied by a 1D vector. Got shapes: " +
-		    shapeToString(aShape) + " and " + shapeToString(bShape) + ".");
-
-	size_t M = aShape[0];
-	size_t K = aShape[1];
-	if (K != bShape[0])
-		throw std::runtime_error(
-		    "matmul: Incompatible shapes for matrix-vector multiplication. The number of "
-		    "columns in the matrix (" +
-		    std::to_string(K) + ") must match the size of the vector (" +
-		    std::to_string(bShape[0]) + ").");
+	size_t M = shape[0];
+	size_t K = shape[1];
 
 	result.zero();
 
@@ -362,12 +454,6 @@ void Tensor::matmul(const Tensor &other, Tensor &result) const {
 }
 
 void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
-	if (a.shape.size() != 1 || b.shape.size() != 1) {
-		throw std::runtime_error(
-		    "outer: Both input tensors must be 1D vectors. Got shapes " +
-		    shapeToString(a.shape) + " and " + shapeToString(b.shape) + ".");
-	}
-
 	size_t m = a.shape[0];
 	size_t n = b.shape[0];
 
@@ -389,27 +475,16 @@ void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
 }
 
 void Tensor::matmulT(const Tensor &vec, Tensor &result) const {
-	if (shape.size() != 2 || vec.shape.size() != 1)
-		throw std::runtime_error(
-		    "matmulT: Unsupported shapes. This operation requires a 2D matrix (this) and a "
-		    "1D vector. Got shapes " +
-		    shapeToString(shape) + " and " + shapeToString(vec.shape) + ".");
-
-	if (vec.shape[0] != shape[0])
-		throw std::runtime_error(
-		    "matmulT: Incompatible shapes for transposed matrix-vector multiplication. "
-		    "The vector size (" +
-		    std::to_string(vec.shape[0]) + ") must match the number of rows in the matrix (" +
-		    std::to_string(shape[0]) + ").");
-
 	result.zero();
 
 	if (isGpu) {
-		tensor_gpu::matmulT(gpu_data, vec.gpu_data, result.gpu_data, shape[0], shape[1]);
+		tensor_gpu::matmulT(gpu_data, vec.gpu_data, result.gpu_data, shape[0],
+		                    shape[1]);
 	} else {
 		for (size_t i = 0; i < shape[1]; ++i) {
 			for (size_t j = 0; j < shape[0]; ++j) {
-				result.cpu_data[i] += cpu_data[j * shape[1] + i] * vec.cpu_data[j];
+				result.cpu_data[i] +=
+				    cpu_data[j * shape[1] + i] * vec.cpu_data[j];
 			}
 		}
 	}
