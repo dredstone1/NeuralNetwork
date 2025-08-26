@@ -3,6 +3,7 @@
 
 #include "activations.hpp"
 #include <nlohmann/json.hpp>
+#include <vector>
 
 namespace nn::model {
 
@@ -32,7 +33,6 @@ class ISubNetworkConfig {
 	size_t outputSize{0};
 
   public:
-	virtual void fromJson(const nlohmann::json &j) = 0;
 	virtual const std::string NNLable() const = 0;
 
 	std::vector<size_t> getInputShape() const { return inputShape; }
@@ -56,11 +56,10 @@ const std::string FNN_LABLE = "FNN";
 
 class FNNConfig : public ISubNetworkConfig {
   public:
-	FNNConfig(const nlohmann::json &j);
+	FNNConfig(const nlohmann::json &j, const size_t prevS = 0);
 	~FNNConfig() = default;
 
 	const std::string NNLable() const override { return FNN_LABLE; }
-	void fromJson(const nlohmann::json &j) override;
 
 	std::vector<DenseLayerConfig> layersConfig;
 	ActivationType outputActivation;
@@ -76,11 +75,10 @@ class CNNConfig : public ISubNetworkConfig {
 	size_t calculateOutputSize() const;
 
   public:
-	CNNConfig(const nlohmann::json &j);
+	CNNConfig(const nlohmann::json &j, const size_t prevS = -1);
 	~CNNConfig() = default;
 
 	const std::string NNLable() const override { return CNN_LABLE; }
-	void fromJson(const nlohmann::json &j) override;
 
 	ActivationType activation;
 	std::vector<size_t> filterShape{3, 3, 1, 1}; // {w, h, f, c}
@@ -105,7 +103,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoSave, saveEvery, dataFilenameAutoSave);
 
 struct AutoEvaluating {
 	int evaluateEvery{-1};
-	std::string dataBaseFilename{"dataBase"};
+	std::vector<std::string> dataBaseFilename{"dataBase"};
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AutoEvaluating, dataBaseFilename);
 

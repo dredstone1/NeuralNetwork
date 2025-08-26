@@ -89,8 +89,7 @@ void VisualManager::updateLost(
 }
 
 void VisualManager::updateEvaluate(
-    const global::ValueType newDataEvaluate,
-    int index) {
+    const global::ValueType newDataEvaluate, int index) {
 	if (!checkPointers()) {
 		return;
 	}
@@ -138,11 +137,13 @@ bool VisualManager::exitTraining() {
 	return Vstate->getState(SettingType::ExitTraining);
 }
 
-void VisualManager::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
+void VisualManager::addVisualSubNetwork(
+    const std::shared_ptr<IVisualNetwork> newVisual) {
 	if (!checkPointers()) {
 		return;
 	}
 
 	renderer->addVisualSubNetwork(newVisual);
 }
+
 } // namespace nn::visualizer

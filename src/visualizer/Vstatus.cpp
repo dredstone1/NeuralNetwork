@@ -1,8 +1,10 @@
 #include "Vstatus.hpp"
 #include "fonts.hpp"
+#include "state.hpp"
 #include "tensor.hpp"
 
 namespace nn::visualizer {
+
 StatusPanel::StatusPanel(const std::shared_ptr<StateManager> vstate_)
     : Panel(vstate_),
       VRender({VSTATUS_WIDTH, VSTATUS_HEIGHT}) {}
@@ -90,4 +92,5 @@ void StatusPanel::updateLerningRate(const global::ValueType newLerningRate) {
 	learningRate = newLerningRate;
 	setUpdate();
 }
+
 } // namespace nn::visualizer

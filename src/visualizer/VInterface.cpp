@@ -40,7 +40,8 @@ sf::Sprite InterfacePanel::getSprite() {
 	return sf::Sprite(VRender.getTexture());
 }
 
-void InterfacePanel::handleClick(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
+void InterfacePanel::handleClick(const sf::Vector2i mousePos_,
+                                 const sf::Vector2f boxPos) {
 	if (needHandlePress) {
 		return;
 	}
@@ -69,14 +70,17 @@ void InterfacePanel::doRender() {
 		buttons[button_]->render();
 		sf::Sprite buttonSprite = buttons[button_]->getSprite();
 
-		buttonSprite.setPosition(sf::Vector2f((BUTTON_WIDTH + BUTTON_GAP) * column, row * (BUTTON_HEIGHT + BUTTON_GAP)));
+		buttonSprite.setPosition(sf::Vector2f((BUTTON_WIDTH + BUTTON_GAP) *
+		                                          column,
+		                                      row * (BUTTON_HEIGHT + BUTTON_GAP)));
 		VRender.draw(buttonSprite);
 	}
 
 	display();
 }
 
-void InterfacePanel::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vector2f boxPos) {
+void InterfacePanel::handleKeyPresed(const sf::Vector2i mousePos_,
+                                     const sf::Vector2f boxPos) {
 	int row = 0, column = -1;
 	sf::Vector2f mousePos(static_cast<float>(mousePos_.x), static_cast<float>(mousePos_.y));
 
@@ -88,7 +92,9 @@ void InterfacePanel::handleKeyPresed(const sf::Vector2i mousePos_, const sf::Vec
 			row++;
 		}
 
-		if (buttons[button_]->checkForClick(mousePos, {boxPos.x + (BUTTON_WIDTH + BUTTON_GAP) * column, boxPos.y + (BUTTON_HEIGHT + BUTTON_GAP) * row})) {
+		if (buttons[button_]->checkForClick(
+		        mousePos, {boxPos.x + (BUTTON_WIDTH + BUTTON_GAP) * column,
+		                   boxPos.y + (BUTTON_HEIGHT + BUTTON_GAP) * row})) {
 			return;
 		}
 	}

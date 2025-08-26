@@ -22,7 +22,8 @@ void Model::initOptimizer() {
 	const std::string &type = config.trainingConfig.getOptimizerType();
 
 	if (type == "const") {
-		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(config.trainingConfig.getOptimizer().get());
+		auto *optConfig = dynamic_cast<ConstantOptimizerConfig *>(
+		    config.trainingConfig.getOptimizer().get());
 		optimizer = std::make_unique<ConstantOptimizer>(*optConfig);
 	}
 }
@@ -225,8 +226,11 @@ bool Model::autoEvaluating(
 	setEvaluating();
 	if (config.trainingConfig.isAutoEvaluating() &&
 	    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-		modelResult result = evaluateModel(evaluateDataBase, false, false, transformationE);
-		visual.updateEvaluate(result.percentage, i / config.trainingConfig.getAutoEvaluating().evaluateEvery);
+		modelResult result = evaluateModel(evaluateDataBase, false, false,
+		                                   transformationE);
+		visual.updateEvaluate(
+		    result.percentage,
+		    i / config.trainingConfig.getAutoEvaluating().evaluateEvery);
 
 		if (result.percentage == 100) {
 			return true;
@@ -291,7 +295,8 @@ float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
 		return 0.0f;
 	}
 
-	return 100.0f * static_cast<float>(currentSize) / static_cast<float>(totalSize);
+	return 100.0f * static_cast<float>(currentSize) /
+	       static_cast<float>(totalSize);
 }
 
 void Model::runModel(const global::Tensor &input,
@@ -338,7 +343,8 @@ modelResult Model::evaluateModel(
 		bar.endPrint();
 	}
 
-	result.percentage = calculatePercentage(result.currectPreSize, result.dbSize);
+	result.percentage = calculatePercentage(result.currectPreSize,
+	                                        result.dbSize);
 
 	setNormal();
 	return result;

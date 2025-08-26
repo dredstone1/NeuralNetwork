@@ -10,6 +10,7 @@
 #include <memory>
 
 namespace nn::visualizer {
+
 constexpr sf::Color BG_COLOR(100, 100, 100);
 constexpr std::uint32_t UI_GAP = 15;
 
@@ -65,6 +66,7 @@ class VisualRender {
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
 };
+
 } // namespace nn::visualizer
 
 #endif // VISUALIZERRENDERER

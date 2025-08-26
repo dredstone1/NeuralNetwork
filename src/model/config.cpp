@@ -1,8 +1,10 @@
 #include "config.hpp"
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 
 namespace nn::model {
+
 Config::Config(const std::string &config_filepath) {
 	std::ifstream ifs(config_filepath);
 	if (!ifs.is_open()) {
@@ -40,32 +42,38 @@ void Config::initalizeJson(const nlohmann::json &j) {
 }
 
 void NetworkConfig::fromJson(const nlohmann::json &j) {
+	size_t prevS = 0;
 	for (auto &subNetworkConfig : j) {
 		std::string type = subNetworkConfig.at("type");
 
 		if (type == fnn::FNN_LABLE) {
-			SubNetworksConfig.push_back(std::make_shared<fnn::FNNConfig>(subNetworkConfig));
+			SubNetworksConfig.push_back(
+			    std::make_shared<fnn::FNNConfig>(subNetworkConfig, prevS));
 		} else if (type == cnn::CNN_LABLE) {
-			SubNetworksConfig.push_back(std::make_shared<cnn::CNNConfig>(subNetworkConfig));
+			SubNetworksConfig.push_back(
+			    std::make_shared<cnn::CNNConfig>(subNetworkConfig, prevS));
 		}
+
+		prevS = SubNetworksConfig[SubNetworksConfig.size()-1]->getOutputSize();
 	}
 }
 
 namespace fnn {
 
-FNNConfig::FNNConfig(const nlohmann::json &j) {
-	fromJson(j);
-}
-
-void FNNConfig::fromJson(const nlohmann::json &j) {
+FNNConfig::FNNConfig(const nlohmann::json &j, const size_t prevS) {
 	inputShape.resize(1);
-	inputShape[0] = j.at("input size");
+	if (prevS == 0) {
+		inputShape[0] = j.at("input size");
+	} else {
+		inputShape[0] = prevS;
+	}
 
 	outputSize = j.at("output size");
 
 	for (auto &layer_ : j.at("layers")) {
 		layersConfig.push_back(DenseLayerConfig(layer_));
 	}
+
 	outputActivation = (ActivationType)j.at("output activation");
 }
 
@@ -89,31 +97,21 @@ void DenseLayerConfig::fromJson(const nlohmann::json &j) {
 
 namespace cnn {
 
-CNNConfig::CNNConfig(const nlohmann::json &j) {
-	fromJson(j);
-}
-
-size_t CNNConfig::calculateOutputSize() const {
-	return (inputShape[0] - filterShape[0] + 1) * (inputShape[1] - filterShape[1] + 1) * filterShape[2];
-}
-
-void CNNConfig::fromJson(const nlohmann::json &j) {
-	for (auto i : j.at("input shape")) {
-		inputShape.push_back(i);
-	}
+CNNConfig::CNNConfig(const nlohmann::json &j, const size_t) {
+	inputShape = j.at("input shape").get<std::vector<size_t>>();
 
 	activation = j.at("output activation");
 
 	if (j.contains("filter shape")) {
-		size_t k = 0;
-		for (const auto &val : j.at("filter shape")) {
-			if (k < filterShape.size()) {
-				filterShape[k++] = val.get<size_t>();
-			}
-		}
+		filterShape = j.at("filter shape").get<std::vector<size_t>>();
 	}
 
-    outputSize = calculateOutputSize();
+	outputSize = calculateOutputSize();
+}
+
+size_t CNNConfig::calculateOutputSize() const {
+	return (inputShape[0] - filterShape[0] + 1) *
+	       (inputShape[1] - filterShape[1] + 1) * filterShape[2];
 }
 
 } // namespace cnn

@@ -6,6 +6,7 @@
 #include <memory>
 
 namespace nn::visualizer {
+
 constexpr std::uint32_t NN_WIDTH = 1055u;
 VisualRender::VisualRender(std::shared_ptr<StateManager> vstate)
     : Vstate(vstate),
@@ -96,7 +97,8 @@ void VisualRender::fullUpdate() {
 	Vgraph.setUpdate();
 }
 
-void VisualRender::doFrame(int &frameCount, int &batchCount, sf::Clock &fpsClock) {
+void VisualRender::doFrame(int &frameCount, int &batchCount,
+                           sf::Clock &fpsClock) {
 	processEvents();
 
 	if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
@@ -192,9 +194,11 @@ void VisualRender::updateLearningRate(const global::ValueType lr) {
 	statusV.updateLerningRate(lr);
 }
 
-void VisualRender::addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual) {
+void VisualRender::addVisualSubNetwork(
+    const std::shared_ptr<IVisualNetwork> newVisual) {
 	if (visualModel) {
 		visualModel->addVisualSubNetwork(newVisual);
 	}
 }
+
 } // namespace nn::visualizer
