@@ -1,5 +1,6 @@
 #include "dataBase.hpp"
 #include "ProgressBar.hpp"
+#include <cctype>
 #include <fstream>
 #include <iostream>
 
@@ -9,29 +10,91 @@ DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
 	rng = std::mt19937(std::random_device{}());
 }
 
-TrainSample DataBase::readLine(const std::string &line) {
-	std::istringstream iss(line);
+int DataBase::readLine(const std::string &line, TrainSample &sample) {
+	sample.pre.index = std::numeric_limits<size_t>::max();
 
-	std::string token;
-	iss >> token;
-	if (token == ("--")) {
-		return TrainSample();
+	size_t input_count = 0;
+
+	const char *ptr = line.c_str();
+	const char *end = ptr + line.size();
+
+	auto parse_double = [](const char *&p, const char *end) -> double {
+		double value = 0.0;
+		bool negative = false;
+		if (*p == '-') {
+			negative = true;
+			++p;
+		} else if (*p == '+') {
+			++p;
+		}
+
+		while (p < end && *p >= '0' && *p <= '9') {
+			value = value * 10.0 + (*p - '0');
+			++p;
+		}
+
+		if (p < end && *p == '.') {
+			++p;
+			double frac = 0.0, factor = 0.1;
+			while (p < end && *p >= '0' && *p <= '9') {
+				frac += (*p - '0') * factor;
+				factor *= 0.1;
+				++p;
+			}
+			value += frac;
+		}
+
+		return negative ? -value : value;
+	};
+
+	while (ptr < end) {
+		while (ptr < end && (*ptr == ' ' || *ptr == '\t' || *ptr == '\r' ||
+		                     *ptr == '\n')) {
+			++ptr;
+		}
+		if (ptr >= end) {
+			break;
+		}
+
+		if (*ptr == 'p') {
+			++ptr;
+			size_t idx = 0;
+
+			while (ptr < end && *ptr >= '0' && *ptr <= '9') {
+				idx = idx * 10 + (*ptr - '0');
+				++ptr;
+			}
+			sample.pre.index = idx;
+		} else if ((*ptr >= '0' && *ptr <= '9') || *ptr == '-' || *ptr == '+') {
+			if (input_count < tempData.size()) {
+				tempData[input_count++] = parse_double(ptr, end);
+			} else {
+				while (ptr < end && *ptr != ' ' && *ptr != '\t' &&
+				       *ptr != '\r' && *ptr != '\n') {
+					++ptr;
+				}
+			}
+		} else {
+			while (ptr < end && *ptr != ' ' && *ptr != '\t' && *ptr != '\r' &&
+			       *ptr != '\n') {
+				++ptr;
+			}
+		}
 	}
 
-	TrainSample new_sample(
-	    samples.status.sampleOutputSize,
-	    samples.status.sampleInputSize);
-
-	new_sample.pre.index = std::stoull(token);
-
-	std::vector<global::ValueType> data(new_sample.input.numElements());
-	for (size_t i = 0; i < samples.status.sampleInputSize; ++i) {
-		iss >> token;
-		data[i] = std::stod(token);
+	if (input_count != tempData.size()) {
+		std::cerr << "Error: expected " << tempData.size() << " inputs, got "
+		          << input_count << "\n";
+		return 1;
 	}
-	new_sample.input = data;
 
-	return new_sample;
+	if (sample.pre.index == std::numeric_limits<size_t>::max()) {
+		std::cerr << "Error: pre.index not set in line: " << line << "\n";
+		return 1;
+	}
+
+	sample.input = tempData;
+	return 0;
 }
 
 databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
@@ -42,10 +105,13 @@ databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
 	iss >> status.dataBaseSize;
 	iss >> status.sampleInputSize;
 
+	tempData.resize(status.sampleInputSize);
+
 	return status;
 }
 
 int DataBase::loadData(const std::string &db_filename) {
+	auto start = std::chrono::high_resolution_clock::now();
 	std::ifstream file(db_filename + DATABASE_FILE_EXETENTION);
 
 	if (!file.is_open()) {
@@ -57,23 +123,18 @@ int DataBase::loadData(const std::string &db_filename) {
 	getline(file, line);
 
 	samples.status = getDataBaseStatus(line);
-	samples.samples.reserve(samples.size() + samples.status.dataBaseSize);
+	samples.samples.resize(samples.size() + samples.status.dataBaseSize,
+	                       {samples.status.sampleOutputSize,
+	                        samples.status.sampleInputSize});
 
 	ProgressBar bar(samples.size(), LOADING_DB_MESSAGE + db_filename + DATABASE_FILE_EXETENTION);
 
+	size_t i = 0;
 	while (getline(file, line)) {
-		if (line.empty() ||
-		    line.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
+		if (line.empty() || line[0] == '-' || readLine(line, samples.samples[i])) {
 			continue;
 		}
-
-		TrainSample new_sample = readLine(line);
-		if (new_sample.input.numElements() == 0) {
-			continue;
-		}
-
-		samples.add(new_sample);
-
+		++i;
 		bar++;
 		bar.printBar();
 	}
@@ -90,6 +151,12 @@ int DataBase::loadData(const std::string &db_filename) {
 	iota(shuffled_indices.begin(), shuffled_indices.end(), 0);
 	generateBatches();
 
+	auto end = std::chrono::high_resolution_clock::now();
+
+	// Calculate duration
+	std::chrono::duration<double> elapsed = end - start;
+
+	std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
 	return 0;
 }
 

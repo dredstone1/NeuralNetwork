@@ -2,8 +2,10 @@
 #define DATABASE
 
 #include "config.hpp"
+#include "tensor_gpu.hpp"
 #include <Globals.hpp>
 #include <random>
+#include <vector>
 
 namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";
@@ -52,13 +54,16 @@ class DataBase {
 	std::vector<int> shuffled_indices;
 	std::mt19937 rng;
 
+	std::vector<global::ValueType> tempData;
+
 	const TrainingConfig &config;
 
 	databaseStatus getDataBaseStatus(const std::string &line);
 	std::vector<size_t> getDataBaseInputShape(const std::string &line);
-	TrainSample readLine(const std::string &line);
+	int readLine(const std::string &line, TrainSample &sample);
 	void generateBatches();
 
+	int readLineFast(const char *ptr, const char *end, TrainSample &sample);
 	int loadData(const std::string &db_filename);
 
   public:
