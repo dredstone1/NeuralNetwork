@@ -12,79 +12,74 @@ DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
 
 int DataBase::readLine(const std::string &line, TrainSample &sample) {
 	sample.pre.index = std::numeric_limits<size_t>::max();
-
 	size_t input_count = 0;
 
 	const char *ptr = line.c_str();
 	const char *end = ptr + line.size();
 
-	auto parse_double = [](const char *&p, const char *end) -> double {
-		double value = 0.0;
-		bool negative = false;
-		if (*p == '-') {
-			negative = true;
-			++p;
-		} else if (*p == '+') {
-			++p;
-		}
-
-		while (p < end && *p >= '0' && *p <= '9') {
-			value = value * 10.0 + (*p - '0');
-			++p;
-		}
-
-		if (p < end && *p == '.') {
-			++p;
-			double frac = 0.0, factor = 0.1;
-			while (p < end && *p >= '0' && *p <= '9') {
-				frac += (*p - '0') * factor;
-				factor *= 0.1;
-				++p;
-			}
-			value += frac;
-		}
-
-		return negative ? -value : value;
-	};
-
 	while (ptr < end) {
-		while (ptr < end && (*ptr == ' ' || *ptr == '\t' || *ptr == '\r' ||
-		                     *ptr == '\n')) {
+		// Skip whitespace
+		while (ptr < end && (*ptr == ' ' || *ptr == '\t' || *ptr == '\r' || *ptr == '\n')) {
 			++ptr;
 		}
-		if (ptr >= end) {
+		if (ptr >= end)
 			break;
-		}
 
 		if (*ptr == 'p') {
 			++ptr;
 			size_t idx = 0;
-
 			while (ptr < end && *ptr >= '0' && *ptr <= '9') {
 				idx = idx * 10 + (*ptr - '0');
 				++ptr;
 			}
 			sample.pre.index = idx;
 		} else if ((*ptr >= '0' && *ptr <= '9') || *ptr == '-' || *ptr == '+') {
+			// Parse number
+			double value = 0.0;
+			bool negative = false;
+			if (*ptr == '-') {
+				negative = true;
+				++ptr;
+			} else if (*ptr == '+') {
+				++ptr;
+			}
+
+			while (ptr < end && *ptr >= '0' && *ptr <= '9') {
+				value = value * 10.0 + (*ptr - '0');
+				++ptr;
+			}
+
+			if (ptr < end && *ptr == '.') {
+				++ptr;
+				double frac = 0.0, factor = 0.1;
+				while (ptr < end && *ptr >= '0' && *ptr <= '9') {
+					frac += (*ptr - '0') * factor;
+					factor *= 0.1;
+					++ptr;
+				}
+				value += frac;
+			}
+
+			value = negative ? -value : value;
+
 			if (input_count < tempData.size()) {
-				tempData[input_count++] = parse_double(ptr, end);
+				tempData[input_count++] = value;
 			} else {
-				while (ptr < end && *ptr != ' ' && *ptr != '\t' &&
-				       *ptr != '\r' && *ptr != '\n') {
+				// Skip remaining number if overflow
+				while (ptr < end && *ptr != ' ' && *ptr != '\t' && *ptr != '\r' && *ptr != '\n') {
 					++ptr;
 				}
 			}
 		} else {
-			while (ptr < end && *ptr != ' ' && *ptr != '\t' && *ptr != '\r' &&
-			       *ptr != '\n') {
+			// Skip unknown token
+			while (ptr < end && *ptr != ' ' && *ptr != '\t' && *ptr != '\r' && *ptr != '\n') {
 				++ptr;
 			}
 		}
 	}
 
 	if (input_count != tempData.size()) {
-		std::cerr << "Error: expected " << tempData.size() << " inputs, got "
-		          << input_count << "\n";
+		std::cerr << "Error: expected " << tempData.size() << " inputs, got " << input_count << "\n";
 		return 1;
 	}
 
@@ -111,9 +106,7 @@ databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
 }
 
 int DataBase::loadData(const std::string &db_filename) {
-	auto start = std::chrono::high_resolution_clock::now();
 	std::ifstream file(db_filename + DATABASE_FILE_EXETENTION);
-
 	if (!file.is_open()) {
 		std::cout << FILE_NOT_FOUND_MESSAGE << db_filename << std::endl;
 		return 1;
@@ -150,13 +143,6 @@ int DataBase::loadData(const std::string &db_filename) {
 	shuffled_indices.resize(samples.size());
 	iota(shuffled_indices.begin(), shuffled_indices.end(), 0);
 	generateBatches();
-
-	auto end = std::chrono::high_resolution_clock::now();
-
-	// Calculate duration
-	std::chrono::duration<double> elapsed = end - start;
-
-	std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
 	return 0;
 }
 
