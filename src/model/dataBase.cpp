@@ -71,27 +71,30 @@ int DataBase::readLine(const std::string &line, TrainSample &sample) {
 
 	while (ptr < end) {
 		skipWhitespace(ptr, end);
-		if (ptr >= end)
-			break;
-
-		if (*ptr == 'p') {
+		switch (*ptr) {
+		case 'p':
 			++ptr;
 			sample.pre.index = parseIndex(ptr, end);
-		} else if (*ptr == 'w') {
+			break;
+
+		case 'w':
 			++ptr;
 			sample.weight = parseIndex(ptr, end);
-		}
-		if ((*ptr >= '0' && *ptr <= '9') || *ptr == '-' || *ptr == '+') {
-			double value = parseNumber(ptr, end);
+			break;
 
-			if (input_count < tempData.size()) {
-				tempData[input_count++] = value;
+		default:
+			if ((*ptr >= '0' && *ptr <= '9') || *ptr == '-' || *ptr == '+') {
+				double value = parseNumber(ptr, end);
+
+				if (input_count < tempData.size()) {
+					tempData[input_count++] = value;
+				} else {
+					skipToken(ptr, end);
+				}
 			} else {
 				skipToken(ptr, end);
 			}
-
-		} else {
-			skipToken(ptr, end);
+			break;
 		}
 	}
 
