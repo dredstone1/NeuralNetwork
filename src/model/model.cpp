@@ -154,6 +154,7 @@ global::ValueType Model::runBackPropagation(
 			output.zero();
 			output.setValue(current_sample_ptr->pre.index, 1);
 			Backward(output);
+
 			updateWeights(batch.size());
 		}
 
@@ -308,7 +309,7 @@ modelResult Model::evaluateModel(
 
 	setEvaluating();
 
-	for (int i = 0; i < result.dbSize; ++i) {
+	for (size_t i = 0; i < result.dbSize; ++i) {
 		TrainSample &sample = dataBase.getSample(i);
 
 		runModel(sample.input, transformation);
@@ -321,7 +322,7 @@ modelResult Model::evaluateModel(
 		}
 
 		if (predicted_index == sample.pre.index) {
-			result.currectPreSize++;
+			++result.currectPreSize;
 		} else if (cancleOnError) {
 			break;
 		}
@@ -339,8 +340,8 @@ modelResult Model::evaluateModel(
 
 modelResult Model::evaluateModel(
     const std::vector<std::string> &db_filenames,
-    const bool cancleOnError,
-    global::Transformation transformation) {
+    global::Transformation transformation,
+    const bool cancleOnError) {
 	DataBase dataBase(config.trainingConfig);
 	dataBase.load(db_filenames);
 	return evaluateModel(dataBase, cancleOnError, true, transformation);

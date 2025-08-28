@@ -29,17 +29,11 @@ struct databaseStatus {
 struct Samples {
 	databaseStatus status;
 	std::vector<TrainSample> samples;
-
-	Samples() {}
-	~Samples() = default;
-
-	size_t size() const { return status.dataBaseSize; }
-	void add(TrainSample sample) { samples.push_back(sample); }
 };
 
 struct Batch {
 	std::vector<TrainSample *> samples;
-	Batch(const int length) { samples.resize(length, nullptr); }
+	Batch(const size_t length) { samples.resize(length, nullptr); }
 	~Batch() = default;
 	size_t size() const { return samples.size(); }
 };
@@ -49,9 +43,8 @@ class DataBase {
 	Samples samples;
 	std::vector<Batch> batches;
 	size_t currentBatch;
-	std::vector<int> shuffled_indices;
+	std::vector<size_t> shuffled_indices;
 	std::mt19937 rng;
-
 	std::vector<global::ValueType> tempData;
 
 	const TrainingConfig &config;
@@ -69,7 +62,7 @@ class DataBase {
 	void load(const std::vector<std::string> &db_filenames);
 	TrainSample &getSample(const int i) { return samples.samples[i]; }
 
-	size_t DataBaseLength() const { return samples.size(); }
+	size_t DataBaseLength() const { return samples.status.dataBaseSize; }
 	Batch &getBatch();
 };
 } // namespace nn::model

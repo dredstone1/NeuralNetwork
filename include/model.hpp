@@ -17,8 +17,8 @@ const std::string SAVING_DATA_HEADER = "Saving parameters from: ";
 const std::string LOADING_DATA_HEADER = "Loading parameters from: ";
 
 struct modelResult {
-	int dbSize;
-	int currectPreSize;
+	size_t dbSize;
+	size_t currectPreSize;
 	float percentage;
 };
 
@@ -95,8 +95,8 @@ class Model {
 	    global::Transformation transformationE = nullptr);
 	modelResult evaluateModel(
 	    const std::vector<std::string> &db_filename,
-	    const bool cancleOnError = false,
-	    global::Transformation transformation = nullptr);
+	    global::Transformation transformation = nullptr,
+	    const bool cancleOnError = false);
 
 	void save(const std::string &file, const bool print = true);
 	void load(const std::string &file, const bool print = true);

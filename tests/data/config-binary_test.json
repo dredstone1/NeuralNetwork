@@ -1,7 +1,7 @@
 {
 	"visual config": {
 		"enable visual": true,
-		"enable network visual": false,
+		"enable network visual": true,
 		"modes": [
 			{ "state": "pause", "mode": false },
 			{ "state": "precise mode", "mode": false },
@@ -9,14 +9,14 @@
 		]
 	},
 	"training config": {
-		"batch size": 64,
+		"batch size": 10,
 		"batch count": 10000,
 		"auto save": {
 			"saveEvery": 1000,
 			"dataFilenameAutoSave": "test.txt"
 		},
 		"auto evaluating": {
-			"dataBaseFilename": "../tests/data/database-binary_test"
+			"dataBaseFilename": ["../tests/data/database-binary_test"]
 		},
 		"optimizer": {
 			"type": "const",
@@ -29,12 +29,7 @@
 			"input size": 10,
 			"output size": 16,
 			"output activation": 4,
-			"layers": [
-				{ "size": 500, "activationType": 1 },
-				{ "size": 500, "activationType": 1 },
-				{ "size": 500, "activationType": 1 },
-				{ "size": 500, "activationType": 1 }
-			]
+			"layers": [{ "size": 50, "activationType": 1 }]
 		}
 	]
 }
