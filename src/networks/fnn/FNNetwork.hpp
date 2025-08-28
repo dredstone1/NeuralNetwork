@@ -28,7 +28,7 @@ class FNNetwork : public INetwork {
 	~FNNetwork() override = default;
 
 	void forward(const global::Tensor &newInput) override;
-	void backward(global::Tensor **outputDeltas) override;
+	void backward(global::Tensor **outputDeltas, const global::ValueType weight) override;
 	void updateWeights(IOptimizer &optimizer) override;
 	void resetGradient() override;
 

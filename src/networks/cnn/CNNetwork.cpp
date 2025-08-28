@@ -102,7 +102,8 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	activationFunction.activate(activationMapN, activationMapO);
 }
 
-void CNNetwork::backward(global::Tensor **outputDeltas) {
+void CNNetwork::backward(global::Tensor **outputDeltas,
+                         const global::ValueType weight) {
 	if (!outputDeltas || !*outputDeltas) {
 		return;
 	}
@@ -119,7 +120,7 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 		    input.gpu_data, activationDelta.gpu_data, filtersWGradient.gpu_data,
 		    input.getShape()[0], input.getShape()[1], config.filterShape[2],
 		    config.filterShape[0],
-		    featureMapSize.h, featureMapSize.w, input.getShape()[2]);
+		    featureMapSize.h, featureMapSize.w, input.getShape()[2], weight);
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_data(
 		    activationDelta.gpu_data, filtersW.gpu_data, filtersB.gpu_data,
@@ -129,10 +130,10 @@ void CNNetwork::backward(global::Tensor **outputDeltas) {
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_bias(
 		    activationDelta.gpu_data, filtersBGradient.gpu_data,
-		    featureMapSize.h, featureMapSize.w, config.filterShape[2]);
+		    featureMapSize.h, featureMapSize.w, config.filterShape[2], weight);
 	} else {
-		calculateFilterGradients();
-		calculateBiasGradients();
+		calculateFilterGradients(weight);
+		calculateBiasGradients(weight);
 
 		calculateInputDelta(activationDelta);
 	}
@@ -168,7 +169,7 @@ void CNNetwork::updateWeights(IOptimizer &optimizer) {
 	optimizer.step(filtersB, filtersBGradient);
 }
 
-void CNNetwork::calculateFilterGradients() {
+void CNNetwork::calculateFilterGradients(const global::ValueType weight) {
 	Size size = getFeatureMapSize();
 
 	size_t filterCount = config.filterShape[2];
@@ -188,7 +189,7 @@ void CNNetwork::calculateFilterGradients() {
 							    input.getValue({x + i, y + j, c});
 							global::ValueType deltaValue =
 							    activationDelta.getValue({x, y, f});
-							gradient += inputValue * deltaValue;
+							gradient += inputValue * deltaValue * weight;
 						}
 					}
 
@@ -199,7 +200,7 @@ void CNNetwork::calculateFilterGradients() {
 	}
 }
 
-void CNNetwork::calculateBiasGradients() {
+void CNNetwork::calculateBiasGradients(const global::ValueType weight) {
 	Size size = getFeatureMapSize();
 	size_t filterCount = config.filterShape[2];
 
@@ -208,7 +209,7 @@ void CNNetwork::calculateBiasGradients() {
 
 		for (size_t x = 0; x < size.w; ++x) {
 			for (size_t y = 0; y < size.h; ++y) {
-				biasGradient += activationDelta.getValue({x, y, f});
+				biasGradient += activationDelta.getValue({x, y, f}) * weight;
 			}
 		}
 

@@ -30,8 +30,8 @@ class CNNetwork : public INetwork {
 	Activation activationFunction;
 
 	void calculateInputDelta(const global::Tensor &deltas);
-	void calculateFilterGradients();
-	void calculateBiasGradients();
+	void calculateFilterGradients(const global::ValueType weight);
+	void calculateBiasGradients(const global::ValueType weight);
 	void initializeParameters();
 
 	const std::shared_ptr<visualizer::cnn::CnnVisualier> visual;
@@ -53,7 +53,8 @@ class CNNetwork : public INetwork {
 	~CNNetwork() override = default;
 
 	void forward(const global::Tensor &newInput) override;
-	void backward(global::Tensor **outputDeltas) override;
+	void backward(global::Tensor **outputDeltas,
+	              const global::ValueType weight) override;
 	void updateWeights(IOptimizer &optimizer) override;
 	void resetGradient() override;
 

@@ -954,7 +954,8 @@ __global__ void conv2d_multi_channel_backward_filterKernel(
     const ValueType *input,
     const ValueType *deltas,
     ValueType *filterGradient,
-    int H_in, int W_in, int F, int K, int H_out, int W_out, int C) {
+    int H_in, int W_in, int F, int K, int H_out, int W_out, int C,
+    const ValueType weight) {
 	int f = blockIdx.z;
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -976,7 +977,7 @@ __global__ void conv2d_multi_channel_backward_filterKernel(
 				}
 			}
 		}
-		filterGradient[f * K * K * C + i * K * C + j * C + c] = gradient_sum;
+		filterGradient[f * K * K * C + i * K * C + j * C + c] = gradient_sum * weight;
 	}
 }
 
@@ -984,7 +985,8 @@ void conv2d_multi_channel_backward_filter(
     const ValueType *input,
     const ValueType *deltas,
     ValueType *filterGradient,
-    int H_in, int W_in, int F, int K, int H_out, int W_out, int C) {
+    int H_in, int W_in, int F, int K, int H_out, int W_out, int C,
+    const ValueType weight) {
 	dim3 blockSize(16, 16);
 	dim3 gridSize(
 	    (K + blockSize.x - 1) / blockSize.x,
@@ -993,14 +995,15 @@ void conv2d_multi_channel_backward_filter(
 
 	conv2d_multi_channel_backward_filterKernel<<<gridSize, blockSize>>>(
 	    input, deltas, filterGradient,
-	    H_in, W_in, F, K, H_out, W_out, C);
+	    H_in, W_in, F, K, H_out, W_out, C, weight);
 	CUDA_CHECK(cudaGetLastError());
 }
 
 __global__ void conv2d_multi_channel_backward_biasKernel(
     const ValueType *deltas,
     ValueType *biasGradient,
-    int H_out, int W_out, int F) {
+    int H_out, int W_out, int F,
+    const ValueType weight) {
 	int f = blockIdx.x;
 
 	if (f >= F) {
@@ -1014,18 +1017,19 @@ __global__ void conv2d_multi_channel_backward_biasKernel(
 			bias_gradient += deltas[delta_idx];
 		}
 	}
-	biasGradient[f] = bias_gradient;
+	biasGradient[f] = bias_gradient * weight;
 }
 
 void conv2d_multi_channel_backward_bias(
     const ValueType *deltas,
     ValueType *biasGradient,
-    int H_out, int W_out, int F) {
+    int H_out, int W_out, int F,
+    const ValueType weight) {
 	dim3 blockSize(256);
 	dim3 gridSize((F + blockSize.x - 1) / blockSize.x);
 
 	conv2d_multi_channel_backward_biasKernel<<<gridSize, blockSize>>>(
-	    deltas, biasGradient, H_out, W_out, F);
+	    deltas, biasGradient, H_out, W_out, F, weight);
 	CUDA_CHECK(cudaGetLastError());
 }
 

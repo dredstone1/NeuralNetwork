@@ -2,6 +2,7 @@
 #define DATABASE
 
 #include "config.hpp"
+#include "tensor_gpu.hpp"
 #include <Globals.hpp>
 #include <random>
 
@@ -14,6 +15,7 @@ const std::string FILE_NOT_FOUND_MESSAGE = "File not found: ";
 struct TrainSample {
 	global::Prediction pre;
 	global::Tensor input;
+    global::ValueType weight{1};
 
 	TrainSample(const size_t sampleOutputSize, const size_t sampleInputSize)
 	    : pre(sampleOutputSize, 0), input({sampleInputSize}, 0) {}

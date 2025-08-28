@@ -123,11 +123,11 @@ void Model::updateWeights(const int batchSize) {
 	}
 }
 
-void Model::Backward(global::Tensor &output) {
+void Model::Backward(global::Tensor &output, const global::ValueType weight) {
 	global::Tensor *delta = &output;
 
 	for (int i = static_cast<int>(network.size()) - 1; i >= 0; --i) {
-		network[i]->backward(&delta);
+		network[i]->backward(&delta, weight);
 		delta = network[i]->getInput();
 	}
 }
@@ -153,12 +153,14 @@ global::ValueType Model::runBackPropagation(
 		if (doBackward) {
 			output.zero();
 			output.setValue(current_sample_ptr->pre.index, 1);
-			Backward(output);
-
-			updateWeights(batch.size());
+			Backward(output, current_sample_ptr->weight);
 		}
 
 		error += getLoss(current_sample_ptr->pre);
+	}
+
+	if (doBackward) {
+		updateWeights(batch.size());
 	}
 
 	return error / batch.size();

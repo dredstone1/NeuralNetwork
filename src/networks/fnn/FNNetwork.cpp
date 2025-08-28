@@ -14,9 +14,7 @@ FNNetwork::FNNetwork(
 	for (; i < _config.layersConfig.size(); ++i) {
 		layers.push_back(std::make_unique<Hidden_Layer>(
 		    _config.layersConfig[i], prevSize_, randomInit));
-
 		prevSize_ = _config.layersConfig[i].size;
-
 		sendNewVData(i);
 	}
 
@@ -68,19 +66,18 @@ void FNNetwork::vUpdate() {
 	visual->attempPause();
 }
 
-void FNNetwork::backward(global::Tensor **outputDeltas) {
+void FNNetwork::backward(global::Tensor **outputDeltas, const global::ValueType weight) {
 	resetGradient();
 
 	layers.back()
-	    ->backward(outputDeltas, layers[layers.size() - 2]->getOut());
+	    ->backward(outputDeltas, layers[layers.size() - 2]->getOut(), weight);
 
-	if (visual) {
+	if (visual)
 		visual->setGrad(layers.size() - 1, layers[layers.size() - 1]->getGrad());
-	}
 
 	for (int i = static_cast<int>(layers.size()) - 2; i >= 0; --i) {
 		const global::Tensor &prev = (i == 0) ? input : layers[i - 1]->getOut();
-		layers[i]->backward(outputDeltas, prev, &layers[i + 1]->getParms());
+		layers[i]->backward(outputDeltas, prev, weight, &layers[i + 1]->getParms());
 
 		if (visual) {
 			visual->setGrad(i, layers[i]->getGrad());

@@ -53,6 +53,7 @@ class DenseLayer {
 	virtual void backward(
 	    global::Tensor **deltas,
 	    const global::Tensor &prevLayer,
+	    const global::ValueType weight,
 	    const LayerParams *nextLayer = nullptr) = 0;
 	virtual global::ValueType getLoss(const global::Prediction &) { return 0; };
 
@@ -101,6 +102,7 @@ class Hidden_Layer : public DenseLayer {
 	void backward(
 	    global::Tensor **deltas,
 	    const global::Tensor &prevLayer,
+	    const global::ValueType weight,
 	    const LayerParams *nextLayer) override;
 };
 
@@ -130,6 +132,7 @@ class Output_Layer : public DenseLayer {
 	void backward(
 	    global::Tensor **deltas,
 	    const global::Tensor &prevLayer,
+	    const global::ValueType weight,
 	    const LayerParams *) override;
 
 	global::ValueType getLoss(const global::Prediction &index) override;

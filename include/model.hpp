@@ -33,7 +33,7 @@ class Model {
 	std::unique_ptr<IOptimizer> optimizer;
 
 	void Forword(const global::Tensor &input, const int modelIndex);
-	void Backward(global::Tensor &output);
+	void Backward(global::Tensor &output, const global::ValueType weight);
 	void updateWeights(const int batch_size);
 	void resetNetworkGradient();
 	global::ValueType getLoss(const global::Prediction &pre);

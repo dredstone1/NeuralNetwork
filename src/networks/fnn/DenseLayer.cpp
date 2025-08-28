@@ -51,6 +51,7 @@ void Output_Layer::getDelta(const global::Tensor &output) {
 void Output_Layer::backward(
     global::Tensor **deltas,
     const global::Tensor &prevLayer,
+    const global::ValueType weight,
     const LayerParams *) {
 	if (activationFunction.getType() == ActivationType::Softmax) {
 		getDelta(**deltas);
@@ -58,6 +59,8 @@ void Output_Layer::backward(
 		activationFunction.derivativeActivate(out, **deltas);
 		deltaL = **deltas;
 	}
+
+	deltaL *= weight;
 
 	gradients.biases += deltaL;
 	global::Tensor::outer(deltaL, prevLayer, gradients.weights);
@@ -92,6 +95,7 @@ void Hidden_Layer::forward(const global::Tensor &metrix) {
 void Hidden_Layer::backward(
     global::Tensor **deltas,
     const global::Tensor &prevLayer,
+    const global::ValueType weight,
     const LayerParams *nextLayer) {
 
 	if (!nextLayer)
@@ -102,6 +106,8 @@ void Hidden_Layer::backward(
 	if (isTraining && config.dropoutRate) {
 		deltaL *= dropoutMask;
 	}
+
+	deltaL *= weight;
 
 	gradients.biases += deltaL;
 
