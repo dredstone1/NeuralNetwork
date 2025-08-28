@@ -38,7 +38,7 @@ class StatusPanel : public Panel {
 	sf::RenderTexture VRender;
 	float fps;
 	float batchPerSecond;
-	global::ValueType learningRate;
+	global::ValueType learningRate{-1};
 
 	std::string getText();
 	void display();

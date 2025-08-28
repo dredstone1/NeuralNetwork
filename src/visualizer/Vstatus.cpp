@@ -51,9 +51,13 @@ std::string StatusPanel::getText() {
 	   << TextLabels::CURRENT_PHASE_TEXT << NNmodeName[(int)vstate->nnMode.load()] << "\n"
 	   << TextLabels::ALGORITHM_MODE_TEXT << algorithmName[(int)vstate->algorithmMode.load()] << "\n"
 	   << TextLabels::CURRENT_BATCH_TEXT << currentBatch << "/" << totalBatches << " #" << batchPerSecond << "\n"
-	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.getBatchSize() << "\n"
-	   << TextLabels::LEARNING_RATE_TEXT << learningRate << "\n"
-	   << "Time Left: "
+	   << TextLabels::BATCH_SIZE_TEXT << vstate->config.trainingConfig.getBatchSize() << "\n";
+	if (learningRate < 0) {
+		ss << TextLabels::LEARNING_RATE_TEXT << "nan" << "\n";
+	} else {
+		ss << TextLabels::LEARNING_RATE_TEXT << learningRate << "\n";
+	}
+	ss << "Time Left: "
 	   << std::setw(2) << std::setfill('0') << hours << ":"
 	   << std::setw(2) << std::setfill('0') << minutes << ":"
 	   << std::setw(2) << std::setfill('0') << seconds;
