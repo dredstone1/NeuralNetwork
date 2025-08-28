@@ -1,6 +1,5 @@
 #include "dataBase.hpp"
 #include "ProgressBar.hpp"
-#include <cctype>
 #include <fstream>
 #include <iostream>
 
@@ -79,13 +78,12 @@ int DataBase::readLine(const std::string &line, TrainSample &sample) {
 	}
 
 	if (input_count != tempData.size()) {
-		std::cerr << "Error: expected " << tempData.size() << " inputs, got " << input_count << "\n";
-		return 1;
+		throw std::runtime_error("Expected " + std::to_string(tempData.size()) +
+		                         " inputs, got " + std::to_string(input_count));
 	}
 
 	if (sample.pre.index == std::numeric_limits<size_t>::max()) {
-		std::cerr << "Error: pre.index not set in line: " << line << "\n";
-		return 1;
+		throw std::runtime_error("Missing pre.index in line: " + line);
 	}
 
 	sample.input = tempData;
@@ -116,49 +114,66 @@ int DataBase::loadData(const std::string &db_filename) {
 	getline(file, line);
 
 	samples.status = getDataBaseStatus(line);
+	size_t i = samples.size();
 	samples.samples.resize(samples.size() + samples.status.dataBaseSize,
 	                       {samples.status.sampleOutputSize,
 	                        samples.status.sampleInputSize});
 
-	ProgressBar bar(samples.size(), LOADING_DB_MESSAGE + db_filename + DATABASE_FILE_EXETENTION);
+	const auto HEADER = LOADING_DB_MESSAGE + db_filename +
+	                    DATABASE_FILE_EXETENTION;
+	ProgressBar bar(samples.size(), HEADER);
 
-	size_t i = 0;
 	while (getline(file, line)) {
-		if (line.empty() || line[0] == '-' || readLine(line, samples.samples[i])) {
+		if (line.empty() || line[0] == '-') {
 			continue;
 		}
-		++i;
-		bar++;
-		bar.printBar();
-	}
-
-	if (samples.samples.capacity() > samples.size()) {
-		samples.samples.shrink_to_fit();
-		samples.status.dataBaseSize = samples.samples.size();
-	}
-	bar.endPrint();
-
-	file.close();
-
-	shuffled_indices.resize(samples.size());
-	iota(shuffled_indices.begin(), shuffled_indices.end(), 0);
-	generateBatches();
-	return 0;
-}
-
-int DataBase::load(const std::string &db_filenames) {
-	return loadData(db_filenames);
-	std::cout << "Loaded " << samples.size() << " samples." << std::endl;
-}
-
-int DataBase::load(const std::vector<std::string> &db_filenames) {
-	for (auto name : db_filenames) {
-		if (loadData(name)) {
-			return 1;
+		try {
+			readLine(line, samples.samples[i]);
+			++i;
+			++bar;
+			bar.printBar();
+		} catch (const std::exception &e) {
+			std::cerr << "Skipping invalid line " << i << ": " << e.what() << "\n";
+			continue;
 		}
 	}
-	std::cout << "Loaded " << samples.size() << " samples." << std::endl;
+
+	if (samples.samples.size() > i) {
+		samples.samples.resize(i);
+		samples.status.dataBaseSize = samples.samples.size();
+	}
+
+	bar.endPrint();
+	file.close();
 	return 0;
+}
+
+void DataBase::load(const std::vector<std::string> &db_filenames) {
+	std::vector<std::string> errors;
+
+	for (const auto &name : db_filenames) {
+		try {
+			loadData(name);
+		} catch (const std::exception &e) {
+			errors.emplace_back("Failed to load " + name + ": " + e.what());
+		}
+	}
+
+	if (!errors.empty()) {
+		std::ostringstream oss;
+		oss << "Database load encountered " << errors.size() << " error(s):\n";
+		for (const auto &msg : errors) {
+			oss << "  - " << msg << "\n";
+		}
+		throw std::runtime_error(oss.str());
+	}
+
+	samples.samples.shrink_to_fit();
+	shuffled_indices.resize(samples.size());
+	std::iota(shuffled_indices.begin(), shuffled_indices.end(), 0);
+	generateBatches();
+
+	std::cout << "Loaded " << samples.size() << " samples." << std::endl;
 }
 
 void DataBase::generateBatches() {

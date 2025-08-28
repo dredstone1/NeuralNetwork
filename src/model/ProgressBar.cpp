@@ -37,12 +37,17 @@ void ProgressBar::endPrint() {
 	std::cout << std::endl;
 }
 
-ProgressBar ProgressBar::operator++(int) {
-	ProgressBar temp = *this;
+ProgressBar &ProgressBar::operator++() {
 	++current;
 	if (current > total) {
 		current = total;
 	}
+	return *this;
+}
+
+ProgressBar ProgressBar::operator++(int) {
+	ProgressBar temp = *this;
+	++(*this);
 	return temp;
 }
 
@@ -53,11 +58,6 @@ ProgressBar ProgressBar::operator=(int value) {
 		current = total;
 	}
 	return temp;
-}
-
-void ProgressBar::reset() {
-	current = 0;
-	last_percentage = -1;
 }
 
 }; // namespace nn

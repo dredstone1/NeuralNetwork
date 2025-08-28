@@ -1,12 +1,12 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
-#include "tensor.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
 
 namespace nn::model {
+
 Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       visual(config),
@@ -73,34 +73,31 @@ void Model::initModel() {
 
 void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	fnn::FNNConfig &sub_ = (fnn::FNNConfig &)(_config);
+	std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = nullptr;
 
-	if (config.visualConfig.enableVisuals && config.visualConfig.enableNetwrokVisual) {
-		std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ =
-		    std::make_shared<visualizer::fnn::FnnVisualier>(
-		        visual.Vstate,
-		        width,
-		        sub_);
-
-		network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
-	} else {
-		network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true));
+	if (shouldRenderNet()) {
+		visual_ = std::make_shared<visualizer::fnn::FnnVisualier>(
+		    visual.Vstate, width, sub_);
 	}
+
+	network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
 }
 
 void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	cnn::CNNConfig &sub_ = (cnn::CNNConfig &)(_config);
+	std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ = nullptr;
 
-	if (config.visualConfig.enableVisuals && config.visualConfig.enableNetwrokVisual) {
-		std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ =
-		    std::make_shared<visualizer::cnn::CnnVisualier>(
-		        visual.Vstate,
-		        width,
-		        sub_);
-
-		network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true, visual_));
-	} else {
-		network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true));
+	if (shouldRenderNet()) {
+		visual_ = std::make_shared<visualizer::cnn::CnnVisualier>(
+		    visual.Vstate, width, sub_);
 	}
+
+	network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true, visual_));
+}
+
+bool Model::shouldRenderNet() const {
+	return config.visualConfig.enableVisuals &&
+	       config.visualConfig.enableNetwrokVisual;
 }
 
 void Model::runModel(const global::Tensor &input) {
@@ -177,28 +174,11 @@ void Model::printTrainingResult(
 	const auto minutes = total_seconds / 60;
 	const auto seconds = total_seconds % 60;
 
-	std::cout << "Training Done!\n";
-	std::cout << "Training time: " << minutes << " minutes "
+	std::cout << "Training Done!\n"
+	          << "Training time: " << minutes << " minutes "
 	          << seconds << " seconds ("
-	          << duration_ms.count() << " ms)\n";
-	std::cout << "Final score: " << error << "\n";
-}
-
-void Model::train(
-    const std::string &db_filename, global::Transformation transformationB,
-    global::Transformation transformationE) {
-	DataBase trainedDataBase(config.trainingConfig);
-	DataBase evaluateDataBase(config.trainingConfig);
-
-	if (config.trainingConfig.isAutoEvaluating()) {
-		evaluateDataBase.load(
-		    config.trainingConfig.getAutoEvaluating().dataBaseFilename);
-	}
-
-	trainedDataBase.load(db_filename);
-
-	trainModel(trainedDataBase, evaluateDataBase, transformationB,
-	           transformationE);
+	          << duration_ms.count() << " ms)\n"
+	          << "Final score: " << error << "\n";
 }
 
 void Model::train(
@@ -208,15 +188,23 @@ void Model::train(
 	DataBase trainedDataBase(config.trainingConfig);
 	DataBase evaluateDataBase(config.trainingConfig);
 
-	if (config.trainingConfig.isAutoEvaluating()) {
-		evaluateDataBase.load(
-		    config.trainingConfig.getAutoEvaluating().dataBaseFilename);
+	try {
+		if (config.trainingConfig.isAutoEvaluating()) {
+			try {
+				evaluateDataBase.load(
+				    config.trainingConfig.getAutoEvaluating().dataBaseFilename);
+			} catch (const std::exception &e) {
+				std::cerr << "Warning: failed to load evaluation DB: " << e.what() << std::endl;
+			}
+		}
+
+		trainedDataBase.load(db_filename);
+
+		trainModel(trainedDataBase, evaluateDataBase, transformationB, transformationE);
+	} catch (const std::exception &e) {
+		std::cerr << "Training failed: " << e.what() << std::endl;
+		throw;
 	}
-
-	trainedDataBase.load(db_filename);
-
-	trainModel(trainedDataBase, evaluateDataBase, transformationB,
-	           transformationE);
 }
 
 bool Model::autoEvaluating(
@@ -265,7 +253,7 @@ void Model::trainModel(
 	visual.updateLearningRate(learningRate);
 	setTraining();
 	for (size_t i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
-		bar++;
+		++bar;
 		bar.printBar();
 
 		visual.updateBatchCounter(i);
@@ -328,7 +316,7 @@ modelResult Model::evaluateModel(
 		size_t predicted_index = Activation::getMaxElementIndex(getOutput());
 
 		if (showProgressbar) {
-			bar++;
+			++bar;
 			bar.printBar();
 		}
 
@@ -345,17 +333,16 @@ modelResult Model::evaluateModel(
 
 	result.percentage = calculatePercentage(result.currectPreSize,
 	                                        result.dbSize);
-
 	setNormal();
 	return result;
 }
 
 modelResult Model::evaluateModel(
-    const std::string &db_filename,
+    const std::vector<std::string> &db_filenames,
     const bool cancleOnError,
     global::Transformation transformation) {
 	DataBase dataBase(config.trainingConfig);
-	dataBase.load(db_filename);
+	dataBase.load(db_filenames);
 	return evaluateModel(dataBase, cancleOnError, true, transformation);
 }
 
@@ -398,24 +385,33 @@ void Model::save(const std::string &file, const bool print) {
 	outFile.close();
 }
 
-void Model::load(const std::string &file, const bool print) {
+void Model::load(const std::string &file, bool print) {
 	std::ifstream inFile(file);
+	if (!inFile.is_open()) {
+		throw std::runtime_error("Could not open file: " + file);
+	}
 
 	std::string line;
 	int networkI = 0;
-
 	ProgressBar bar(network.size(), LOADING_DATA_HEADER + file);
 
 	while (std::getline(inFile, line)) {
+		if (networkI >= static_cast<int>(network.size())) {
+			throw std::runtime_error("File contains more layers than expected.");
+		}
+
 		std::istringstream iss(line);
-
 		size_t ParamSize;
-		iss >> ParamSize;
-		std::vector<global::ValueType> numbers(ParamSize);
+		if (!(iss >> ParamSize)) {
+			throw std::runtime_error("Invalid parameter size at line " + std::to_string(networkI + 1));
+		}
 
-		float num;
+		std::vector<global::ValueType> numbers(ParamSize);
 		for (size_t i = 0; i < ParamSize; ++i) {
-			iss >> num;
+			float num;
+			if (!(iss >> num)) {
+				throw std::runtime_error("Invalid param value at line " + std::to_string(networkI + 1) + ", param " + std::to_string(i + 1));
+			}
 			numbers[i] = num;
 		}
 
@@ -426,15 +422,18 @@ void Model::load(const std::string &file, const bool print) {
 
 		if (print) {
 			bar.printBar();
-			bar++;
+			++bar;
 		}
+	}
+
+	if (networkI < static_cast<int>(network.size())) {
+		throw std::runtime_error("File ended prematurely. Expected " +
+		                         std::to_string(network.size()) + " layers, got " + std::to_string(networkI));
 	}
 
 	if (print) {
 		bar.endPrint();
 	}
-
-	inFile.close();
 }
 
 global::Prediction Model::getPrediction() const {
@@ -475,4 +474,5 @@ std::vector<global::ValueType> Model::getOut() const {
 	getOutput().getData(temp);
 	return temp;
 }
+
 } // namespace nn::model

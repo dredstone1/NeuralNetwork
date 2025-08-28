@@ -2,10 +2,8 @@
 #define DATABASE
 
 #include "config.hpp"
-#include "tensor_gpu.hpp"
 #include <Globals.hpp>
 #include <random>
-#include <vector>
 
 namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";
@@ -62,16 +60,13 @@ class DataBase {
 	std::vector<size_t> getDataBaseInputShape(const std::string &line);
 	int readLine(const std::string &line, TrainSample &sample);
 	void generateBatches();
-
-	int readLineFast(const char *ptr, const char *end, TrainSample &sample);
 	int loadData(const std::string &db_filename);
 
   public:
 	DataBase(const TrainingConfig &config);
 	~DataBase() = default;
 
-	int load(const std::string &db_filename);
-	int load(const std::vector<std::string> &db_filenames);
+	void load(const std::vector<std::string> &db_filenames);
 	TrainSample &getSample(const int i) { return samples.samples[i]; }
 
 	size_t DataBaseLength() const { return samples.size(); }

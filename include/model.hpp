@@ -7,6 +7,7 @@
 #include <network/INetwork.hpp>
 
 namespace nn::model {
+
 constexpr int SECONDS_IN_MINUTE = 60;
 
 const std::string TRAINING_HEADER = "Training Model";
@@ -49,6 +50,8 @@ class Model {
 	void initVisual();
 	void initOptimizer();
 
+	bool shouldRenderNet() const;
+
 	float calculatePercentage(size_t currentSize, size_t totalSize);
 
 	modelResult evaluateModel(
@@ -87,15 +90,11 @@ class Model {
 
 	void runModel(const global::Tensor &input);
 	void train(
-	    const std::string &db_filename,
-	    global::Transformation transformationB = nullptr,
-	    global::Transformation transformationE = nullptr);
-	void train(
 	    const std::vector<std::string> &db_filename,
 	    global::Transformation transformationB = nullptr,
 	    global::Transformation transformationE = nullptr);
 	modelResult evaluateModel(
-	    const std::string &db_filename,
+	    const std::vector<std::string> &db_filename,
 	    const bool cancleOnError = false,
 	    global::Transformation transformation = nullptr);
 
@@ -105,6 +104,7 @@ class Model {
 	global::Prediction getPrediction() const;
 	std::vector<global::ValueType> getOut() const;
 };
+
 } // namespace nn::model
 
 #endif // MODEL
