@@ -1,5 +1,5 @@
-#include "dataBase.hpp"
 #include "ProgressBar.hpp"
+#include <dataBase.hpp>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -60,7 +60,7 @@ inline void skipToken(const char *&ptr, const char *end) {
 	}
 }
 
-int DataBase::readLine(const std::string &line, TrainSample &sample) {
+void DataBase::readLine(const std::string &line, TrainSample &sample) {
 	sample.pre.index = std::numeric_limits<size_t>::max();
 	size_t input_count = 0;
 
@@ -105,7 +105,6 @@ int DataBase::readLine(const std::string &line, TrainSample &sample) {
 	}
 
 	sample.input = tempData;
-	return 0;
 }
 
 databaseStatus DataBase::getDataBaseStatus(const std::string &line) {

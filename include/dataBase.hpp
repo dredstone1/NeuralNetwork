@@ -10,43 +10,87 @@ const std::string DATABASE_FILE_EXETENTION = ".nndb";
 const std::string LOADING_DB_MESSAGE = "Loading DataBase: ";
 const std::string FILE_NOT_FOUND_MESSAGE = "File not found: ";
 
+/**
+ * @brief Represents a single training sample in the dataset.
+ *
+ * A training sample consists of:
+ * - The expected prediction (label/output).
+ * - The input tensor (features).
+ * - An optional weight (useful for weighted training).
+ */
 struct TrainSample {
-	global::Prediction pre;
-	global::Tensor input;
-	global::ValueType weight{1};
+	global::Prediction pre;      ///< Expected output (labels/predictions).
+	global::Tensor input;        ///< Input features for the sample.
+	global::ValueType weight{1}; ///< Sample weight (default = 1).
 
+	/**
+	 * @brief Construct a training sample with given input/output sizes.
+	 * @param sampleOutputSize Number of expected output values.
+	 * @param sampleInputSize  Number of input features.
+	 */
 	TrainSample(const size_t sampleOutputSize, const size_t sampleInputSize)
 	    : pre(sampleOutputSize, 0), input({sampleInputSize}, 0) {}
+
+	/**
+	 * @brief Construct an empty training sample (zero sizes).
+	 */
 	TrainSample() : pre(0, 0), input({0}) {}
 };
 
+/**
+ * @brief Stores general information about the dataset.
+ */
 struct databaseStatus {
-	size_t dbSize;
-	size_t sampleInputSize;
-	size_t sampleOutputSize;
+	size_t dbSize;           ///< Total number of samples in the database.
+	size_t sampleInputSize;  ///< Input dimension of each sample.
+	size_t sampleOutputSize; ///< Output dimension of each sample.
 };
 
+/**
+ * @brief Holds the actual dataset and its metadata.
+ */
 struct Samples {
-	databaseStatus status;
-	std::vector<TrainSample> samples;
-};
-
-struct Batch {
-	std::vector<size_t> samples;
-	Batch(const size_t length) { samples.resize(length); }
-	~Batch() = default;
-	size_t size() const { return samples.size(); }
+	databaseStatus status;            ///< General dataset information.
+	std::vector<TrainSample> samples; ///< All training samples.
 };
 
 class Model;
 
+/**
+ * @brief Manages dataset loading, parsing, and sample access.
+ *
+ * This class is intended to be inherited when you need custom dataset
+ * handling. Override `getSample()` to implement special sampling logic
+ * (e.g., data augmentation, synthetic samples, streaming).
+ *
+ * Responsibilities:
+ * - Load dataset files from disk.
+ * - Store training samples and metadata.
+ * - Provide sample access for training and evaluation.
+ */
 class DataBase {
   private:
 	std::vector<global::ValueType> tempData;
 
+	/**
+	 * @brief Extract dataset metadata (sizes) from a header line.
+	 * @param line The header line from the dataset file.
+	 * @return A populated databaseStatus structure.
+	 */
 	databaseStatus getDataBaseStatus(const std::string &line);
-	std::vector<size_t> getDataBaseInputShape(const std::string &line);
-	int readLine(const std::string &line, TrainSample &sample);
+
+	/**
+	 * @brief Parse a single dataset line into a TrainSample object.
+	 * @param line   A line from the dataset file.
+	 * @param sample Output parameter: filled training sample.
+	 */
+	void readLine(const std::string &line, TrainSample &sample);
+
+	/**
+	 * @brief Load all samples from a given dataset file.
+	 * @param db_filename Path to the dataset file.
+	 * @return 0 if successful, non-zero on error.
+	 */
 	int loadData(const std::string &db_filename);
 
 	friend Model;
@@ -55,10 +99,25 @@ class DataBase {
 	Samples samples;
 
   public:
+	/**
+	 * @brief Construct an empty database.
+	 */
 	DataBase() {}
+
 	~DataBase() = default;
 
+	/**
+	 * @brief Load multiple dataset files into memory.
+	 * @param fileNames List of file paths to load.
+	 */
 	void load(const std::vector<std::string> &fileNames);
+
+	/**
+	 * @brief Retrieve a training sample by index.
+	 *
+	 * Can be overridden by derived classes to provide custom
+	 * sample retrieval strategies (e.g., shuffling, augmentation).
+	 */
 	virtual TrainSample getSample(const size_t i);
 
 	size_t DataBaseLength() const { return samples.status.dbSize; }

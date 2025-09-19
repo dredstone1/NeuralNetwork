@@ -3,25 +3,46 @@
 
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
-#include "dataBase.hpp"
+#include <dataBase.hpp>
 #include <network/INetwork.hpp>
 
 namespace nn::model {
 
+/**
+ * @brief Constant defining the number of seconds in one minute.
+ */
 constexpr int SECONDS_IN_MINUTE = 60;
 
+/**
+ * @brief Console headers used for progress reporting.
+ */
 const std::string TRAINING_HEADER = "Training Model";
 const std::string EVALUATING_HEADER = "Evaluating Model";
-
 const std::string SAVING_DATA_HEADER = "Saving parameters from: ";
 const std::string LOADING_DATA_HEADER = "Loading parameters from: ";
 
+struct Batch {
+	std::vector<size_t> samples;
+	Batch(const size_t length) { samples.resize(length); }
+	~Batch() = default;
+	size_t size() const { return samples.size(); }
+};
+
+/**
+ * @struct modelResult
+ * @brief Holds evaluation results for the model.
+ */
 struct modelResult {
 	float dbSize;
 	float currectPreSize;
 	float percentage;
 };
 
+/**
+ * @class Model
+ * @brief Core class that manages training, evaluation, saving/loading, and running
+ *        deep learning models composed of sub-networks (CNN/FNN...).
+ */
 class Model {
   private:
 	const Config config;
@@ -77,21 +98,67 @@ class Model {
 	Batch &getBatch(DataBase &db, size_t &index, std::vector<Batch> &batches);
 
   public:
+	/**
+	 * @brief Construct a new Model from a configuration file.
+	 * @param config_filepath Path to the configuration file.
+	 */
 	Model(const std::string &config_filepath);
+
 	~Model() = default;
 
+	/**
+	 * @brief Run forward pass of the model with given input.
+	 * @param input Input tensor to feed into the model.
+	 */
 	void runModel(const global::Tensor &input);
+
+	/**
+	 * @brief Train the model on given training and evaluation datasets.
+	 * @param dbT Training database.
+	 * @param dbE Evaluation database.
+	 */
 	void train(DataBase &dbT, DataBase &dbE);
+
+	/**
+	 * @brief Evaluate model accuracy on given dataset.
+	 * @param dataBase Dataset for evaluation.
+	 * @param cancleOnError Whether to stop on error.
+	 * @param showProgressbar Whether to display progress bar.
+	 * @return modelResult Structure with evaluation statistics.
+	 */
 	modelResult evaluateModel(
 	    DataBase &dataBase, const bool cancleOnError = false,
 	    const bool showProgressbar = true);
 
+	/**
+	 * @brief Save model parameters to file.
+	 * @param file Output file path.
+	 * @param print Whether to print progress.
+	 */
 	void save(const std::string &file, const bool print = true);
+
+	/**
+	 * @brief Load model parameters from file.
+	 * @param file Input file path.
+	 * @param print Whether to print progress.
+	 */
 	void load(const std::string &file, const bool print = true);
 
+	/**
+	 * @brief Get final prediction of the model after forward pass.
+	 * @return global::Prediction Prediction result.
+	 */
 	global::Prediction getPrediction() const;
+
+	/**
+	 * @brief Get raw output values of the model.
+	 * @return Vector of output values.
+	 */
 	std::vector<global::ValueType> getOut() const;
 
+	/**
+	 * @brief Reset training state without changing model weights.
+	 */
 	void resetTraining();
 };
 

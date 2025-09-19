@@ -1,7 +1,6 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
-#include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
