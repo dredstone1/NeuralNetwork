@@ -38,9 +38,8 @@ void Activation::activate(const global::Tensor &net, global::Tensor &out) const 
 	}
 }
 
-void Activation::derivativeActivate(
-    const nn::global::Tensor &net,
-    nn::global::Tensor &out) const {
+void Activation::derivativeActivate(const nn::global::Tensor &net,
+                                    nn::global::Tensor &out) const {
 	if (net.numElements() != out.numElements()) {
 		throw std::invalid_argument(
 		    "Activation::derivativeActivate: tensor size mismatch.\n"

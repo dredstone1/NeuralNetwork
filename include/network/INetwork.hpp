@@ -3,7 +3,6 @@
 
 #include "../src/model/optimizers.hpp"
 #include "IvisualNetwork.hpp"
-#include "tensor.hpp"
 
 namespace nn::model {
 class INetwork {
@@ -11,7 +10,8 @@ class INetwork {
 	virtual ~INetwork() = default;
 
 	virtual void forward(const global::Tensor &input) = 0;
-	virtual void backward(global::Tensor **outputDeltas, const global::ValueType weight) = 0;
+	virtual void backward(global::Tensor **outputDeltas,
+	                      const global::ValueType weight) = 0;
 	virtual void updateWeights(IOptimizer &optimizer) = 0;
 	virtual void resetGradient() = 0;
 

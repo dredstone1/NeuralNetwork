@@ -110,7 +110,6 @@ class Output_Layer : public DenseLayer {
   private:
 	const FNNConfig &config;
 
-	void getDelta(const global::Tensor &output);
 	static global::ValueType getCrossEntropyLoss(
 	    const global::Tensor &prediction,
 	    const size_t target);

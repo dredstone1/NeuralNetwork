@@ -1,9 +1,12 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
+#include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
+#include <random>
+#include <stdexcept>
 
 namespace nn::model {
 
@@ -133,9 +136,8 @@ void Model::Backward(global::Tensor &output, const global::ValueType weight) {
 }
 
 global::ValueType Model::runBackPropagation(
-    const Batch &batch,
-    const bool doBackward,
-    global::Transformation transformation) {
+    const Batch &batch, DataBase &db,
+    const bool doBackward) {
 	global::ValueType error = 0.0;
 
 	if (batch.size() == 0) {
@@ -145,18 +147,18 @@ global::ValueType Model::runBackPropagation(
 	resetNetworkGradient();
 	global::Tensor output({outputSize()});
 	for (size_t i = 0; i < batch.size(); ++i) {
-		TrainSample *current_sample_ptr = batch.samples.at(i);
-		visual.updatePrediction(current_sample_ptr->pre);
+		TrainSample current_sample_ptr = db.getSample(batch.samples.at(i));
+		visual.updatePrediction(current_sample_ptr.pre);
 
-		runModel(current_sample_ptr->input, transformation);
+		runModel(current_sample_ptr.input);
 
 		if (doBackward) {
 			output.zero();
-			output.setValue(current_sample_ptr->pre.index, 1);
-			Backward(output, current_sample_ptr->weight);
+			output.setValue(current_sample_ptr.pre.index, 1);
+			Backward(output, current_sample_ptr.weight);
 		}
 
-		error += getLoss(current_sample_ptr->pre);
+		error += getLoss(current_sample_ptr.pre);
 	}
 
 	if (doBackward) {
@@ -184,26 +186,18 @@ void Model::printTrainingResult(
 	          << "Final score: " << error << "\n";
 }
 
-void Model::train(
-    const std::vector<std::string> &db_filename,
-    global::Transformation transformationB,
-    global::Transformation transformationE) {
-	DataBase trainedDataBase(config.trainingConfig);
-	DataBase evaluateDataBase(config.trainingConfig);
+void Model::resetTraining() {
+	batchCounter = 0;
 
+	if (config.visualConfig.enableVisuals) {
+		visual.updateBatchCounter(batchCounter);
+		visual.resetGraph();
+	}
+}
+
+void Model::train(DataBase &dbT, DataBase &dbE) {
 	try {
-		if (config.trainingConfig.isAutoEvaluating()) {
-			try {
-				evaluateDataBase.load(
-				    config.trainingConfig.getAutoEvaluating().dataBaseFilename);
-			} catch (const std::exception &e) {
-				std::cerr << "Warning: failed to load evaluation DB: " << e.what() << std::endl;
-			}
-		}
-
-		trainedDataBase.load(db_filename);
-
-		trainModel(trainedDataBase, evaluateDataBase, transformationB, transformationE);
+		trainModel(dbT, dbE);
 	} catch (const std::exception &e) {
 		std::cerr << "Training failed: " << e.what() << std::endl;
 		throw;
@@ -212,13 +206,11 @@ void Model::train(
 
 bool Model::autoEvaluating(
     const int i,
-    DataBase &evaluateDataBase,
-    global::Transformation transformationE) {
+    DataBase &evaluateDataBase) {
 	setEvaluating();
 	if (config.trainingConfig.isAutoEvaluating() &&
 	    i % config.trainingConfig.getAutoEvaluating().evaluateEvery == 0) {
-		modelResult result = evaluateModel(evaluateDataBase, false, false,
-		                                   transformationE);
+		modelResult result = evaluateModel(evaluateDataBase, false, false);
 		visual.updateEvaluate(
 		    result.percentage,
 		    i / config.trainingConfig.getAutoEvaluating().evaluateEvery);
@@ -244,31 +236,65 @@ void Model::autoSave(int i) {
 	save(autoSaveCfg.dataFilenameAutoSave, false);
 }
 
-void Model::trainModel(
-    DataBase &trainedDataBase, DataBase &evaluateDataBase,
-    global::Transformation transformationB,
-    global::Transformation transformationE) {
+void Model::generateBatches(DataBase &db, std::vector<Batch> &batches) {
+	const size_t data_size = db.samples.status.dbSize;
+	const size_t batch_size = config.trainingConfig.getBatchSize();
 
+	// Shuffle indices
+	std::vector<size_t> indices(data_size);
+	std::iota(indices.begin(), indices.end(), 0);
+
+	std::mt19937 rng{std::random_device{}()};
+	std::shuffle(indices.begin(), indices.end(), rng);
+
+	// Prepare batches
+	batches.clear();
+	batches.reserve((data_size + batch_size - 1) / batch_size);
+
+	for (size_t start = 0; start < data_size; start += batch_size) {
+		size_t current_size = std::min(batch_size, data_size - start);
+
+		Batch &batch = batches.emplace_back(current_size);
+		std::copy_n(indices.begin() + start, current_size, batch.samples.begin());
+	}
+}
+
+Batch &Model::getBatch(DataBase &db, size_t &index, std::vector<Batch> &batches) {
+	if (batches.empty() || index >= batches.size()) {
+		generateBatches(db, batches);
+		index = 0;
+	}
+
+	return batches.at(index++);
+}
+
+void Model::trainModel(DataBase &trainedDataBase, DataBase &evaluateDataBase) {
 	ProgressBar bar(config.trainingConfig.getBatchCount(), TRAINING_HEADER);
 	const auto start = std::chrono::high_resolution_clock::now();
 	global::ValueType error = 0.0;
 
+	std::vector<Batch> batches;
+	generateBatches(trainedDataBase, batches);
+	size_t currentBatch;
+
 	visual.updateLearningRate(learningRate);
 	setTraining();
-	for (size_t i = 0; i < config.trainingConfig.getBatchCount() + 1; ++i) {
+	bar = batchCounter;
+
+	for (; batchCounter < config.trainingConfig.getBatchCount() + 1; ++batchCounter) {
 		++bar;
 		bar.printBar();
 
-		visual.updateBatchCounter(i);
+		visual.updateBatchCounter(batchCounter);
 
-		Batch &batch = trainedDataBase.getBatch();
-		error = runBackPropagation(batch, true, transformationB);
-		visual.updateLost(error, i);
+		Batch &batch = getBatch(trainedDataBase, currentBatch, batches);
+		error = runBackPropagation(batch, trainedDataBase, true);
+		visual.updateLost(error, batchCounter);
 
-		autoSave(i);
+		autoSave(batchCounter);
 
 		if (visual.exitTraining() ||
-		    autoEvaluating(i, evaluateDataBase, transformationE)) {
+		    autoEvaluating(batchCounter, evaluateDataBase)) {
 			break;
 		}
 
@@ -281,40 +307,28 @@ void Model::trainModel(
 	printTrainingResult(start, error);
 }
 
-float Model::calculatePercentage(size_t currentSize, size_t totalSize) {
+float Model::calculatePercentage(float currentSize, float totalSize) {
 	if (totalSize == 0) {
 		return 0.0f;
 	}
 
-	return 100.0f * static_cast<float>(currentSize) /
-	       static_cast<float>(totalSize);
-}
-
-void Model::runModel(const global::Tensor &input,
-                     global::Transformation transformation) {
-	if (transformation) {
-		runModel(transformation(input));
-	} else {
-		runModel(input);
-	}
+	return 100.0f * currentSize / totalSize;
 }
 
 modelResult Model::evaluateModel(
-    DataBase &dataBase,
-    const bool cancleOnError,
-    const bool showProgressbar,
-    global::Transformation transformation) {
+    DataBase &dataBase, const bool cancleOnError, const bool showProgressbar) {
 	modelResult result{0, 0, 0};
 
-	result.dbSize = dataBase.DataBaseLength();
-	ProgressBar bar(result.dbSize, EVALUATING_HEADER);
+	ProgressBar bar(dataBase.DataBaseLength(), EVALUATING_HEADER);
+	result.dbSize = 0;
 
 	setEvaluating();
 
-	for (size_t i = 0; i < result.dbSize; ++i) {
-		TrainSample &sample = dataBase.getSample(i);
+	for (size_t i = 0; i < dataBase.DataBaseLength(); ++i) {
+		TrainSample sample = dataBase.getSample(i);
 
-		runModel(sample.input, transformation);
+		result.dbSize += sample.weight;
+		runModel(sample.input);
 
 		size_t predicted_index = Activation::getMaxElementIndex(getOutput());
 
@@ -324,7 +338,7 @@ modelResult Model::evaluateModel(
 		}
 
 		if (predicted_index == sample.pre.index) {
-			++result.currectPreSize;
+			result.currectPreSize += sample.weight;
 		} else if (cancleOnError) {
 			break;
 		}
@@ -338,15 +352,6 @@ modelResult Model::evaluateModel(
 	                                        result.dbSize);
 	setNormal();
 	return result;
-}
-
-modelResult Model::evaluateModel(
-    const std::vector<std::string> &db_filenames,
-    global::Transformation transformation,
-    const bool cancleOnError) {
-	DataBase dataBase(config.trainingConfig);
-	dataBase.load(db_filenames);
-	return evaluateModel(dataBase, cancleOnError, true, transformation);
 }
 
 const global::Tensor &Model::getOutput() const {
@@ -390,8 +395,8 @@ void Model::save(const std::string &file, const bool print) {
 
 void Model::load(const std::string &file, bool print) {
 	std::ifstream inFile(file);
-	if (!inFile.is_open()) {
-		throw std::runtime_error("Could not open file: " + file);
+	if (!inFile) {
+		throw std::runtime_error("Error: Could not open file \"" + file + "\" for reading.");
 	}
 
 	std::string line;
@@ -400,20 +405,41 @@ void Model::load(const std::string &file, bool print) {
 
 	while (std::getline(inFile, line)) {
 		if (networkI >= static_cast<int>(network.size())) {
-			throw std::runtime_error("File contains more layers than expected.");
+			throw std::runtime_error(
+			    "Error in file \"" + file + "\": too many sub-networks. "
+			                                "Expected " +
+			    std::to_string(network.size()) +
+			    " but found more (at line " + std::to_string(networkI + 1) + ").");
 		}
 
 		std::istringstream iss(line);
-		size_t ParamSize;
+		size_t ParamSize = 0;
 		if (!(iss >> ParamSize)) {
-			throw std::runtime_error("Invalid parameter size at line " + std::to_string(networkI + 1));
+			throw std::runtime_error(
+			    "Error in file \"" + file + "\": invalid parameter size "
+			                                "at line " +
+			    std::to_string(networkI + 1) + ".");
+		}
+
+		size_t expectedParams = network[networkI]->getParamCount();
+		if (ParamSize != expectedParams) {
+			throw std::runtime_error(
+			    "Error in file \"" + file + "\": parameter count mismatch "
+			                                "in sub-network " +
+			    std::to_string(networkI + 1) +
+			    ". Expected " + std::to_string(expectedParams) +
+			    ", got " + std::to_string(ParamSize) + ".");
 		}
 
 		std::vector<global::ValueType> numbers(ParamSize);
 		for (size_t i = 0; i < ParamSize; ++i) {
-			float num;
+			float num = 0.0f;
 			if (!(iss >> num)) {
-				throw std::runtime_error("Invalid param value at line " + std::to_string(networkI + 1) + ", param " + std::to_string(i + 1));
+				throw std::runtime_error(
+				    "Error in file \"" + file + "\": invalid parameter value "
+				                                "at line " +
+				    std::to_string(networkI + 1) +
+				    ", parameter " + std::to_string(i + 1) + ".");
 			}
 			numbers[i] = num;
 		}
@@ -421,7 +447,7 @@ void Model::load(const std::string &file, bool print) {
 		global::Tensor data({ParamSize});
 		data = numbers;
 		network[networkI]->setParams(data);
-		networkI++;
+		++networkI;
 
 		if (print) {
 			bar.printBar();
@@ -430,8 +456,11 @@ void Model::load(const std::string &file, bool print) {
 	}
 
 	if (networkI < static_cast<int>(network.size())) {
-		throw std::runtime_error("File ended prematurely. Expected " +
-		                         std::to_string(network.size()) + " layers, got " + std::to_string(networkI));
+		throw std::runtime_error(
+		    "Error in file \"" + file + "\": file ended prematurely. "
+		                                "Expected " +
+		    std::to_string(network.size()) +
+		    " sub-networks, but only " + std::to_string(networkI) + " were provided.");
 	}
 
 	if (print) {

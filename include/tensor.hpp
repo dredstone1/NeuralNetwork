@@ -7,6 +7,7 @@
 
 namespace nn::model {
 class Activation;
+class DataBase;
 
 namespace cnn {
 class CNNetwork;
@@ -16,7 +17,6 @@ class CNNetwork;
 namespace nn::global {
 
 class Tensor;
-using Transformation = Tensor (*)(const Tensor &);
 
 std::string shapeToString(const std::vector<size_t> &shape);
 size_t computeTensorSize(const std::vector<size_t> &shape);
@@ -40,7 +40,7 @@ class Tensor {
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
 
 	friend model::Activation;
-	friend nn::global::Transformation;
+	friend model::DataBase;
 	friend nn::model::cnn::CNNetwork;
 
   public:
@@ -74,9 +74,8 @@ class Tensor {
 	void flatten();
 	void setShape(const std::vector<size_t> &newShape);
 
-	// Data access for testing
-	ValueType *getGpuData() const { return gpu_data; }
-	std::vector<ValueType> &getCpuData() { return cpu_data; }
+	ValueType *getGpuDataP() const { return gpu_data; }
+	std::vector<ValueType> &getCpuDataP() { return cpu_data; }
 
 	Tensor &operator+=(const Tensor &other);
 	Tensor &operator-=(const Tensor &other);

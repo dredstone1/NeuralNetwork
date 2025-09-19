@@ -43,18 +43,14 @@ void Output_Layer::forward(const global::Tensor &metrix) {
 	activationFunction.activate(net, out);
 }
 
-void Output_Layer::getDelta(const global::Tensor &output) {
-	deltaL = out;
-	deltaL -= output;
-}
-
 void Output_Layer::backward(
     global::Tensor **deltas,
     const global::Tensor &prevLayer,
     const global::ValueType weight,
     const LayerParams *) {
 	if (activationFunction.getType() == ActivationType::Softmax) {
-		getDelta(**deltas);
+		deltaL = out;
+		deltaL -= **deltas;
 	} else {
 		activationFunction.derivativeActivate(out, **deltas);
 		deltaL = **deltas;
@@ -162,6 +158,10 @@ void DenseLayer::setData(const global::Tensor &newParam, const size_t offset) {
 	size_t weightsSize = parameters.weights.numElements();
 	size_t biasesSize = parameters.biases.numElements();
 
+	if (weightsSize + biasesSize != newParam.numElements()) {
+		return;
+	}
+
 	// Copy into weights
 	parameters.weights.insertRange(newParam, offset, 0, weightsSize);
 
@@ -171,10 +171,7 @@ void DenseLayer::setData(const global::Tensor &newParam, const size_t offset) {
 
 void DenseLayer::fillParamRandom() {
 	static std::mt19937 gen(std::random_device{}());
-
-	global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prevSize()));
-	std::normal_distribution<> dist(0.0, std_dev);
-
+	std::normal_distribution<> dist(0.0, 2);
 	std::vector<global::ValueType> temp(parameters.weights.numElements());
 	for (size_t i = 0; i < temp.size(); ++i) {
 		temp[i] = dist(gen);

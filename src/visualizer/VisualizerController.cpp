@@ -146,4 +146,12 @@ void VisualManager::addVisualSubNetwork(
 	renderer->addVisualSubNetwork(newVisual);
 }
 
+void VisualManager::resetGraph() {
+	if (!checkPointers()) {
+		return;
+	}
+
+    renderer->resetGraph();
+}
+
 } // namespace nn::visualizer

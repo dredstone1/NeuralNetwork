@@ -2,8 +2,8 @@
 #define IVISUALNETWORK
 
 #include "../../src/visualizer/panel.hpp"
-#include <SFML/Graphics.hpp>
 #include <Globals.hpp>
+#include <SFML/Graphics.hpp>
 
 namespace nn::visualizer {
 constexpr std::uint32_t MODEL_HEIGHT = 770u;

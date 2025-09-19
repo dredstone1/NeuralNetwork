@@ -2,12 +2,10 @@
 #include "ProgressBar.hpp"
 #include <fstream>
 #include <iostream>
+#include <limits>
+#include <sstream>
 
 namespace nn::model {
-DataBase::DataBase(const TrainingConfig &_config) : config(_config) {
-	std::random_device rd;
-	rng = std::mt19937(std::random_device{}());
-}
 
 inline void skipWhitespace(const char *&ptr, const char *end) {
 	while (ptr < end && (*ptr == ' ' || *ptr == '\t' || *ptr == '\r' || *ptr == '\n')) {
@@ -79,7 +77,7 @@ int DataBase::readLine(const std::string &line, TrainSample &sample) {
 
 		case 'w':
 			++ptr;
-			sample.weight = parseIndex(ptr, end);
+			sample.weight = parseNumber(ptr, end);
 			break;
 
 		default:
@@ -88,12 +86,11 @@ int DataBase::readLine(const std::string &line, TrainSample &sample) {
 
 				if (input_count < tempData.size()) {
 					tempData[input_count++] = value;
-				} else {
-					skipToken(ptr, end);
+					break;
 				}
-			} else {
-				skipToken(ptr, end);
 			}
+
+			skipToken(ptr, end);
 			break;
 		}
 	}
@@ -116,7 +113,7 @@ databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
 
 	databaseStatus status{0, 0, 0};
 
-	iss >> status.dataBaseSize;
+	iss >> status.dbSize;
 	iss >> status.sampleInputSize;
 
 	tempData.resize(status.sampleInputSize);
@@ -124,27 +121,30 @@ databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
 	return status;
 }
 
-int DataBase::loadData(const std::string &db_filename) {
-	std::ifstream file(db_filename + DATABASE_FILE_EXETENTION);
+int DataBase::loadData(const std::string &fileNames) {
+	std::ifstream file(fileNames + DATABASE_FILE_EXETENTION);
 	if (!file.is_open()) {
-		std::cout << FILE_NOT_FOUND_MESSAGE << db_filename << std::endl;
+		std::cout << FILE_NOT_FOUND_MESSAGE << fileNames << std::endl;
 		return 1;
 	}
 
 	std::string line;
 	getline(file, line);
 
-	samples.status = getDataBaseStatus(line);
-	size_t i = samples.samples.size();
-	samples.samples.resize(i + samples.status.dataBaseSize,
+	databaseStatus s = getDataBaseStatus(line);
+	samples.status.sampleInputSize = s.sampleInputSize;
+	samples.status.sampleOutputSize = s.sampleOutputSize;
+
+	size_t i = samples.status.dbSize;
+	samples.samples.resize(i + s.dbSize,
 	                       {samples.status.sampleOutputSize,
 	                        samples.status.sampleInputSize});
 
-	const auto HEADER = LOADING_DB_MESSAGE + db_filename +
+	const auto HEADER = LOADING_DB_MESSAGE + fileNames +
 	                    DATABASE_FILE_EXETENTION;
-	ProgressBar bar(samples.status.dataBaseSize, HEADER);
+	ProgressBar bar(s.dbSize, HEADER);
 
-	while (i < samples.status.dataBaseSize + samples.status.dataBaseSize && getline(file, line)) {
+	while (i < samples.status.dbSize + s.dbSize && getline(file, line)) {
 		if (line.empty() || line[0] == '-') {
 			continue;
 		}
@@ -160,10 +160,7 @@ int DataBase::loadData(const std::string &db_filename) {
 		}
 	}
 
-	if (samples.samples.size() > i) {
-		samples.samples.resize(i);
-		samples.status.dataBaseSize = samples.samples.size();
-	}
+	samples.status.dbSize = i;
 
 	bar.endPrint();
 	file.close();
@@ -190,44 +187,24 @@ void DataBase::load(const std::vector<std::string> &db_filenames) {
 		throw std::runtime_error(oss.str());
 	}
 
-	samples.samples.shrink_to_fit();
-	shuffled_indices.resize(samples.status.dataBaseSize);
-	std::iota(shuffled_indices.begin(), shuffled_indices.end(), 0);
-	generateBatches();
-
-	std::cout << "Loaded " << samples.status.dataBaseSize << " samples." << std::endl;
+	samples.samples.resize(samples.status.dbSize);
+	std::cout << "Loaded " << samples.status.dbSize << " samples." << std::endl;
 }
 
-void DataBase::generateBatches() {
-	shuffle(shuffled_indices.begin(), shuffled_indices.end(), rng);
+TrainSample DataBase::getSample(const size_t i) {
+	TrainSample newSample;
+	newSample.pre = samples.samples[i].pre;
+	newSample.weight = samples.samples[i].weight;
 
-	batches.clear();
-	size_t num_batches_expected = (samples.status.dataBaseSize + config.getBatchSize() - 1) / config.getBatchSize();
-	batches.reserve(num_batches_expected);
+	newSample.input.shape = samples.samples[i].input.shape;
+	newSample.input.strides = samples.samples[i].input.strides;
 
-	for (size_t i = 0; i < samples.status.dataBaseSize; i += config.getBatchSize()) {
-		size_t current_batch_actual_size = std::min(config.getBatchSize(), samples.status.dataBaseSize - i);
-
-		if (current_batch_actual_size == 0) {
-			break;
-		}
-
-		batches.emplace_back(current_batch_actual_size);
-		Batch &new_batch = batches.back();
-
-		for (size_t j = 0; j < current_batch_actual_size; ++j) {
-			int sample_original_index = shuffled_indices[i + j];
-			new_batch.samples[j] = &samples.samples[sample_original_index];
-		}
+	if (nn::global::Tensor::getGpuState()) {
+		newSample.input.gpu_data = samples.samples[i].input.gpu_data;
+	} else {
+		newSample.input.cpu_data = samples.samples[i].input.cpu_data;
 	}
+	return newSample;
 }
 
-Batch &DataBase::getBatch() {
-	if (batches.empty() || currentBatch >= batches.size()) {
-		generateBatches();
-		currentBatch = 0;
-	}
-
-	return batches.at(currentBatch++);
-}
 } // namespace nn::model

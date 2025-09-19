@@ -10,7 +10,7 @@
 	},
 	"training config": {
 		"batch size": 10,
-		"batch count": 10000,
+		"batch count": 1000000,
 		"auto save": {
 			"saveEvery": 1000,
 			"dataFilenameAutoSave": "test.txt"
@@ -20,7 +20,7 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 0.5
+			"lr": 0.1
 		}
 	},
 	"network config": [
@@ -29,7 +29,11 @@
 			"input size": 10,
 			"output size": 16,
 			"output activation": 4,
-			"layers": [{ "size": 50, "activationType": 1 }]
+			"layers": [
+                { "size": 50, "activationType": 1 },
+                { "size": 1, "activationType": 1 },
+                { "size": 50, "activationType": 1 }
+            ]
 		}
 	]
 }

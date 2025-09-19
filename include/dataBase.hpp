@@ -1,10 +1,8 @@
 #ifndef DATABASE
 #define DATABASE
 
-#include "config.hpp"
-#include "tensor_gpu.hpp"
+#include "../src/model/tensor_gpu.hpp"
 #include <Globals.hpp>
-#include <random>
 
 namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";
@@ -15,7 +13,7 @@ const std::string FILE_NOT_FOUND_MESSAGE = "File not found: ";
 struct TrainSample {
 	global::Prediction pre;
 	global::Tensor input;
-    global::ValueType weight{1};
+	global::ValueType weight{1};
 
 	TrainSample(const size_t sampleOutputSize, const size_t sampleInputSize)
 	    : pre(sampleOutputSize, 0), input({sampleInputSize}, 0) {}
@@ -23,7 +21,7 @@ struct TrainSample {
 };
 
 struct databaseStatus {
-	size_t dataBaseSize;
+	size_t dbSize;
 	size_t sampleInputSize;
 	size_t sampleOutputSize;
 };
@@ -34,38 +32,36 @@ struct Samples {
 };
 
 struct Batch {
-	std::vector<TrainSample *> samples;
-	Batch(const size_t length) { samples.resize(length, nullptr); }
+	std::vector<size_t> samples;
+	Batch(const size_t length) { samples.resize(length); }
 	~Batch() = default;
 	size_t size() const { return samples.size(); }
 };
 
+class Model;
+
 class DataBase {
   private:
-	Samples samples;
-	std::vector<Batch> batches;
-	size_t currentBatch;
-	std::vector<size_t> shuffled_indices;
-	std::mt19937 rng;
 	std::vector<global::ValueType> tempData;
-
-	const TrainingConfig &config;
 
 	databaseStatus getDataBaseStatus(const std::string &line);
 	std::vector<size_t> getDataBaseInputShape(const std::string &line);
 	int readLine(const std::string &line, TrainSample &sample);
-	void generateBatches();
 	int loadData(const std::string &db_filename);
 
+	friend Model;
+
+  protected:
+	Samples samples;
+
   public:
-	DataBase(const TrainingConfig &config);
+	DataBase() {}
 	~DataBase() = default;
 
-	void load(const std::vector<std::string> &db_filenames);
-	TrainSample &getSample(const int i) { return samples.samples[i]; }
+	void load(const std::vector<std::string> &fileNames);
+	virtual TrainSample getSample(const size_t i);
 
-	size_t DataBaseLength() const { return samples.status.dataBaseSize; }
-	Batch &getBatch();
+	size_t DataBaseLength() const { return samples.status.dbSize; }
 };
 } // namespace nn::model
 

@@ -3,7 +3,6 @@
 
 #include "VisualizerRenderer.hpp"
 #include "tensor.hpp"
-#include <cstdint>
 #include <network/IvisualNetwork.hpp>
 #include <thread>
 
@@ -51,6 +50,7 @@ class VisualManager {
 	void updateInput(const global::Tensor &input);
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
+    void resetGraph();
 };
 } // namespace nn::visualizer
 

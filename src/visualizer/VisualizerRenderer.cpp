@@ -201,4 +201,7 @@ void VisualRender::addVisualSubNetwork(
 	}
 }
 
+void VisualRender::resetGraph() {
+    Vgraph.reset();
+}
 } // namespace nn::visualizer

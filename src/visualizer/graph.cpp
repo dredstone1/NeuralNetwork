@@ -180,4 +180,15 @@ void GraphUIPanel::addLostData(const global::ValueType newDataLost, int index) {
 	graphLost.addData(newDataLost, index);
 	setUpdate();
 }
+
+void Graph::reset() {
+	Index = 0;
+	IndexCount = 0;
+    data = {0};
+}
+
+void GraphUIPanel::reset() {
+    graphLost.reset();
+    graphEvaluate.reset();
+}
 } // namespace nn::visualizer

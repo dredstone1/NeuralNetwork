@@ -1,4 +1,5 @@
 #include "Globals.hpp"
+#include "dataBase.hpp"
 #include "tensor.hpp"
 #include "tests.hpp"
 #include <iostream>
@@ -74,24 +75,30 @@ void printVector(const nn::global::Tensor &vec) {
 	std::cout << '\n';
 }
 
+class tdf : public nn::model::DataBase {
+  public:
+	nn::model::TrainSample getSample(const size_t i) override {
+		nn::model::TrainSample newSample(samples.samples[i].pre.index, samples.samples[i].input.numElements());
+		newSample.weight = samples.samples[i].weight;
+		newSample.input = samples.samples[i].input;
+		return newSample;
+	}
+};
+
 int main(int argc, char *argv[]) {
 	size_t input_size = 10;
-
 	nn::global::Tensor::toCpu();
-
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
-
 	nn::model::Model model(config_FN);
 
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-		std::vector<std::string> files{"../tests/data/database-binary_test"};
-		model.train(files);
-
-  //       nn::model::modelResult result = model.evaluateModel({"../tests/data/database-binary_test"});
-		// std::cout << "training result: " << result.percentage << "%\n";
-
+		// model.load("test.txt");
+		std::vector<std::string> files{"../tests/data/database-binary_test", "../tests/data/database-binary_test"};
+		tdf dbt;
+		dbt.load(files);
+		model.train(dbt, dbt);
 		model.save("test.txt");
 	}
 

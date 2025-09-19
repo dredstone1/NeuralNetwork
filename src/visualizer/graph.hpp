@@ -1,7 +1,6 @@
 #ifndef GRAPH_CORE_HPP
 #define GRAPH_CORE_HPP
 
-#include "Globals.hpp"
 #include "panel.hpp"
 #include <SFML/Graphics.hpp>
 
@@ -51,6 +50,8 @@ class Graph {
 	void addData(const global::ValueType new_data, const int index);
 	void setAlpha(const float alpha);
 	float getAlpha() const;
+
+	void reset();
 };
 
 class GraphUIPanel : public Panel {
@@ -75,6 +76,8 @@ class GraphUIPanel : public Panel {
 
 	void addLostData(const global::ValueType newDataLost, int index);
 	void addEvaluateData(const global::ValueType newDataEvaluate, int index);
+
+	void reset();
 };
 
 } // namespace nn::visualizer

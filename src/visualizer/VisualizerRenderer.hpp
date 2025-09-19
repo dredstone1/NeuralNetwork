@@ -6,7 +6,6 @@
 #include "graph.hpp"
 #include "tensor.hpp"
 #include "visualModel.hpp"
-#include <SFML/System/Vector2.hpp>
 #include <memory>
 
 namespace nn::visualizer {
@@ -65,6 +64,8 @@ class VisualRender {
 	void updateInput(const global::Tensor &input);
 
 	void addVisualSubNetwork(const std::shared_ptr<IVisualNetwork> newVisual);
+
+    void resetGraph();
 };
 
 } // namespace nn::visualizer

@@ -1,9 +1,9 @@
 #ifndef MODEL
 #define MODEL
 
-#include "../src/model/dataBase.hpp"
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
+#include "dataBase.hpp"
 #include <network/INetwork.hpp>
 
 namespace nn::model {
@@ -17,8 +17,8 @@ const std::string SAVING_DATA_HEADER = "Saving parameters from: ";
 const std::string LOADING_DATA_HEADER = "Loading parameters from: ";
 
 struct modelResult {
-	size_t dbSize;
-	size_t currectPreSize;
+	float dbSize;
+	float currectPreSize;
 	float percentage;
 };
 
@@ -32,6 +32,8 @@ class Model {
 	global::ValueType learningRate;
 	std::unique_ptr<IOptimizer> optimizer;
 
+	size_t batchCounter{0};
+
 	void Forword(const global::Tensor &input, const int modelIndex);
 	void Backward(global::Tensor &output, const global::ValueType weight);
 	void updateWeights(const int batch_size);
@@ -39,8 +41,7 @@ class Model {
 	global::ValueType getLoss(const global::Prediction &pre);
 
 	global::ValueType runBackPropagation(
-	    const Batch &batch, const bool updateWeights,
-	    global::Transformation transformation = nullptr);
+	    const Batch &batch, DataBase &db, const bool updateWeights);
 
 	void printTrainingResult(
 	    const std::chrono::high_resolution_clock::time_point &start,
@@ -52,17 +53,9 @@ class Model {
 
 	bool shouldRenderNet() const;
 
-	float calculatePercentage(size_t currentSize, size_t totalSize);
+	float calculatePercentage(float currentSize, float totalSize);
 
-	modelResult evaluateModel(
-	    DataBase &dataBase,
-	    const bool cancleOnError = false,
-	    const bool showProgressbar = true,
-	    global::Transformation transformation = nullptr);
-	void trainModel(
-	    DataBase &trainedDataBase, DataBase &evaluateDataBase,
-	    global::Transformation transformationB = nullptr,
-	    global::Transformation transformationE = nullptr);
+	void trainModel(DataBase &trainedDataBase, DataBase &evaluateDataBase);
 
 	size_t outputSize() const;
 	const global::Tensor &getOutput() const;
@@ -72,8 +65,7 @@ class Model {
 	void setNormal();
 	void setEvaluating();
 
-	bool autoEvaluating(const int i, DataBase &evaluateDataBase,
-	                    global::Transformation transformationE);
+	bool autoEvaluating(const int i, DataBase &evaluateDataBase);
 	void autoSave(const int i);
 
 	void addFNN(const std::uint32_t width, ISubNetworkConfig &_config);
@@ -81,28 +73,26 @@ class Model {
 
 	std::uint32_t calculateSubNetWidth() const;
 
-	void runModel(const global::Tensor &input,
-	              global::Transformation transformation);
+	void generateBatches(DataBase &db, std::vector<Batch> &batches);
+	Batch &getBatch(DataBase &db, size_t &index, std::vector<Batch> &batches);
 
   public:
 	Model(const std::string &config_filepath);
 	~Model() = default;
 
 	void runModel(const global::Tensor &input);
-	void train(
-	    const std::vector<std::string> &db_filename,
-	    global::Transformation transformationB = nullptr,
-	    global::Transformation transformationE = nullptr);
+	void train(DataBase &dbT, DataBase &dbE);
 	modelResult evaluateModel(
-	    const std::vector<std::string> &db_filename,
-	    global::Transformation transformation = nullptr,
-	    const bool cancleOnError = false);
+	    DataBase &dataBase, const bool cancleOnError = false,
+	    const bool showProgressbar = true);
 
 	void save(const std::string &file, const bool print = true);
 	void load(const std::string &file, const bool print = true);
 
 	global::Prediction getPrediction() const;
 	std::vector<global::ValueType> getOut() const;
+
+	void resetTraining();
 };
 
 } // namespace nn::model
