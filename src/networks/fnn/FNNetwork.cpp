@@ -1,6 +1,18 @@
 #include "FNNetwork.hpp"
 
 namespace nn::model::fnn {
+
+/**
+ * @brief Constructs a fully connected neural network
+ * 
+ * Creates a neural network with the specified configuration, including
+ * hidden layers and an output layer. The network can be initialized with
+ * random weights or loaded from pre-trained parameters.
+ * 
+ * @param _config Configuration object containing network architecture
+ * @param randomInit Whether to initialize weights randomly
+ * @param visual_ Optional visualizer for real-time network monitoring
+ */
 FNNetwork::FNNetwork(
     const FNNConfig &_config,
     const bool randomInit,
@@ -24,6 +36,14 @@ FNNetwork::FNNetwork(
 	sendNewVData(i);
 }
 
+/**
+ * @brief Sends layer data to the visualizer
+ * 
+ * Updates the visualizer with the current state of a specific layer,
+ * including network values, outputs, parameters, and gradients.
+ * 
+ * @param i Index of the layer to update in the visualizer
+ */
 void FNNetwork::sendNewVData(const size_t i) const {
 	if (!visual) {
 		return;
@@ -44,6 +64,15 @@ void FNNetwork::sendNewVNeurons(const size_t i) const {
 	visual->setOut(i, layers[i]->getOut());
 }
 
+/**
+ * @brief Performs forward propagation through the network
+ * 
+ * Propagates the input through all layers of the network, computing
+ * activations for each layer. Updates the visualizer with intermediate
+ * results if visualization is enabled.
+ * 
+ * @param newInput Input tensor to propagate through the network
+ */
 void FNNetwork::forward(const global::Tensor &newInput) {
 	input = newInput;
 	layers[0]->forward(input);
@@ -66,6 +95,16 @@ void FNNetwork::vUpdate() {
 	visual->attempPause();
 }
 
+/**
+ * @brief Performs backward propagation through the network
+ * 
+ * Computes gradients for all layers by propagating the error signal
+ * backward through the network. Updates the visualizer with gradient
+ * information if visualization is enabled.
+ * 
+ * @param outputDeltas Pointer to delta tensor for gradient computation
+ * @param weight Weight factor for gradient scaling
+ */
 void FNNetwork::backward(global::Tensor **outputDeltas, const global::ValueType weight) {
 	resetGradient();
 

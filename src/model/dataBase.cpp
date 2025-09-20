@@ -7,12 +7,27 @@
 
 namespace nn::model {
 
+// ============================================================================
+// UTILITY FUNCTIONS FOR PARSING
+// ============================================================================
+
+/**
+ * @brief Skips whitespace characters in a string
+ * @param ptr Pointer to current position in string
+ * @param end Pointer to end of string
+ */
 inline void skipWhitespace(const char *&ptr, const char *end) {
 	while (ptr < end && (*ptr == ' ' || *ptr == '\t' || *ptr == '\r' || *ptr == '\n')) {
 		++ptr;
 	}
 }
 
+/**
+ * @brief Parses an integer index from a string
+ * @param ptr Pointer to current position in string
+ * @param end Pointer to end of string
+ * @return Parsed integer value
+ */
 inline size_t parseIndex(const char *&ptr, const char *end) {
 	size_t idx = 0;
 	while (ptr < end && *ptr >= '0' && *ptr <= '9') {
@@ -22,6 +37,12 @@ inline size_t parseIndex(const char *&ptr, const char *end) {
 	return idx;
 }
 
+/**
+ * @brief Parses a floating-point number from a string
+ * @param ptr Pointer to current position in string
+ * @param end Pointer to end of string
+ * @return Parsed floating-point value
+ */
 inline double parseNumber(const char *&ptr, const char *end) {
 	double value = 0.0;
 	bool negative = false;
@@ -54,12 +75,35 @@ inline double parseNumber(const char *&ptr, const char *end) {
 	return negative ? -value : value;
 }
 
+/**
+ * @brief Skips a token (non-whitespace characters) in a string
+ * @param ptr Pointer to current position in string
+ * @param end Pointer to end of string
+ */
 inline void skipToken(const char *&ptr, const char *end) {
 	while (ptr < end && *ptr != ' ' && *ptr != '\t' && *ptr != '\r' && *ptr != '\n') {
 		++ptr;
 	}
 }
 
+// ============================================================================
+// DATABASE IMPLEMENTATION
+// ============================================================================
+
+/**
+ * @brief Parses a single line from a dataset file into a TrainSample
+ * 
+ * This method parses a line from the dataset file and extracts the prediction
+ * index, weight, and input features. The expected format is:
+ * - 'p' followed by prediction index
+ * - 'w' followed by sample weight
+ * - Numeric values for input features
+ * 
+ * @param line The line to parse from the dataset file
+ * @param sample Output parameter: filled training sample
+ * 
+ * @throws std::runtime_error If the line format is invalid or incomplete
+ */
 void DataBase::readLine(const std::string &line, TrainSample &sample) {
 	sample.pre.index = std::numeric_limits<size_t>::max();
 	size_t input_count = 0;
