@@ -1,3 +1,13 @@
+/**
+ * @file config.hpp
+ * @brief Implementation of configuration management for neural network models
+ *
+ * This file implements the configuration system that reads and parses JSON
+ * configuration files to set up neural network parameters, training options,
+ * and visualization settings. It provides a centralized way to manage all
+ * model parameters and ensures proper validation of configuration data.
+ */
+
 #ifndef CONFIG
 #define CONFIG
 
@@ -92,6 +102,17 @@ class NetworkConfig {
 	size_t outputSize() const;
 
 	std::vector<std::shared_ptr<ISubNetworkConfig>> SubNetworksConfig;
+
+	/**
+	 * @brief Initializes network configuration from JSON data
+	 *
+	 * Parses the network architecture configuration section and creates
+	 * appropriate sub-network configurations for FNN and CNN layers.
+	 * Validates network connectivity and parameter consistency.
+	 *
+	 * @param j JSON object containing network configuration data
+	 * @throws nlohmann::json::exception If network configuration is invalid
+	 */
 	void fromJson(const nlohmann::json &j);
 };
 
@@ -163,9 +184,31 @@ class VisualConfig {
 
 class Config {
   private:
+	/**
+	 * @brief Initializes configuration objects from parsed JSON data
+	 *
+	 * Takes a parsed JSON object and extracts configuration data for different
+	 * components of the neural network system. Handles training configuration,
+	 * visual configuration, and network architecture configuration.
+	 *
+	 * @param j Parsed JSON configuration object
+	 * @throws nlohmann::json::exception If required configuration sections are missing
+	 */
 	void initalizeJson(const nlohmann::json &j);
 
   public:
+	/**
+	 * @brief Constructs a Config object by reading from a JSON configuration file
+	 *
+	 * Loads and parses a JSON configuration file that contains all the necessary
+	 * parameters for setting up a neural network model, including network architecture,
+	 * training parameters, and visualization options.
+	 *
+	 * @param config_filepath Path to the JSON configuration file
+	 * @throws std::runtime_error If the configuration file cannot be opened
+	 * @throws nlohmann::json::parse_error If the JSON is malformed
+	 * @throws nlohmann::json::exception If required configuration fields are missing
+	 */
 	Config(const std::string &config_filepath);
 	~Config() = default;
 

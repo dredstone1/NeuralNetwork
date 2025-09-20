@@ -26,7 +26,7 @@ constexpr global::ValueType maxValue(const global::ValueType &a, const float &b)
 /**
  * @enum ActivationType
  * @brief Enumeration of available activation function types
- * 
+ *
  * This enum defines all the activation functions supported by the neural
  * network library. Each type corresponds to a specific mathematical function
  * used to introduce non-linearity into neural networks.
@@ -43,12 +43,12 @@ enum class ActivationType {
 /**
  * @class Activation
  * @brief Manages activation functions for neural network layers
- * 
+ *
  * This class provides a unified interface for applying various activation
  * functions to tensors. It supports both forward propagation (activation)
  * and backward propagation (derivative) operations. All operations are
  * optimized for both CPU and GPU execution modes.
- * 
+ *
  * @section features Supported Activation Functions
  * - **ReLU**: Rectified Linear Unit for addressing vanishing gradient problem
  * - **Leaky ReLU**: Modified ReLU that allows small negative values
@@ -56,20 +56,20 @@ enum class ActivationType {
  * - **Tanh**: Hyperbolic tangent for bounded outputs
  * - **Softmax**: Normalized exponential for multi-class classification
  * - **None**: Identity function (no activation)
- * 
+ *
  * @section usage Usage Example
  * ```cpp
  * Activation relu(ActivationType::Relu);
  * Tensor input({10}, 1.0f);
  * Tensor output({10});
- * 
+ *
  * relu.activate(input, output);        // Forward pass
  * relu.derivativeActivate(input, output); // Backward pass
  * ```
  */
 class Activation {
   private:
-	const ActivationType activationType;  ///< The type of activation function
+	const ActivationType activationType; ///< The type of activation function
 
 	// ========================================================================
 	// SCALAR ACTIVATION FUNCTIONS (CPU implementations)
@@ -121,7 +121,22 @@ class Activation {
 	/// Vectorized Tanh derivative
 	static void derivativeTanh(const global::Tensor &net, global::Tensor &out);
 
-	/// Vectorized Softmax activation (normalized exponential)
+	/**
+	 * @brief Vectorized Softmax activation
+	 *
+	 * Applies softmax activation to the input tensor, which normalizes the values
+	 * to create a probability distribution. The softmax function is:
+	 * softmax(x_i) = exp(x_i - max(x)) / sum(exp(x_j - max(x)))
+	 *
+	 * This implementation includes numerical stability measures to prevent
+	 * overflow by subtracting the maximum value before computing exponentials.
+	 *
+	 * @param net Input tensor containing pre-activation values
+	 * @param out Output tensor to store normalized probabilities
+	 *
+	 * @note The output values sum to 1.0 (probability distribution)
+	 * @note Uses numerical stability tricks to prevent overflow
+	 */
 	static void softmax(const global::Tensor &net, global::Tensor &out);
 
 	/// Utility function to find maximum value in a tensor
@@ -138,14 +153,14 @@ class Activation {
 	 */
 	Activation(const ActivationType activationType_)
 	    : activationType(activationType_) {}
-	
+
 	/**
 	 * @brief Copy constructor
 	 * @param other The activation function to copy
 	 */
 	Activation(const Activation &other)
 	    : activationType(other.activationType) {}
-	
+
 	/**
 	 * @brief Destructor (default)
 	 */
@@ -157,21 +172,37 @@ class Activation {
 
 	/**
 	 * @brief Applies the activation function to a tensor
-	 * @param net Input tensor (pre-activation values)
-	 * @param out Output tensor (post-activation values)
-	 * 
+	 *
+	 * This method applies the configured activation function to the input tensor
+	 * and stores the result in the output tensor. The operation is performed
+	 * element-wise across the entire tensor.
+	 *
+	 * @param net Input tensor containing pre-activation values
+	 * @param out Output tensor to store post-activation values
+	 *
+	 * @throws std::invalid_argument If input and output tensors have different sizes
+	 * @throws std::runtime_error If the activation type is unknown
+	 *
 	 * @note The output tensor must have the same shape as the input tensor
-	 * @note This operation is optimized for both CPU and GPU execution
+	 * @note This method automatically chooses between CPU and GPU implementations
 	 */
 	void activate(const global::Tensor &net, global::Tensor &out) const;
-	
+
 	/**
 	 * @brief Applies the derivative of the activation function to a tensor
-	 * @param net Input tensor (pre-activation values)
-	 * @param out Output tensor (derivative values)
-	 * 
-	 * @note The output tensor must have the same shape as the input tensor
-	 * @note This is used during backpropagation for gradient computation
+	 *
+	 * This method computes the derivative of the configured activation function
+	 * and applies it to the input tensor. This is used during backpropagation
+	 * to compute gradients for the previous layer.
+	 *
+	 * @param net Input tensor containing pre-activation values
+	 * @param out Output tensor to store derivative values (modified in-place)
+	 *
+	 * @throws std::invalid_argument If input and output tensors have different sizes
+	 * @throws std::runtime_error If the activation type is unknown
+	 *
+	 * @note The output tensor is modified in-place (multiplied by the derivative)
+	 * @note This method automatically chooses between CPU and GPU implementations
 	 */
 	void derivativeActivate(const global::Tensor &net,
 	                        global::Tensor &out) const;
@@ -184,10 +215,16 @@ class Activation {
 
 	/**
 	 * @brief Finds the index of the maximum element in a tensor
+	 *
+	 * This utility function finds the index of the element with the maximum value
+	 * in the given tensor. It's commonly used with softmax activation for
+	 * classification tasks.
+	 *
 	 * @param metrix The input tensor to search
 	 * @return The index of the element with the maximum value
-	 * 
-	 * @note This is commonly used with Softmax for classification
+	 *
+	 * @note This function works with both CPU and GPU tensors
+	 * @note For GPU tensors, it uses optimized CUDA kernels
 	 */
 	static size_t getMaxElementIndex(const global::Tensor &metrix);
 };
