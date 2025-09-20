@@ -1,3 +1,14 @@
+/**
+ * @file model.cpp
+ * @brief Implementation of the Model class for neural network training and evaluation
+ * 
+ * This file contains the core implementation of the Model class, which manages
+ * the complete lifecycle of neural network models including construction,
+ * training, evaluation, and visualization. It coordinates between different
+ * network types (CNN, FNN) and handles optimization, data management, and
+ * progress tracking.
+ */
+
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
@@ -9,6 +20,17 @@
 
 namespace nn::model {
 
+/**
+ * @brief Constructs a Model from a configuration file
+ * 
+ * Initializes a complete neural network model by reading configuration from
+ * a JSON file. This constructor sets up the optimizer, network architecture,
+ * and visualization components based on the provided configuration.
+ * 
+ * @param config_filepath Path to the JSON configuration file
+ * @throws std::runtime_error If configuration file cannot be read or parsed
+ * @throws std::invalid_argument If configuration contains invalid parameters
+ */
 Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       visual(config),
@@ -20,6 +42,15 @@ Model::Model(const std::string &config_filepath)
 	}
 }
 
+/**
+ * @brief Initializes the optimization algorithm based on configuration
+ * 
+ * Creates and configures the appropriate optimizer (e.g., Constant, Adam, SGD)
+ * based on the optimizer type specified in the training configuration.
+ * The optimizer is responsible for updating network parameters during training.
+ * 
+ * @throws std::runtime_error If unknown optimizer type is specified
+ */
 void Model::initOptimizer() {
 	const std::string &type = config.trainingConfig.getOptimizerType();
 
@@ -30,19 +61,39 @@ void Model::initOptimizer() {
 	}
 }
 
+/**
+ * @brief Initializes the visualization system for the model
+ * 
+ * Sets up the visual components for real-time monitoring of training progress
+ * and network visualization. This includes graphs for loss tracking and
+ * visual representation of network layers if enabled in configuration.
+ * 
+ * @note Only initializes if visualization is enabled in config
+ */
 void Model::initVisual() {
 	visual.start();
 
+	// Connect network visual components if network visualization is enabled
 	if (!config.visualConfig.enableNetwrokVisual) {
 		return;
 	}
 
+	// Link each sub-network's visual component to the main visualizer
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		visual.addVisualSubNetwork(network[i]->getVisual());
 		network[i]->getVisual()->setVstate(visual.Vstate);
 	}
 }
 
+/**
+ * @brief Calculates the width allocation for each sub-network in visualization
+ * 
+ * Determines how much horizontal space each sub-network should occupy in the
+ * visual representation by dividing the total available width by the number
+ * of sub-networks.
+ * 
+ * @return Width in pixels for each sub-network, or 0 if no sub-networks exist
+ */
 std::uint32_t Model::calculateSubNetWidth() const {
 	const auto count = config.networkConfig.SubNetworksConfig.size();
 	if (count == 0) {
@@ -51,13 +102,25 @@ std::uint32_t Model::calculateSubNetWidth() const {
 	return visualizer::SUB_NETWORKS_WIDTH / static_cast<std::uint32_t>(count);
 }
 
+/**
+ * @brief Initializes the neural network architecture
+ * 
+ * Constructs the complete neural network by creating and connecting all
+ * sub-networks (CNNs, FNNs) according to the configuration. Also calculates
+ * the total number of trainable parameters and prints model information.
+ * 
+ * @throws std::runtime_error If network configuration is invalid
+ * @throws std::bad_alloc If insufficient memory for network creation
+ */
 void Model::initModel() {
 	const std::uint32_t WIDTH = calculateSubNetWidth();
 	size_t param_amount = 0;
 
+	// Create and configure each sub-network according to its type
 	for (size_t i = 0; i < config.networkConfig.SubNetworksConfig.size(); ++i) {
 		ISubNetworkConfig &_config = *config.networkConfig.SubNetworksConfig[i];
 
+		// Instantiate the appropriate network type based on configuration
 		if (_config.NNLable() == fnn::FNN_LABLE) {
 			addFNN(WIDTH, _config);
 		} else if (_config.NNLable() == cnn::CNN_LABLE) {
@@ -67,16 +130,28 @@ void Model::initModel() {
 		param_amount += network[i]->getParamCount();
 	}
 
+	// Print model summary information
 	std::cout << "initialize model - "
 	          << param_amount << " parameters, "
 	          << config.networkConfig.SubNetworksConfig.size() << " sub networks"
 	          << std::endl;
 }
 
+/**
+ * @brief Adds a Fully Connected Network (FNN) to the model
+ * 
+ * Creates and configures a new FNN sub-network with the specified parameters.
+ * Optionally creates a visual component for real-time network visualization.
+ * 
+ * @param width Visual width allocation for this sub-network in pixels
+ * @param _config Configuration object containing FNN-specific parameters
+ * @throws std::bad_cast If _config is not a valid FNNConfig
+ */
 void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	fnn::FNNConfig &sub_ = (fnn::FNNConfig &)(_config);
 	std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = nullptr;
 
+	// Create visualizer component if network visualization is enabled
 	if (shouldRenderNet()) {
 		visual_ = std::make_shared<visualizer::fnn::FnnVisualier>(
 		    visual.Vstate, width, sub_);
@@ -85,10 +160,21 @@ void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	network.push_back(std::make_unique<fnn::FNNetwork>(sub_, true, visual_));
 }
 
+/**
+ * @brief Adds a Convolutional Neural Network (CNN) to the model
+ * 
+ * Creates and configures a new CNN sub-network with the specified parameters.
+ * Optionally creates a visual component for real-time network visualization.
+ * 
+ * @param width Visual width allocation for this sub-network in pixels
+ * @param _config Configuration object containing CNN-specific parameters
+ * @throws std::bad_cast If _config is not a valid CNNConfig
+ */
 void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	cnn::CNNConfig &sub_ = (cnn::CNNConfig &)(_config);
 	std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ = nullptr;
 
+	// Create visualizer component if network visualization is enabled
 	if (shouldRenderNet()) {
 		visual_ = std::make_shared<visualizer::cnn::CnnVisualier>(
 		    visual.Vstate, width, sub_);
@@ -97,6 +183,14 @@ void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 	network.push_back(std::make_unique<cnn::CNNetwork>(sub_, true, visual_));
 }
 
+/**
+ * @brief Determines if network visualization should be rendered
+ * 
+ * Checks if both general visualization and network-specific visualization
+ * are enabled in the configuration.
+ * 
+ * @return true if network visualization should be rendered, false otherwise
+ */
 bool Model::shouldRenderNet() const {
 	return config.visualConfig.enableVisuals &&
 	       config.visualConfig.enableNetwrokVisual;

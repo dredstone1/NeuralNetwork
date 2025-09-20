@@ -1,21 +1,66 @@
+/**
+ * @file graph.cpp
+ * @brief Implementation of graph visualization components for training metrics
+ * 
+ * This file implements real-time graph visualization for tracking neural network
+ * training progress. It provides functionality for plotting loss curves and
+ * evaluation metrics over time, with automatic scaling and data management.
+ */
+
 #include "graph.hpp"
 #include "fonts.hpp"
 
 namespace nn::visualizer {
+
+/**
+ * @brief Constructs a Graph for displaying training metrics over time
+ * 
+ * Creates a graph visualization component that can display data points
+ * over the course of training. The graph automatically scales and manages
+ * data points within a fixed resolution window.
+ * 
+ * @param batchCount Total number of training batches (for data gap calculation)
+ * @param res Resolution of the graph (maximum number of data points displayed)
+ * @param alpha Scaling factor for graph height visualization
+ */
 Graph::Graph(const int batchCount, std::uint32_t res, float alpha)
     : graphAlpha(alpha),
       resolution(std::min(GRAPH_RESOLUTION, res) - 1),
       dataGaps(batchCount / resolution) {
 }
 
+/**
+ * @brief Calculates the vertical position for a given value on the graph
+ * 
+ * Converts a data value to screen coordinates, applying scaling and ensuring
+ * the point fits within the graph's height bounds.
+ * 
+ * @param value The data value to convert to screen coordinates
+ * @return Y-coordinate position for rendering (inverted, as screen Y increases downward)
+ */
 float Graph::getHeight(const float value) const {
 	return GRAPH_HEIGHT - std::max(1.0, value * graphAlpha);
 }
 
+/**
+ * @brief Calculates the 2D position for a data point at the given index
+ * 
+ * Converts a data index to screen coordinates for rendering, combining
+ * horizontal positioning based on time/index and vertical positioning
+ * based on the data value.
+ * 
+ * @param index Index of the data point in the graph's data array
+ * @return 2D position vector for rendering this data point
+ */
 sf::Vector2f Graph::getPosition(int index) const {
 	return {index * dataGapWidth(), getHeight(getValue(index))};
 }
 
+/**
+ * @brief Calculates the horizontal spacing between data points
+ * 
+ * @return Width in pixels between consecutive data points on the graph
+ */
 float Graph::dataGapWidth() const {
 	return GRAPH_WIDTH / static_cast<float>(resolution);
 }
