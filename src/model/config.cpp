@@ -32,12 +32,15 @@ Config::Config(const std::string &config_filepath) {
 }
 
 void Config::initalizeJson(const nlohmann::json &j) {
+	// Parse training configuration (required)
 	trainingConfig.fromJson(j.at("training config"));
 
+	// Parse visual configuration (optional)
 	if (j.contains("visual config")) {
 		visualConfig.fromJson(j.at("visual config"));
 	}
 
+	// Parse network architecture configuration (required)
 	networkConfig.fromJson(j.at("network config"));
 }
 
@@ -54,7 +57,7 @@ void NetworkConfig::fromJson(const nlohmann::json &j) {
 			    std::make_shared<cnn::CNNConfig>(subNetworkConfig, prevS));
 		}
 
-		prevS = SubNetworksConfig[SubNetworksConfig.size()-1]->getOutputSize();
+		prevS = SubNetworksConfig[SubNetworksConfig.size() - 1]->getOutputSize();
 	}
 }
 

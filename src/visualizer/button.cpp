@@ -1,7 +1,29 @@
+/**
+ * @file button.cpp
+ * @brief Implementation of interactive button components for the neural network visualizer
+ * 
+ * This file implements UI button functionality for the visualization interface,
+ * providing interactive controls for toggling various visualization features.
+ * Buttons handle mouse interactions, visual state changes, and command dispatch
+ * to the state management system.
+ */
+
 #include "button.hpp"
 #include "fonts.hpp"
 
 namespace nn::visualizer {
+
+/**
+ * @brief Constructs a new Button with specified label and state binding
+ * 
+ * Creates an interactive button that can toggle a specific setting in the
+ * state manager. The button renders with different colors based on its
+ * current state (active/inactive).
+ * 
+ * @param _state Shared pointer to the state manager for this visualizer session
+ * @param lable Text label to display on the button
+ * @param initState The setting type this button controls (e.g., graph visibility)
+ */
 Button::Button(
     const std::shared_ptr<StateManager> _state,
     const std::string_view &lable,
@@ -13,12 +35,24 @@ Button::Button(
 	renderButton();
 }
 
+/**
+ * @brief Renders the button with current state-appropriate appearance
+ * 
+ * Updates the button's visual appearance by clearing the render texture with
+ * the appropriate background color and redrawing the text. This method is
+ * called whenever the button's state changes.
+ */
 void Button::renderButton() {
 	buttonRender.clear(getBgColor());
 	drawText();
 	visibleState = vstate->getState(CurrentState);
 }
 
+/**
+ * @brief Determines the background color based on button's current state
+ * 
+ * @return Active color if the associated setting is enabled, inactive color otherwise
+ */
 sf::Color Button::getBgColor() {
 	if (vstate->getState(CurrentState)) {
 		return buttoncolors::ACTIVE;
@@ -27,6 +61,11 @@ sf::Color Button::getBgColor() {
 	}
 }
 
+/**
+ * @brief Determines the text color based on button's current state
+ * 
+ * @return Active text color if the associated setting is enabled, inactive text color otherwise
+ */
 sf::Color Button::getFontColor() {
 	if (vstate->getState(CurrentState)) {
 		return buttoncolors::TEXT_ACTIVE;

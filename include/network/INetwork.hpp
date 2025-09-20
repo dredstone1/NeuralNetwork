@@ -1,8 +1,9 @@
 #ifndef INETWORK
 #define INETWORK
 
-#include "../src/model/optimizers.hpp"
+#include "../../src/model/optimizers.hpp"
 #include "IvisualNetwork.hpp"
+#include "tensor.hpp"
 
 namespace nn::model {
 class INetwork {

@@ -1,3 +1,13 @@
+/**
+ * @file optimizers.cpp
+ * @brief Implementation of optimization algorithms for neural network training
+ * 
+ * This file implements various optimization algorithms used to update neural
+ * network parameters during training. Currently supports constant learning
+ * rate optimization, with infrastructure for adding more sophisticated
+ * optimizers like Adam, RMSprop, and momentum-based methods.
+ */
+
 #ifndef OPTIMIZERS
 #define OPTIMIZERS
 
