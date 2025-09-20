@@ -1,21 +1,21 @@
 #include "tensor_gpu.hpp"
 #include <cstddef>
+#include <cuda_runtime.h> // Added for CUDA error checking
+#include <iostream>       // Added for debugging
 #include <numeric>
 #include <sstream>
-#include <tensor.hpp>
 #include <stdexcept>
-#include <iostream> // Added for debugging
-#include <cuda_runtime.h> // Added for CUDA error checking
+#include <tensor.hpp>
 
 namespace nn::global {
 
 /**
  * @brief Computes the total number of elements in a tensor from its shape
- * 
+ *
  * This function calculates the product of all dimensions in the shape vector,
  * which represents the total number of elements that can be stored in a tensor
  * with the given dimensions.
- * 
+ *
  * @param shape A vector containing the dimensions of the tensor
  * @return The total number of elements (product of all dimensions)
  * @retval 0 If the shape vector is empty
@@ -33,16 +33,16 @@ size_t computeTensorSize(const std::vector<size_t> &shape) {
 
 /**
  * @brief Converts a tensor shape into a human-readable string representation
- * 
+ *
  * This utility function formats a shape vector into a string that can be used
  * for debugging, error messages, or logging purposes. The output format is
  * similar to array notation: "{dim1, dim2, dim3, ...}".
- * 
+ *
  * @param shape A vector containing the dimensions of the tensor
  * @return A formatted string representation of the shape
  * @retval "{}" If the shape vector is empty
  */
-static std::string shapeToString(const std::vector<size_t> &shape) {
+std::string shapeToString(const std::vector<size_t> &shape) {
 	if (shape.empty()) {
 		return "{}";
 	}
@@ -56,21 +56,21 @@ static std::string shapeToString(const std::vector<size_t> &shape) {
 }
 
 // Static member initialization
-bool Tensor::isGpu = DEFAULT_GPU_MODE;  ///< Global GPU mode flag for all tensors
-size_t Tensor::tensorCount = 0;         ///< Global counter for tracking active tensors
+bool Tensor::isGpu = DEFAULT_GPU_MODE; ///< Global GPU mode flag for all tensors
+size_t Tensor::tensorCount = 0;        ///< Global counter for tracking active tensors
 
 /**
  * @brief Constructs a new tensor with the specified shape and initial value
- * 
+ *
  * This constructor creates a tensor with the given dimensions and initializes
  * all elements with the specified value. The tensor will be allocated either
  * on CPU or GPU memory depending on the current global execution mode.
- * 
+ *
  * @param shape_ The dimensions of the tensor (e.g., {batch_size, height, width, channels})
  * @param init The initial value to fill all tensor elements with (default: 0.0)
- * 
+ *
  * @throws std::invalid_argument If the shape vector is empty
- * 
+ *
  * @note The tensor count is incremented upon successful construction
  * @note GPU memory allocation is performed if the global GPU mode is enabled
  */
@@ -108,13 +108,13 @@ Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 
 /**
  * @brief Switches the global execution mode to GPU for all future tensors
- * 
+ *
  * This static method changes the global execution mode to GPU, meaning all
  * subsequently created tensors will be allocated on GPU memory. This switch
  * can only be performed when no tensors currently exist in the system.
- * 
+ *
  * @throws std::runtime_error If tensors already exist in CPU mode
- * 
+ *
  * @note This is a global setting that affects all future tensor allocations
  * @note All existing tensors must be destroyed before switching modes
  */
@@ -130,13 +130,13 @@ void Tensor::toGpu() {
 
 /**
  * @brief Switches the global execution mode to CPU for all future tensors
- * 
+ *
  * This static method changes the global execution mode to CPU, meaning all
  * subsequently created tensors will be allocated on CPU memory. This switch
  * can only be performed when no tensors currently exist in the system.
- * 
+ *
  * @throws std::runtime_error If tensors already exist in GPU mode
- * 
+ *
  * @note This is a global setting that affects all future tensor allocations
  * @note All existing tensors must be destroyed before switching modes
  */
@@ -152,22 +152,22 @@ void Tensor::toCpu() {
 
 /**
  * @brief Copy constructor - creates a deep copy of another tensor
- * 
+ *
  * This constructor creates a new tensor that is an exact copy of the source tensor,
  * including all data, shape, and strides. The copy is performed in the same execution
  * mode (CPU/GPU) as the source tensor.
- * 
+ *
  * @param other The tensor to copy from
- * 
+ *
  * @throws std::runtime_error If GPU data pointer is null during GPU copy operation
- * 
+ *
  * @note This performs a deep copy - the new tensor has its own memory allocation
  * @note GPU operations are synchronized to ensure completion before proceeding
  * @note The tensor count is incremented upon successful construction
  */
 Tensor::Tensor(const Tensor &other) {
 	std::cout << "DEBUG: Entering Tensor copy constructor" << std::endl;
-	
+
 	// Copy shape and strides metadata
 	shape = other.shape;
 	strides = other.strides;
@@ -176,21 +176,21 @@ Tensor::Tensor(const Tensor &other) {
 		// GPU mode: allocate new GPU memory and copy data
 		gpu_data_size = other.gpu_data_size;
 		std::cout << "DEBUG: Tensor copy constructor - allocating " << gpu_data_size << " elements" << std::endl;
-		
+
 		// Validate source GPU data pointer
 		if (other.gpu_data == nullptr) {
 			std::cerr << "ERROR: other.gpu_data is null in copy constructor!" << std::endl;
 			throw std::runtime_error("Null GPU data pointer in copy constructor");
 		}
-		
+
 		// Allocate new GPU memory
 		gpu_data = (ValueType *)tensor_gpu::allocate(gpu_data_size * sizeof(ValueType));
-		std::cout << "DEBUG: Tensor copy constructor - allocated gpu_data: " << (void*)gpu_data << std::endl;
-		
+		std::cout << "DEBUG: Tensor copy constructor - allocated gpu_data: " << (void *)gpu_data << std::endl;
+
 		// Copy data from source to destination on GPU
 		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
 		std::cout << "DEBUG: Tensor copy constructor - copyDeviceToDevice completed" << std::endl;
-		
+
 		// Synchronize GPU operations and check for errors
 		cudaDeviceSynchronize();
 		cudaError_t cudaError = cudaGetLastError();
@@ -201,18 +201,18 @@ Tensor::Tensor(const Tensor &other) {
 		// CPU mode: simple vector copy
 		cpu_data = other.cpu_data;
 	}
-	
+
 	std::cout << "DEBUG: Exiting Tensor copy constructor" << std::endl;
 }
 
 /**
  * @brief Returns the total number of elements in the tensor
- * 
+ *
  * This method returns the total number of elements that can be stored in the tensor,
  * which is the product of all dimensions in the shape vector.
- * 
+ *
  * @return The total number of elements in the tensor
- * 
+ *
  * @note For GPU tensors, this returns the stored gpu_data_size
  * @note For CPU tensors, this returns the size of the cpu_data vector
  */
@@ -226,12 +226,12 @@ size_t Tensor::numElements() const {
 
 /**
  * @brief Copies the tensor's data into a std::vector
- * 
+ *
  * This method extracts all data from the tensor and copies it into the provided
  * vector. For GPU tensors, this involves a device-to-host memory transfer.
- * 
+ *
  * @param dest The destination vector that will receive the tensor data
- * 
+ *
  * @note The destination vector will be resized to fit the tensor data
  * @note For GPU tensors, this operation involves CUDA memory transfer
  * @note The destination vector must have sufficient capacity or will be resized
@@ -248,12 +248,12 @@ void Tensor::getData(std::vector<ValueType> &dest) const {
 
 /**
  * @brief Replaces the tensor's data with data from another tensor
- * 
+ *
  * This method copies all data from the source tensor into this tensor. If the
  * tensors have different sizes, memory will be reallocated as needed.
- * 
+ *
  * @param other The source tensor to copy data from
- * 
+ *
  * @note This method performs a no-op if called with the same tensor (self-assignment)
  * @note For GPU tensors, this involves device-to-device memory copy
  * @note Memory reallocation occurs if the source tensor has different size
@@ -283,15 +283,15 @@ void Tensor::setData(const Tensor &other) {
 
 /**
  * @brief Sets a new shape for the tensor
- * 
+ *
  * This method changes the shape of the tensor and recomputes the strides
  * for efficient multi-dimensional indexing.
- * 
+ *
  * @param newShape The new shape dimensions for the tensor
- * 
+ *
  * @warning The total number of elements defined by newShape must exactly match
  *          the current number of elements. This function does not validate this.
- * 
+ *
  * @note This only modifies the shape metadata; the underlying data is unchanged
  * @note Strides are automatically recomputed after shape change
  */
@@ -302,12 +302,12 @@ void Tensor::setShape(const std::vector<size_t> &newShape) {
 
 /**
  * @brief Fills the entire tensor with a specified scalar value
- * 
+ *
  * This method sets all elements in the tensor to the same value. The operation
  * is optimized for both CPU and GPU execution modes.
- * 
+ *
  * @param value The value to fill all tensor elements with
- * 
+ *
  * @note For GPU tensors, this uses optimized CUDA kernels
  * @note For CPU tensors, this uses a simple loop
  */
@@ -326,10 +326,10 @@ void Tensor::fill(const ValueType &value) {
 
 /**
  * @brief Fills the entire tensor with zeros
- * 
+ *
  * This is a convenience method that sets all tensor elements to zero.
  * It's equivalent to calling fill(0.0) but may be more efficient.
- * 
+ *
  * @note For GPU tensors, this uses an optimized zero kernel
  * @note For CPU tensors, this calls fill(0) internally
  */
@@ -345,7 +345,7 @@ void Tensor::zero() {
 
 Tensor &Tensor::operator=(const Tensor &other) {
 	std::cout << "DEBUG: Entering Tensor::operator=" << std::endl;
-	
+
 	if (this == &other) {
 		std::cout << "DEBUG: Self-assignment detected, returning" << std::endl;
 		return *this;
@@ -353,39 +353,39 @@ Tensor &Tensor::operator=(const Tensor &other) {
 
 	if (isGpu) {
 		std::cout << "DEBUG: operator= - current gpu_data_size: " << gpu_data_size << ", other.gpu_data_size: " << other.gpu_data_size << std::endl;
-		std::cout << "DEBUG: operator= - current gpu_data: " << (void*)gpu_data << ", other.gpu_data: " << (void*)other.gpu_data << std::endl;
-		
+		std::cout << "DEBUG: operator= - current gpu_data: " << (void *)gpu_data << ", other.gpu_data: " << (void *)other.gpu_data << std::endl;
+
 		if (gpu_data_size != other.gpu_data_size) {
 			std::cout << "DEBUG: operator= - reallocating from " << gpu_data_size << " to " << other.gpu_data_size << " elements" << std::endl;
-			
+
 			// Check for null pointers before reallocation
 			if (other.gpu_data == nullptr) {
 				std::cerr << "ERROR: other.gpu_data is null during reallocation!" << std::endl;
 				throw std::runtime_error("Null GPU data pointer in operator=");
 			}
-			
+
 			ValueType *temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
-			std::cout << "DEBUG: operator= - allocated temp buffer: " << (void*)temp << std::endl;
-			
+			std::cout << "DEBUG: operator= - allocated temp buffer: " << (void *)temp << std::endl;
+
 			gpu_data_size = other.gpu_data_size;
 			std::cout << "DEBUG: operator= - about to copy " << gpu_data_size << " elements" << std::endl;
-			
+
 			tensor_gpu::copyDeviceToDevice(temp, other.gpu_data, gpu_data_size * sizeof(ValueType));
 			std::cout << "DEBUG: operator= - copyDeviceToDevice completed" << std::endl;
-			
+
 			cudaDeviceSynchronize();
 			cudaError_t cudaError = cudaGetLastError();
 			if (cudaError != cudaSuccess) {
 				std::cerr << "CUDA Error after copyDeviceToDevice: " << cudaGetErrorString(cudaError) << std::endl;
 			}
-			
+
 			if (gpu_data != nullptr) {
-				std::cout << "DEBUG: operator= - deallocating old gpu_data: " << (void*)gpu_data << std::endl;
+				std::cout << "DEBUG: operator= - deallocating old gpu_data: " << (void *)gpu_data << std::endl;
 				tensor_gpu::deallocate(gpu_data);
 			}
-			
+
 			gpu_data = temp;
-			std::cout << "DEBUG: operator= - assigned new gpu_data: " << (void*)gpu_data << std::endl;
+			std::cout << "DEBUG: operator= - assigned new gpu_data: " << (void *)gpu_data << std::endl;
 		} else {
 			std::cout << "DEBUG: operator= - same size, copying data" << std::endl;
 			if (other.gpu_data == nullptr) {
@@ -433,11 +433,11 @@ void Tensor::flatten() {
 
 /**
  * @brief Computes the strides for efficient multi-dimensional indexing
- * 
+ *
  * This method calculates the stride values for each dimension, which are used
  * to convert multi-dimensional indices into a single flattened index. The
  * strides are computed using row-major (C-style) ordering.
- * 
+ *
  * @note This is a private method called internally when shape changes
  * @note Strides are computed as: stride[i] = product of all dimensions after i
  */
@@ -455,17 +455,17 @@ void Tensor::computeStrides() {
 
 /**
  * @brief Converts multi-dimensional indices to a single flattened index
- * 
+ *
  * This method takes a vector of indices (one for each dimension) and converts
  * them into a single linear index that can be used to access the underlying
  * data array. The conversion uses row-major (C-style) ordering.
- * 
+ *
  * @param indices A vector of indices, one for each dimension
  * @return The corresponding flattened index
- * 
+ *
  * @throws std::invalid_argument If the number of indices doesn't match the tensor's rank
  * @throws std::out_of_range If any index is out of bounds for its dimension
- * 
+ *
  * @note This is a private method used internally for element access
  * @note The conversion formula is: index = sum(indices[i] * strides[i])
  */
@@ -527,7 +527,7 @@ void Tensor::setValue(const size_t indices, const ValueType value) {
 
 Tensor &Tensor::operator+=(const Tensor &other) {
 	std::cout << "DEBUG: Entering Tensor::operator+=" << std::endl;
-	
+
 	if (shape != other.shape)
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator+=. Left-hand side shape: " +
@@ -535,23 +535,23 @@ Tensor &Tensor::operator+=(const Tensor &other) {
 
 	if (isGpu) {
 		std::cout << "DEBUG: Tensor::operator+= - this->gpu_data_size: " << gpu_data_size << ", other.gpu_data_size: " << other.gpu_data_size << std::endl;
-		std::cout << "DEBUG: Tensor::operator+= - this->gpu_data: " << (void*)gpu_data << ", other.gpu_data: " << (void*)other.gpu_data << std::endl;
-		
+		std::cout << "DEBUG: Tensor::operator+= - this->gpu_data: " << (void *)gpu_data << ", other.gpu_data: " << (void *)other.gpu_data << std::endl;
+
 		// Check for null pointers
 		if (gpu_data == nullptr || other.gpu_data == nullptr) {
 			std::cerr << "ERROR: Null GPU data pointer detected!" << std::endl;
-			std::cerr << "this->gpu_data: " << (void*)gpu_data << ", other.gpu_data: " << (void*)other.gpu_data << std::endl;
+			std::cerr << "this->gpu_data: " << (void *)gpu_data << ", other.gpu_data: " << (void *)other.gpu_data << std::endl;
 			throw std::runtime_error("Null GPU data pointer in operator+=");
 		}
-		
+
 		std::cout << "DEBUG: About to call tensor_gpu::add_vec" << std::endl;
 		tensor_gpu::add_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
 		std::cout << "DEBUG: tensor_gpu::add_vec completed" << std::endl;
-		
+
 		cudaDeviceSynchronize(); // Synchronize to catch async errors
 		cudaError_t cudaError = cudaGetLastError();
 		if (cudaError != cudaSuccess) {
-		    std::cerr << "CUDA Error after add_vec: " << cudaGetErrorString(cudaError) << std::endl;
+			std::cerr << "CUDA Error after add_vec: " << cudaGetErrorString(cudaError) << std::endl;
 		}
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
@@ -564,7 +564,7 @@ Tensor &Tensor::operator+=(const Tensor &other) {
 
 Tensor &Tensor::operator-=(const Tensor &other) {
 	std::cout << "DEBUG: Entering Tensor::operator-=" << std::endl;
-	
+
 	if (shape != other.shape)
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator-=. Left-hand side shape: " +
@@ -576,7 +576,7 @@ Tensor &Tensor::operator-=(const Tensor &other) {
 		cudaDeviceSynchronize();
 		cudaError_t cudaError = cudaGetLastError();
 		if (cudaError != cudaSuccess) {
-		    std::cerr << "CUDA Error after subtraction_vec: " << cudaGetErrorString(cudaError) << std::endl;
+			std::cerr << "CUDA Error after subtraction_vec: " << cudaGetErrorString(cudaError) << std::endl;
 		}
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
@@ -589,7 +589,7 @@ Tensor &Tensor::operator-=(const Tensor &other) {
 
 Tensor &Tensor::operator*=(const Tensor &other) {
 	std::cout << "DEBUG: Entering Tensor::operator*=" << std::endl;
-	
+
 	if (shape != other.shape)
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator*=. Left-hand side shape: " +
@@ -601,7 +601,7 @@ Tensor &Tensor::operator*=(const Tensor &other) {
 		cudaDeviceSynchronize();
 		cudaError_t cudaError = cudaGetLastError();
 		if (cudaError != cudaSuccess) {
-		    std::cerr << "CUDA Error after multiply_vec: " << cudaGetErrorString(cudaError) << std::endl;
+			std::cerr << "CUDA Error after multiply_vec: " << cudaGetErrorString(cudaError) << std::endl;
 		}
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
@@ -614,7 +614,7 @@ Tensor &Tensor::operator*=(const Tensor &other) {
 
 Tensor &Tensor::operator/=(const Tensor &other) {
 	std::cout << "DEBUG: Entering Tensor::operator/=" << std::endl;
-	
+
 	if (shape != other.shape)
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator/=. Left-hand side shape: " +
@@ -626,7 +626,7 @@ Tensor &Tensor::operator/=(const Tensor &other) {
 		cudaDeviceSynchronize();
 		cudaError_t cudaError = cudaGetLastError();
 		if (cudaError != cudaSuccess) {
-		    std::cerr << "CUDA Error after division_vec: " << cudaGetErrorString(cudaError) << std::endl;
+			std::cerr << "CUDA Error after division_vec: " << cudaGetErrorString(cudaError) << std::endl;
 		}
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
@@ -639,14 +639,14 @@ Tensor &Tensor::operator/=(const Tensor &other) {
 
 Tensor &Tensor::operator*=(ValueType scalar) {
 	std::cout << "DEBUG: Entering Tensor::operator*=(scalar)" << std::endl;
-	
+
 	if (isGpu) {
 		std::cout << "DEBUG: Tensor::operator*=(scalar) - this->gpu_data_size: " << gpu_data_size << std::endl;
 		tensor_gpu::multiply_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 		cudaDeviceSynchronize();
 		cudaError_t cudaError = cudaGetLastError();
 		if (cudaError != cudaSuccess) {
-		    std::cerr << "CUDA Error after multiply_scalar: " << cudaGetErrorString(cudaError) << std::endl;
+			std::cerr << "CUDA Error after multiply_scalar: " << cudaGetErrorString(cudaError) << std::endl;
 		}
 	} else {
 		for (auto &x : cpu_data)
@@ -659,14 +659,14 @@ Tensor &Tensor::operator*=(ValueType scalar) {
 
 Tensor &Tensor::operator-=(ValueType scalar) {
 	std::cout << "DEBUG: Entering Tensor::operator-=(scalar)" << std::endl;
-	
+
 	if (isGpu) {
 		std::cout << "DEBUG: Tensor::operator-=(scalar) - this->gpu_data_size: " << gpu_data_size << std::endl;
 		tensor_gpu::subtraction_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 		cudaDeviceSynchronize();
 		cudaError_t cudaError = cudaGetLastError();
 		if (cudaError != cudaSuccess) {
-		    std::cerr << "CUDA Error after subtraction_scalar: " << cudaGetErrorString(cudaError) << std::endl;
+			std::cerr << "CUDA Error after subtraction_scalar: " << cudaGetErrorString(cudaError) << std::endl;
 		}
 	} else {
 		for (auto &x : cpu_data)
@@ -679,14 +679,14 @@ Tensor &Tensor::operator-=(ValueType scalar) {
 
 Tensor &Tensor::operator+=(ValueType scalar) {
 	std::cout << "DEBUG: Entering Tensor::operator+=(scalar)" << std::endl;
-	
+
 	if (isGpu) {
 		std::cout << "DEBUG: Tensor::operator+=(scalar) - this->gpu_data_size: " << gpu_data_size << std::endl;
 		tensor_gpu::add_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 		cudaDeviceSynchronize();
 		cudaError_t cudaError = cudaGetLastError();
 		if (cudaError != cudaSuccess) {
-		    std::cerr << "CUDA Error after add_scalar: " << cudaGetErrorString(cudaError) << std::endl;
+			std::cerr << "CUDA Error after add_scalar: " << cudaGetErrorString(cudaError) << std::endl;
 		}
 	} else {
 		for (auto &x : cpu_data)
@@ -699,14 +699,14 @@ Tensor &Tensor::operator+=(ValueType scalar) {
 
 Tensor &Tensor::operator/=(ValueType scalar) {
 	std::cout << "DEBUG: Entering Tensor::operator/=(scalar)" << std::endl;
-	
+
 	if (isGpu) {
 		std::cout << "DEBUG: Tensor::operator/=(scalar) - this->gpu_data_size: " << gpu_data_size << std::endl;
 		tensor_gpu::division_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
 		cudaDeviceSynchronize();
 		cudaError_t cudaError = cudaGetLastError();
 		if (cudaError != cudaSuccess) {
-		    std::cerr << "CUDA Error after division_scalar: " << cudaGetErrorString(cudaError) << std::endl;
+			std::cerr << "CUDA Error after division_scalar: " << cudaGetErrorString(cudaError) << std::endl;
 		}
 	} else {
 		for (auto &x : cpu_data)
@@ -778,12 +778,12 @@ void Tensor::matmulT(const Tensor &vec, Tensor &result) const {
 
 /**
  * @brief Destructor - cleans up tensor resources
- * 
+ *
  * This destructor properly cleans up all resources associated with the tensor.
  * For GPU tensors, it deallocates the device memory. For CPU tensors, the
  * std::vector destructor handles cleanup automatically. The global tensor
  * count is decremented to track the number of active tensors.
- * 
+ *
  * @note GPU memory is only deallocated if the tensor is in GPU mode and has valid data
  * @note The global tensor count is decremented upon destruction
  * @note This destructor is automatically called when the tensor goes out of scope

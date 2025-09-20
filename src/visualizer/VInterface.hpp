@@ -37,18 +37,6 @@ constexpr sf::Color INTERFACE_PANEL_COLOR = PANELS_BG;
  * - **Event Handling**: Mouse click and keyboard input processing
  * - **Rendering**: Real-time rendering of the interface panel
  * - **State Management**: Integration with the visualization state system
- * 
- * @section usage Usage Example
- * ```cpp
- * auto stateManager = std::make_shared<StateManager>();
- * InterfacePanel panel(stateManager);
- * 
- * // Handle user input
- * panel.handleClick(mousePosition, panelPosition);
- * 
- * // Get rendered sprite for display
- * sf::Sprite sprite = panel.getSprite();
- * ```
  */
 class InterfacePanel : public Panel {
   private:

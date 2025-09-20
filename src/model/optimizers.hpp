@@ -2,25 +2,17 @@
 #define OPTIMIZERS
 
 #include "config.hpp"
-#include "tensor.hpp"
 #include <cmath>
 
 namespace nn::model {
 
 /**
  * @class IOptimizer
- * @brief Abstract base class for optimization algorithms
+ * @brief Abstract base class for optimization algorithms.
  * 
  * This interface defines the contract that all optimization algorithms
  * must implement. It provides methods for updating parameters and
  * resetting optimizer state.
- * 
- * @section usage Usage Example
- * ```cpp
- * std::unique_ptr<IOptimizer> optimizer = std::make_unique<ConstantOptimizer>(config);
- * optimizer->setOfset(batch_size);
- * optimizer->step(weights, gradients);
- * ```
  */
 class IOptimizer {
   protected:
