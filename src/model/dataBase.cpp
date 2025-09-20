@@ -18,7 +18,7 @@ namespace nn::model {
  */
 inline void skipWhitespace(const char *&ptr, const char *end) {
 	while (ptr < end && (*ptr == ' ' || *ptr == '\t' || *ptr == '\r' || *ptr == '\n')) {
-		++ptr;
+		++ptr; // advance past whitespace
 	}
 }
 
@@ -31,8 +31,8 @@ inline void skipWhitespace(const char *&ptr, const char *end) {
 inline size_t parseIndex(const char *&ptr, const char *end) {
 	size_t idx = 0;
 	while (ptr < end && *ptr >= '0' && *ptr <= '9') {
-		idx = idx * 10 + (*ptr - '0');
-		++ptr;
+		idx = idx * 10 + (*ptr - '0'); // accumulate integer value
+		++ptr;                         // move to next character
 	}
 	return idx;
 }
@@ -47,32 +47,32 @@ inline double parseNumber(const char *&ptr, const char *end) {
 	double value = 0.0;
 	bool negative = false;
 
-	if (*ptr == '-') {
+	if (*ptr == '-') { // check for negative sign
 		negative = true;
 		++ptr;
-	} else if (*ptr == '+') {
+	} else if (*ptr == '+') { // skip positive sign
 		++ptr;
 	}
 
-	// Integer part
+	// parse integer part
 	while (ptr < end && *ptr >= '0' && *ptr <= '9') {
 		value = value * 10.0 + (*ptr - '0');
 		++ptr;
 	}
 
-	// Fraction part
+	// parse fractional part
 	if (ptr < end && *ptr == '.') {
 		++ptr;
 		double frac = 0.0, factor = 0.1;
 		while (ptr < end && *ptr >= '0' && *ptr <= '9') {
-			frac += (*ptr - '0') * factor;
-			factor *= 0.1;
+			frac += (*ptr - '0') * factor; // add digit * factor
+			factor *= 0.1;                 // update factor for next digit
 			++ptr;
 		}
-		value += frac;
+		value += frac; // add fractional part
 	}
 
-	return negative ? -value : value;
+	return negative ? -value : value; // apply sign
 }
 
 /**
@@ -82,7 +82,7 @@ inline double parseNumber(const char *&ptr, const char *end) {
  */
 inline void skipToken(const char *&ptr, const char *end) {
 	while (ptr < end && *ptr != ' ' && *ptr != '\t' && *ptr != '\r' && *ptr != '\n') {
-		++ptr;
+		++ptr; // skip non-whitespace characters
 	}
 }
 
@@ -90,77 +90,64 @@ inline void skipToken(const char *&ptr, const char *end) {
 // DATABASE IMPLEMENTATION
 // ============================================================================
 
-/**
- * @brief Parses a single line from a dataset file into a TrainSample
- * 
- * This method parses a line from the dataset file and extracts the prediction
- * index, weight, and input features. The expected format is:
- * - 'p' followed by prediction index
- * - 'w' followed by sample weight
- * - Numeric values for input features
- * 
- * @param line The line to parse from the dataset file
- * @param sample Output parameter: filled training sample
- * 
- * @throws std::runtime_error If the line format is invalid or incomplete
- */
 void DataBase::readLine(const std::string &line, TrainSample &sample) {
-	sample.pre.index = std::numeric_limits<size_t>::max();
+	sample.pre.index = std::numeric_limits<size_t>::max(); // mark pre.index as invalid
 	size_t input_count = 0;
 
 	const char *ptr = line.c_str();
 	const char *end = ptr + line.size();
 
 	while (ptr < end) {
-		skipWhitespace(ptr, end);
+		skipWhitespace(ptr, end); // skip spaces/tabs/newlines
 		switch (*ptr) {
-		case 'p':
+		case 'p': // parse pre.index
 			++ptr;
 			sample.pre.index = parseIndex(ptr, end);
 			break;
 
-		case 'w':
+		case 'w': // parse sample weight
 			++ptr;
 			sample.weight = parseNumber(ptr, end);
 			break;
 
 		default:
+			// parse input value if it looks like a number
 			if ((*ptr >= '0' && *ptr <= '9') || *ptr == '-' || *ptr == '+') {
 				double value = parseNumber(ptr, end);
 
 				if (input_count < tempData.size()) {
-					tempData[input_count++] = value;
+					tempData[input_count++] = value; // store input value
 					break;
 				}
 			}
 
-			skipToken(ptr, end);
+			skipToken(ptr, end); // skip unrecognized token
 			break;
 		}
 	}
 
+	// ensure the expected number of inputs were read
 	if (input_count != tempData.size()) {
 		throw std::runtime_error("Expected " + std::to_string(tempData.size()) +
 		                         " inputs, got " + std::to_string(input_count));
 	}
 
+	// ensure pre.index was found
 	if (sample.pre.index == std::numeric_limits<size_t>::max()) {
 		throw std::runtime_error("Missing pre.index in line: " + line);
 	}
 
-	sample.input = tempData;
+	sample.input = tempData; // copy tempData to sample input
 }
 
 databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
 	std::istringstream iss(line);
-
 	databaseStatus status{0, 0, 0};
 
-	iss >> status.dbSize;
-	iss >> status.sampleInputSize;
+	iss >> status.dbSize;          // read number of samples
+	iss >> status.sampleInputSize; // read input vector size
 
-	tempData.resize(status.sampleInputSize);
-
+	tempData.resize(status.sampleInputSize); // resize temp buffer for parsing
 	return status;
 }
 
@@ -168,44 +155,44 @@ int DataBase::loadData(const std::string &fileNames) {
 	std::ifstream file(fileNames + DATABASE_FILE_EXETENTION);
 	if (!file.is_open()) {
 		std::cout << FILE_NOT_FOUND_MESSAGE << fileNames << std::endl;
-		return 1;
+		return 1; // file not found
 	}
 
 	std::string line;
 	getline(file, line);
 
-	databaseStatus s = getDataBaseStatus(line);
+	databaseStatus s = getDataBaseStatus(line); // read header info
 	samples.status.sampleInputSize = s.sampleInputSize;
 	samples.status.sampleOutputSize = s.sampleOutputSize;
 
 	size_t i = samples.status.dbSize;
+	// resize sample vector to fit new data
 	samples.samples.resize(i + s.dbSize,
 	                       {samples.status.sampleOutputSize,
 	                        samples.status.sampleInputSize});
 
 	const auto HEADER = LOADING_DB_MESSAGE + fileNames +
 	                    DATABASE_FILE_EXETENTION;
-	ProgressBar bar(s.dbSize, HEADER);
+	ProgressBar bar(s.dbSize, HEADER); // initialize progress bar
 
 	while (i < samples.status.dbSize + s.dbSize && getline(file, line)) {
 		if (line.empty() || line[0] == '-') {
-			continue;
+			continue; // skip empty or comment lines
 		}
 		try {
-			readLine(line, samples.samples[i]);
-
-			++i;
-			++bar;
-			bar.printBar();
+			readLine(line, samples.samples[i]); // parse line
+			++i;                                // increment sample index
+			++bar;                              // increment progress bar
+			bar.printBar();                     // display progress
 		} catch (const std::exception &e) {
 			std::cerr << "Skipping invalid line " << i << ": " << e.what() << "\n";
-			continue;
+			continue; // skip invalid line
 		}
 	}
 
-	samples.status.dbSize = i;
+	samples.status.dbSize = i; // update total sample count
 
-	bar.endPrint();
+	bar.endPrint(); // finalize progress bar
 	file.close();
 	return 0;
 }
@@ -215,7 +202,7 @@ void DataBase::load(const std::vector<std::string> &db_filenames) {
 
 	for (const auto &name : db_filenames) {
 		try {
-			loadData(name);
+			loadData(name); // attempt to load each file
 		} catch (const std::exception &e) {
 			errors.emplace_back("Failed to load " + name + ": " + e.what());
 		}
@@ -225,23 +212,26 @@ void DataBase::load(const std::vector<std::string> &db_filenames) {
 		std::ostringstream oss;
 		oss << "Database load encountered " << errors.size() << " error(s):\n";
 		for (const auto &msg : errors) {
-			oss << "  - " << msg << "\n";
+			oss << "  - " << msg << "\n"; // collect errors
 		}
 		throw std::runtime_error(oss.str());
 	}
 
+	// shrink sample vector to actual number of loaded samples
 	samples.samples.resize(samples.status.dbSize);
 	std::cout << "Loaded " << samples.status.dbSize << " samples." << std::endl;
 }
 
 TrainSample DataBase::getSample(const size_t i) {
 	TrainSample newSample;
-	newSample.pre = samples.samples[i].pre;
-	newSample.weight = samples.samples[i].weight;
+	newSample.pre = samples.samples[i].pre;       // copy pre.index
+	newSample.weight = samples.samples[i].weight; // copy weight
 
+	// copy input shape and strides
 	newSample.input.shape = samples.samples[i].input.shape;
 	newSample.input.strides = samples.samples[i].input.strides;
 
+	// copy GPU or CPU data depending on global state
 	if (nn::global::Tensor::getGpuState()) {
 		newSample.input.gpu_data = samples.samples[i].input.gpu_data;
 	} else {

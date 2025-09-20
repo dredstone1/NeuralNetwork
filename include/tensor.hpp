@@ -19,16 +19,29 @@ namespace nn::global {
 class Tensor;
 
 /**
- * @brief Converts a tensor shape into a human-readable string.
- * @param shape A vector representing the dimensions of the tensor.
- * @return A string representation, e.g., "{3, 4, 5}".
+ * @brief Converts a tensor shape into a human-readable string representation
+ *
+ * This utility function formats a shape vector into a string that can be used
+ * for debugging, error messages, or logging purposes. The output format is
+ * similar to array notation: "{dim1, dim2, dim3, ...}".
+ *
+ * @param shape A vector containing the dimensions of the tensor
+ * @return A formatted string representation of the shape
+ * @retval "{}" If the shape vector is empty
  */
+
 std::string shapeToString(const std::vector<size_t> &shape);
 
 /**
- * @brief Computes the total number of elements in a tensor from its shape.
- * @param shape The dimensions of the tensor.
- * @return The product of all dimensions in the shape.
+ * @brief Computes the total number of elements in a tensor from its shape
+ *
+ * This function calculates the product of all dimensions in the shape vector,
+ * which represents the total number of elements that can be stored in a tensor
+ * with the given dimensions.
+ *
+ * @param shape A vector containing the dimensions of the tensor
+ * @return The total number of elements (product of all dimensions)
+ * @retval 0 If the shape vector is empty
  */
 size_t computeTensorSize(const std::vector<size_t> &shape);
 
@@ -75,10 +88,34 @@ class Tensor {
 	static bool isGpu;
 	static size_t tensorCount;
 
-	/// Computes the strides based on the current shape for row-major layout.
+	/**
+	 * @brief Computes the strides for efficient multi-dimensional indexing
+	 *
+	 * This method calculates the stride values for each dimension, which are used
+	 * to convert multi-dimensional indices into a single flattened index. The
+	 * strides are computed using row-major (C-style) ordering.
+	 *
+	 * @note This is a private method called internally when shape changes
+	 * @note Strides are computed as: stride[i] = product of all dimensions after i
+	 */
 	void computeStrides();
 
-	/// Converts multi-dimensional indices to a single flattened index.
+	/**
+	 * @brief Converts multi-dimensional indices to a single flattened index
+	 *
+	 * This method takes a vector of indices (one for each dimension) and converts
+	 * them into a single linear index that can be used to access the underlying
+	 * data array. The conversion uses row-major (C-style) ordering.
+	 *
+	 * @param indices A vector of indices, one for each dimension
+	 * @return The corresponding flattened index
+	 *
+	 * @throws std::invalid_argument If the number of indices doesn't match the tensor's rank
+	 * @throws std::out_of_range If any index is out of bounds for its dimension
+	 *
+	 * @note This is a private method used internally for element access
+	 * @note The conversion formula is: index = sum(indices[i] * strides[i])
+	 */
 	inline size_t flattenIndex(const std::vector<size_t> &indices) const;
 
 	// Friend classes for direct data access
@@ -90,16 +127,36 @@ class Tensor {
 	// --- Constructors, Destructor, and Assignment ---
 
 	/**
-	 * @brief Constructs a new tensor with a given shape and initial value.
-	 * @param shape The dimensions of the tensor (e.g., {batches, channels, height, width}).
-	 * @param init The value to initialize all elements with.
-	 * @throws std::invalid_argument If the shape is empty.
+	 * @brief Constructs a new tensor with the specified shape and initial value
+	 *
+	 * This constructor creates a tensor with the given dimensions and initializes
+	 * all elements with the specified value. The tensor will be allocated either
+	 * on CPU or GPU memory depending on the current global execution mode.
+	 *
+	 * @param shape_ The dimensions of the tensor (e.g., {batch_size, height, width, channels})
+	 * @param init The initial value to fill all tensor elements with (default: 0.0)
+	 *
+	 * @throws std::invalid_argument If the shape vector is empty
+	 *
+	 * @note The tensor count is incremented upon successful construction
+	 * @note GPU memory allocation is performed if the global GPU mode is enabled
 	 */
 	Tensor(const std::vector<size_t> &shape, ValueType init = DEFAULT_INIT_VALUE);
 
 	/**
-	 * @brief Copy constructor. Creates a deep copy of another tensor.
-	 * @param other The tensor to copy.
+	 * @brief Copy constructor - creates a deep copy of another tensor
+	 *
+	 * This constructor creates a new tensor that is an exact copy of the source tensor,
+	 * including all data, shape, and strides. The copy is performed in the same execution
+	 * mode (CPU/GPU) as the source tensor.
+	 *
+	 * @param other The tensor to copy from
+	 *
+	 * @throws std::runtime_error If GPU data pointer is null during GPU copy operation
+	 *
+	 * @note This performs a deep copy - the new tensor has its own memory allocation
+	 * @note GPU operations are synchronized to ensure completion before proceeding
+	 * @note The tensor count is incremented upon successful construction
 	 */
 	Tensor(const Tensor &other);
 
@@ -168,16 +225,30 @@ class Tensor {
 	                 const size_t startT, const size_t length);
 
 	/**
-	 * @brief Copies the tensor's data into a `std::vector`.
-	 * @note If in GPU mode, this involves a device-to-host memory transfer.
-	 * @param dest The destination vector. It will be resized to fit the data.
+	 * @brief Copies the tensor's data into a std::vector
+	 *
+	 * This method extracts all data from the tensor and copies it into the provided
+	 * vector. For GPU tensors, this involves a device-to-host memory transfer.
+	 *
+	 * @param dest The destination vector that will receive the tensor data
+	 *
+	 * @note The destination vector will be resized to fit the tensor data
+	 * @note For GPU tensors, this operation involves CUDA memory transfer
+	 * @note The destination vector must have sufficient capacity or will be resized
 	 */
 	void getData(std::vector<ValueType> &dest) const;
 
 	/**
-	 * @brief Replaces the tensor's data with data from another tensor.
-	 * @param other The source tensor.
-	 * @throws std::length_error If the source and destination tensors have different numbers of elements.
+	 * @brief Replaces the tensor's data with data from another tensor
+	 *
+	 * This method copies all data from the source tensor into this tensor. If the
+	 * tensors have different sizes, memory will be reallocated as needed.
+	 *
+	 * @param other The source tensor to copy data from
+	 *
+	 * @note This method performs a no-op if called with the same tensor (self-assignment)
+	 * @note For GPU tensors, this involves device-to-device memory copy
+	 * @note Memory reallocation occurs if the source tensor has different size
 	 */
 	void setData(const Tensor &other);
 
@@ -188,15 +259,30 @@ class Tensor {
 	void fill(const ValueType &value);
 
 	/**
-	 * @brief Fills the entire tensor with zeros. A convenience wrapper for `fill(0.0)`.
+	 * @brief Fills the entire tensor with a specified scalar value
+	 *
+	 * This method sets all elements in the tensor to the same value. The operation
+	 * is optimized for both CPU and GPU execution modes.
+	 *
+	 * @param value The value to fill all tensor elements with
+	 *
+	 * @note For GPU tensors, this uses optimized CUDA kernels
+	 * @note For CPU tensors, this uses a simple loop
 	 */
 	void zero();
 
 	// --- Shape and Dimensionality ---
 
 	/**
-	 * @brief Returns the total number of elements in the tensor.
-	 * @return The product of all dimensions.
+	 * @brief Returns the total number of elements in the tensor
+	 *
+	 * This method returns the total number of elements that can be stored in the tensor,
+	 * which is the product of all dimensions in the shape vector.
+	 *
+	 * @return The total number of elements in the tensor
+	 *
+	 * @note For GPU tensors, this returns the stored gpu_data_size
+	 * @note For CPU tensors, this returns the size of the cpu_data vector
 	 */
 	size_t numElements() const;
 
@@ -219,10 +305,18 @@ class Tensor {
 	void flatten();
 
 	/**
-	 * @brief Sets a new shape for the tensor.
-	 * @warning The total number of elements defined by `newShape` must exactly match
+	 * @brief Sets a new shape for the tensor
+	 *
+	 * This method changes the shape of the tensor and recomputes the strides
+	 * for efficient multi-dimensional indexing.
+	 *
+	 * @param newShape The new shape dimensions for the tensor
+	 *
+	 * @warning The total number of elements defined by newShape must exactly match
 	 *          the current number of elements. This function does not validate this.
-	 * @param newShape The new shape for the tensor.
+	 *
+	 * @note This only modifies the shape metadata; the underlying data is unchanged
+	 * @note Strides are automatically recomputed after shape change
 	 */
 	void setShape(const std::vector<size_t> &newShape);
 

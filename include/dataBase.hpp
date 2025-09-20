@@ -80,9 +80,18 @@ class DataBase {
 	databaseStatus getDataBaseStatus(const std::string &line);
 
 	/**
-	 * @brief Parse a single dataset line into a TrainSample object.
-	 * @param line   A line from the dataset file.
-	 * @param sample Output parameter: filled training sample.
+	 * @brief Parses a single line from a dataset file into a TrainSample
+	 *
+	 * This method parses a line from the dataset file and extracts the prediction
+	 * index, weight, and input features. The expected format is:
+	 * - 'p' followed by prediction index
+	 * - 'w' followed by sample weight
+	 * - Numeric values for input features
+	 *
+	 * @param line The line to parse from the dataset file
+	 * @param sample Output parameter: filled training sample
+	 *
+	 * @throws std::runtime_error If the line format is invalid or incomplete
 	 */
 	void readLine(const std::string &line, TrainSample &sample);
 
