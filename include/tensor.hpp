@@ -9,6 +9,7 @@
 namespace nn::model {
 class Activation;
 class DataBase;
+class IOptimizer;
 namespace cnn {
 class CNNetwork;
 }
@@ -122,6 +123,7 @@ class Tensor {
 	friend model::Activation;
 	friend model::DataBase;
 	friend nn::model::cnn::CNNetwork;
+    friend nn::model::IOptimizer;
 
   public:
 	// --- Constructors, Destructor, and Assignment ---

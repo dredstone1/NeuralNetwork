@@ -87,6 +87,8 @@ void softmax(const ValueType *net, ValueType *out, std::size_t size);
 ValueType getValueAt(const ValueType *devicePtr, std::size_t index);
 void setValueAt(ValueType *devicePtr, std::size_t index, ValueType value);
 
+void constStep(ValueType *w, const ValueType *g, std::size_t size, ValueType d);
+
 // ============================
 // Matrix Operations
 // ============================

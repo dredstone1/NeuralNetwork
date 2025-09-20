@@ -633,6 +633,14 @@ __global__ void matmulTKernel(
 	}
 }
 
+__global__ void constStepKernal(ValueType *w, const ValueType *g,
+                                std::size_t size, ValueType d) {
+	size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx < size) {
+		w[idx] -= g[idx] * d;
+	}
+}
+
 void matmul(const ValueType *A, const ValueType *B, ValueType *R,
             size_t M, size_t K) {
 	const int blockSize = 256;
@@ -654,6 +662,13 @@ void matmulT(const ValueType *W, const ValueType *V, ValueType *R,
 	const int blockSize = 256;
 	int gridSize = (N + blockSize - 1) / blockSize;
 	matmulTKernel<<<gridSize, blockSize>>>(W, V, R, M, N);
+	CUDA_CHECK(cudaGetLastError());
+}
+
+void constStep(ValueType *w, const ValueType *g, std::size_t size, ValueType d) {
+	const int blockSize = 256;
+	int gridSize = (size + blockSize - 1) / blockSize;
+	constStepKernal<<<gridSize, blockSize>>>(w, g, size, d);
 	CUDA_CHECK(cudaGetLastError());
 }
 

@@ -53,7 +53,6 @@ Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 
 	if (isGpu) {
 		// Allocate memory on GPU and initialize with the specified value
-		std::cout << "DEBUG: Tensor constructor - allocating " << totalSize << " elements (" << (totalSize * sizeof(ValueType)) << " bytes)" << std::endl;
 		gpu_data = (ValueType *)tensor_gpu::allocate(totalSize * sizeof(ValueType));
 		gpu_data_size = totalSize;
 		fill(init);
@@ -70,8 +69,6 @@ Tensor::Tensor(const std::vector<size_t> &shape_, ValueType init) {
 }
 
 Tensor::Tensor(const Tensor &other) {
-	std::cout << "DEBUG: Entering Tensor copy constructor" << std::endl;
-
 	// Copy shape and strides metadata
 	shape = other.shape;
 	strides = other.strides;
@@ -79,7 +76,6 @@ Tensor::Tensor(const Tensor &other) {
 	if (isGpu) {
 		// GPU mode: allocate new GPU memory and copy data
 		gpu_data_size = other.gpu_data_size;
-		std::cout << "DEBUG: Tensor copy constructor - allocating " << gpu_data_size << " elements" << std::endl;
 
 		// Validate source GPU data pointer
 		if (other.gpu_data == nullptr) {
@@ -89,24 +85,13 @@ Tensor::Tensor(const Tensor &other) {
 
 		// Allocate new GPU memory
 		gpu_data = (ValueType *)tensor_gpu::allocate(gpu_data_size * sizeof(ValueType));
-		std::cout << "DEBUG: Tensor copy constructor - allocated gpu_data: " << (void *)gpu_data << std::endl;
 
 		// Copy data from source to destination on GPU
 		tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
-		std::cout << "DEBUG: Tensor copy constructor - copyDeviceToDevice completed" << std::endl;
-
-		// Synchronize GPU operations and check for errors
-		cudaDeviceSynchronize();
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after copyDeviceToDevice in copy constructor: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		// CPU mode: simple vector copy
 		cpu_data = other.cpu_data;
 	}
-
-	std::cout << "DEBUG: Exiting Tensor copy constructor" << std::endl;
 }
 
 /**
@@ -124,7 +109,6 @@ Tensor::Tensor(const Tensor &other) {
 Tensor::~Tensor() {
 	if (isGpu && gpu_data != nullptr) {
 		// GPU mode: deallocate device memory
-		std::cout << "DEBUG: Tensor destructor - deallocating " << gpu_data_size << " elements" << std::endl;
 		tensor_gpu::deallocate(gpu_data);
 		gpu_data = nullptr;
 	}
@@ -133,60 +117,34 @@ Tensor::~Tensor() {
 }
 
 Tensor &Tensor::operator=(const Tensor &other) {
-	std::cout << "DEBUG: Entering Tensor::operator=" << std::endl;
-
 	if (this == &other) {
-		std::cout << "DEBUG: Self-assignment detected, returning" << std::endl;
 		return *this;
 	}
 
 	if (isGpu) {
-		std::cout << "DEBUG: operator= - current gpu_data_size: " << gpu_data_size << ", other.gpu_data_size: " << other.gpu_data_size << std::endl;
-		std::cout << "DEBUG: operator= - current gpu_data: " << (void *)gpu_data << ", other.gpu_data: " << (void *)other.gpu_data << std::endl;
-
 		if (gpu_data_size != other.gpu_data_size) {
-			std::cout << "DEBUG: operator= - reallocating from " << gpu_data_size << " to " << other.gpu_data_size << " elements" << std::endl;
-
 			// Check for null pointers before reallocation
 			if (other.gpu_data == nullptr) {
-				std::cerr << "ERROR: other.gpu_data is null during reallocation!" << std::endl;
 				throw std::runtime_error("Null GPU data pointer in operator=");
 			}
 
 			ValueType *temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
-			std::cout << "DEBUG: operator= - allocated temp buffer: " << (void *)temp << std::endl;
 
 			gpu_data_size = other.gpu_data_size;
-			std::cout << "DEBUG: operator= - about to copy " << gpu_data_size << " elements" << std::endl;
 
 			tensor_gpu::copyDeviceToDevice(temp, other.gpu_data, gpu_data_size * sizeof(ValueType));
-			std::cout << "DEBUG: operator= - copyDeviceToDevice completed" << std::endl;
-
-			cudaDeviceSynchronize();
-			cudaError_t cudaError = cudaGetLastError();
-			if (cudaError != cudaSuccess) {
-				std::cerr << "CUDA Error after copyDeviceToDevice: " << cudaGetErrorString(cudaError) << std::endl;
-			}
 
 			if (gpu_data != nullptr) {
-				std::cout << "DEBUG: operator= - deallocating old gpu_data: " << (void *)gpu_data << std::endl;
 				tensor_gpu::deallocate(gpu_data);
 			}
 
 			gpu_data = temp;
-			std::cout << "DEBUG: operator= - assigned new gpu_data: " << (void *)gpu_data << std::endl;
 		} else {
-			std::cout << "DEBUG: operator= - same size, copying data" << std::endl;
 			if (other.gpu_data == nullptr) {
 				std::cerr << "ERROR: other.gpu_data is null during copy!" << std::endl;
 				throw std::runtime_error("Null GPU data pointer in operator=");
 			}
 			tensor_gpu::copyDeviceToDevice(gpu_data, other.gpu_data, gpu_data_size * sizeof(ValueType));
-			cudaDeviceSynchronize();
-			cudaError_t cudaError = cudaGetLastError();
-			if (cudaError != cudaSuccess) {
-				std::cerr << "CUDA Error after copyDeviceToDevice: " << cudaGetErrorString(cudaError) << std::endl;
-			}
 		}
 	} else {
 		cpu_data = other.cpu_data;
@@ -195,7 +153,6 @@ Tensor &Tensor::operator=(const Tensor &other) {
 	shape = other.shape;
 	strides = other.strides;
 
-	std::cout << "DEBUG: Exiting Tensor::operator=" << std::endl;
 	return *this;
 }
 
@@ -270,7 +227,6 @@ void Tensor::setData(const Tensor &other) {
 	if (isGpu) {
 		if (gpu_data_size != other.gpu_data_size) {
 			// Different sizes: reallocate memory and copy
-			std::cout << "DEBUG: setData - reallocating from " << gpu_data_size << " to " << other.gpu_data_size << " elements" << std::endl;
 			ValueType *temp = (ValueType *)tensor_gpu::allocate(other.gpu_data_size * sizeof(ValueType));
 			gpu_data_size = other.gpu_data_size;
 			tensor_gpu::copyDeviceToDevice(temp, other.gpu_data, gpu_data_size * sizeof(ValueType));
@@ -360,17 +316,12 @@ inline size_t Tensor::flattenIndex(const std::vector<size_t> &indices) const {
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {
-	std::cout << "DEBUG: Entering Tensor::operator+=" << std::endl;
-
 	if (shape != other.shape)
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator+=. Left-hand side shape: " +
 		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
 
 	if (isGpu) {
-		std::cout << "DEBUG: Tensor::operator+= - this->gpu_data_size: " << gpu_data_size << ", other.gpu_data_size: " << other.gpu_data_size << std::endl;
-		std::cout << "DEBUG: Tensor::operator+= - this->gpu_data: " << (void *)gpu_data << ", other.gpu_data: " << (void *)other.gpu_data << std::endl;
-
 		// Check for null pointers
 		if (gpu_data == nullptr || other.gpu_data == nullptr) {
 			std::cerr << "ERROR: Null GPU data pointer detected!" << std::endl;
@@ -378,176 +329,104 @@ Tensor &Tensor::operator+=(const Tensor &other) {
 			throw std::runtime_error("Null GPU data pointer in operator+=");
 		}
 
-		std::cout << "DEBUG: About to call tensor_gpu::add_vec" << std::endl;
 		tensor_gpu::add_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
-		std::cout << "DEBUG: tensor_gpu::add_vec completed" << std::endl;
-
-		cudaDeviceSynchronize(); // Synchronize to catch async errors
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after add_vec: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
 			cpu_data[i] += other.cpu_data[i];
 	}
 
-	std::cout << "DEBUG: Exiting Tensor::operator+=" << std::endl;
 	return *this;
 }
 
 Tensor &Tensor::operator-=(const Tensor &other) {
-	std::cout << "DEBUG: Entering Tensor::operator-=" << std::endl;
-
 	if (shape != other.shape)
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator-=. Left-hand side shape: " +
 		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
 
 	if (isGpu) {
-		std::cout << "DEBUG: Tensor::operator-= - this->gpu_data_size: " << gpu_data_size << ", other.gpu_data_size: " << other.gpu_data_size << std::endl;
 		tensor_gpu::subtraction_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
-		cudaDeviceSynchronize();
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after subtraction_vec: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
 			cpu_data[i] -= other.cpu_data[i];
 	}
 
-	std::cout << "DEBUG: Exiting Tensor::operator-=" << std::endl;
 	return *this;
 }
 
 Tensor &Tensor::operator*=(const Tensor &other) {
-	std::cout << "DEBUG: Entering Tensor::operator*=" << std::endl;
-
 	if (shape != other.shape)
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator*=. Left-hand side shape: " +
 		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
 
 	if (isGpu) {
-		std::cout << "DEBUG: Tensor::operator*= - this->gpu_data_size: " << gpu_data_size << ", other.gpu_data_size: " << other.gpu_data_size << std::endl;
 		tensor_gpu::multiply_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
-		cudaDeviceSynchronize();
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after multiply_vec: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
 			cpu_data[i] *= other.cpu_data[i];
 	}
 
-	std::cout << "DEBUG: Exiting Tensor::operator*=" << std::endl;
 	return *this;
 }
 
 Tensor &Tensor::operator/=(const Tensor &other) {
-	std::cout << "DEBUG: Entering Tensor::operator/=" << std::endl;
-
 	if (shape != other.shape)
 		throw std::invalid_argument(
 		    "Shape mismatch in Tensor::operator/=. Left-hand side shape: " +
 		    shapeToString(shape) + ", right-hand side shape: " + shapeToString(other.shape) + ".");
 
 	if (isGpu) {
-		std::cout << "DEBUG: Tensor::operator/= - this->gpu_data_size: " << gpu_data_size << ", other.gpu_data_size: " << other.gpu_data_size << std::endl;
 		tensor_gpu::division_vec(gpu_data, other.gpu_data, gpu_data, gpu_data_size);
-		cudaDeviceSynchronize();
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after division_vec: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		for (size_t i = 0; i < cpu_data.size(); ++i)
 			cpu_data[i] /= other.cpu_data[i];
 	}
 
-	std::cout << "DEBUG: Exiting Tensor::operator/=" << std::endl;
 	return *this;
 }
 
 Tensor &Tensor::operator*=(ValueType scalar) {
-	std::cout << "DEBUG: Entering Tensor::operator*=(scalar)" << std::endl;
-
 	if (isGpu) {
-		std::cout << "DEBUG: Tensor::operator*=(scalar) - this->gpu_data_size: " << gpu_data_size << std::endl;
 		tensor_gpu::multiply_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
-		cudaDeviceSynchronize();
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after multiply_scalar: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		for (auto &x : cpu_data)
 			x *= scalar;
 	}
 
-	std::cout << "DEBUG: Exiting Tensor::operator*=(scalar)" << std::endl;
 	return *this;
 }
 
 Tensor &Tensor::operator-=(ValueType scalar) {
-	std::cout << "DEBUG: Entering Tensor::operator-=(scalar)" << std::endl;
-
 	if (isGpu) {
-		std::cout << "DEBUG: Tensor::operator-=(scalar) - this->gpu_data_size: " << gpu_data_size << std::endl;
 		tensor_gpu::subtraction_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
-		cudaDeviceSynchronize();
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after subtraction_scalar: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		for (auto &x : cpu_data)
 			x -= scalar;
 	}
 
-	std::cout << "DEBUG: Exiting Tensor::operator-=(scalar)" << std::endl;
 	return *this;
 }
 
 Tensor &Tensor::operator+=(ValueType scalar) {
-	std::cout << "DEBUG: Entering Tensor::operator+=(scalar)" << std::endl;
-
 	if (isGpu) {
-		std::cout << "DEBUG: Tensor::operator+=(scalar) - this->gpu_data_size: " << gpu_data_size << std::endl;
 		tensor_gpu::add_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
-		cudaDeviceSynchronize();
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after add_scalar: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		for (auto &x : cpu_data)
 			x += scalar;
 	}
 
-	std::cout << "DEBUG: Exiting Tensor::operator+=(scalar)" << std::endl;
 	return *this;
 }
 
 Tensor &Tensor::operator/=(ValueType scalar) {
-	std::cout << "DEBUG: Entering Tensor::operator/=(scalar)" << std::endl;
-
 	if (isGpu) {
-		std::cout << "DEBUG: Tensor::operator/=(scalar) - this->gpu_data_size: " << gpu_data_size << std::endl;
 		tensor_gpu::division_scalar(gpu_data, scalar, gpu_data, gpu_data_size);
-		cudaDeviceSynchronize();
-		cudaError_t cudaError = cudaGetLastError();
-		if (cudaError != cudaSuccess) {
-			std::cerr << "CUDA Error after division_scalar: " << cudaGetErrorString(cudaError) << std::endl;
-		}
 	} else {
 		for (auto &x : cpu_data)
 			x /= scalar;
 	}
 
-	std::cout << "DEBUG: Exiting Tensor::operator/=(scalar)" << std::endl;
 	return *this;
 }
 
