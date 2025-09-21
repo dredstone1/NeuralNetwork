@@ -105,12 +105,13 @@ void VisualManager::updateAlgorithmMode(const AlgorithmMode algoritem_mode) {
 	Vstate->algorithmMode = algoritem_mode;
 }
 
-void VisualManager::updatePrediction(const global::Prediction &pre) {
+
+void VisualManager::updatePrediction(const global::Tensor &out) {
 	if (!checkPointers()) {
 		return;
 	}
 
-	renderer->updatePrediction(pre);
+	renderer->updatePrediction(out);
 }
 
 void VisualManager::updateInput(const global::Tensor &input) {

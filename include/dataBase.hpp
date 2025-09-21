@@ -2,6 +2,7 @@
 #define DATABASE
 
 #include "../src/model/tensor_gpu.hpp"
+#include "tensor.hpp"
 #include <Globals.hpp>
 
 namespace nn::model {
@@ -19,22 +20,35 @@ const std::string FILE_NOT_FOUND_MESSAGE = "File not found: ";
  * - An optional weight (useful for weighted training).
  */
 struct TrainSample {
-	global::Prediction pre;      ///< Expected output (labels/predictions).
 	global::Tensor input;        ///< Input features for the sample.
 	global::ValueType weight{1}; ///< Sample weight (default = 1).
+
+	global::Tensor *out = nullptr;
+	size_t index = 0;
 
 	/**
 	 * @brief Construct a training sample with given input/output sizes.
 	 * @param sampleOutputSize Number of expected output values.
 	 * @param sampleInputSize  Number of input features.
 	 */
-	TrainSample(const size_t sampleOutputSize, const size_t sampleInputSize)
-	    : pre(sampleOutputSize, 0), input({sampleInputSize}, 0) {}
+	TrainSample(const size_t sampleInputSize)
+	    : input({sampleInputSize}, 0) {
+	}
 
 	/**
 	 * @brief Construct an empty training sample (zero sizes).
 	 */
-	TrainSample() : pre(0, 0), input({0}) {}
+	TrainSample() : input({0}) {}
+	~TrainSample() {
+		if (out) {
+			delete out;
+		}
+	}
+};
+
+enum class OutType {
+	Classify,
+	Statistic,
 };
 
 /**
@@ -44,6 +58,8 @@ struct databaseStatus {
 	size_t dbSize;           ///< Total number of samples in the database.
 	size_t sampleInputSize;  ///< Input dimension of each sample.
 	size_t sampleOutputSize; ///< Output dimension of each sample.
+
+	OutType outputType;
 };
 
 /**
@@ -70,7 +86,8 @@ class Model;
  */
 class DataBase {
   private:
-	std::vector<global::ValueType> tempData;
+	std::vector<global::ValueType> tempDataI;
+	std::vector<global::ValueType> tempDataO;
 
 	/**
 	 * @brief Extract dataset metadata (sizes) from a header line.

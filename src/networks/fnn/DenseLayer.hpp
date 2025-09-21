@@ -184,7 +184,7 @@ class DenseLayer {
 	 * @note This is typically only implemented by output layers
 	 * @note Hidden layers usually return 0 as they don't compute loss directly
 	 */
-	virtual global::ValueType getLoss(const global::Prediction &) { return 0; };
+	virtual global::ValueType getLoss(const size_t , const global::Tensor &) { return 0; };
 
 	// ========================================================================
 	// ACCESSOR METHODS
@@ -453,7 +453,7 @@ class Output_Layer : public DenseLayer {
 	 * 
 	 * @note This is the main loss computation method for training
 	 */
-	global::ValueType getLoss(const global::Prediction &index) override;
+	global::ValueType getLoss(const size_t index, const global::Tensor &out) override;
 };
 } // namespace nn::model::fnn
 

@@ -68,7 +68,7 @@ class ModelPanel : public Panel {
 	ModelPanel(const std::shared_ptr<StateManager> state_);
 	~ModelPanel() = default;
 
-	void setPrediction(const global::Prediction &index);
+	void setPrediction(const global::Tensor &out);
 	void setInput(const global::Tensor &input);
 	sf::Sprite getSprite() const;
 

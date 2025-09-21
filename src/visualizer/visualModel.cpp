@@ -166,12 +166,12 @@ void ModelPanel::renderSubNetwork(const size_t index) {
 	modelRender.draw(sub);
 }
 
-void ModelPanel::setPrediction(const global::Prediction &pre) {
-	static global::Tensor output({predictionLayer.size()});
-	output.zero();
+void ModelPanel::setPrediction(const global::Tensor &out) {
+	// static global::Tensor output({predictionLayer.size()});
+	// output.zero();
 
-	output.setValue(pre.index, 1);
-	predictionLayer.setValues(output);
+	// output.setValue(pre.index, 1);
+	predictionLayer.setValues(out);
 
 	setUpdate();
 }

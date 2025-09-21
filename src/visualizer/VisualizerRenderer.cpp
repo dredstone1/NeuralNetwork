@@ -178,9 +178,9 @@ void VisualRender::setNewPhaseMode(const NnMode nn_mode) {
 	Vstate->nnMode.store(nn_mode);
 }
 
-void VisualRender::updatePrediction(const global::Prediction &pre) {
+void VisualRender::updatePrediction(const global::Tensor &out) {
 	if (visualModel) {
-		visualModel->setPrediction(pre);
+		visualModel->setPrediction(out);
 	}
 }
 

@@ -1,6 +1,7 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
+#include "dataBase.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
@@ -147,17 +148,27 @@ global::ValueType Model::runBackPropagation(
 	global::Tensor output({outputSize()});
 	for (size_t i = 0; i < batch.size(); ++i) {
 		TrainSample current_sample_ptr = db.getSample(batch.samples.at(i));
-		visual.updatePrediction(current_sample_ptr.pre);
+		if (db.samples.status.outputType == OutType::Statistic) {
+			visual.updatePrediction(*current_sample_ptr.out);
+		} else {
+			visual.updatePrediction(output);
+		}
 
 		runModel(current_sample_ptr.input);
 
 		if (doBackward) {
 			output.zero();
-			output.setValue(current_sample_ptr.pre.index, 1);
-			Backward(output, current_sample_ptr.weight);
+			output.setValue(current_sample_ptr.index, 1);
+
+			if (db.samples.status.outputType == OutType::Statistic) {
+				Backward(*current_sample_ptr.out, current_sample_ptr.weight);
+			} else {
+
+				Backward(output, current_sample_ptr.weight);
+			}
 		}
 
-		error += getLoss(current_sample_ptr.pre);
+		error += getLoss(current_sample_ptr.index, *current_sample_ptr.out);
 	}
 
 	if (doBackward) {
@@ -316,6 +327,10 @@ float Model::calculatePercentage(float currentSize, float totalSize) {
 
 modelResult Model::evaluateModel(
     DataBase &dataBase, const bool cancleOnError, const bool showProgressbar) {
+	if (dataBase.samples.status.outputType == OutType::Statistic) {
+		return {};
+	}
+
 	modelResult result{0, 0, 0};
 
 	ProgressBar bar(dataBase.DataBaseLength(), EVALUATING_HEADER);
@@ -336,7 +351,7 @@ modelResult Model::evaluateModel(
 			bar.printBar();
 		}
 
-		if (predicted_index == sample.pre.index) {
+		if (predicted_index == sample.index) {
 			result.currectPreSize += sample.weight;
 		} else if (cancleOnError) {
 			break;
@@ -357,8 +372,8 @@ const global::Tensor &Model::getOutput() const {
 	return network[network.size() - 1]->getOutput();
 }
 
-global::ValueType Model::getLoss(const global::Prediction &pre) {
-	return network[network.size() - 1]->getLoss(pre);
+global::ValueType Model::getLoss(const size_t index, const global::Tensor &out) {
+	return network[network.size() - 1]->getLoss(index, out);
 }
 
 size_t Model::outputSize() const {

@@ -2,8 +2,8 @@
 #define INETWORK
 
 #include "../../src/model/optimizers.hpp"
-#include "../Globals.hpp"
 #include "IvisualNetwork.hpp"
+#include "tensor.hpp"
 
 namespace nn::model {
 
@@ -54,7 +54,7 @@ class INetwork {
 	 * @param index Prediction or target index.
 	 * @return Loss value as a scalar.
 	 */
-	virtual global::ValueType getLoss(const global::Prediction &index) const = 0;
+	virtual global::ValueType getLoss(const size_t index, const global::Tensor &out) const = 0;
 
 	/**
 	 * @brief Returns a constant reference to the network output tensor.

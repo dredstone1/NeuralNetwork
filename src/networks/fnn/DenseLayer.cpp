@@ -1,4 +1,5 @@
 #include "DenseLayer.hpp"
+#include "tensor.hpp"
 #include <random>
 
 namespace nn::model::fnn {
@@ -69,8 +70,8 @@ global::ValueType Output_Layer::getCrossEntropyLoss(
 	return -std::log(std::max(prediction.getValue(target), MIN_LOSS_VALUE));
 }
 
-global::ValueType Output_Layer::getLoss(const global::Prediction &targets) {
-	return getCrossEntropyLoss(getOut(), targets.index);
+global::ValueType Output_Layer::getLoss(const size_t index, const global::Tensor &out) {
+	return getCrossEntropyLoss(getOut(), index);
 }
 
 void Hidden_Layer::forward(const global::Tensor &metrix) {

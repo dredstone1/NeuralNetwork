@@ -31,7 +31,7 @@
 			"output activation": 4,
 			"layers": [
                 { "size": 50, "activationType": 1 },
-                { "size": 1, "activationType": 1 },
+                { "size": 3, "activationType": 1 },
                 { "size": 50, "activationType": 1 }
             ]
 		}

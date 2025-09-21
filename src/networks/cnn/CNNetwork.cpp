@@ -1,4 +1,5 @@
 #include "CNNetwork.hpp"
+#include "tensor.hpp"
 #include <random>
 #include <vector>
 
@@ -191,7 +192,7 @@ size_t CNNetwork::outputSize() const {
 	return activationMapO.numElements();
 }
 
-global::ValueType CNNetwork::getLoss(const global::Prediction &) const {
+global::ValueType CNNetwork::getLoss(const size_t, const global::Tensor &) const {
 	return 0.0f;
 }
 

@@ -1,4 +1,5 @@
 #include "ProgressBar.hpp"
+#include "tensor.hpp"
 #include <dataBase.hpp>
 #include <fstream>
 #include <iostream>
@@ -91,8 +92,9 @@ inline void skipToken(const char *&ptr, const char *end) {
 // ============================================================================
 
 void DataBase::readLine(const std::string &line, TrainSample &sample) {
-	sample.pre.index = std::numeric_limits<size_t>::max(); // mark pre.index as invalid
+	sample.index = std::numeric_limits<size_t>::max(); // mark pre.index as invalid
 	size_t input_count = 0;
+	size_t output_count = 0;
 
 	const char *ptr = line.c_str();
 	const char *end = ptr + line.size();
@@ -100,23 +102,25 @@ void DataBase::readLine(const std::string &line, TrainSample &sample) {
 	while (ptr < end) {
 		skipWhitespace(ptr, end); // skip spaces/tabs/newlines
 		switch (*ptr) {
-		case 'p': // parse pre.index
+		case 'p':
 			++ptr;
-			sample.pre.index = parseIndex(ptr, end);
+			if (samples.status.outputType == OutType::Statistic) {
+				if (input_count < tempDataI.size()) {
+					tempDataO[output_count++] = parseIndex(ptr, end);
+				}
+			} else {
+				sample.index = parseIndex(ptr, end);
+			}
 			break;
-
 		case 'w': // parse sample weight
 			++ptr;
 			sample.weight = parseNumber(ptr, end);
 			break;
-
 		default:
 			// parse input value if it looks like a number
 			if ((*ptr >= '0' && *ptr <= '9') || *ptr == '-' || *ptr == '+') {
-				double value = parseNumber(ptr, end);
-
-				if (input_count < tempData.size()) {
-					tempData[input_count++] = value; // store input value
+				if (input_count < tempDataI.size()) {
+					tempDataI[input_count++] = parseNumber(ptr, end); // store input value
 					break;
 				}
 			}
@@ -127,27 +131,40 @@ void DataBase::readLine(const std::string &line, TrainSample &sample) {
 	}
 
 	// ensure the expected number of inputs were read
-	if (input_count != tempData.size()) {
-		throw std::runtime_error("Expected " + std::to_string(tempData.size()) +
+	if (input_count != tempDataI.size()) {
+		throw std::runtime_error("Expected " + std::to_string(tempDataI.size()) +
 		                         " inputs, got " + std::to_string(input_count));
 	}
 
 	// ensure pre.index was found
-	if (sample.pre.index == std::numeric_limits<size_t>::max()) {
+	if (sample.index == std::numeric_limits<size_t>::max()) {
 		throw std::runtime_error("Missing pre.index in line: " + line);
 	}
 
-	sample.input = tempData; // copy tempData to sample input
+	if (samples.status.outputType == OutType::Statistic) {
+		sample.out = new global::Tensor({samples.status.sampleOutputSize});
+		if (sample.out) {
+			*sample.out = tempDataO;
+		}
+	}
+	sample.input = tempDataI; // copy tempData to sample input
 }
 
 databaseStatus DataBase::getDataBaseStatus(const std::string &line) {
 	std::istringstream iss(line);
-	databaseStatus status{0, 0, 0};
+	databaseStatus status{0, 0, 0, OutType::Classify};
 
 	iss >> status.dbSize;          // read number of samples
 	iss >> status.sampleInputSize; // read input vector size
+	iss >> status.sampleOutputSize;
 
-	tempData.resize(status.sampleInputSize); // resize temp buffer for parsing
+	if (status.sampleOutputSize > 0) {
+		status.outputType = OutType::Statistic;
+		tempDataO.resize(status.sampleOutputSize); // resize temp buffer for parsing
+	}
+
+	tempDataI.resize(status.sampleInputSize); // resize temp buffer for parsing
+
 	return status;
 }
 
@@ -167,9 +184,7 @@ int DataBase::loadData(const std::string &fileNames) {
 
 	size_t i = samples.status.dbSize;
 	// resize sample vector to fit new data
-	samples.samples.resize(i + s.dbSize,
-	                       {samples.status.sampleOutputSize,
-	                        samples.status.sampleInputSize});
+	samples.samples.resize(i + s.dbSize, {samples.status.sampleInputSize});
 
 	const auto HEADER = LOADING_DB_MESSAGE + fileNames +
 	                    DATABASE_FILE_EXETENTION;
@@ -224,12 +239,18 @@ void DataBase::load(const std::vector<std::string> &db_filenames) {
 
 TrainSample DataBase::getSample(const size_t i) {
 	TrainSample newSample;
-	newSample.pre = samples.samples[i].pre;       // copy pre.index
+	newSample.index = samples.samples[i].index;   // copy pre.index
 	newSample.weight = samples.samples[i].weight; // copy weight
 
 	// copy input shape and strides
 	newSample.input.shape = samples.samples[i].input.shape;
 	newSample.input.strides = samples.samples[i].input.strides;
+
+	if (samples.status.outputType == OutType::Statistic) {
+		newSample.out->shape = samples.samples[i].out->shape;
+		newSample.out->strides = samples.samples[i].out->strides;
+		newSample.out = samples.samples[i].out;
+	}
 
 	// copy GPU or CPU data depending on global state
 	if (nn::global::Tensor::getGpuState()) {

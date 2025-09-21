@@ -3,6 +3,7 @@
 
 #include "../src/model/optimizers.hpp"
 #include "../src/visualizer/VisualizerController.hpp"
+#include "tensor.hpp"
 #include <dataBase.hpp>
 #include <network/INetwork.hpp>
 
@@ -59,7 +60,7 @@ class Model {
 	void Backward(global::Tensor &output, const global::ValueType weight);
 	void updateWeights(const int batch_size);
 	void resetNetworkGradient();
-	global::ValueType getLoss(const global::Prediction &pre);
+	global::ValueType getLoss(const size_t index, const global::Tensor &out);
 
 	global::ValueType runBackPropagation(
 	    const Batch &batch, DataBase &db, const bool updateWeights);

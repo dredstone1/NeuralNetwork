@@ -146,7 +146,7 @@ class CNNetwork : public INetwork {
 	 * @param index Target prediction information
 	 * @return Computed loss value
 	 */
-	global::ValueType getLoss(const global::Prediction &index) const override;
+	global::ValueType getLoss(const size_t index, const global::Tensor &out) const override;
 
 	/**
 	 * @brief Gets the size of the network's output (number of feature maps)
