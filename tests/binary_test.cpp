@@ -74,16 +74,6 @@ void printVector(const nn::global::Tensor &vec) {
 	std::cout << '\n';
 }
 
-// class tdf : public nn::model::DataBase {
-//   public:
-// 	nn::model::TrainSample getSample(const size_t i) override {
-// 		nn::model::TrainSample newSample(samples.samples[i].pre.index, samples.samples[i].input.numElements());
-// 		newSample.weight = samples.samples[i].weight;
-// 		newSample.input = samples.samples[i].input;
-// 		return newSample;
-// 	}
-// };
-
 int main(int argc, char *argv[]) {
 	size_t input_size = 10;
 	nn::global::Tensor::toCpu();
@@ -93,9 +83,9 @@ int main(int argc, char *argv[]) {
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-		// model.load("test.txt");
+		model.load("test.txt");
 		std::vector<std::string> files{"../tests/data/database-binary_test", "../tests/data/database-binary_test"};
-        nn::model::DataBase dbt;
+		nn::model::DataBase dbt;
 		dbt.load(files);
 		model.train(dbt, dbt);
 		model.save("test.txt");

@@ -12,7 +12,7 @@
 		"batch size": 10,
 		"batch count": 1000000,
 		"auto save": {
-			"saveEvery": 1000,
+			"saveEvery": 100000,
 			"dataFilenameAutoSave": "test.txt"
 		},
 		"auto evaluating": {
@@ -20,7 +20,7 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 0.1
+			"lr": 0.01
 		}
 	},
 	"network config": [
@@ -30,9 +30,7 @@
 			"output size": 16,
 			"output activation": 4,
 			"layers": [
-                { "size": 50, "activationType": 1 },
-                { "size": 3, "activationType": 1 },
-                { "size": 50, "activationType": 1 }
+                { "size": 8, "activationType": 1 }
             ]
 		}
 	]
