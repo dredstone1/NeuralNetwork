@@ -6,7 +6,6 @@
 #include <iostream>
 #include <model.hpp>
 #include <random>
-#include <stdexcept>
 
 namespace nn::model {
 
