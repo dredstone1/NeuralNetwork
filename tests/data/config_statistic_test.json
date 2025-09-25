@@ -3,13 +3,13 @@
 		"enable visual": true,
 		"enable network visual": true,
 		"modes": [
-			{ "state": "pause", "mode": false },
-			{ "state": "precise mode", "mode": false },
-			{ "state": "auto pause", "mode": false }
+			{ "state": "pause", "mode": true },
+			{ "state": "precise mode", "mode": true },
+			{ "state": "auto pause", "mode": true }
 		]
 	},
 	"training config": {
-		"batch size": 10,
+		"batch size": 2,
 		"batch count": 1000000,
 		"auto save": {
 			"saveEvery": 100000,
@@ -20,7 +20,7 @@
 			"lr": 0.01
 		},
 		"loss": {
-			"type": "CCE"
+			"type": "MSE"
 		}
 	},
 	"network config": [

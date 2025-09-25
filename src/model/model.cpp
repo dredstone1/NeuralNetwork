@@ -1,6 +1,7 @@
 #include "../networks/cnn/CNNetwork.hpp"
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
+#include "config.hpp"
 #include "dataBase.hpp"
 #include "loss_function.hpp"
 #include <fstream>
@@ -152,6 +153,8 @@ global::ValueType Model::runBackPropagation(
 	for (size_t i = 0; i < batch.size(); ++i) {
 		TrainSample current_sample_ptr = db.getSample(batch.samples[i]);
 		if (current_sample_ptr.out) {
+
+			printf("test: %f %f\n", current_sample_ptr.out->getValue(0), current_sample_ptr.out->getValue(1));
 			visual.updatePrediction(*current_sample_ptr.out);
 		} else {
 			visual.updatePrediction(output);

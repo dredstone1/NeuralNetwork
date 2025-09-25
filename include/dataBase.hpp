@@ -39,11 +39,11 @@ struct TrainSample {
 	 */
 	TrainSample() : input({0}) {}
 	~TrainSample() {
-		if (out) {
+		if (out && index == 1) {
 			delete out;
 		}
 	}
-};
+}; // namespace nn::model
 
 enum class OutType {
 	Classify,

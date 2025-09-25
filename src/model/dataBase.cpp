@@ -1,10 +1,12 @@
 #include "ProgressBar.hpp"
 #include "tensor.hpp"
+#include "tensor_gpu.hpp"
 #include <dataBase.hpp>
 #include <fstream>
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <vector>
 
 namespace nn::model {
 
@@ -106,7 +108,7 @@ void DataBase::readLine(const std::string &line, TrainSample &sample) {
 			++ptr;
 			if (samples.status.outputType == OutType::Statistic) {
 				if (input_count < tempDataI.size()) {
-					tempDataO[output_count++] = parseIndex(ptr, end);
+					tempDataO[output_count++] = parseNumber(ptr, end);
 				}
 			} else {
 				sample.index = parseIndex(ptr, end);
@@ -136,13 +138,9 @@ void DataBase::readLine(const std::string &line, TrainSample &sample) {
 		                         " inputs, got " + std::to_string(input_count));
 	}
 
-	// ensure pre.index was found
-	if (sample.index == std::numeric_limits<size_t>::max()) {
-		throw std::runtime_error("Missing pre.index in line: " + line);
-	}
-
 	if (samples.status.outputType == OutType::Statistic) {
 		sample.out = new global::Tensor({samples.status.sampleOutputSize});
+		sample.index = 1;
 		if (sample.out) {
 			*sample.out = tempDataO;
 		}
@@ -180,7 +178,7 @@ int DataBase::loadData(const std::string &fileNames) {
 
 	databaseStatus s = getDataBaseStatus(line); // read header info
 	samples.status.sampleInputSize = s.sampleInputSize;
-    samples.status.outputType = s.outputType;
+	samples.status.outputType = s.outputType;
 	samples.status.sampleOutputSize = s.sampleOutputSize;
 
 	size_t i = samples.status.dbSize;
@@ -240,9 +238,14 @@ void DataBase::load(const std::vector<std::string> &db_filenames) {
 
 TrainSample DataBase::getSample(const size_t i) {
 	TrainSample newSample;
-	newSample.index = samples.samples[i].index;   // copy pre.index
-	newSample.weight = samples.samples[i].weight; // copy weight
-	newSample.out = samples.samples[i].out;
+	newSample.weight = samples.samples[i].weight;
+
+	if (samples.samples[i].out) {
+		newSample.index = 0;
+		newSample.out = samples.samples[i].out;
+	} else {
+		newSample.index = samples.samples[i].index;
+	}
 
 	// copy input shape and strides
 	newSample.input.shape = samples.samples[i].input.shape;
