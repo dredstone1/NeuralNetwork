@@ -4,48 +4,29 @@
 #include <iostream>
 
 int main() {
-	// Force CPU mode for consistency
 	nn::global::Tensor::toCpu();
-
-	// Load model from config file
-	std::string config_FN = "config_statistic_test.json";
-	nn::model::Model model(tests::appendToBase(config_FN));
-	std::vector<std::string> files{"../tests/data/statistic_db"};
+	nn::model::Model model(tests::appendToBase("config_statistic_test.json"));
 	nn::model::DataBase dbt;
-	dbt.load(files);
+	dbt.load({"../tests/data/statistic_db"});
 	model.train(dbt, dbt);
 
-	// Create a dummy input tensor with size 10
-	size_t input_size = 10;
-	nn::global::Tensor input({input_size}, 0.0);
+	while (true) {
+		double a, b;
+		std::cout << "Enter two numbers (or non-number to quit): ";
+		if (!(std::cin >> a >> b))
+			break;
 
-	// Fill with some values
-	for (size_t i = 0; i < input_size; ++i) {
-		input.setValue(i, (i % 2 == 0) ? 1.0 : 0.5);
+		nn::global::Tensor input({2});
+		input.setValue(0, a);
+		input.setValue(1, b);
+
+		model.runModel(input);
+
+		const auto &out = model.getOut();
+		std::cout << "Output: ";
+		for (auto v : out)
+			std::cout << v << " ";
+		std::cout << "\nPrediction: index=" << model.getPrediction().index
+		          << " value=" << model.getPrediction().value << "\n\n";
 	}
-
-	// Print input
-	std::cout << "Input tensor: ";
-	for (size_t i = 0; i < input.numElements(); ++i) {
-		std::cout << input.getValue(i) << " ";
-	}
-	std::cout << "\n";
-
-	// Run model
-	model.runModel(input);
-
-	// Print output tensor
-	const auto &output = model.getOut();
-	std::cout << "Output tensor: ";
-	for (size_t i = 0; i < output.size(); ++i) {
-		std::cout << output[i] << " ";
-	}
-	std::cout << "\n";
-
-	// Print prediction
-	auto pred = model.getPrediction();
-	std::cout << "Prediction: index=" << pred.index
-	          << " value=" << pred.value << "\n";
-
-	return 0;
 }

@@ -4,17 +4,20 @@
 #include "config.hpp"
 #include "dataBase.hpp"
 #include "loss_function.hpp"
+#include "tensor_gpu.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
 #include <random>
+#include <vector>
 
 namespace nn::model {
 
 Model::Model(const std::string &config_filepath)
     : config(config_filepath),
       visual(config),
-      learningRate(config.trainingConfig.getLearningRate()) {
+      learningRate(config.trainingConfig.getLearningRate()),
+      output({config.networkConfig.outputSize()}) {
 	initOptimizer();
 	initModel();
 	if (config.visualConfig.enableVisuals) {
@@ -146,7 +149,6 @@ global::ValueType Model::runBackPropagation(
 	}
 
 	resetNetworkGradient();
-	global::Tensor output({outputSize()});
 
 	Loss loss(config.trainingConfig.getLossType(),
 	          db.samples.status.outputType);

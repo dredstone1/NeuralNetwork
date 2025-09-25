@@ -83,6 +83,7 @@ class Model {
 
 	global::ValueType learningRate;
 	std::unique_ptr<IOptimizer> optimizer;
+	global::Tensor output;
 
 	size_t batchCounter{0};
 
