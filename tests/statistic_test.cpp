@@ -11,14 +11,15 @@ int main() {
 	model.train(dbt, dbt);
 
 	while (true) {
-		double a, b;
-		std::cout << "Enter two numbers (or non-number to quit): ";
-		if (!(std::cin >> a >> b))
+		double a, b, c;
+		std::cout << "Enter three numbers (or non-number to quit): ";
+		if (!(std::cin >> a >> b >> c))
 			break;
 
-		nn::global::Tensor input({2});
+		nn::global::Tensor input({3});
 		input.setValue(0, a);
 		input.setValue(1, b);
+		input.setValue(2, c);
 
 		model.runModel(input);
 

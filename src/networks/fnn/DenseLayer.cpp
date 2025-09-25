@@ -160,9 +160,22 @@ void DenseLayer::setData(const global::Tensor &newParam, const size_t offset) {
 	parameters.biases.insertRange(newParam, offset + weightsSize, 0, biasesSize);
 }
 
+// void DenseLayer::fillParamRandom() {
+// 	static std::mt19937 gen(std::random_device{}());
+// 	std::normal_distribution<> dist(0.0, 2);
+// 	std::vector<global::ValueType> temp(parameters.weights.numElements());
+// 	for (size_t i = 0; i < temp.size(); ++i) {
+// 		temp[i] = dist(gen);
+// 	}
+// 	parameters.weights = temp;
+// }
+
 void DenseLayer::fillParamRandom() {
 	static std::mt19937 gen(std::random_device{}());
-	std::normal_distribution<> dist(0.0, 2);
+
+	global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prevSize()));
+	std::normal_distribution<> dist(0.0, std_dev);
+
 	std::vector<global::ValueType> temp(parameters.weights.numElements());
 	for (size_t i = 0; i < temp.size(); ++i) {
 		temp[i] = dist(gen);
