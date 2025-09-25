@@ -180,6 +180,7 @@ int DataBase::loadData(const std::string &fileNames) {
 
 	databaseStatus s = getDataBaseStatus(line); // read header info
 	samples.status.sampleInputSize = s.sampleInputSize;
+    samples.status.outputType = s.outputType;
 	samples.status.sampleOutputSize = s.sampleOutputSize;
 
 	size_t i = samples.status.dbSize;

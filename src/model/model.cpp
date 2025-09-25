@@ -150,8 +150,8 @@ global::ValueType Model::runBackPropagation(
 	Loss loss(config.trainingConfig.getLossType(),
 	          db.samples.status.outputType);
 	for (size_t i = 0; i < batch.size(); ++i) {
-		TrainSample current_sample_ptr = db.getSample(batch.samples.at(i));
-		if (db.samples.status.outputType == OutType::Statistic) {
+		TrainSample current_sample_ptr = db.getSample(batch.samples[i]);
+		if (current_sample_ptr.out) {
 			visual.updatePrediction(*current_sample_ptr.out);
 		} else {
 			visual.updatePrediction(output);

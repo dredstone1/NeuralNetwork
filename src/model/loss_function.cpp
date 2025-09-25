@@ -27,7 +27,7 @@ OutType Loss::getOTypeFromOut(const global::Tensor *outP) {
 
 Loss::Loss(const LossType type, const OutType outType) {
 	if (getOTypeFromLType(type) != outType) {
-		throw std::invalid_argument("Loss type does not match output type");
+		throw std::invalid_argument("Lost type does not match output type");
 	}
 
 	lossType = type;
@@ -41,7 +41,7 @@ global::ValueType Loss::LossF(const size_t index, const global::Tensor *outP,
 	// Runtime type consistency check
 	if (getOTypeFromLType(lossType) != getOTypeFromOut(outP)) {
 		throw std::runtime_error(
-		    "LossF: output pointer type does not match the loss type");
+		    "LostF: output pointer type does not match the loss type");
 	}
 
 	switch (lossType) {

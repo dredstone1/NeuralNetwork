@@ -54,11 +54,11 @@ enum class OutType {
  * @brief Stores general information about the dataset.
  */
 struct databaseStatus {
-	size_t dbSize;           ///< Total number of samples in the database.
-	size_t sampleInputSize;  ///< Input dimension of each sample.
-	size_t sampleOutputSize; ///< Output dimension of each sample.
+	size_t dbSize{0};           ///< Total number of samples in the database.
+	size_t sampleInputSize{0};  ///< Input dimension of each sample.
+	size_t sampleOutputSize{0}; ///< Output dimension of each sample.
 
-	OutType outputType;
+	OutType outputType{OutType::Classify};
 };
 
 /**
