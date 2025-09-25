@@ -147,7 +147,8 @@ global::ValueType Model::runBackPropagation(
 	resetNetworkGradient();
 	global::Tensor output({outputSize()});
 
-	Lost lost(config.trainingConfig.getLossType());
+	Lost lost(config.trainingConfig.getLossType(),
+	          db.samples.status.outputType);
 	for (size_t i = 0; i < batch.size(); ++i) {
 		TrainSample current_sample_ptr = db.getSample(batch.samples.at(i));
 		if (db.samples.status.outputType == OutType::Statistic) {
@@ -169,7 +170,8 @@ global::ValueType Model::runBackPropagation(
 			}
 		}
 
-		error += lost.LostF(current_sample_ptr.index, *current_sample_ptr.out, getOutput());
+		error += lost.LostF(current_sample_ptr.index, current_sample_ptr.out,
+		                    getOutput());
 	}
 
 	if (doBackward) {

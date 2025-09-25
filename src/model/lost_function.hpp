@@ -1,10 +1,9 @@
 #ifndef LOSTS
 #define LOSTS
 
+#include "dataBase.hpp"
 #include "tensor.hpp"
 #include "tensor_gpu.hpp"
-#include <cmath>
-#include <cstddef>
 
 namespace nn::model {
 
@@ -23,23 +22,26 @@ enum class LostsType {
 
 class Lost {
   private:
-	const LostsType lostType;
+	LostsType lostType;
 
 	// ----------------------
 	// Private loss functions
 	// ----------------------
 
+	static OutType getOTypeFromLType(LostsType lt);
+	OutType getOTypeFromOut(const global::Tensor *outP);
+
 	static global::ValueType CCE(const size_t index, const global::Tensor &outE);
 	static global::ValueType BCE(const size_t index, const global::Tensor &outE);
-	static global::ValueType MSE(const global::Tensor &outP, const global::Tensor &outE);
-	static global::ValueType MAE(const global::Tensor &outP, const global::Tensor &outE);
+	static global::ValueType MSE(const global::Tensor *outP, const global::Tensor &outE);
+	static global::ValueType MAE(const global::Tensor *outP, const global::Tensor &outE);
 
   public:
 	// ----------------------
 	// Constructors & Destructor
 	// ----------------------
 
-	Lost(const LostsType type) : lostType(type) {}
+	Lost(const LostsType type, const OutType outType);
 	Lost(const Lost &other) : lostType(other.lostType) {}
 	~Lost() = default;
 
@@ -55,7 +57,7 @@ class Lost {
 	 * @param outE Ground-truth tensor
 	 * @return Loss value
 	 */
-	global::ValueType LostF(const size_t index, const global::Tensor &outP, const global::Tensor &outE);
+	global::ValueType LostF(const size_t index, const global::Tensor *outP, const global::Tensor &outE);
 };
 
 } // namespace nn::model

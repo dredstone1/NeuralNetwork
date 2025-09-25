@@ -1,17 +1,49 @@
 #include "lost_function.hpp"
+#include "dataBase.hpp"
 #include "tensor.hpp"
 #include "tensor_gpu.hpp"
-#include <algorithm> // for std::max, std::min
-#include <cmath>     // for std::log, std::abs
+#include <cmath>
+#include <stdexcept>
 
 namespace nn::model {
 
 // -----------------------------------------------------------------------------
+// Helper: check consistency between output pointer and expected type
+// -----------------------------------------------------------------------------
+OutType Lost::getOTypeFromLType(LostsType lt) {
+	if (lt <= LostsType::BCE) {
+		return OutType::Classify;
+	}
+
+	return OutType::Statistic;
+}
+
+OutType Lost::getOTypeFromOut(const global::Tensor *outP) {
+	if (outP)
+		return OutType::Statistic;
+
+	return OutType::Classify;
+}
+
+Lost::Lost(const LostsType type, const OutType outType) {
+	if (getOTypeFromLType(type) != outType) {
+		throw std::invalid_argument("Lost type does not match output type");
+	}
+
+	lostType = type;
+}
+
+// -----------------------------------------------------------------------------
 // Public interface
 // -----------------------------------------------------------------------------
-
-global::ValueType Lost::LostF(const size_t index, const global::Tensor &outP,
+global::ValueType Lost::LostF(const size_t index, const global::Tensor *outP,
                               const global::Tensor &outE) {
+	// Runtime type consistency check
+	if (getOTypeFromLType(lostType) != getOTypeFromOut(outP)) {
+		throw std::runtime_error(
+		    "LostF: output pointer type does not match the loss type");
+	}
+
 	switch (lostType) {
 	case LostsType::CCE:
 		return CCE(index, outE); // one-hot safe
@@ -43,14 +75,18 @@ global::ValueType Lost::BCE(const size_t index, const global::Tensor &outE) {
 }
 
 // Mean Squared Error for statistical outputs
-global::ValueType Lost::MSE(const global::Tensor &outP, const global::Tensor &outE) {
-	if (global::Tensor::getGpuState()) {
+global::ValueType Lost::MSE(const global::Tensor *outP, const global::Tensor &outE) {
+	if (!outP) {
 		return 0;
+	}
+
+	if (global::Tensor::getGpuState()) {
+		return 0; // TODO: GPU implementation
 	} else {
 		global::ValueType sum = 0;
-		size_t n = outP.numElements();
+		size_t n = outP->numElements();
 		for (size_t i = 0; i < n; ++i) {
-			global::ValueType diff = outP.getValue(i) - outE.getValue(i);
+			global::ValueType diff = outP->getValue(i) - outE.getValue(i);
 			sum += diff * diff;
 		}
 		return sum / static_cast<global::ValueType>(n); // mean
@@ -58,14 +94,18 @@ global::ValueType Lost::MSE(const global::Tensor &outP, const global::Tensor &ou
 }
 
 // Mean Absolute Error for statistical outputs
-global::ValueType Lost::MAE(const global::Tensor &outP, const global::Tensor &outE) {
-	if (global::Tensor::getGpuState()) {
+global::ValueType Lost::MAE(const global::Tensor *outP, const global::Tensor &outE) {
+	if (!outP) {
 		return 0;
+	}
+
+	if (global::Tensor::getGpuState()) {
+		return 0; // TODO: GPU implementation
 	} else {
 		global::ValueType sum = 0;
-		size_t n = outP.numElements();
+		size_t n = outP->numElements();
 		for (size_t i = 0; i < n; ++i) {
-			sum += std::abs(outP.getValue(i) - outE.getValue(i));
+			sum += std::abs(outP->getValue(i) - outE.getValue(i));
 		}
 		return sum / static_cast<global::ValueType>(n); // mean
 	}

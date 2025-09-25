@@ -3,7 +3,6 @@
 
 #include "../src/model/tensor_gpu.hpp"
 #include "tensor.hpp"
-#include <Globals.hpp>
 
 namespace nn::model {
 const std::string DATABASE_FILE_EXETENTION = ".nndb";
