@@ -30,7 +30,7 @@ constexpr std::uint32_t DATA_GAP_WIDTH = GRAPH_WIDTH / GRAPH_RESOLUTION; ///< Sp
 constexpr float GRAPH_HEIGHT_ALPHA_DEFAULT = GRAPH_HEIGHT;               ///< Default scaling factor
 
 // Graph color scheme
-constexpr sf::Color GRAPH_LINE_COLOR_LOST(0, 0, 0);         ///< Loss curve color (black)
+constexpr sf::Color GRAPH_LINE_COLOR_LOSS(0, 0, 0);         ///< Loss curve color (black)
 constexpr sf::Color GRAPH_LINE_COLOR_EVALUATE(255, 0, 255); ///< Evaluation curve color (magenta)
 constexpr sf::Color GRAPH_HORIZONTAL_LINE_COLOR(0, 0, 255); ///< Grid line color (blue)
 constexpr sf::Color GRAPH_BG = PANELS_BG;                   ///< Graph background color
@@ -119,7 +119,7 @@ class Graph {
 class GraphUIPanel : public Panel {
   private:
 	sf::RenderTexture VRender;
-	Graph graphLost;
+	Graph graphLoss;
 	Graph graphEvaluate;
 
 	void renderVerticalNumbers();
@@ -136,7 +136,7 @@ class GraphUIPanel : public Panel {
 
 	sf::Sprite getSprite();
 
-	void addLostData(const global::ValueType newDataLost, int index);
+	void addLossData(const global::ValueType newDataLoss, int index);
 	void addEvaluateData(const global::ValueType newDataEvaluate, int index);
 
 	void reset();

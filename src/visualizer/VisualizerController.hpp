@@ -36,8 +36,8 @@ class VisualManager {
 	void start();
 	void setNewPhaseMode(const NnMode nn_mode);
 	void updateBatchCounter(const int batch);
-	void updateLost(
-	    const global::ValueType newDataLost,
+	void updateLoss(
+	    const global::ValueType newDataLoss,
 	    int index);
 	void updateEvaluate(
 	    const global::ValueType newDataEvaluate,

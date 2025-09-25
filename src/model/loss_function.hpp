@@ -1,5 +1,5 @@
-#ifndef LOSTS
-#define LOSTS
+#ifndef LOSS
+#define LOSS
 
 #include "dataBase.hpp"
 #include "tensor.hpp"
@@ -13,22 +13,22 @@ constexpr global::ValueType MIN_LOSS_VALUE = 1e-10;
 /**
  * @brief Types of loss functions supported by the framework.
  */
-enum class LostsType {
+enum class LossType {
 	CCE, ///< Classification (softmax + log, one-hot)
 	BCE, ///< Binary Cross-Entropy (one-hot)
 	MSE, ///< Mean Squared Error
 	MAE  ///< Mean Absolute Error
 };
 
-class Lost {
+class Loss {
   private:
-	LostsType lostType;
+	LossType lossType;
 
 	// ----------------------
 	// Private loss functions
 	// ----------------------
 
-	static OutType getOTypeFromLType(LostsType lt);
+	static OutType getOTypeFromLType(LossType lt);
 	OutType getOTypeFromOut(const global::Tensor *outP);
 
 	static global::ValueType CCE(const size_t index, const global::Tensor &outE);
@@ -41,9 +41,9 @@ class Lost {
 	// Constructors & Destructor
 	// ----------------------
 
-	Lost(const LostsType type, const OutType outType);
-	Lost(const Lost &other) : lostType(other.lostType) {}
-	~Lost() = default;
+	Loss(const LossType type, const OutType outType);
+	Loss(const Loss &other) : lossType(other.lossType) {}
+	~Loss() = default;
 
 	// ----------------------
 	// Public interface
@@ -57,9 +57,10 @@ class Lost {
 	 * @param outE Ground-truth tensor
 	 * @return Loss value
 	 */
-	global::ValueType LostF(const size_t index, const global::Tensor *outP, const global::Tensor &outE);
+	global::ValueType LossF(const size_t index, const global::Tensor *outP,
+	                        const global::Tensor &outE);
 };
 
 } // namespace nn::model
 
-#endif // LOSTS
+#endif // LOSS

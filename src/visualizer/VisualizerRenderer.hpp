@@ -53,8 +53,8 @@ class VisualRender {
 	    const global::ValueType newDataEvaluate,
 	    int index);
 
-	void updateLost(
-	    const global::ValueType newDataLost,
+	void updateLoss(
+	    const global::ValueType newDataLoss,
 	    int index);
 
 	void updateLearningRate(const global::ValueType newLerningRate);

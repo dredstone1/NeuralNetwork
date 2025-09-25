@@ -197,19 +197,19 @@ void TrainingConfig::fromJson(const nlohmann::json &j) {
 		}
 	}
 
-	// Lost configuration
-	if (j.contains("lost")) {
-		nlohmann::json lostJ = j.at("lost");
-		std::string lostName = lostJ.at("type");
+	// Loss configuration
+	if (j.contains("loss")) {
+		nlohmann::json lossJ = j.at("loss");
+		std::string lossName = lossJ.at("type");
 
-		if (lostName == "CCE") {
-			lostType = LostsType::CCE;
+		if (lossName == "CCE") {
+			lossType = LossType::CCE;
 		}
-		if (lostName == "MSE") {
-			lostType = LostsType::MSE;
+		if (lossName == "MSE") {
+			lossType = LossType::MSE;
 		}
-		if (lostName == "MAE") {
-			lostType = LostsType::MAE;
+		if (lossName == "MAE") {
+			lossType = LossType::MAE;
 		}
 	}
 }

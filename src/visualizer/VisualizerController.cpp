@@ -78,14 +78,14 @@ void VisualManager::updateBatchCounter(const int batch) {
 	Vstate->currentBatch = batch;
 }
 
-void VisualManager::updateLost(
-    const global::ValueType newDataLost,
+void VisualManager::updateLoss(
+    const global::ValueType newDataLoss,
     int index) {
 	if (!checkPointers()) {
 		return;
 	}
 
-	renderer->updateLost(newDataLost, index);
+	renderer->updateLoss(newDataLoss, index);
 }
 
 void VisualManager::updateEvaluate(

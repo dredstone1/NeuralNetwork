@@ -2,7 +2,7 @@
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
 #include "dataBase.hpp"
-#include "lost_function.hpp"
+#include "loss_function.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
@@ -147,7 +147,7 @@ global::ValueType Model::runBackPropagation(
 	resetNetworkGradient();
 	global::Tensor output({outputSize()});
 
-	Lost lost(config.trainingConfig.getLossType(),
+	Loss loss(config.trainingConfig.getLossType(),
 	          db.samples.status.outputType);
 	for (size_t i = 0; i < batch.size(); ++i) {
 		TrainSample current_sample_ptr = db.getSample(batch.samples.at(i));
@@ -170,7 +170,7 @@ global::ValueType Model::runBackPropagation(
 			}
 		}
 
-		error += lost.LostF(current_sample_ptr.index, current_sample_ptr.out,
+		error += loss.LossF(current_sample_ptr.index, current_sample_ptr.out,
 		                    getOutput());
 	}
 
@@ -302,7 +302,7 @@ void Model::trainModel(DataBase &trainedDataBase, DataBase &evaluateDataBase) {
 
 		Batch &batch = getBatch(trainedDataBase, currentBatch, batches);
 		error = runBackPropagation(batch, trainedDataBase, true);
-		visual.updateLost(error, batchCounter);
+		visual.updateLoss(error, batchCounter);
 
 		autoSave(batchCounter);
 

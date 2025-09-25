@@ -22,7 +22,7 @@
 			"type": "const",
 			"lr": 0.01
 		},
-		"lost": {
+		"loss": {
 			"type": "CCE"
 		}
 	},

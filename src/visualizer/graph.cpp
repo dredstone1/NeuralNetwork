@@ -86,7 +86,7 @@ float Graph::getAlpha() const {
 GraphUIPanel::GraphUIPanel(std::shared_ptr<StateManager> vstate_)
     : Panel(vstate_),
       VRender({GRAPH_UI_WIDTH, GRAPH_HEIGHT}),
-      graphLost(
+      graphLoss(
           vstate->config.trainingConfig.getBatchCount(),
           GRAPH_RESOLUTION,
           GRAPH_HEIGHT_ALPHA_DEFAULT),
@@ -106,7 +106,7 @@ void GraphUIPanel::renderVerticalNumbers() {
 	textE.setCharacterSize(10);
 	textL.setCharacterSize(10);
 	textE.setFillColor(GRAPH_LINE_COLOR_EVALUATE);
-	textL.setFillColor(GRAPH_LINE_COLOR_LOST);
+	textL.setFillColor(GRAPH_LINE_COLOR_LOSS);
 
 	for (int i = 0; i < VERTICAL_NUMBERS_COUNT; ++i) {
 		float y = i * (GRAPH_HEIGHT / (float)VERTICAL_NUMBERS_COUNT) + 15 + 4;
@@ -137,7 +137,7 @@ void GraphUIPanel::renderVerticalNumbers() {
 }
 
 void GraphUIPanel::renderHorizontalLine(float value) {
-	float pos_y = GRAPH_HEIGHT - value * graphLost.getAlpha();
+	float pos_y = GRAPH_HEIGHT - value * graphLoss.getAlpha();
 	std::array line{
 	    sf::Vertex{sf::Vector2f(GRAPH_UI_WIDTH - GRAPH_WIDTH, pos_y), GRAPH_HORIZONTAL_LINE_COLOR},
 	    sf::Vertex{sf::Vector2f(GRAPH_UI_WIDTH, pos_y), GRAPH_HORIZONTAL_LINE_COLOR}};
@@ -146,7 +146,7 @@ void GraphUIPanel::renderHorizontalLine(float value) {
 }
 
 float GraphUIPanel::getValueFromHeightL(float height) {
-	return (GRAPH_HEIGHT - height) / graphLost.getAlpha();
+	return (GRAPH_HEIGHT - height) / graphLoss.getAlpha();
 }
 float GraphUIPanel::getValueFromHeightE(float height) {
 	return (GRAPH_HEIGHT - height) / graphEvaluate.getAlpha();
@@ -159,7 +159,7 @@ void GraphUIPanel::display() {
 void GraphUIPanel::doRender() {
 	clear();
 
-	graphLost.drawTo(VRender, {GRAPH_UI_WIDTH - GRAPH_WIDTH, 0}, GRAPH_LINE_COLOR_LOST);
+	graphLoss.drawTo(VRender, {GRAPH_UI_WIDTH - GRAPH_WIDTH, 0}, GRAPH_LINE_COLOR_LOSS);
 
 	graphEvaluate.drawTo(VRender, {GRAPH_UI_WIDTH - GRAPH_WIDTH, 0}, GRAPH_LINE_COLOR_EVALUATE);
 
@@ -176,8 +176,8 @@ void GraphUIPanel::addEvaluateData(const global::ValueType newDataEvaluate, int 
 	setUpdate();
 }
 
-void GraphUIPanel::addLostData(const global::ValueType newDataLost, int index) {
-	graphLost.addData(newDataLost, index);
+void GraphUIPanel::addLossData(const global::ValueType newDataLoss, int index) {
+	graphLoss.addData(newDataLoss, index);
 	setUpdate();
 }
 
@@ -188,7 +188,7 @@ void Graph::reset() {
 }
 
 void GraphUIPanel::reset() {
-    graphLost.reset();
+    graphLoss.reset();
     graphEvaluate.reset();
 }
 } // namespace nn::visualizer

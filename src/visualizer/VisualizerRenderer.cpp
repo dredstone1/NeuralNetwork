@@ -157,10 +157,10 @@ void VisualRender::start() {
 	renderLoop();
 }
 
-void VisualRender::updateLost(
-    const global::ValueType newDataLost,
+void VisualRender::updateLoss(
+    const global::ValueType newDataLoss,
     int index) {
-	Vgraph.addLostData(newDataLost, index);
+	Vgraph.addLossData(newDataLoss, index);
 }
 
 void VisualRender::updateEvaluate(
