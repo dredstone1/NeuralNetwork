@@ -21,6 +21,9 @@
 		"optimizer": {
 			"type": "const",
 			"lr": 0.01
+		},
+		"lost": {
+			"type": "CCE"
 		}
 	},
 	"network config": [
@@ -29,9 +32,7 @@
 			"input size": 10,
 			"output size": 16,
 			"output activation": 4,
-			"layers": [
-                { "size": 8, "activationType": 1 }
-            ]
+			"layers": [{ "size": 50, "activationType": 1 }]
 		}
 	]
 }

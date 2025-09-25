@@ -142,13 +142,6 @@ class CNNetwork : public INetwork {
 	void resetGradient() override;
 
 	/**
-	 * @brief Calculates loss for a given prediction target
-	 * @param index Target prediction information
-	 * @return Computed loss value
-	 */
-	global::ValueType getLoss(const size_t index, const global::Tensor &out) const override;
-
-	/**
 	 * @brief Gets the size of the network's output (number of feature maps)
 	 * @return Number of output feature maps
 	 */

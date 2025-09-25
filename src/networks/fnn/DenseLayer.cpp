@@ -64,16 +64,6 @@ void Output_Layer::backward(
 	*deltas = &deltaL;
 }
 
-global::ValueType Output_Layer::getCrossEntropyLoss(
-    const global::Tensor &prediction,
-    const size_t target) {
-	return -std::log(std::max(prediction.getValue(target), MIN_LOSS_VALUE));
-}
-
-global::ValueType Output_Layer::getLoss(const size_t index, const global::Tensor &out) {
-	return getCrossEntropyLoss(getOut(), index);
-}
-
 void Hidden_Layer::forward(const global::Tensor &metrix) {
 	if (isTraining)
 		CreateDropoutMask();

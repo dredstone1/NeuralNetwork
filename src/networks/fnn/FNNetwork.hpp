@@ -94,12 +94,7 @@ class FNNetwork : public INetwork {
 	/** @brief Resets all accumulated gradients to zero */
 	void resetGradient() override;
 
-	/**
-	 * @brief Calculates loss for a given prediction target
-	 * @param index Target prediction information
-	 * @return Computed loss value
-	 */
-	global::ValueType getLoss(const size_t index, const global::Tensor &out) const override;
+
 
 	/**
 	 * @brief Gets the size of the network's output layer

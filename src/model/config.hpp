@@ -2,6 +2,7 @@
 #define CONFIG
 
 #include "activations.hpp"
+#include "lost_function.hpp"
 #include <nlohmann/json.hpp>
 #include <vector>
 
@@ -115,6 +116,8 @@ class TrainingConfig {
 	size_t batchSize;
 	size_t batchCount;
 
+	LostsType lostType;
+
 	std::unique_ptr<IOptimizerConfig> optimizer;
 	std::string optimizerType;
 
@@ -141,6 +144,8 @@ class TrainingConfig {
 		return optimizer;
 	}
 	const std::string &getOptimizerType() const { return optimizerType; }
+
+	LostsType getLossType() const { return lostType; }
 };
 
 struct VisualMode {

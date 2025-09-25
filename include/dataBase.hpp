@@ -27,7 +27,7 @@ struct TrainSample {
 	size_t index = 0;
 
 	/**
-	 * @brief Construct a training sample with given input/output sizes.
+	 * brief Construct a training sample with given input/output sizes.
 	 * @param sampleOutputSize Number of expected output values.
 	 * @param sampleInputSize  Number of input features.
 	 */

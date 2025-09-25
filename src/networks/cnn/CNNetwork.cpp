@@ -7,11 +7,11 @@ namespace nn::model::cnn {
 
 /**
  * @brief Constructs a convolutional neural network layer
- * 
+ *
  * Creates a CNN layer with the specified configuration, including filter
  * dimensions, number of filters, and activation function. The layer can
  * be initialized with random weights or loaded from pre-trained parameters.
- * 
+ *
  * @param _config Configuration object containing CNN architecture
  * @param randomInit Whether to initialize filters randomly
  * @param visual_ Optional visualizer for real-time network monitoring
@@ -58,14 +58,14 @@ std::vector<global::ValueType> CNNetwork::randomFilters() const {
 
 /**
  * @brief Performs 2D convolution on CPU
- * 
+ *
  * Implements the 2D convolution operation using CPU computation. This method
  * applies multiple filters to the input feature map, computing the convolution
  * for each filter and storing the results in the activation map.
- * 
+ *
  * The convolution operation computes:
  * output[x,y,f] = bias[f] + sum(input[x+i, y+j, c] * filter[i, j, f, c])
- * 
+ *
  * @note This is the CPU implementation of the convolution operation
  * @note The operation is performed for all filters and output positions
  */
@@ -109,12 +109,12 @@ Size CNNetwork::getFeatureMapSize() {
 
 /**
  * @brief Performs forward propagation through the CNN layer
- * 
+ *
  * Applies 2D convolution to the input feature map, followed by the activation
  * function. The operation is optimized for both CPU and GPU execution.
- * 
+ *
  * @param newInput Input feature map tensor
- * 
+ *
  * @note The input tensor should have shape [height, width, channels]
  * @note The output will have shape [output_height, output_width, num_filters]
  */
@@ -140,14 +140,14 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 
 /**
  * @brief Performs backward propagation through the CNN layer
- * 
+ *
  * Computes gradients for the filters and biases, and propagates the error
  * signal backward to the input layer. This is used during training to
  * update the network parameters.
- * 
+ *
  * @param outputDeltas Pointer to delta tensor from the next layer
  * @param weight Weight factor for gradient scaling
- * 
+ *
  * @note This method computes gradients for both filters and biases
  * @note The input delta is computed and stored for propagation to previous layers
  */
@@ -190,10 +190,6 @@ void CNNetwork::backward(global::Tensor **outputDeltas,
 
 size_t CNNetwork::outputSize() const {
 	return activationMapO.numElements();
-}
-
-global::ValueType CNNetwork::getLoss(const size_t, const global::Tensor &) const {
-	return 0.0f;
 }
 
 void CNNetwork::resetGradient() {

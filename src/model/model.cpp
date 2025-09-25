@@ -2,6 +2,7 @@
 #include "../networks/fnn/FNNetwork.hpp"
 #include "ProgressBar.hpp"
 #include "dataBase.hpp"
+#include "lost_function.hpp"
 #include <fstream>
 #include <iostream>
 #include <model.hpp>
@@ -145,6 +146,8 @@ global::ValueType Model::runBackPropagation(
 
 	resetNetworkGradient();
 	global::Tensor output({outputSize()});
+
+	Lost lost(config.trainingConfig.getLossType());
 	for (size_t i = 0; i < batch.size(); ++i) {
 		TrainSample current_sample_ptr = db.getSample(batch.samples.at(i));
 		if (db.samples.status.outputType == OutType::Statistic) {
@@ -162,12 +165,11 @@ global::ValueType Model::runBackPropagation(
 			if (db.samples.status.outputType == OutType::Statistic) {
 				Backward(*current_sample_ptr.out, current_sample_ptr.weight);
 			} else {
-
 				Backward(output, current_sample_ptr.weight);
 			}
 		}
 
-		error += getLoss(current_sample_ptr.index, *current_sample_ptr.out);
+		error += lost.LostF(current_sample_ptr.index, *current_sample_ptr.out, getOutput());
 	}
 
 	if (doBackward) {
@@ -371,10 +373,6 @@ const global::Tensor &Model::getOutput() const {
 	return network[network.size() - 1]->getOutput();
 }
 
-global::ValueType Model::getLoss(const size_t index, const global::Tensor &out) {
-	return network[network.size() - 1]->getLoss(index, out);
-}
-
 size_t Model::outputSize() const {
 	return network[network.size() - 1]->outputSize();
 }
@@ -481,7 +479,7 @@ void Model::load(const std::string &file, bool print) {
 	}
 }
 
-global::Prediction Model::getPrediction() const {
+Prediction Model::getPrediction() const {
 	size_t max = 0;
 
 	for (size_t i = 1; i < outputSize(); ++i) {
@@ -490,7 +488,7 @@ global::Prediction Model::getPrediction() const {
 		}
 	}
 
-	return global::Prediction(max, getOutput().getValue(max));
+	return Prediction(max, getOutput().getValue(max));
 }
 
 void Model::setTraining(const bool state) {

@@ -22,6 +22,36 @@ const std::string EVALUATING_HEADER = "Evaluating Model";
 const std::string SAVING_DATA_HEADER = "Saving parameters from: ";
 const std::string LOADING_DATA_HEADER = "Loading parameters from: ";
 
+/**
+ * @struct Prediction
+ * @brief Represents a prediction result from the neural network
+ * 
+ * This structure holds the result of a neural network prediction, including
+ * both the predicted class index and the confidence value associated with
+ * that prediction.
+ * 
+ * @var size_t index The index of the predicted class
+ * @var ValueType value The confidence value or probability for this prediction
+ */
+struct Prediction {
+	size_t index;                    ///< The predicted class index (0-based)
+	global::ValueType value;         ///< The confidence value for this prediction
+	
+	/**
+	 * @brief Default constructor - creates a prediction with zero values
+	 */
+	Prediction() : index(0), value(0) {}
+	
+	/**
+	 * @brief Parameterized constructor - creates a prediction with specified values
+	 * @param index_ The predicted class index
+	 * @param value_ The confidence value for the prediction
+	 */
+	Prediction(const size_t index_, const global::ValueType value_)
+	    : index(index_),
+	      value(value_) {}
+};
+
 struct Batch {
 	std::vector<size_t> samples;
 	Batch(const size_t length) { samples.resize(length); }
@@ -60,7 +90,6 @@ class Model {
 	void Backward(global::Tensor &output, const global::ValueType weight);
 	void updateWeights(const int batch_size);
 	void resetNetworkGradient();
-	global::ValueType getLoss(const size_t index, const global::Tensor &out);
 
 	global::ValueType runBackPropagation(
 	    const Batch &batch, DataBase &db, const bool updateWeights);
@@ -149,7 +178,7 @@ class Model {
 	 * @brief Get final prediction of the model after forward pass.
 	 * @return global::Prediction Prediction result.
 	 */
-	global::Prediction getPrediction() const;
+	Prediction getPrediction() const;
 
 	/**
 	 * @brief Get raw output values of the model.

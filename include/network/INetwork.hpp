@@ -50,13 +50,6 @@ class INetwork {
 	virtual size_t outputSize() const = 0;
 
 	/**
-	 * @brief Computes the loss for a given prediction.
-	 * @param index Prediction or target index.
-	 * @return Loss value as a scalar.
-	 */
-	virtual global::ValueType getLoss(const size_t index, const global::Tensor &out) const = 0;
-
-	/**
 	 * @brief Returns a constant reference to the network output tensor.
 	 * @return Output tensor of the network.
 	 */

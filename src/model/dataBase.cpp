@@ -241,16 +241,11 @@ TrainSample DataBase::getSample(const size_t i) {
 	TrainSample newSample;
 	newSample.index = samples.samples[i].index;   // copy pre.index
 	newSample.weight = samples.samples[i].weight; // copy weight
+	newSample.out = samples.samples[i].out;
 
 	// copy input shape and strides
 	newSample.input.shape = samples.samples[i].input.shape;
 	newSample.input.strides = samples.samples[i].input.strides;
-
-	if (samples.status.outputType == OutType::Statistic) {
-		newSample.out->shape = samples.samples[i].out->shape;
-		newSample.out->strides = samples.samples[i].out->strides;
-		newSample.out = samples.samples[i].out;
-	}
 
 	// copy GPU or CPU data depending on global state
 	if (nn::global::Tensor::getGpuState()) {

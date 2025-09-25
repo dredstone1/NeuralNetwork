@@ -196,6 +196,22 @@ void TrainingConfig::fromJson(const nlohmann::json &j) {
 			optimizer = std::make_unique<ConstantOptimizerConfig>(optimizerJ);
 		}
 	}
+
+	// Lost configuration
+	if (j.contains("lost")) {
+		nlohmann::json lostJ = j.at("lost");
+		std::string lostName = lostJ.at("type");
+
+		if (lostName == "CCE") {
+			lostType = LostsType::CCE;
+		}
+		if (lostName == "MSE") {
+			lostType = LostsType::MSE;
+		}
+		if (lostName == "MAE") {
+			lostType = LostsType::MAE;
+		}
+	}
 }
 
 void ConstantOptimizerConfig::fromJson(const nlohmann::json &j) {

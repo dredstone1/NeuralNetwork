@@ -127,10 +127,6 @@ void FNNetwork::backward(global::Tensor **outputDeltas, const global::ValueType 
 	calculateInputDelta(outputDeltas);
 }
 
-global::ValueType FNNetwork::getLoss(const size_t index, const global::Tensor &out) const {
-	return layers[layers.size() - 1]->getLoss(index, out);
-}
-
 void FNNetwork::resetGradient() {
 	for (size_t i = 0; i < layers.size(); ++i) {
 		layers[i]->resetGradient();
