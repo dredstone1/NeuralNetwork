@@ -152,25 +152,19 @@ global::ValueType Model::runBackPropagation(
 	          db.samples.status.outputType);
 	for (size_t i = 0; i < batch.size(); ++i) {
 		TrainSample current_sample_ptr = db.getSample(batch.samples[i]);
-		if (current_sample_ptr.out) {
 
-			printf("test: %f %f\n", current_sample_ptr.out->getValue(0), current_sample_ptr.out->getValue(1));
-			visual.updatePrediction(*current_sample_ptr.out);
+		if (current_sample_ptr.out) {
+			output = *current_sample_ptr.out;
 		} else {
-			visual.updatePrediction(output);
+			output.zero();
+			output.setValue(current_sample_ptr.index, 1);
 		}
 
+		visual.updatePrediction(output);
 		runModel(current_sample_ptr.input);
 
 		if (doBackward) {
-			output.zero();
-			output.setValue(current_sample_ptr.index, 1);
-
-			if (db.samples.status.outputType == OutType::Statistic) {
-				Backward(*current_sample_ptr.out, current_sample_ptr.weight);
-			} else {
-				Backward(output, current_sample_ptr.weight);
-			}
+			Backward(output, current_sample_ptr.weight);
 		}
 
 		error += loss.LossF(current_sample_ptr.index, current_sample_ptr.out,

@@ -24,6 +24,7 @@ struct TrainSample {
 
 	global::Tensor *out = nullptr;
 	size_t index = 0;
+	bool f_d{false};
 
 	/**
 	 * brief Construct a training sample with given input/output sizes.
@@ -39,7 +40,7 @@ struct TrainSample {
 	 */
 	TrainSample() : input({0}) {}
 	~TrainSample() {
-		if (out && index == 1) {
+		if (out && f_d) {
 			delete out;
 		}
 	}

@@ -1,6 +1,5 @@
 #include "ProgressBar.hpp"
 #include "tensor.hpp"
-#include "tensor_gpu.hpp"
 #include <dataBase.hpp>
 #include <fstream>
 #include <iostream>
@@ -140,7 +139,7 @@ void DataBase::readLine(const std::string &line, TrainSample &sample) {
 
 	if (samples.status.outputType == OutType::Statistic) {
 		sample.out = new global::Tensor({samples.status.sampleOutputSize});
-		sample.index = 1;
+		sample.f_d = true;
 		if (sample.out) {
 			*sample.out = tempDataO;
 		}
@@ -239,13 +238,9 @@ void DataBase::load(const std::vector<std::string> &db_filenames) {
 TrainSample DataBase::getSample(const size_t i) {
 	TrainSample newSample;
 	newSample.weight = samples.samples[i].weight;
+	newSample.index = samples.samples[i].index;
 
-	if (samples.samples[i].out) {
-		newSample.index = 0;
-		newSample.out = samples.samples[i].out;
-	} else {
-		newSample.index = samples.samples[i].index;
-	}
+	newSample.out = samples.samples[i].out;
 
 	// copy input shape and strides
 	newSample.input.shape = samples.samples[i].input.shape;
