@@ -38,12 +38,6 @@ Loss::Loss(const LossType type, const OutType outType) {
 // -----------------------------------------------------------------------------
 global::ValueType Loss::LossF(const size_t index, const global::Tensor *outP,
                               const global::Tensor &outE) {
-	// Runtime type consistency check
-	// if (getOTypeFromLType(lossType) != getOTypeFromOut(outP)) {
-	// 	throw std::runtime_error(
-	// 	    "LossF: output pointer type does not match the loss type");
-	// }
-
 	switch (lossType) {
 	case LossType::CCE:
 		return CCE(index, outE); // one-hot safe
@@ -69,7 +63,7 @@ global::ValueType Loss::CCE(const size_t index, const global::Tensor &outE) {
 // One-hot binary cross entropy
 global::ValueType Loss::BCE(const size_t index, const global::Tensor &outE) {
 	global::ValueType p = std::max(
-	    std::min(outE.getValue(index), static_cast<global::ValueType>(1.0) - MIN_LOSS_VALUE),
+	    std::min(outE.getValue(index), 1.0f - MIN_LOSS_VALUE),
 	    MIN_LOSS_VALUE);
 	return -(p * std::log(p) + (1.0 - p) * std::log(1.0 - p));
 }
@@ -89,7 +83,7 @@ global::ValueType Loss::MSE(const global::Tensor *outP, const global::Tensor &ou
 			global::ValueType diff = outP->getValue(i) - outE.getValue(i);
 			sum += diff * diff;
 		}
-		return sum / static_cast<global::ValueType>(n); // mean
+		return sum / n; // mean
 	}
 }
 
@@ -107,7 +101,7 @@ global::ValueType Loss::MAE(const global::Tensor *outP, const global::Tensor &ou
 		for (size_t i = 0; i < n; ++i) {
 			sum += std::abs(outP->getValue(i) - outE.getValue(i));
 		}
-		return sum / static_cast<global::ValueType>(n); // mean
+		return sum / n; // mean
 	}
 }
 

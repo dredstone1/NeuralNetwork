@@ -24,10 +24,6 @@ int main() {
 		model.runModel(input);
 
 		const auto &out = model.getOut();
-		std::cout << "Output: ";
-		for (auto v : out)
-			std::cout << v << " ";
-		std::cout << "\nPrediction: index=" << model.getPrediction().index
-		          << " value=" << model.getPrediction().value << "\n\n";
+		std::cout << "> "<< model.getPrediction().value * 10 << "\n";
 	}
 }

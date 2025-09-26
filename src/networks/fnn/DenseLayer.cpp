@@ -3,11 +3,8 @@
 #include <random>
 
 namespace nn::model::fnn {
-DenseLayer::DenseLayer(
-    const size_t size,
-    const size_t prevSize,
-    const ActivationType activation,
-    const bool randomInit)
+DenseLayer::DenseLayer(const size_t size, const size_t prevSize,
+                       const ActivationType activation, const bool randomInit)
     : net({size}),
       out({size}),
       parameters(size, prevSize),
@@ -31,7 +28,7 @@ void Hidden_Layer::CreateDropoutMask() {
 
 	static std::vector<global::ValueType> temp(dropoutMask.numElements(), 0);
 	for (size_t i = 0; i < dropoutMask.numElements(); ++i) {
-		temp[i] = static_cast<uint8_t>(bernoulli(rng));
+		temp[i] = bernoulli(rng);
 	}
 
 	dropoutMask = temp;
@@ -45,10 +42,8 @@ void Output_Layer::forward(const global::Tensor &metrix) {
 }
 
 void Output_Layer::backward(
-    global::Tensor **deltas,
-    const global::Tensor &prevLayer,
-    const global::ValueType weight,
-    const LayerParams *) {
+    global::Tensor **deltas, const global::Tensor &prevLayer,
+    const global::ValueType weight, const LayerParams *) {
 	if (activationFunction.getType() == ActivationType::Softmax) {
 		deltaL = out;
 		deltaL -= **deltas;
@@ -65,8 +60,9 @@ void Output_Layer::backward(
 }
 
 void Hidden_Layer::forward(const global::Tensor &metrix) {
-	if (isTraining)
+	if (isTraining) {
 		CreateDropoutMask();
+	}
 
 	parameters.weights.matmul(metrix, net);
 	net += parameters.biases;
@@ -80,11 +76,8 @@ void Hidden_Layer::forward(const global::Tensor &metrix) {
 }
 
 void Hidden_Layer::backward(
-    global::Tensor **deltas,
-    const global::Tensor &prevLayer,
-    const global::ValueType weight,
-    const LayerParams *nextLayer) {
-
+    global::Tensor **deltas, const global::Tensor &prevLayer,
+    const global::ValueType weight, const LayerParams *nextLayer) {
 	if (!nextLayer)
 		return;
 
@@ -102,9 +95,8 @@ void Hidden_Layer::backward(
 	*deltas = &deltaL;
 }
 
-void Hidden_Layer::calculateDelta(
-    const global::Tensor &output,
-    const LayerParams &nextLayer) {
+void Hidden_Layer::calculateDelta(const global::Tensor &output,
+                                  const LayerParams &nextLayer) {
 
 	nextLayer.weights.matmulT(output, deltaL);
 	activationFunction.derivativeActivate(out, deltaL);
@@ -159,16 +151,6 @@ void DenseLayer::setData(const global::Tensor &newParam, const size_t offset) {
 	// Copy into biases
 	parameters.biases.insertRange(newParam, offset + weightsSize, 0, biasesSize);
 }
-
-// void DenseLayer::fillParamRandom() {
-// 	static std::mt19937 gen(std::random_device{}());
-// 	std::normal_distribution<> dist(0.0, 2);
-// 	std::vector<global::ValueType> temp(parameters.weights.numElements());
-// 	for (size_t i = 0; i < temp.size(); ++i) {
-// 		temp[i] = dist(gen);
-// 	}
-// 	parameters.weights = temp;
-// }
 
 void DenseLayer::fillParamRandom() {
 	static std::mt19937 gen(std::random_device{}());

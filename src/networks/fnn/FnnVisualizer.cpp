@@ -2,17 +2,17 @@
 #include "../../visualizer/fonts.hpp"
 
 namespace nn::visualizer::fnn {
+
 FnnVisualier::FnnVisualier(
-    const std::shared_ptr<StateManager> state_,
-    const std::uint32_t width,
+    const std::shared_ptr<StateManager> state_, const std::uint32_t width,
     const model::fnn::FNNConfig &_config)
     : IVisualNetwork(state_, width),
       config(_config),
       Layers(config.layersConfig.size() + 1) {
-
 	for (size_t i = 0; i < Layers.size(); ++i) {
 		float _width = visualWidth / Layers.size();
 		float offset = _width * i;
+
 		Layers[i].setWidth(_width);
 		Layers[i].setPos({offset, 0});
 	}
@@ -33,9 +33,8 @@ void FnnVisualier::renderLayer(const int index) {
 }
 
 VisualDenseLayer::VisualDenseLayer(const std::uint32_t _width,
-                                   const sf::Vector2f _pos)
-    : pos(_pos),
-      width(_width) {
+                                   const sf::Vector2f _pos) : pos(_pos),
+                                                              width(_width) {
 	doCache();
 }
 
@@ -187,6 +186,7 @@ void VisualDenseLayer::draw(sf::RenderTexture &target) {
 float VisualDenseLayer::calculateDistance(const sf::Vector2f pos1, const sf::Vector2f pos2) {
 	return sqrt(pow(pos1.x - pos2.x, 2) + pow(pos1.y - pos2.y, 2));
 }
+
 sf::Angle VisualDenseLayer::calculateAngle(const sf::Vector2f pos1, const sf::Vector2f pos2) {
 	return sf::radians(atan2(pos2.y - pos1.y, pos2.x - pos1.x));
 }
@@ -215,46 +215,48 @@ textType VisualDenseLayer::getTextT(const size_t layer_i, const size_t layer_p) 
 void FnnVisualier::setNet(const size_t i, const global::Tensor &newNet) {
 	Layers[i].setNet(newNet);
 }
+
 void FnnVisualier::setOut(const size_t i, const global::Tensor &newOut) {
 	Layers[i].setOut(newOut);
 }
+
 void FnnVisualier::setParam(const size_t i, const model::fnn::LayerParams &newParam) {
 	Layers[i].setParam(newParam);
 }
+
 void FnnVisualier::setGrad(const size_t i, const model::fnn::LayerParams &newGrad) {
 	Layers[i].setGrad(newGrad);
 }
 
 void VisualDenseLayer::setNet(const global::Tensor &newNet) {
+	net = newNet;
+
 	if (newNet.numElements() != net.numElements()) {
-		net = newNet;
 		doCache();
-	} else {
-		net = newNet;
 	}
 }
+
 void VisualDenseLayer::setOut(const global::Tensor &newOut) {
+	out = newOut;
+
 	if (newOut.numElements() != out.numElements()) {
-		out = newOut;
 		doCache();
-	} else {
-		out = newOut;
 	}
 }
+
 void VisualDenseLayer::setParam(const model::fnn::LayerParams &newParam) {
+	parameters = newParam;
+
 	if (newParam.size() != parameters.size() || newParam.prevSize() != parameters.prevSize()) {
-		parameters = newParam;
 		doCache();
-	} else {
-		parameters = newParam;
 	}
 }
+
 void VisualDenseLayer::setGrad(const model::fnn::LayerParams &newGrad) {
+	gradients = newGrad;
+
 	if (newGrad.size() != gradients.size() || newGrad.prevSize() != gradients.prevSize()) {
-		gradients = newGrad;
 		doCache();
-	} else {
-		gradients = newGrad;
 	}
 }
 
@@ -280,6 +282,7 @@ void VisualDenseLayer::setWidth(const std::uint32_t newWidth) {
 	width = newWidth;
 	doCache();
 }
+
 void VisualDenseLayer::setPos(const sf::Vector2f &newPos) {
 	pos = newPos;
 	doCache();
