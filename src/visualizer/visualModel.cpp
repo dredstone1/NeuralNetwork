@@ -6,11 +6,12 @@
 #include "panel.hpp"
 #include "tensor.hpp"
 #include <cstdint>
-#include <memory>
 
 namespace nn::visualizer {
-DummyLayer::DummyLayer(const size_t size_, const sf::Vector2f pos_)
+DummyLayer::DummyLayer(const size_t size_, const bool RValues,
+                       const sf::Vector2f pos_)
     : pos(pos_),
+      rValues(RValues),
       layerRender({global::NEURON_WIDTH, MODEL_HEIGHT}),
       cacheNeurons(size_),
       values({size_}) {
@@ -86,7 +87,8 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 
 	target.draw(shape);
 
-	if (10 * cacheNeurons[index].size.y / global::NEURON_WIDTH > global::MIN_FONT_SIZE) {
+	if (rValues &&
+	    10 * cacheNeurons[index].size.y / global::NEURON_WIDTH > global::MIN_FONT_SIZE) {
 		std::ostringstream ss;
 		ss << std::fixed << std::setprecision(4) << values.getValue(index);
 
@@ -109,8 +111,8 @@ void DummyLayer::renderNeuron(sf::RenderTexture &target, const size_t index) {
 
 ModelPanel::ModelPanel(const std::shared_ptr<StateManager> state_)
     : Panel(state_),
-      predictionLayer(state_->config.networkConfig.outputSize()),
-      inputLayer(nn::global::computeTensorSize(state_->config.networkConfig.inputShape())),
+      predictionLayer(state_->config.networkConfig.outputSize(), state_->config.visualConfig.renderValues),
+      inputLayer(nn::global::computeTensorSize(state_->config.networkConfig.inputShape()), state_->config.visualConfig.renderValues),
       modelRender({MODEL_WIDTH, MODEL_HEIGHT}) {
 	predictionLayer.setPos({MODEL_WIDTH - (float)predictionLayer.getWidth(), 0});
 
@@ -167,10 +169,6 @@ void ModelPanel::renderSubNetwork(const size_t index) {
 }
 
 void ModelPanel::setPrediction(const global::Tensor &out) {
-	// static global::Tensor output({predictionLayer.size()});
-	// output.zero();
-
-	// output.setValue(pre.index, 1);
 	predictionLayer.setValues(out);
 
 	setUpdate();

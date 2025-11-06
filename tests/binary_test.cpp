@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-		// model.load("test.txt");
+		model.load("test.txt");
 		std::vector<std::string> files{"../tests/data/database-binary_test", "../tests/data/database-binary_test"};
 		nn::model::DataBase dbt;
 		dbt.load(files);

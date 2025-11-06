@@ -140,7 +140,10 @@ void DenseLayer::setData(const global::Tensor &newParam, const size_t offset) {
 	const size_t weightsSize = parameters.weights.numElements();
 	const size_t biasesSize = parameters.biases.numElements();
 
-	if (weightsSize + biasesSize != newParam.numElements()) {
+	// Check that there are enough elements in `newParam` starting from `offset`
+	// to fully populate both the weights and biases of this layer.
+	// If not, exit early to avoid out-of-bounds access.
+	if (weightsSize + biasesSize + offset > newParam.numElements()) {
 		return;
 	}
 

@@ -234,6 +234,11 @@ void VisualConfig::fromJson(const nlohmann::json &j) {
 		showFps = j.at("show fps");
 	}
 
+	// Optional values display
+	if (j.contains("render values")) {
+		renderValues = j.at("render values");
+	}
+
 	// Enable network structure visualization
 	enableNetwrokVisual = j.at("enable network visual");
 

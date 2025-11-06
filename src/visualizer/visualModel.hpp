@@ -15,6 +15,7 @@ struct neuronValues {
 class DummyLayer {
   private:
 	sf::Vector2f pos;
+	const bool rValues;
 
 	void clear();
 	void display();
@@ -33,7 +34,7 @@ class DummyLayer {
 	global::Tensor values;
 
   public:
-	DummyLayer(const size_t size, const sf::Vector2f pos = {0, 0});
+	DummyLayer(const size_t size, const bool RValues = true, const sf::Vector2f pos = {0, 0});
 	~DummyLayer() = default;
 
 	size_t size() const { return values.numElements(); }
