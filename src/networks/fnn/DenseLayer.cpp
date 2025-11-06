@@ -97,7 +97,6 @@ void Hidden_Layer::backward(
 
 void Hidden_Layer::calculateDelta(const global::Tensor &output,
                                   const LayerParams &nextLayer) {
-
 	nextLayer.weights.matmulT(output, deltaL);
 	activationFunction.derivativeActivate(out, deltaL);
 }
@@ -112,8 +111,8 @@ void DenseLayer::updateWeight(nn::model::IOptimizer &optimizer) {
 }
 
 const std::vector<global::ValueType> DenseLayer::getData() const {
-	size_t weightsSize = parameters.weights.numElements();
-	size_t biasesSize = parameters.biases.numElements();
+	const size_t weightsSize = parameters.weights.numElements();
+	const size_t biasesSize = parameters.biases.numElements();
 
 	std::vector<global::ValueType> matrix(weightsSize + biasesSize);
 
@@ -138,8 +137,8 @@ const std::vector<global::ValueType> DenseLayer::getData() const {
 }
 
 void DenseLayer::setData(const global::Tensor &newParam, const size_t offset) {
-	size_t weightsSize = parameters.weights.numElements();
-	size_t biasesSize = parameters.biases.numElements();
+	const size_t weightsSize = parameters.weights.numElements();
+	const size_t biasesSize = parameters.biases.numElements();
 
 	if (weightsSize + biasesSize != newParam.numElements()) {
 		return;
@@ -155,7 +154,7 @@ void DenseLayer::setData(const global::Tensor &newParam, const size_t offset) {
 void DenseLayer::fillParamRandom() {
 	static std::mt19937 gen(std::random_device{}());
 
-	global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prevSize()));
+	const global::ValueType std_dev = std::sqrt(2.0 / static_cast<global::ValueType>(prevSize()));
 	std::normal_distribution<> dist(0.0, std_dev);
 
 	std::vector<global::ValueType> temp(parameters.weights.numElements());

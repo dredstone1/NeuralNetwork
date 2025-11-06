@@ -79,7 +79,7 @@ void Model::initModel() {
 }
 
 void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
-	fnn::FNNConfig &sub_ = (fnn::FNNConfig &)(_config);
+	const fnn::FNNConfig &sub_ = (fnn::FNNConfig &)(_config);
 	std::shared_ptr<visualizer::fnn::FnnVisualier> visual_ = nullptr;
 
 	if (shouldRenderNet()) {
@@ -91,7 +91,7 @@ void Model::addFNN(const std::uint32_t width, ISubNetworkConfig &_config) {
 }
 
 void Model::addCNN(const std::uint32_t width, ISubNetworkConfig &_config) {
-	cnn::CNNConfig &sub_ = (cnn::CNNConfig &)(_config);
+	const cnn::CNNConfig &sub_ = (cnn::CNNConfig &)(_config);
 	std::shared_ptr<visualizer::cnn::CnnVisualier> visual_ = nullptr;
 
 	if (shouldRenderNet()) {

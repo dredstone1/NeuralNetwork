@@ -10,13 +10,13 @@ void ProgressBar::printBar() {
 		headerPrinted = true;
 	}
 
-	int percentage = (total > 0) ? (current * 100 / total) : 0;
+	const int percentage = (total > 0) ? (current * 100 / total) : 0;
 	if (percentage == last_percentage) {
 		return;
 	}
 	last_percentage = percentage;
 
-	int filled = (BAR_WIDTH * percentage) / 100;
+	const int filled = (BAR_WIDTH * percentage) / 100;
 
 	std::cout << "\r[";
 	for (int i = 0; i < BAR_WIDTH; ++i) {

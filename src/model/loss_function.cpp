@@ -62,7 +62,7 @@ global::ValueType Loss::CCE(const size_t index, const global::Tensor &outE) {
 
 // One-hot binary cross entropy
 global::ValueType Loss::BCE(const size_t index, const global::Tensor &outE) {
-	global::ValueType p = std::max(
+	const global::ValueType p = std::max(
 	    std::min(outE.getValue(index), 1.0f - MIN_LOSS_VALUE),
 	    MIN_LOSS_VALUE);
 	return -(p * std::log(p) + (1.0 - p) * std::log(1.0 - p));
@@ -78,9 +78,9 @@ global::ValueType Loss::MSE(const global::Tensor *outP, const global::Tensor &ou
 		return 0; // TODO: GPU implementation
 	} else {
 		global::ValueType sum = 0;
-		size_t n = outP->numElements();
+		const size_t n = outP->numElements();
 		for (size_t i = 0; i < n; ++i) {
-			global::ValueType diff = outP->getValue(i) - outE.getValue(i);
+			const global::ValueType diff = outP->getValue(i) - outE.getValue(i);
 			sum += diff * diff;
 		}
 		return sum / n; // mean
@@ -97,7 +97,7 @@ global::ValueType Loss::MAE(const global::Tensor *outP, const global::Tensor &ou
 		return 0; // TODO: GPU implementation
 	} else {
 		global::ValueType sum = 0;
-		size_t n = outP->numElements();
+		const size_t n = outP->numElements();
 		for (size_t i = 0; i < n; ++i) {
 			sum += std::abs(outP->getValue(i) - outE.getValue(i));
 		}

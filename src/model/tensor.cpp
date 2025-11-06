@@ -431,8 +431,8 @@ Tensor &Tensor::operator/=(ValueType scalar) {
 }
 
 void Tensor::matmul(const Tensor &other, Tensor &result) const {
-	size_t M = shape[0];
-	size_t K = shape[1];
+	const size_t M = shape[0];
+	const size_t K = shape[1];
 
 	result.zero();
 
@@ -455,8 +455,8 @@ void Tensor::matmul(const Tensor &other, Tensor &result) const {
 }
 
 void Tensor::outer(const Tensor &a, const Tensor &b, Tensor &result) {
-	size_t m = a.shape[0];
-	size_t n = b.shape[0];
+	const size_t m = a.shape[0];
+	const size_t n = b.shape[0];
 
 	result.zero();
 

@@ -20,7 +20,7 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 0.01
+			"lr": 0.1
 		},
 		"loss": {
 			"type": "CCE"
@@ -32,7 +32,9 @@
 			"input size": 10,
 			"output size": 16,
 			"output activation": 4,
-			"layers": [{ "size": 50, "activationType": 1 }]
+			"layers": [
+                { "size": 8, "activationType": 1 }
+            ]
 		}
 	]
 }

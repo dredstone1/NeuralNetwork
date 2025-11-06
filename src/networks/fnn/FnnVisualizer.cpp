@@ -41,14 +41,14 @@ VisualDenseLayer::VisualDenseLayer(const std::uint32_t _width,
 void VisualDenseLayer::doCacheWeights() {
 	cachePrevNeurons.resize(parameters.prevSize());
 
-	float scale = getScaleFactor(parameters.prevSize());
-	float neuron_width_scaled = global::NEURON_WIDTH * scale;
+	const float scale = getScaleFactor(parameters.prevSize());
+	const float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
-	float gap = calculateGap(parameters.prevSize(), neuron_width_scaled);
-	float x = pos.x;
+	const float gap = calculateGap(parameters.prevSize(), neuron_width_scaled);
+	const float x = pos.x;
 
 	for (size_t neuron = 0; neuron < parameters.prevSize(); ++neuron) {
-		float y = neuron * (gap + neuron_width_scaled);
+		const float y = neuron * (gap + neuron_width_scaled);
 		cachePrevNeurons[neuron] = sf::FloatRect(
 		    sf::Vector2f(x, y),
 		    sf::Vector2f(neuron_width_scaled, neuron_width_scaled));
@@ -58,14 +58,14 @@ void VisualDenseLayer::doCacheWeights() {
 void VisualDenseLayer::doCacheNeurons() {
 	cacheNeurons.resize(net.numElements());
 
-	float scale = getScaleFactor(net.numElements());
-	float neuron_width_scaled = global::NEURON_WIDTH * scale;
+	const float scale = getScaleFactor(net.numElements());
+	const float neuron_width_scaled = global::NEURON_WIDTH * scale;
 
-	float gap = calculateGap(net.numElements(), neuron_width_scaled);
-	float x = pos.x + width - neuron_width_scaled;
+	const float gap = calculateGap(net.numElements(), neuron_width_scaled);
+	const float x = pos.x + width - neuron_width_scaled;
 
 	for (size_t neuron = 0; neuron < net.numElements(); ++neuron) {
-		float y = neuron * (gap + neuron_width_scaled);
+		const float y = neuron * (gap + neuron_width_scaled);
 		cacheNeurons[neuron] = sf::FloatRect(
 		    sf::Vector2f(x, y),
 		    sf::Vector2f(neuron_width_scaled, neuron_width_scaled));
@@ -73,7 +73,7 @@ void VisualDenseLayer::doCacheNeurons() {
 }
 
 float VisualDenseLayer::getScaleFactor(std::size_t neuron_count) {
-	float maxNeuronSpace = MODEL_HEIGHT - (neuron_count)*global::MIN_GAP;
+	const float maxNeuronSpace = MODEL_HEIGHT - (neuron_count)*global::MIN_GAP;
 
 	float neuronWidth = maxNeuronSpace / std::max<float>(neuron_count, 1);
 	neuronWidth = std::clamp(neuronWidth, global::MIN_NEURON_WIDTH,
@@ -91,9 +91,9 @@ void VisualDenseLayer::drawWeights(const size_t neuron_i,
 	for (size_t neuronP = 0; neuronP < parameters.prevSize(); neuronP++) {
 		sf::VertexArray line_(sf::PrimitiveType::LineStrip, 3);
 
-		sf::Vector2f from = getCenter(cachePrevNeurons[neuronP]);
-		sf::Vector2f to = getCenter(cacheNeurons[neuron_i]);
-		sf::Vector2f mid = (from + to) / 2.f;
+		const sf::Vector2f from = getCenter(cachePrevNeurons[neuronP]);
+		const sf::Vector2f to = getCenter(cacheNeurons[neuron_i]);
+		const sf::Vector2f mid = (from + to) / 2.f;
 
 		line_[0].position = from;
 		line_[1].position = mid;
@@ -266,8 +266,8 @@ void FnnVisualier::setWidth(const std::uint32_t newWidth) {
 	}
 
 	for (size_t i = 0; i < Layers.size(); ++i) {
-		float _width = visualWidth / Layers.size();
-		float offset = _width * i;
+		const float _width = visualWidth / Layers.size();
+		const float offset = _width * i;
 		Layers[i].setWidth(_width);
 		Layers[i].setPos({offset, 0});
 	}

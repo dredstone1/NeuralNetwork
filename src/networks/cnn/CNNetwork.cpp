@@ -70,12 +70,12 @@ std::vector<global::ValueType> CNNetwork::randomFilters() const {
  * @note The operation is performed for all filters and output positions
  */
 void CNNetwork::conv2d_cpu() {
-	Size size = getFeatureMapSize();
+	const Size size = getFeatureMapSize();
 
-	size_t filterCount = config.filterShape[2];
-	size_t filterW = config.filterShape[0];
-	size_t filterH = config.filterShape[1];
-	size_t filterChannel = config.filterShape[3];
+	const size_t filterCount = config.filterShape[2];
+	const size_t filterW = config.filterShape[0];
+	const size_t filterH = config.filterShape[1];
+	const size_t filterChannel = config.filterShape[3];
 
 	for (size_t f = 0; f < filterCount; ++f) {
 		for (size_t x = 0; x < size.w; ++x) {
@@ -98,7 +98,7 @@ void CNNetwork::conv2d_cpu() {
 }
 
 std::vector<size_t> CNNetwork::makeActivationMapShape() {
-	Size featureMapSize = getFeatureMapSize();
+	const Size featureMapSize = getFeatureMapSize();
 	return {featureMapSize.w, featureMapSize.h, config.filterShape[2]};
 }
 
@@ -122,11 +122,11 @@ void CNNetwork::forward(const global::Tensor &newInput) {
 	input.setData(newInput);
 
 	if (nn::global::Tensor::getGpuState()) {
-		size_t W = input.getShape()[0];
-		size_t H = input.getShape()[1];
-		size_t C = input.getShape()[2];
-		size_t F = config.filterShape[2];
-		size_t K = config.filterShape[0];
+		const size_t W = input.getShape()[0];
+		const size_t H = input.getShape()[1];
+		const size_t C = input.getShape()[2];
+		const size_t F = config.filterShape[2];
+		const size_t K = config.filterShape[0];
 
 		nn::global::tensor_gpu::conv2d_multi_channel(
 		    input.gpu_data, filtersW.gpu_data, filtersB.gpu_data,
@@ -163,7 +163,7 @@ void CNNetwork::backward(global::Tensor **outputDeltas,
 	activationDelta.setData(**outputDeltas);
 
 	if (nn::global::Tensor::getGpuState()) {
-		Size featureMapSize = getFeatureMapSize();
+		const Size featureMapSize = getFeatureMapSize();
 
 		nn::global::tensor_gpu::conv2d_multi_channel_backward_filter(
 		    input.gpu_data, activationDelta.gpu_data, filtersWGradient.gpu_data,
@@ -215,12 +215,12 @@ void CNNetwork::updateWeights(IOptimizer &optimizer) {
 }
 
 void CNNetwork::calculateFilterGradients(const global::ValueType weight) {
-	Size size = getFeatureMapSize();
+	const Size size = getFeatureMapSize();
 
-	size_t filterCount = config.filterShape[2];
-	size_t filterW = config.filterShape[0];
-	size_t filterH = config.filterShape[1];
-	size_t filterChannel = config.filterShape[3];
+	const size_t filterCount = config.filterShape[2];
+	const size_t filterW = config.filterShape[0];
+	const size_t filterH = config.filterShape[1];
+	const size_t filterChannel = config.filterShape[3];
 
 	for (size_t f = 0; f < filterCount; ++f) {
 		for (size_t c = 0; c < filterChannel; ++c) {
@@ -230,10 +230,11 @@ void CNNetwork::calculateFilterGradients(const global::ValueType weight) {
 
 					for (size_t x = 0; x < size.w; ++x) {
 						for (size_t y = 0; y < size.h; ++y) {
-							global::ValueType inputValue =
+							const global::ValueType inputValue =
 							    input.getValue({x + i, y + j, c});
-							global::ValueType deltaValue =
+							const global::ValueType deltaValue =
 							    activationDelta.getValue({x, y, f});
+
 							gradient += inputValue * deltaValue * weight;
 						}
 					}
@@ -246,8 +247,8 @@ void CNNetwork::calculateFilterGradients(const global::ValueType weight) {
 }
 
 void CNNetwork::calculateBiasGradients(const global::ValueType weight) {
-	Size size = getFeatureMapSize();
-	size_t filterCount = config.filterShape[2];
+	const Size size = getFeatureMapSize();
+	const size_t filterCount = config.filterShape[2];
 
 	for (size_t f = 0; f < filterCount; ++f) {
 		global::ValueType biasGradient = 0.0f;
@@ -263,12 +264,12 @@ void CNNetwork::calculateBiasGradients(const global::ValueType weight) {
 }
 
 void CNNetwork::calculateInputDelta(const global::Tensor &deltas) {
-	Size size = getFeatureMapSize();
+	const Size size = getFeatureMapSize();
 
-	size_t filterCount = config.filterShape[2];
-	size_t filterW = config.filterShape[0];
-	size_t filterH = config.filterShape[1];
-	size_t filterChannel = config.filterShape[3];
+	const size_t filterCount = config.filterShape[2];
+	const size_t filterW = config.filterShape[0];
+	const size_t filterH = config.filterShape[1];
+	const size_t filterChannel = config.filterShape[3];
 
 	for (size_t x = 0; x < input.getShape()[0]; ++x) {
 		for (size_t y = 0; y < input.getShape()[1]; ++y) {
@@ -281,8 +282,8 @@ void CNNetwork::calculateInputDelta(const global::Tensor &deltas) {
 							if (x < i || y < j)
 								continue;
 
-							size_t fm_x = x - i;
-							size_t fm_y = y - j;
+							const size_t fm_x = x - i;
+							const size_t fm_y = y - j;
 
 							if (fm_x < size.h && fm_y < size.w) {
 								global::ValueType filterValue =
@@ -317,7 +318,7 @@ std::vector<global::ValueType> CNNetwork::getParams() const {
 }
 
 void CNNetwork::setParams(const global::Tensor &params) {
-	size_t totalParams = filtersW.numElements() + filtersB.numElements();
+	const size_t totalParams = filtersW.numElements() + filtersB.numElements();
 
 	if (params.numElements() != totalParams) {
 		return;

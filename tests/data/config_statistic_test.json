@@ -10,7 +10,7 @@
 	},
 	"training config": {
 		"batch size": 2,
-		"batch count": 100000,
+		"batch count": 10000000,
 		"optimizer": {
 			"type": "const",
 			"lr": 0.001
@@ -23,11 +23,10 @@
 		{
 			"type": "FNN",
 			"input size": 3,
-			"output size": 1,
+			"output size": 3,
 			"output activation": 1,
 			"layers": [
-                { "size": 10, "activationType": 0 },
-                { "size": 3, "activationType": 0 }
+                { "size": 5, "activationType": 1 }
             ]
 		}
 	]
