@@ -1,7 +1,7 @@
 {
 	"visual config": {
 		"enable visual": true,
-		"enable network visual": true,
+		"enable network visual": false,
 		"modes": [
 			{ "state": "pause", "mode": false },
 			{ "state": "precise mode", "mode": false },
@@ -10,7 +10,7 @@
 	},
 	"training config": {
 		"batch size": 5,
-		"batch count": 2000000,
+		"batch count": 200000,
 		"auto save": {
 			"saveEvery": 100000,
 			"dataFilenameAutoSave": "test.txt"
@@ -20,7 +20,7 @@
 		},
 		"optimizer": {
 			"type": "const",
-			"lr": 0.01
+			"lr": 0.1
 		},
 		"loss": {
 			"type": "CCE"
@@ -33,7 +33,7 @@
 			"output size": 16,
 			"output activation": 4,
 			"layers": [
-                { "size": 5, "activationType": 1 }
+                { "size": 10, "activationType": 1 }
             ]
 		}
 	]

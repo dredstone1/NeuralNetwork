@@ -237,21 +237,23 @@ void DataBase::load(const std::vector<std::string> &db_filenames) {
 
 TrainSample DataBase::getSample(const size_t i) {
 	TrainSample newSample;
-	newSample.weight = samples.samples[i].weight;
-	newSample.index = samples.samples[i].index;
-
-	newSample.out = samples.samples[i].out;
-
-	// copy input shape and strides
-	newSample.input.shape = samples.samples[i].input.shape;
-	newSample.input.strides = samples.samples[i].input.strides;
-
-	// copy GPU or CPU data depending on global state
-	if (nn::global::Tensor::getGpuState()) {
-		newSample.input.gpu_data = samples.samples[i].input.gpu_data;
-	} else {
-		newSample.input.cpu_data = samples.samples[i].input.cpu_data;
-	}
+	// printf("checking2\n");
+	// newSample.weight = samples.samples[i].weight;
+	// newSample.index = samples.samples[i].index;
+	//
+	// newSample.out = samples.samples[i].out;
+	//
+	// // copy input shape and strides
+	// newSample.input.shape = samples.samples[i].input.shape;
+	// newSample.input.strides = samples.samples[i].input.strides;
+	//
+	// // copy GPU or CPU data depending on global state
+	// if (nn::global::Tensor::getGpuState()) {
+	// 	newSample.input.gpu_data = samples.samples[i].input.gpu_data;
+	// } else {
+	// 	newSample.input.cpu_data = samples.samples[i].input.cpu_data;
+	// }
+	newSample = samples.samples[i];
 	return newSample;
 }
 

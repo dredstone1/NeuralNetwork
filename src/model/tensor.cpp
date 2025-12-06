@@ -243,6 +243,9 @@ void Tensor::setData(const Tensor &other) {
 }
 
 void Tensor::fill(const ValueType &value) {
+	if (numElements() == 0)
+		return;
+
 	if (isGpu) {
 		// GPU mode: zero first, then add scalar
 		tensor_gpu::zero(gpu_data, gpu_data_size);

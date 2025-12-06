@@ -75,14 +75,14 @@ void printVector(const nn::global::Tensor &vec) {
 
 int main(int argc, char *argv[]) {
 	size_t input_size = 10;
-	nn::global::Tensor::toCpu();
+	nn::global::Tensor::toGpu();
 	std::string config_FN = tests::appendToBase("config-binary_test.json");
 	nn::model::Model model(config_FN);
 
 	if (argc > 1 && std::string(argv[1]) == "l") {
 		model.load("test.txt");
 	} else {
-		model.load("test.txt");
+		// model.load("test.txt");
 		std::vector<std::string> files{"../tests/data/database-binary_test", "../tests/data/database-binary_test"};
 		nn::model::DataBase dbt;
 		dbt.load(files);
