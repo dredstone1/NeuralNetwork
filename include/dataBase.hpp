@@ -32,7 +32,14 @@ struct TrainSample {
 	 * @param sampleInputSize  Number of input features.
 	 */
 	TrainSample(const size_t sampleInputSize)
-	    : input({sampleInputSize}, 0) {
+	    : input({sampleInputSize}) {
+	}
+
+	TrainSample(const TrainSample &other) : input(other.input) {
+		weight = other.weight;
+		out = other.out;
+		index = other.index;
+		f_d = other.f_d;
 	}
 
 	/**
