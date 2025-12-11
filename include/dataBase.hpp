@@ -24,10 +24,11 @@ struct TrainSample {
 
 	global::Tensor *out = nullptr;
 	size_t index = 0;
-	bool f_d{false};
+	bool f_d{false}; // flag indicating whether `out` should be deleted at the end
 
 	/**
-	 * brief Construct a training sample with given input/output sizes.
+	 * @brief Construct a training sample with given input/output sizes.
+	 *
 	 * @param sampleOutputSize Number of expected output values.
 	 * @param sampleInputSize  Number of input features.
 	 */
@@ -35,11 +36,27 @@ struct TrainSample {
 	    : input({sampleInputSize}) {
 	}
 
-	TrainSample(const TrainSample &other) : input(other.input) {
+	/**
+	 * @brief Copy constructor with optional deep copy of the `out` tensor.
+	 *
+	 * If `duplicateOut` is true, the constructor performs a deep copy of the
+	 * `other.out` tensor and sets `f_d` so the new object takes ownership and deletes
+	 * it in the destructor. If false, the pointer is shallow-copied and ownership is
+	 * not transferred.
+	 *
+	 * @param other         The source TrainSample to copy from.
+	 * @param duplicateOut  Whether to deep-copy the `out` tensor.
+	 */
+	TrainSample(const TrainSample &other, const bool duplicateOut) : input(other.input) {
 		weight = other.weight;
-		out = other.out;
 		index = other.index;
-		f_d = other.f_d;
+		if (duplicateOut) {
+			out = new global::Tensor(*other.out);
+			f_d = true;
+		} else {
+			out = other.out;
+			f_d = false;
+		}
 	}
 
 	/**

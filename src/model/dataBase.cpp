@@ -235,7 +235,7 @@ void DataBase::load(const std::vector<std::string> &db_filenames) {
 }
 
 TrainSample DataBase::getSample(const size_t i) {
-	return TrainSample(samples.samples[i]);
+	return TrainSample(samples.samples[i], false);
 }
 
 } // namespace nn::model

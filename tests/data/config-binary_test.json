@@ -1,7 +1,7 @@
 {
 	"visual config": {
 		"enable visual": true,
-		"enable network visual": false,
+		"enable network visual": true,
 		"modes": [
 			{ "state": "pause", "mode": false },
 			{ "state": "precise mode", "mode": false },
@@ -33,7 +33,7 @@
 			"output size": 16,
 			"output activation": 4,
 			"layers": [
-                { "size": 10, "activationType": 1 }
+                { "size": 20, "activationType": 1 }
             ]
 		}
 	]
