@@ -96,15 +96,17 @@ int main(int argc, char *argv[]) {
 	while (num1 != -1) {
 		std::cout << "Enter an integer 1: ";
 		std::getline(std::cin, str_num);
+
+		if (str_num.length() == 2 && str_num[0] == '-' && str_num[1] == '1') {
+			break;
+		}
+
 		if (!isNumber(str_num)) {
 			std::cout << str_num << " is not a number, please enter a valid integer\n";
 			continue;
 		}
 
 		num1 = std::stoi(str_num);
-		if (num1 == -1) {
-			break;
-		}
 
 		int binary = int_to_binary(num1);
 		std::cout << "binary: " << binary << std::endl;

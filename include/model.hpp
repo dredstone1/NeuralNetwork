@@ -25,23 +25,23 @@ const std::string LOADING_DATA_HEADER = "Loading parameters from: ";
 /**
  * @struct Prediction
  * @brief Represents a prediction result from the neural network
- * 
+ *
  * This structure holds the result of a neural network prediction, including
  * both the predicted class index and the confidence value associated with
  * that prediction.
- * 
+ *
  * @var size_t index The index of the predicted class
  * @var ValueType value The confidence value or probability for this prediction
  */
 struct Prediction {
-	size_t index;                    ///< The predicted class index (0-based)
-	global::ValueType value;         ///< The confidence value for this prediction
-	
+	size_t index;            ///< The predicted class index (0-based)
+	global::ValueType value; ///< The confidence value for this prediction
+
 	/**
 	 * @brief Default constructor - creates a prediction with zero values
 	 */
 	Prediction() : index(0), value(0) {}
-	
+
 	/**
 	 * @brief Parameterized constructor - creates a prediction with specified values
 	 * @param index_ The predicted class index
@@ -54,9 +54,10 @@ struct Prediction {
 
 struct Batch {
 	std::vector<size_t> samples;
-	Batch(const size_t length) { samples.resize(length); }
+	explicit Batch(size_t length) : samples(length) {}
+	Batch() = default;
 	~Batch() = default;
-	size_t size() const { return samples.size(); }
+	size_t size() const noexcept { return samples.size(); }
 };
 
 /**

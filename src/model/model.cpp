@@ -9,7 +9,6 @@
 #include <iostream>
 #include <model.hpp>
 #include <random>
-#include <vector>
 
 namespace nn::model {
 
@@ -287,13 +286,14 @@ void Model::trainModel(DataBase &trainedDataBase, DataBase &evaluateDataBase) {
 
 	std::vector<Batch> batches;
 	generateBatches(trainedDataBase, batches);
-	size_t currentBatch;
+	size_t currentBatch = 0;
 
 	visual.updateLearningRate(learningRate);
 	setTraining();
 	bar = batchCounter;
 
-	for (; batchCounter < config.trainingConfig.getBatchCount() + 1; ++batchCounter) {
+	for (; batchCounter < config.trainingConfig.getBatchCount() + 1;
+	     ++batchCounter) {
 		++bar;
 		bar.printBar();
 
@@ -408,7 +408,8 @@ void Model::save(const std::string &file, const bool print) {
 void Model::load(const std::string &file, bool print) {
 	std::ifstream inFile(file);
 	if (!inFile) {
-		throw std::runtime_error("Error: Could not open file \"" + file + "\" for reading.");
+		throw std::runtime_error("Error: Could not open file \"" + file +
+		                         "\" for reading.");
 	}
 
 	std::string line;
@@ -421,7 +422,8 @@ void Model::load(const std::string &file, bool print) {
 			    "Error in file \"" + file + "\": too many sub-networks. "
 			                                "Expected " +
 			    std::to_string(network.size()) +
-			    " but found more (at line " + std::to_string(networkI + 1) + ").");
+			    " but found more (at line " +
+			    std::to_string(networkI + 1) + ").");
 		}
 
 		std::istringstream iss(line);
@@ -472,7 +474,8 @@ void Model::load(const std::string &file, bool print) {
 		    "Error in file \"" + file + "\": file ended prematurely. "
 		                                "Expected " +
 		    std::to_string(network.size()) +
-		    " sub-networks, but only " + std::to_string(networkI) + " were provided.");
+		    " sub-networks, but only " + std::to_string(networkI) +
+		    " were provided.");
 	}
 
 	if (print) {

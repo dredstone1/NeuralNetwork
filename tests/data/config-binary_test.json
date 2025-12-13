@@ -10,7 +10,7 @@
 	},
 	"training config": {
 		"batch size": 5,
-		"batch count": 200000,
+		"batch count": 1000,
 		"auto save": {
 			"saveEvery": 100000,
 			"dataFilenameAutoSave": "test.txt"
