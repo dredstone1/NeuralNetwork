@@ -77,7 +77,7 @@ struct modelResult {
  */
 class Model {
   private:
-	const Config config;
+	 Config config;
 
 	std::vector<std::unique_ptr<INetwork>> network;
 	visualizer::VisualManager visual;

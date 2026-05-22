@@ -3,6 +3,7 @@
 
 #include "activations.hpp"
 #include "loss_function.hpp"
+#include "tensor_gpu.hpp"
 #include <nlohmann/json.hpp>
 #include <vector>
 
@@ -12,6 +13,7 @@ class IOptimizerConfig {
   public:
 	virtual void fromJson(const nlohmann::json &j) = 0;
 	virtual global::ValueType getLearningRate() const = 0;
+	virtual void setLearningRate(const global::ValueType newlr)  = 0;
 
 	virtual ~IOptimizerConfig() = default;
 };
@@ -24,6 +26,7 @@ class ConstantOptimizerConfig : public IOptimizerConfig {
 	ConstantOptimizerConfig(const nlohmann::json &j) { fromJson(j); }
 	void fromJson(const nlohmann::json &j) override;
 	global::ValueType getLearningRate() const override { return learningRate; }
+	void setLearningRate(const global::ValueType newLR) override { learningRate = newLR; }
 
 	~ConstantOptimizerConfig() = default;
 };
@@ -138,6 +141,10 @@ class TrainingConfig {
 
 	global::ValueType getLearningRate() const {
 		return optimizer->getLearningRate();
+	}
+
+	void setLearningRate(const global::ValueType newLR) const {
+		optimizer->setLearningRate(newLR);
 	}
 
 	const std::unique_ptr<IOptimizerConfig> &getOptimizer() const {

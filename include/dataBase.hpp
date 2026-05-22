@@ -24,7 +24,7 @@ struct TrainSample {
 
 	global::Tensor *out = nullptr;
 	size_t index = 0;
-	bool f_d{false}; // flag indicating whether `out` should be deleted at the end
+	bool f_d{false}; // flag indicating whether `out` should be deleted at the end (Flag Delete)
 
 	/**
 	 * @brief Construct a training sample with given input/output sizes.
@@ -50,13 +50,17 @@ struct TrainSample {
 	TrainSample(const TrainSample &other, const bool duplicateOut) : input(other.input) {
 		weight = other.weight;
 		index = other.index;
-		if (duplicateOut) {
-			out = new global::Tensor(*other.out);
-			f_d = true;
-		} else {
-			out = other.out;
-			f_d = false;
-		}
+	    f_d = duplicateOut;
+
+        if (!other.out) {
+            return;
+        }
+
+        if (duplicateOut) {
+            out = new global::Tensor(*(other.out));
+        } else {
+            out = other.out;
+        }
 	}
 
 	/**

@@ -299,6 +299,12 @@ void Model::trainModel(DataBase &trainedDataBase, DataBase &evaluateDataBase) {
 
 		visual.updateBatchCounter(batchCounter);
 
+        if (batchCounter == 50000) {
+            learningRate = 0.1;
+            config.trainingConfig.setLearningRate(0.1);
+        }
+
+
 		Batch &batch = getBatch(trainedDataBase, currentBatch, batches);
 		error = runBackPropagation(batch, trainedDataBase, true);
 		visual.updateLoss(error, batchCounter);

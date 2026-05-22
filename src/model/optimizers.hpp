@@ -2,7 +2,6 @@
 #define OPTIMIZERS
 
 #include "config.hpp"
-#include <cmath>
 
 namespace nn::model {
 
